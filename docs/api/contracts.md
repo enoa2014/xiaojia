@@ -17,6 +17,18 @@
 - 错误码集合：`E_AUTH, E_PERM, E_VALIDATE, E_NOT_FOUND, E_CONFLICT, E_RATE_LIMIT, E_DEPENDENCY, E_INTERNAL, E_ACTION, E_ARG`
 - 前端处理建议见《error-codes.md》
 
+## 云函数清单总览（域与职责）
+- patients：患者与家庭档案（列表/详情/创建/编辑、去重）。
+- tenancies：入住与退住（创建/更新/查询、床位冲突检测入口）。
+- services：服务记录（创建/列表/审核流转、图片）。
+- activities：活动（创建/更新/列表）。
+- registrations：报名（报名/取消/签到、幂等）。
+- permissions：字段级权限申请/审批；数据可见性由各域统一过滤。
+- users：基础资料/角色信息。
+- stats：月度/年度统计（预聚合/聚合接口）。
+- exports：导出任务创建与状态轮询（临时下载链接）。
+- init-db：一次性创建集合；import-xlsx：从 COS 导入 b.xlsx。
+
 ## 模块与函数（当前实现与MVP目标）
 
 ### patients（已实现：list）
@@ -101,3 +113,38 @@ wx.cloud.callFunction({ name: 'patients', data: { action: 'list', payload: { pag
   - 错误：缺少 fileID → `E_ARG`；不支持的 action → `E_ACTION`
   - 校验摘要：`fileID` 必填且为合法 COS 路径；对行数据执行日期标准化、手机号/身份证提取、空值处理；
     患者按 `id_card` 去重入库；入住记录允许缺失 `patientId`（后续回填）。
+
+## 约定细则：事件与响应 Schema
+- 事件（Event）：`{ action: string, payload?: any, clientToken?: string }`
+- 响应（Response）：
+  - 成功：`{ ok: true, data: any }`
+  - 失败：`{ ok: false, error: { code: string, msg: string, details?: any } }`
+- 元信息（建议）：列表类接口可在 `data` 内包含 `items` 与 `meta: { total?, hasMore? }`。
+
+## 分页 / 过滤 / 排序 规范细化
+- 分页：`page >= 1`，`pageSize in [10,100]`；超界时钳制到边界。
+- 过滤（按域约定）：
+  - patients：`name` 前缀匹配、`id_card_tail` 精确匹配、`createdAt` 范围。
+  - tenancies/services：`patientId` 精确、`date/checkInDate` 范围、`status/type` 枚举。
+  - activities：`status` 枚举、`date` 范围；registrations：`activityId|userId` 精确。
+- 排序：Object 形式，如 `{ createdAt: -1 }`；方向 `1|-1`；未指定时按推荐索引字段降序。
+- 示例：
+```json
+{
+  "filter": { "name": "张", "createdAt": { "from": "2025-01-01", "to": "2025-12-31" } },
+  "page": 1,
+  "pageSize": 20,
+  "sort": { "createdAt": -1 }
+}
+```
+
+## 幂等 / 重试 / 回退 策略
+- 幂等：所有“创建/导出”类接口支持 `clientToken` 幂等去重；同一 token 重复提交返回相同结果。
+- 客户端重试建议：
+  - 不重试：`E_VALIDATE`、`E_CONFLICT`、`E_PERM`、`E_AUTH`（应引导修正/登录/申请权限）。
+  - 可重试：`E_RATE_LIMIT`、`E_DEPENDENCY`、`E_INTERNAL` 使用指数退避（初始 500ms，×2，最大 10s，含 20–30% 抖动，重试 ≤ 3 次）。
+  - 轮询：导出任务 `export.status` 每 2–4s；超时则提示稍后再试。
+- 回退：
+  - 列表失败展示空态与重试按钮；
+  - 创建失败保留本地草稿（服务记录/表单）；
+  - 关键路径提供“联系我们/反馈”入口并附上 `requestId`。

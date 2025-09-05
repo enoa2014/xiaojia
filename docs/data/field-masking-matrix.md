@@ -31,3 +31,10 @@ filterByRole(userRole, fieldsRequested, approvalContext) => sanitizedData
 - 审批条件：服务需要/合法合规说明/最小授权原则
 - 有效期：默认 30 天，可申请缩短/延长
 
+## API 合同与错误码规范（补充）
+- 云函数清单：patients / tenancies / services / activities / registrations / permissions / users / stats / exports（以及初始化 init-db、导入 import-xlsx）。
+- 事件包：`{ action, payload?, clientToken? }`；响应：`{ ok:true, data } | { ok:false, error:{ code,msg,details? } }`。
+- 分页/过滤/排序：`page(>=1)`、`pageSize(1..100)`；过滤字段与数据字典一致（姓名前缀/证件尾4位、日期范围）；排序 `{ createdAt: -1 }`。
+- 幂等：创建/导出类接口要求 `clientToken` 去重；敏感操作写入 `AuditLogs`。
+- 错误码与处理：见 `docs/api/error-codes.md`；`E_VALIDATE/E_CONFLICT` 不重试；`E_RATE_LIMIT/E_DEPENDENCY/E_INTERNAL` 指数退避重试；`E_AUTH/E_PERM` 走登录或权限申请。
+- 详细合同：见 `docs/api/contracts.md`（各 action 入参与出参 schema 与校验摘要）。
