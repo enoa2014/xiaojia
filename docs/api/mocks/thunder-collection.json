@@ -1,0 +1,143 @@
+{
+  "client": "Thunder Client",
+  "collectionName": "Miniapp Cloud Functions (Prototype)",
+  "dateExported": "2025-09-05T00:00:00Z",
+  "version": "1.1",
+  "folders": [],
+  "requests": [
+    {
+      "_id": "req-patients-list",
+      "colId": "col-miniapp",
+      "containerId": "",
+      "name": "patients.list",
+      "url": "{{BASE_URL}}/patients",
+      "method": "POST",
+      "sortNum": 10,
+      "created": "2025-09-05T00:00:00Z",
+      "modified": "2025-09-05T00:00:00Z",
+      "headers": [{"name":"content-type","value":"application/json"}],
+      "params": [],
+      "body": {"type":"json","raw":"{\n  \"action\": \"list\",\n  \"payload\": { \"page\": 1, \"pageSize\": 20 }\n}"}
+    },
+    {
+      "_id": "req-patients-create",
+      "colId": "col-miniapp",
+      "name": "patients.create",
+      "url": "{{BASE_URL}}/patients",
+      "method": "POST",
+      "sortNum": 20,
+      "headers": [{"name":"content-type","value":"application/json"}],
+      "body": {"type":"json","raw":"{\n  \"action\": \"create\",\n  \"payload\": {\n    \"patient\": { \"name\": \"张三\", \"id_card\": \"1101...1234\", \"phone\": \"13800000000\" },\n    \"clientToken\": \"pt-16939-001\"\n  }\n}"}
+    },
+    {
+      "_id": "req-tenancies-create",
+      "colId": "col-miniapp",
+      "name": "tenancies.create",
+      "url": "{{BASE_URL}}/tenancies",
+      "method": "POST",
+      "sortNum": 30,
+      "headers": [{"name":"content-type","value":"application/json"}],
+      "body": {"type":"json","raw":"{\n  \"action\": \"create\",\n  \"payload\": {\n    \"tenancy\": { \"patientId\": \"p1\", \"checkInDate\": \"2025-09-05\" },\n    \"clientToken\": \"tn-16939-001\"\n  }\n}"}
+    },
+    {
+      "_id": "req-services-create",
+      "colId": "col-miniapp",
+      "name": "services.create",
+      "url": "{{BASE_URL}}/services",
+      "method": "POST",
+      "sortNum": 40,
+      "headers": [{"name":"content-type","value":"application/json"}],
+      "body": {"type":"json","raw":"{\n  \"action\": \"create\",\n  \"payload\": {\n    \"service\": { \"patientId\": \"p1\", \"type\": \"visit\", \"date\": \"2025-09-05\", \"desc\": \"随访\" },\n    \"clientToken\": \"sv-16939-001\"\n  }\n}"}
+    },
+    {
+      "_id": "req-services-review",
+      "colId": "col-miniapp",
+      "name": "services.review",
+      "url": "{{BASE_URL}}/services",
+      "method": "POST",
+      "sortNum": 50,
+      "headers": [{"name":"content-type","value":"application/json"}],
+      "body": {"type":"json","raw":"{ \n  \"action\": \"review\", \n  \"payload\": { \"id\": \"s1\", \"decision\": \"approved\" }\n}"}
+    },
+    {
+      "_id": "req-activities-create",
+      "colId": "col-miniapp",
+      "name": "activities.create",
+      "url": "{{BASE_URL}}/activities",
+      "method": "POST",
+      "sortNum": 60,
+      "headers": [{"name":"content-type","value":"application/json"}],
+      "body": {"type":"json","raw":"{ \n  \"action\": \"create\", \n  \"payload\": { \"activity\": { \"title\": \"亲子手工\", \"date\": \"2025-09-09\", \"capacity\": 20, \"status\": \"open\" } }\n}"}
+    },
+    {
+      "_id": "req-registrations-register",
+      "colId": "col-miniapp",
+      "name": "registrations.register",
+      "url": "{{BASE_URL}}/registrations",
+      "method": "POST",
+      "sortNum": 70,
+      "headers": [{"name":"content-type","value":"application/json"}],
+      "body": {"type":"json","raw":"{ \n  \"action\": \"register\", \n  \"payload\": { \"activityId\": \"a1\" }\n}"}
+    },
+    {
+      "_id": "req-registrations-cancel",
+      "colId": "col-miniapp",
+      "name": "registrations.cancel",
+      "url": "{{BASE_URL}}/registrations",
+      "method": "POST",
+      "sortNum": 80,
+      "headers": [{"name":"content-type","value":"application/json"}],
+      "body": {"type":"json","raw":"{ \n  \"action\": \"cancel\", \n  \"payload\": { \"activityId\": \"a1\" }\n}"}
+    },
+    {
+      "_id": "req-registrations-checkin",
+      "colId": "col-miniapp",
+      "name": "registrations.checkin",
+      "url": "{{BASE_URL}}/registrations",
+      "method": "POST",
+      "sortNum": 90,
+      "headers": [{"name":"content-type","value":"application/json"}],
+      "body": {"type":"json","raw":"{ \n  \"action\": \"checkin\", \n  \"payload\": { \"activityId\": \"a1\", \"userId\": \"u1\" }\n}"}
+    },
+    {
+      "_id": "req-permissions-request-submit",
+      "colId": "col-miniapp",
+      "name": "permissions.request.submit",
+      "url": "{{BASE_URL}}/permissions",
+      "method": "POST",
+      "sortNum": 100,
+      "headers": [{"name":"content-type","value":"application/json"}],
+      "body": {"type":"json","raw":"{ \n  \"action\": \"request.submit\", \n  \"payload\": { \"fields\":[\"id_card\",\"phone\"], \"patientId\": \"p1\", \"reason\": \"跟进需要\" }\n}"}
+    },
+    {
+      "_id": "req-stats-monthly",
+      "colId": "col-miniapp",
+      "name": "stats.monthly",
+      "url": "{{BASE_URL}}/stats",
+      "method": "POST",
+      "sortNum": 110,
+      "headers": [{"name":"content-type","value":"application/json"}],
+      "body": {"type":"json","raw":"{ \n  \"action\": \"monthly\", \n  \"payload\": { \"month\": \"2025-09\", \"scope\": \"services\" }\n}"}
+    },
+    {
+      "_id": "req-export-create",
+      "colId": "col-miniapp",
+      "name": "export.create",
+      "url": "{{BASE_URL}}/exports",
+      "method": "POST",
+      "sortNum": 120,
+      "headers": [{"name":"content-type","value":"application/json"}],
+      "body": {"type":"json","raw":"{ \n  \"action\": \"create\", \n  \"payload\": { \"type\": \"statsMonthly\", \"params\": { \"month\": \"2025-09\" }, \"clientToken\": \"ex-16939-001\" }\n}"}
+    },
+    {
+      "_id": "req-export-status",
+      "colId": "col-miniapp",
+      "name": "export.status",
+      "url": "{{BASE_URL}}/exports",
+      "method": "POST",
+      "sortNum": 130,
+      "headers": [{"name":"content-type","value":"application/json"}],
+      "body": {"type":"json","raw":"{ \n  \"action\": \"status\", \n  \"payload\": { \"taskId\": \"task-001\" }\n}"}
+    }
+  ]
+}
