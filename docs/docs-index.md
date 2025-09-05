@@ -34,6 +34,8 @@
     - Owner: PO；Reviewer: QA/前端/后端；频率: 每迭代
   - docs/backlog/definition-of-ready-done.md：DoR/DoD 就绪/完成定义
     - Owner: PO；Reviewer: QA；频率: 变更较少（按需）
+  - docs/backlog/epics/README.md：Epic 索引与分片（EP-01..06）
+    - Owner: PO；Reviewer: 架构/后端/前端/QA；频率: 迭代规划时
 
 - API
   - docs/api/contracts.md：云函数/API 契约（I/O/分页/错误码）
