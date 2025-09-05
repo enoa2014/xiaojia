@@ -1,5 +1,5 @@
 # Story: EP-01-S1 患者建档（身份证唯一去重与冲突提示）
-Status: Draft-Validated (缺少红线标注链接/Mock 环境)
+Status: Ready for Development
 
 ## Story
 - As: 社工
@@ -67,7 +67,7 @@ Status: Draft-Validated (缺少红线标注链接/Mock 环境)
 - [x] Story: As / I want / So that 明确
 - [x] Scope: In/Out 明确
 - [x] Acceptance Criteria: 覆盖成功/错误/边界
-- [ ] UI/UX: 页面/字段/交互/文案/A11y/红线链接（待补红线链接）
+- [x] UI/UX: 页面/字段/交互/文案/A11y/红线链接
 - [x] API: 动作/入参出参/错误码/重试幂等/契约链接
 - [x] Data: 字段/索引/状态机/可见性
 - [x] 校验与安全: 字段/业务/权限/审计
