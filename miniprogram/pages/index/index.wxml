@@ -1,15 +1,78 @@
 
-<view class="nav">助医小家 · 工作台</view>
-<view class="card">
-  <view>ENV：cloud1-3grb87gwaba26b64</view>
-  <view style="margin:8px 0;">最近患者（示例调用 patients.list ）</view>
-  <button class="btn" bindtap="loadPatients">加载列表</button>
+<view class="nav-header">
+  <view class="brand">🏠 小家服务中心</view>
+  <view class="toolbar">
+    <text class="tool" bindtap="wip">🔔</text>
+    <text class="tool" bindtap="wip">💬</text>
+    <text class="tool" bindtap="wip">⚙️</text>
+  </view>
+  
 </view>
-<view class="card">
-  <block wx:for="{list}" wx:key="_id">
-    <view>{item.name}（{item.id_card_tail || '--'}）</view>
+
+<view class="user-status">
+  <view class="identity">
+    <view class="avatar">👩‍💼</view>
+    <view class="meta">
+      <view class="name">{{user.name}}（{{user.roleName}}）</view>
+      <view class="perm">权限：<text class="ok">{{user.permText}}</text></view>
+    </view>
+  </view>
+  <view class="work">
+    <view class="today">今日：{{user.todayDone}}/{{user.todayTotal}}</view>
+    <view class="time">{{user.now}}</view>
+  </view>
+</view>
+
+<view class="quick-actions">
+  <block wx:for="{{actions}}" wx:key="key">
+    <view class="action-card" bindtap="onAction" data-key="{{item.key}}">
+      <view class="icon">{{item.icon}}</view>
+      <view class="title">{{item.title}}</view>
+      <view class="subtitle">{{item.subtitle}}</view>
+    </view>
   </block>
-  <block wx:if="{list.length===0}">
-    <view>暂无数据（先初始化集合再尝试）</view>
-  </block>
+</view>
+
+<view class="data-overview">
+  <view class="section-title">本月概况</view>
+  <scroll-view scroll-x class="stats-container">
+    <block wx:for="{{stats}}" wx:key="key">
+      <view class="stats-card">
+        <view class="label">{{item.label}}</view>
+        <view class="value">{{item.value}}</view>
+        <view class="trend">{{item.trend}}</view>
+      </view>
+    </block>
+  </scroll-view>
+  
+</view>
+
+<view class="task-reminders">
+  <view class="task-header">
+    <view>📋 待办事项 ({{tasks.length}})</view>
+    <view class="link" bindtap="wip">查看全部 〉</view>
+  </view>
+  <view class="task-list">
+    <block wx:for="{{tasks}}" wx:key="id">
+      <view class="task-item" style="--priority-color: {{item.color}};">
+        <view class="task-title">{{item.title}}</view>
+        <view class="task-desc">{{item.desc}}</view>
+      </view>
+    </block>
+  </view>
+</view>
+
+<view class="recent-updates">
+  <view class="task-header">
+    <view>🕐 最新动态</view>
+    <view class="link" bindtap="wip">查看更多 〉</view>
+  </view>
+  <view class="timeline-container">
+    <block wx:for="{{updates}}" wx:key="id">
+      <view class="timeline-item">
+        <view class="time">{{item.time}}</view>
+        <view class="text">{{item.text}}</view>
+      </view>
+    </block>
+  </view>
 </view>

@@ -1,1 +1,6 @@
-{ "desc": "generated", "rules": [] }
+{
+  "desc": "auto generated",
+  "rules": [
+    { "action": "allow", "page": "*" }
+  ]
+}
