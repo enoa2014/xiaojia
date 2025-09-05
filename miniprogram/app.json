@@ -2,7 +2,8 @@
 {
   "pages": [
     "pages/index/index",
-    "pages/patients/form"
+    "pages/patients/form",
+    "pages/tenancies/form"
   ],
   "window": {
     "navigationBarTitleText": "助医小家",

@@ -1,0 +1,45 @@
+<view class="page">
+  <view class="section">
+    <text class="label">患者ID（可选）</text>
+    <input class="input" placeholder="patientId 或留空改填身份证" value="{{patientId}}" bindinput="onPatientId" />
+  </view>
+  <view class="section">
+    <text class="label">身份证（可选）</text>
+    <input class="input" placeholder="用于匹配患者（与ID二选一）" value="{{id_card}}" bindinput="onIdCard" />
+    <text class="error" wx:if="{{errors.identity}}">{{errors.identity}}</text>
+  </view>
+  <view class="section">
+    <text class="label">入住日期</text>
+    <picker mode="date" value="{{checkInDate}}" bindchange="onCheckInDate">
+      <view class="picker">{{checkInDate || '选择入住日期'}}</view>
+    </picker>
+    <text class="error" wx:if="{{errors.checkInDate}}">{{errors.checkInDate}}</text>
+  </view>
+  <view class="section">
+    <text class="label">退住日期（可选）</text>
+    <picker mode="date" value="{{checkOutDate}}" bindchange="onCheckOutDate">
+      <view class="picker">{{checkOutDate || '选择退住日期'}}</view>
+    </picker>
+    <text class="error" wx:if="{{errors.checkOutDate}}">{{errors.checkOutDate}}</text>
+  </view>
+  <view class="row">
+    <view class="col">
+      <text class="label">房间（可选）</text>
+      <input class="input" value="{{room}}" bindinput="e=>setData({room:e.detail.value})" />
+    </view>
+    <view class="col">
+      <text class="label">床位（可选）</text>
+      <input class="input" value="{{bed}}" bindinput="e=>setData({bed:e.detail.value})" />
+    </view>
+  </view>
+  <view class="section">
+    <text class="label">补助金额（元，可选）</text>
+    <input class="input" type="digit" placeholder="≥0，最多两位小数" value="{{subsidy}}" bindinput="onSubsidy" />
+    <text class="error" wx:if="{{errors.subsidy}}">{{errors.subsidy}}</text>
+  </view>
+  <view class="section">
+    <text class="label">入住人（可选）</text>
+    <input class="input" placeholder="原样字符串" value="{{admitPersons}}" bindinput="e=>setData({admitPersons:e.detail.value})" />
+  </view>
+  <button class="submit" loading="{{submitting}}" bindtap="onSubmit">提交</button>
+</view>

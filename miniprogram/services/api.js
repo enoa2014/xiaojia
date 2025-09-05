@@ -31,6 +31,12 @@ export const api = {
     list: (q) => call('patients', 'list', q),
     get: (id) => call('patients', 'get', { id }),
     create: (patient, clientToken) => callWithRetry('patients', 'create', { patient, clientToken })
+  },
+  tenancies: {
+    list: (q) => call('tenancies','list', q),
+    get: (id) => call('tenancies','get', { id }),
+    create: (tenancy, clientToken) => callWithRetry('tenancies','create', { tenancy, clientToken }),
+    update: (id, patch) => call('tenancies','update', { id, patch })
   }
 }
 export const mapError = (code) => ({
