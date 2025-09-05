@@ -3,6 +3,27 @@
 **版本**：v2.0\
 **约束**：前端 JavaScript（微信小程序原生 JS + WXML/WXSS），后端 TypeScript（云函数 Node.js LTS≥16），数据与文件依托腾讯云开发（CloudBase：云数据库/云函数/COS）
 
+分片索引（Shard Index）
+- 00. 总览：docs/architecture/00-overview.md
+- 01. 前端：docs/architecture/01-frontend.md
+- 02. 后端：docs/architecture/02-backend.md
+- 03. 数据模型：docs/architecture/03-data-model.md
+- 04. 云存储（COS）：docs/architecture/04-storage-cos.md
+- 05. 权限与安全：docs/architecture/05-security-rbac.md
+- 06. 关键流程：docs/architecture/06-flows.md
+- 07. API 契约风格：docs/architecture/07-api-contract-style.md
+- 08. 部署与环境：docs/architecture/08-deployment-env.md
+- 09. 观测与稳定性：docs/architecture/09-observability.md
+- 10. 风险与边界：docs/architecture/10-risks-boundaries.md
+- 11. 验收清单：docs/architecture/11-acceptance-checklist.md
+- 12. 下一步落地：docs/architecture/12-next-steps.md
+- 13. TS 模板：docs/architecture/13-ts-templates.md
+- 14. 建表与索引：docs/architecture/14-db-indexes.md
+- 15. 前端 API/上传：docs/architecture/15-frontend-api-upload.md
+- 16. 导出与定时任务：docs/architecture/16-exports-queue.md
+- 17. 单环境部署清单：docs/architecture/17-single-env-deploy.md
+- 18. package.json 脚本：docs/architecture/18-package-scripts.md
+
 ---
 
 ## 0. 架构总览（High-level）
@@ -610,4 +631,3 @@ pnpm run deploy:all
 # 初始化数据库（仅第一次）
 pnpm run init:db
 ```
-
