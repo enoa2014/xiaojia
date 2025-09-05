@@ -42,6 +42,7 @@
   - 接口：patients.list；数据：`name+id_card_tail` 索引。
 
 ### EP-02 入住/退住（Tenancies）
+- [文档] EP-02-S1 详细故事：docs/backlog/stories/EP-02-S1-tenancy-create.md
 - [ ] EP-02-S1 新增入住记录（P0，M）
   - 作为：社工；我想要：为患者新增一次入住（日期/房间/床位/补助可选）；以便：形成入住台账。
   - 验收：必填 `patientId|id_card` 和 `checkInDate`；成功返回 `_id`；记录 `createdAt`。
