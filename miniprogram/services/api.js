@@ -28,7 +28,9 @@ export const callWithRetry = async (name, action, payload = {}, opts = {}) => {
 }
 export const api = {
   patients: {
-    list: (q) => call('patients', 'list', q)
+    list: (q) => call('patients', 'list', q),
+    get: (id) => call('patients', 'get', { id }),
+    create: (patient, clientToken) => callWithRetry('patients', 'create', { patient, clientToken })
   }
 }
 export const mapError = (code) => ({
