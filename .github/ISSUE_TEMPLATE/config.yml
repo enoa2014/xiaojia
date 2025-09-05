@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: 文档索引与所有权（Docs Index）
+    url: https://github.com/enoa2014/xiaojia/blob/main/docs/docs-index.md
+    about: 查阅文档总览、Owner/Reviewer 与更新节奏，确保提交前对齐。
