@@ -1,0 +1,1453 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小家服务管理小程序 - 统计权限审批页详细设计文档</title>
+    <style>
+        :root {
+            --color-primary: #007AFF;
+            --color-primary-light: #F0F8FF;
+            --color-success: #28A745;
+            --color-warning: #FFC107;
+            --color-error: #DC3545;
+            --color-info: #17A2B8;
+            --color-gray-100: #F8F9FA;
+            --color-gray-200: #E9ECEF;
+            --color-gray-300: #DEE2E6;
+            --color-gray-600: #6C757D;
+            --color-gray-800: #343A40;
+            --color-gray-900: #212529;
+            --radius-sm: 6px;
+            --radius-md: 8px;
+            --radius-lg: 12px;
+            --shadow-sm: 0 1px 3px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: var(--color-gray-800);
+            background: #FFFFFF;
+        }
+
+        .document-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+        }
+
+        .document-header {
+            text-align: center;
+            margin-bottom: 48px;
+            padding: 32px;
+            background: linear-gradient(135deg, var(--color-primary) 0%, #0056CC 100%);
+            color: white;
+            border-radius: var(--radius-lg);
+        }
+
+        .document-header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            margin-bottom: 16px;
+        }
+
+        .document-header .subtitle {
+            font-size: 18px;
+            opacity: 0.9;
+            margin-bottom: 8px;
+        }
+
+        .document-header .meta {
+            font-size: 14px;
+            opacity: 0.8;
+        }
+
+        .section {
+            margin-bottom: 48px;
+            background: white;
+            border-radius: var(--radius-lg);
+            padding: 32px;
+            box-shadow: var(--shadow-sm);
+            border: 1px solid var(--color-gray-200);
+        }
+
+        .section h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--color-gray-900);
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 3px solid var(--color-primary);
+        }
+
+        .section h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--color-gray-800);
+            margin: 32px 0 16px 0;
+        }
+
+        .section h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--color-gray-800);
+            margin: 20px 0 12px 0;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin: 24px 0;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin: 24px 0;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--color-gray-200);
+            border-radius: var(--radius-md);
+            padding: 24px;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .card h4 {
+            margin-top: 0;
+            margin-bottom: 16px;
+            color: var(--color-primary);
+        }
+
+        .highlight-card {
+            background: linear-gradient(135deg, var(--color-primary-light) 0%, #E3F2FD 100%);
+            border: 2px solid var(--color-primary);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .highlight-card h4 {
+            color: var(--color-primary);
+            margin-bottom: 16px;
+        }
+
+        .success-box {
+            background: linear-gradient(135deg, #E8F5E8 0%, #F1F8E9 100%);
+            border: 2px solid var(--color-success);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .warning-box {
+            background: linear-gradient(135deg, #FFF8E1 0%, #FFFDE7 100%);
+            border: 2px solid var(--color-warning);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .error-box {
+            background: linear-gradient(135deg, #FFEBEE 0%, #FCE4EC 100%);
+            border: 2px solid var(--color-error);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin: 24px 0;
+        }
+
+        .ascii-diagram {
+            background: var(--color-gray-100);
+            border: 1px solid var(--color-gray-300);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            overflow-x: auto;
+            white-space: pre;
+            margin: 20px 0;
+        }
+
+        .wireframe-container {
+            background: var(--color-gray-100);
+            border: 2px dashed var(--color-gray-300);
+            border-radius: var(--radius-md);
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.3;
+            overflow-x: auto;
+            white-space: pre;
+            margin: 20px 0;
+        }
+
+        .code-block {
+            background: #1E1E1E;
+            color: #D4D4D4;
+            border-radius: var(--radius-md);
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            overflow-x: auto;
+            margin: 20px 0;
+        }
+
+        .specs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: var(--radius-md);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .specs-table th {
+            background: var(--color-primary);
+            color: white;
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+        }
+
+        .specs-table td {
+            padding: 16px;
+            border-bottom: 1px solid var(--color-gray-200);
+            vertical-align: top;
+        }
+
+        .specs-table tr:nth-child(even) {
+            background: var(--color-gray-100);
+        }
+
+        .specs-table tr:hover {
+            background: var(--color-primary-light);
+        }
+
+        .feature-list {
+            list-style: none;
+            padding: 0;
+        }
+
+        .feature-list li {
+            padding: 12px 0;
+            border-bottom: 1px solid var(--color-gray-200);
+            display: flex;
+            align-items: center;
+        }
+
+        .feature-list li:before {
+            content: "✓";
+            color: var(--color-success);
+            font-weight: bold;
+            margin-right: 12px;
+            font-size: 16px;
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+            gap: 16px;
+            margin: 20px 0;
+        }
+
+        .color-item {
+            text-align: center;
+        }
+
+        .color-swatch {
+            width: 100%;
+            height: 80px;
+            border-radius: var(--radius-md);
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 600;
+            box-shadow: var(--shadow-sm);
+        }
+
+        .color-name {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+        }
+
+        .color-value {
+            font-size: 12px;
+            color: var(--color-gray-600);
+            font-family: monospace;
+        }
+
+        .print-break {
+            page-break-before: always;
+        }
+
+        ul, ol {
+            padding-left: 24px;
+            margin: 16px 0;
+        }
+
+        li {
+            margin: 8px 0;
+        }
+
+        p {
+            margin: 16px 0;
+            line-height: 1.7;
+        }
+
+        strong {
+            color: var(--color-gray-900);
+            font-weight: 600;
+        }
+
+        .toc {
+            background: var(--color-gray-100);
+            border-radius: var(--radius-lg);
+            padding: 24px;
+            margin: 32px 0;
+        }
+
+        .toc h3 {
+            margin-top: 0;
+            color: var(--color-primary);
+        }
+
+        .toc ul {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .toc li {
+            margin: 8px 0;
+        }
+
+        .toc a {
+            color: var(--color-gray-800);
+            text-decoration: none;
+            padding: 8px 12px;
+            border-radius: var(--radius-sm);
+            display: block;
+            transition: all 0.2s ease;
+        }
+
+        .toc a:hover {
+            background: var(--color-primary-light);
+            color: var(--color-primary);
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin: 0 4px;
+        }
+
+        .status-pending {
+            background: #FFF3CD;
+            color: #856404;
+        }
+
+        .status-approved {
+            background: #D4EDDA;
+            color: #155724;
+        }
+
+        .status-rejected {
+            background: #F8D7DA;
+            color: #721C24;
+        }
+
+        .status-urgent {
+            background: #F5C6CB;
+            color: #721C24;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .document-container {
+                padding: 20px 16px;
+            }
+            
+            .section {
+                padding: 20px;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .section {
+                box-shadow: none;
+                border: 1px solid #ddd;
+                page-break-inside: avoid;
+            }
+            
+            .print-break {
+                page-break-before: always;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="document-container">
+        <!-- 文档头部 -->
+        <header class="document-header">
+            <h1>小家服务管理小程序</h1>
+            <div class="subtitle">统计权限审批页详细设计文档</div>
+            <div class="meta">
+                版本: v2.0 | 更新时间: 2025-09-05 | 设计师: UX/UI团队
+            </div>
+        </header>
+
+        <!-- 目录 -->
+        <div class="toc">
+            <h3>📋 文档目录</h3>
+            <ul>
+                <li><a href="#overview">1. 设计概述与目标</a></li>
+                <li><a href="#user-roles">2. 用户角色与权限体系</a></li>
+                <li><a href="#page-architecture">3. 页面架构设计</a></li>
+                <li><a href="#detailed-design">4. 详细设计规范</a></li>
+                <li><a href="#interaction-flow">5. 交互流程设计</a></li>
+                <li><a href="#data-security">6. 数据安全与权限控制</a></li>
+                <li><a href="#technical-specs">7. 技术实现规范</a></li>
+                <li><a href="#testing-specs">8. 测试与质量保证</a></li>
+                <li><a href="#appendix">9. 附录与参考资料</a></li>
+            </ul>
+        </div>
+
+        <!-- 1. 设计概述 -->
+        <section id="overview" class="section">
+            <h2>1. 设计概述与目标</h2>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🎯 设计目标</h4>
+                    <ul>
+                        <li>简化统计数据权限申请与审批流程</li>
+                        <li>确保敏感统计信息的安全访问控制</li>
+                        <li>提供清晰的权限申请状态跟踪机制</li>
+                        <li>优化管理员审批效率，支持批量操作</li>
+                        <li>增强数据治理能力，建立完整审计追踪</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📊 核心指标</h4>
+                    <ul>
+                        <li><strong>申请成功率</strong>: ≥95%</li>
+                        <li><strong>审批平均时间</strong>: ≤2小时</li>
+                        <li><strong>用户满意度</strong>: ≥4.5/5</li>
+                        <li><strong>操作步骤</strong>: ≤3步</li>
+                        <li><strong>页面加载时间</strong>: ≤1.5秒</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="highlight-card">
+                <h4>🔐 统计权限申请核心场景</h4>
+                <p>统计权限审批页主要服务于以下核心业务场景：</p>
+                <ul>
+                    <li><strong>高级数据分析</strong>: 社工申请查看完整统计分析报表</li>
+                    <li><strong>数据导出权限</strong>: 申请导出敏感统计数据（Excel/PDF）</li>
+                    <li><strong>跨模块统计</strong>: 申请访问其他业务模块的统计数据</li>
+                    <li><strong>历史数据查询</strong>: 申请查看长期历史统计信息</li>
+                    <li><strong>管理层报表</strong>: 申请生成高级管理决策报表</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 2. 用户角色与权限 -->
+        <section id="user-roles" class="section">
+            <h2>2. 用户角色与权限体系</h2>
+
+            <h3>角色权限矩阵</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>功能权限</th>
+                        <th>管理员</th>
+                        <th>社工</th>
+                        <th>志愿者</th>
+                        <th>家长用户</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>查看权限申请列表</strong></td>
+                        <td>✅ 全部申请</td>
+                        <td>✅ 相关申请</td>
+                        <td>✅ 个人申请</td>
+                        <td>❌</td>
+                    </tr>
+                    <tr>
+                        <td><strong>审批权限申请</strong></td>
+                        <td>✅ 全部权限</td>
+                        <td>✅ 部分权限</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                    </tr>
+                    <tr>
+                        <td><strong>批量操作</strong></td>
+                        <td>✅ 批量审批</td>
+                        <td>✅ 批量查看</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                    </tr>
+                    <tr>
+                        <td><strong>权限申请</strong></td>
+                        <td>✅ 所有权限</td>
+                        <td>✅ 业务权限</td>
+                        <td>✅ 基础权限</td>
+                        <td>❌</td>
+                    </tr>
+                    <tr>
+                        <td><strong>审计日志查看</strong></td>
+                        <td>✅ 完整日志</td>
+                        <td>✅ 相关日志</td>
+                        <td>❌</td>
+                        <td>❌</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>权限申请类型分类</h3>
+            <div class="grid-3">
+                <div class="card">
+                    <h4>📊 基础统计权限</h4>
+                    <ul>
+                        <li>月度服务数据查看</li>
+                        <li>基础图表导出</li>
+                        <li>个人工作统计</li>
+                        <li>活动参与统计</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📈 高级分析权限</h4>
+                    <ul>
+                        <li>跨年度趋势分析</li>
+                        <li>多维度对比报表</li>
+                        <li>预测分析数据</li>
+                        <li>异常数据监控</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🔒 敏感数据权限</h4>
+                    <ul>
+                        <li>用户个人信息统计</li>
+                        <li>财务相关数据</li>
+                        <li>医疗隐私统计</li>
+                        <li>系统安全日志</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 页面架构设计 -->
+        <section id="page-architecture" class="section print-break">
+            <h2>3. 页面架构设计</h2>
+
+            <h3>统计权限审批页整体架构</h3>
+            <div class="ascii-diagram">┌─────────────────────────────────────┐ ← 导航栏 (88rpx)
+│ ← 统计权限审批      🔍 ⚙️ 📊 🔔    │   background: --color-primary-600
+├─────────────────────────────────────┤ ← 快速筛选栏 (80rpx)
+│ [全部] [待处理] [紧急] [已处理]      │   background: --color-bg-primary
+│ 排序: [提交时间 ▼] [📅今日] [🔄刷新]  │   
+├─────────────────────────────────────┤ ← 批量操作栏 (60rpx)
+│ ☑️ 全选  ✅ 批量批准  ❌ 批量拒绝    │   条件显示
+├─────────────────────────────────────┤ ← 申请列表 (动态高度)
+│ ┌─ 🔴 【紧急】统计数据导出权限      │
+│ │   👤 张社工 申请 | ⏰ 2小时前     │   
+│ │   📊 月度服务数据完整报表导出      │   单项高度: 120rpx
+│ │   [📖 详情] [✅ 批准] [❌ 拒绝]    │   
+│ ├─ 🟡 【普通】高级分析功能权限      │
+│ │   👤 李志愿者 申请 | ⏰ 4小时前    │   
+│ │   📈 需要查看跨年度趋势分析       │   
+│ │   [📖 详情] [✅ 批准] [❌ 拒绝]    │   
+│ ├─ 🟢 【普通】个人统计数据权限      │
+│ │   👤 王志愿者 申请 | ⏰ 1天前     │   
+│ │   📋 查看个人服务时长统计        │   
+│ │   [📖 详情] [✅ 批准] [❌ 拒绝]    │   
+│ └─ ⏳ 【审核中】批量导出权限        │
+│     👤 陈管理员 处理中 | ⏰ 30分钟前 │   
+│     🔄 系统正在验证权限范围        │   
+├─────────────────────────────────────┤ ← 页面底部信息 (80rpx)
+│ 📊 今日处理: 15个 | 待处理: 8个     │   
+│ ⏱️ 平均处理时间: 1.8小时           │   
+└─────────────────────────────────────┘ ← 总高度: 适应内容</div>
+
+            <h3>申请详情页架构</h3>
+            <div class="ascii-diagram">┌─────────────────────────────────────┐ ← 详情页导航栏 (88rpx)
+│ ← 申请详情          📤 🔗 📋       │
+├─────────────────────────────────────┤ ← 申请基本信息 (160rpx)
+│ 🔴 【紧急】统计数据导出权限申请      │
+│ 👤 申请人: 张社工 (ID: SW001)       │
+│ 📅 申请时间: 2025-09-05 14:30       │
+│ ⏰ 紧急程度: 紧急 | 状态: 待审批     │
+├─────────────────────────────────────┤ ← 权限详情区 (200rpx)
+│ 📊 申请权限类型:                    │
+│ ✅ 月度服务数据完整导出 (Excel格式)  │
+│ ✅ 用户参与度分析报表 (PDF格式)     │
+│ ✅ 志愿者效能评估数据 (CSV格式)     │
+│ 📅 申请期限: 7天 | 数据范围: 近3个月 │
+├─────────────────────────────────────┤ ← 申请理由区 (动态高度)
+│ 📝 申请理由:                        │
+│ 需要为机构月度总结会议准备详细的     │
+│ 服务数据分析报表，包括志愿者服务     │
+│ 效能评估和用户参与度分析。该报表     │
+│ 将用于评估本季度工作成效并制定      │
+│ 下季度工作计划。                   │
+├─────────────────────────────────────┤ ← 申请人信息区 (120rpx)
+│ 🔍 申请人历史记录:                  │
+│ • 本月申请次数: 2次 (全部批准)      │
+│ • 权限使用记录: 良好               │
+│ • 信誉评级: ⭐⭐⭐⭐⭐             │
+├─────────────────────────────────────┤ ← 相关数据信息 (100rpx)
+│ 📊 涉及数据范围:                    │
+│ • 服务记录: 约1,200条              │
+│ • 用户数据: 约450人 (脱敏)         │
+│ • 统计周期: 2025年6月-8月          │
+├─────────────────────────────────────┤ ← 系统建议区 (80rpx)
+│ 🤖 系统建议: ✅ 建议批准             │
+│ • 申请理由充分且合理               │
+│ • 申请人权限使用记录良好            │
+│ • 符合数据使用政策要求              │
+└─────────────────────────────────────┘
+┌─────────────────────────────────────┐ ← 审批操作区 (固定底部)
+│ 📝 审批意见:                        │
+│ ┌─────────────────────────────────┐ │ ← 文本输入框 (80rpx)
+│ │ 同意申请，权限期限7天有效          │ │
+│ └─────────────────────────────────┘ │
+│ ⏰ 权限有效期: [7天 ▼] 📊 权限范围确认 │
+│ 🔔 通知设置: ☑️ 短信 ☑️ 微信 ☐ 邮件  │
+│                                     │
+│ [❌ 拒绝申请] [⏸️ 要求补充] [✅ 批准申请] │ ← 操作按钮区 (64rpx)
+└─────────────────────────────────────┘</div>
+
+            <h3>页面导航关系图</h3>
+            <div class="ascii-diagram">统计分析页 → 权限管理入口 → 统计权限审批页
+     ↓               ↓               ↓
+  管理员入口      权限申请列表     申请详情页
+     ↓               ↓               ↓
+  快速操作       筛选&排序       审批操作
+     ↓               ↓               ↓
+  批量审批       单项处理       状态通知</div>
+        </section>
+
+        <!-- 4. 详细设计规范 -->
+        <section id="detailed-design" class="section">
+            <h2>4. 详细设计规范</h2>
+
+            <h3>关键组件设计</h3>
+
+            <h4>权限申请卡片组件</h4>
+            <div class="code-block">/* 权限申请卡片样式 */
+.permission-request-card {
+  background: var(--color-bg-primary);
+  border: 2px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  transition: all 0.2s ease;
+}
+
+.permission-request-card.urgent {
+  border-color: var(--color-error);
+  background: linear-gradient(135deg, #FFEBEE 0%, #FCE4EC 100%);
+}
+
+.permission-request-card.normal {
+  border-color: var(--color-warning);
+  background: linear-gradient(135deg, #FFF8E1 0%, #FFFDE7 100%);
+}
+
+.permission-request-card.approved {
+  border-color: var(--color-success);
+  background: linear-gradient(135deg, #E8F5E8 0%, #F1F8E9 100%);
+}
+
+.card-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 16rpx;
+}
+
+.urgency-badge {
+  padding: 8rpx 16rpx;
+  border-radius: 20rpx;
+  font-size: 22rpx;
+  font-weight: 600;
+}
+
+.card-content {
+  margin: 16rpx 0;
+  font-size: 26rpx;
+  color: var(--color-text-secondary);
+  line-height: 1.5;
+}
+
+.card-actions {
+  display: flex;
+  gap: 16rpx;
+  margin-top: 20rpx;
+}
+
+.action-button {
+  flex: 1;
+  height: 56rpx;
+  border-radius: var(--radius-md);
+  border: none;
+  font-size: 24rpx;
+  font-weight: 500;
+  transition: all 0.2s ease;
+}
+
+.action-button.approve {
+  background: var(--color-success);
+  color: white;
+}
+
+.action-button.reject {
+  background: var(--color-error);
+  color: white;
+}
+
+.action-button.detail {
+  background: var(--color-primary);
+  color: white;
+}</div>
+
+            <h4>批量操作栏设计</h4>
+            <div class="wireframe-container">批量操作栏布局 (60rpx高度)
+┌─────────────────────────────────────┐
+│ ☑️ 全选 (80rpx)  [分隔线]            │
+│ ✅ 批准 (120rpx) [分隔线]            │  
+│ ❌ 拒绝 (120rpx) [分隔线]            │
+│ 📊 导出 (120rpx)     [已选择: 3个]   │
+└─────────────────────────────────────┘</div>
+
+            <h3>状态系统设计</h3>
+
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>状态</th>
+                        <th>颜色标识</th>
+                        <th>图标</th>
+                        <th>用户可见内容</th>
+                        <th>可执行操作</th>
+                        <th>自动流转</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>📝 待提交</td>
+                        <td>#F0F0F0 (灰色)</td>
+                        <td>📝</td>
+                        <td>草稿内容，编辑表单</td>
+                        <td>编辑、提交、删除</td>
+                        <td>无</td>
+                    </tr>
+                    <tr>
+                        <td>⏳ 待审批</td>
+                        <td>#FFC107 (黄色)</td>
+                        <td>⏳</td>
+                        <td>申请详情、提交时间</td>
+                        <td>查看、撤销、催办</td>
+                        <td>超时提醒</td>
+                    </tr>
+                    <tr>
+                        <td>🔍 审核中</td>
+                        <td>#17A2B8 (蓝色)</td>
+                        <td>🔍</td>
+                        <td>当前审核进度、审核人</td>
+                        <td>查看、等待</td>
+                        <td>审核超时警告</td>
+                    </tr>
+                    <tr>
+                        <td>✅ 已批准</td>
+                        <td>#28A745 (绿色)</td>
+                        <td>✅</td>
+                        <td>权限详情、有效期</td>
+                        <td>使用权限、申请延期</td>
+                        <td>到期自动提醒</td>
+                    </tr>
+                    <tr>
+                        <td>❌ 已拒绝</td>
+                        <td>#DC3545 (红色)</td>
+                        <td>❌</td>
+                        <td>拒绝理由、改进建议</td>
+                        <td>查看、重新申请</td>
+                        <td>无</td>
+                    </tr>
+                    <tr>
+                        <td>⏰ 即将到期</td>
+                        <td>#FF6B35 (橙色)</td>
+                        <td>⏰</td>
+                        <td>倒计时、延期入口</td>
+                        <td>申请延期、查看使用记录</td>
+                        <td>24小时内提醒</td>
+                    </tr>
+                    <tr>
+                        <td>🔒 已过期</td>
+                        <td>#6C757D (灰色)</td>
+                        <td>🔒</td>
+                        <td>过期时间、历史使用</td>
+                        <td>重新申请、查看历史</td>
+                        <td>过期后自动归档</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>紧急程度分级</h3>
+            <div class="grid-3">
+                <div class="error-box">
+                    <h4>🔴 非常紧急</h4>
+                    <p><strong>处理时限</strong>: 1小时内</p>
+                    <p><strong>适用场景</strong>: 系统故障、安全事件、紧急决策支持</p>
+                    <p><strong>通知方式</strong>: 短信+微信+邮件立即通知</p>
+                </div>
+                
+                <div class="warning-box">
+                    <h4>🟡 紧急</h4>
+                    <p><strong>处理时限</strong>: 4小时内</p>
+                    <p><strong>适用场景</strong>: 重要报表、工作需要、定期分析</p>
+                    <p><strong>通知方式</strong>: 微信+系统通知</p>
+                </div>
+                
+                <div class="success-box">
+                    <h4>🟢 普通</h4>
+                    <p><strong>处理时限</strong>: 2个工作日内</p>
+                    <p><strong>适用场景</strong>: 常规统计、个人查询、学习研究</p>
+                    <p><strong>通知方式</strong>: 系统通知</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 5. 交互流程设计 -->
+        <section id="interaction-flow" class="section print-break">
+            <h2>5. 交互流程设计</h2>
+
+            <h3>权限申请完整流程</h3>
+            <div class="ascii-diagram">用户端申请流程                管理员端审批流程
+                                      
+开始申请 → 选择权限类型 → 填写申请信息    收到申请 → 查看详情 → 评估申请
+   ↓            ↓              ↓            ↓          ↓          ↓
+识别统计      选择导出格式     填写使用理由   系统通知   查看申请人   检查权限合理性
+数据需求      及数据范围       及期限要求     推送提醒   历史记录     及数据敏感度
+   ↓            ↓              ↓            ↓          ↓          ↓
+点击申请      多选权限类型     确认紧急程度   列表显示   查看详细     查看关联数据
+入口链接      实时权限说明     选择有效期     优先级排序  申请理由     评估风险等级
+   ↓            ↓              ↓            ↓          ↓          ↓
+跳转申请页    预估处理时间     验证表单完整   筛选查看   系统建议     做出审批决策
+智能推荐      动态显示提示     提交审核请求   状态跟踪   参考信息     记录审批意见
+   ↓            ↓              ↓            ↓          ↓          ↓
+选择模板      确认申请内容     等待审批结果   批量操作   单项处理     发送审批结果
+预填信息      生成申请单号     接收通知提醒   效率优化   详细审核     权限生效管理
+
+                        ⬇️ 双向交互环节
+
+状态查询 ↔ 进度同步 ↔ 补充说明 ↔ 审批反馈 ↔ 权限使用 ↔ 使用监控</div>
+
+            <h3>批量审批操作流程</h3>
+            <div class="ascii-diagram">批量审批智能化流程
+
+选择待审批申请 → 系统智能分类 → 批量操作建议 → 管理员确认 → 批量执行
+        ↓               ↓               ↓               ↓           ↓
+☑️ 多选申请      🤖 按紧急程度     💡 推荐操作      👤 人工复核   ⚡ 自动执行
+勾选复选框       自动分组显示       批准/拒绝建议     确认无误     批量处理
+        ↓               ↓               ↓               ↓           ↓
+相同类型申请     📊 按权限类型     📋 模板化理由     ✅ 最终确认   📤 通知发送
+自动归类         智能识别模式       智能填充说明     避免误操作    状态更新
+
+        ↓               ↓               ↓               ↓           ↓
+🔍 预览确认      📈 处理效率      💬 批量回复      🔄 操作日志   📊 结果统计
+查看影响范围     显示预计时间       统一审批意见     记录详细信息   成功/失败计数</div>
+
+            <h3>权限申请交互优化点</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🎯 用户体验优化</h4>
+                    <ul>
+                        <li><strong>智能表单预填</strong>: 基于历史申请自动填充常用信息</li>
+                        <li><strong>实时验证提示</strong>: 表单字段实时校验和错误提示</li>
+                        <li><strong>进度可视化</strong>: 申请状态进度条和时间节点展示</li>
+                        <li><strong>一键重申</strong>: 被拒绝申请可一键修改重新提交</li>
+                        <li><strong>模板化申请</strong>: 常用申请场景模板快速选择</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>⚡ 审批效率提升</h4>
+                    <ul>
+                        <li><strong>智能分类推送</strong>: 按紧急程度和类型智能排序</li>
+                        <li><strong>批量相似处理</strong>: 相似申请批量处理建议</li>
+                        <li><strong>审批模板</strong>: 常用审批意见模板快速选择</li>
+                        <li><strong>风险评估提示</strong>: 自动评估申请风险等级</li>
+                        <li><strong>处理时限提醒</strong>: 超时申请自动提醒和升级</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>异常情况处理流程</h3>
+            <div class="error-box">
+                <h4>🚨 异常情况应对机制</h4>
+                <ul>
+                    <li><strong>申请超时处理</strong>: 超过2小时未处理的紧急申请自动升级通知</li>
+                    <li><strong>权限滥用监控</strong>: 异常使用行为自动检测和告警机制</li>
+                    <li><strong>系统故障应急</strong>: 关键权限申请的线下审批备用方案</li>
+                    <li><strong>数据安全事件</strong>: 敏感权限自动撤回和安全审计流程</li>
+                    <li><strong>申诉处理机制</strong>: 被拒绝申请的申诉渠道和二次审核</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 6. 数据安全与权限控制 -->
+        <section id="data-security" class="section">
+            <h2>6. 数据安全与权限控制</h2>
+
+            <h3>权限分级控制策略</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>权限级别</th>
+                        <th>数据范围</th>
+                        <th>访问条件</th>
+                        <th>审批要求</th>
+                        <th>使用限制</th>
+                        <th>审计要求</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>L1-公开统计</strong></td>
+                        <td>基础统计数据</td>
+                        <td>登录用户</td>
+                        <td>免审批</td>
+                        <td>每日查看10次</td>
+                        <td>访问日志记录</td>
+                    </tr>
+                    <tr>
+                        <td><strong>L2-内部统计</strong></td>
+                        <td>详细业务数据</td>
+                        <td>相关角色用户</td>
+                        <td>社工审批</td>
+                        <td>每日导出3次</td>
+                        <td>使用记录跟踪</td>
+                    </tr>
+                    <tr>
+                        <td><strong>L3-敏感统计</strong></td>
+                        <td>用户隐私数据</td>
+                        <td>业务需要证明</td>
+                        <td>管理员审批</td>
+                        <td>限时访问7天</td>
+                        <td>全程操作审计</td>
+                    </tr>
+                    <tr>
+                        <td><strong>L4-机密统计</strong></td>
+                        <td>核心经营数据</td>
+                        <td>高级管理角色</td>
+                        <td>双重审批</td>
+                        <td>单次使用24小时</td>
+                        <td>实时监控记录</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>数据脱敏与保护机制</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🛡️ 自动脱敏规则</h4>
+                    <ul>
+                        <li><strong>姓名脱敏</strong>: 显示姓氏+* (如: 张*)</li>
+                        <li><strong>电话脱敏</strong>: 显示前3位和后4位 (如: 138****5678)</li>
+                        <li><strong>地址脱敏</strong>: 只显示到区县级别</li>
+                        <li><strong>身份证脱敏</strong>: 只显示前6位和后4位</li>
+                        <li><strong>金额脱敏</strong>: 按权限显示精确度</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🔐 访问控制机制</h4>
+                    <ul>
+                        <li><strong>IP白名单</strong>: 限制访问来源IP地址</li>
+                        <li><strong>时间窗口</strong>: 限制权限使用的时间范围</li>
+                        <li><strong>并发控制</strong>: 限制同时访问的用户数量</li>
+                        <li><strong>设备绑定</strong>: 绑定特定设备的访问权限</li>
+                        <li><strong>会话超时</strong>: 自动超时登出保护机制</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>审计日志系统</h3>
+            <div class="highlight-card">
+                <h4>📋 完整审计追踪机制</h4>
+                <div class="grid-2">
+                    <div>
+                        <p><strong>操作日志记录</strong></p>
+                        <ul>
+                            <li>用户身份信息 (用户ID、角色、部门)</li>
+                            <li>操作时间戳 (精确到秒，包含时区)</li>
+                            <li>操作类型 (申请、审批、导出、查看)</li>
+                            <li>数据范围 (涉及的具体数据类型和时间范围)</li>
+                            <li>操作结果 (成功、失败、异常)</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <p><strong>安全监控指标</strong></p>
+                        <ul>
+                            <li>异常访问行为检测 (频率、时间、IP)</li>
+                            <li>权限使用统计分析 (使用率、合规性)</li>
+                            <li>数据导出行为监控 (导出量、频次)</li>
+                            <li>权限申请趋势分析 (需求变化、合理性)</li>
+                            <li>安全事件自动告警 (违规行为、风险操作)</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <h3>权限使用监控</h3>
+            <div class="ascii-diagram">实时权限使用监控系统
+
+权限申请 → 使用授权 → 行为监控 → 异常检测 → 风险应对
+    ↓          ↓          ↓          ↓          ↓
+📝 提交申请   🔑 权限激活   👁️ 实时监控   🚨 异常识别   ⚡ 自动处理
+记录申请信息   分配使用令牌   记录操作行为   分析行为模式   撤销/限制权限
+    ↓          ↓          ↓          ↓          ↓
+📊 风险评估   ⏰ 时效控制   📈 使用统计   🔍 深度分析   📞 人工介入
+评估数据敏感度  设置过期时间   统计使用频率   关联行为分析   安全专家处理
+    ↓          ↓          ↓          ↓          ↓
+✅ 通过审批   🔔 到期提醒   📋 合规检查   📊 报告生成   🛡️ 策略优化
+激活权限      自动续期提醒   检查违规行为   生成分析报告   完善安全机制</div>
+        </section>
+
+        <!-- 7. 技术实现规范 -->
+        <section id="technical-specs" class="section print-break">
+            <h2>7. 技术实现规范</h2>
+
+            <h3>前端技术架构</h3>
+            <div class="code-block">// 统计权限审批页面组件架构
+export const StatsPermissionApprovalPage = {
+  // 页面组件结构
+  components: {
+    PageHeader: 'NavigationHeader',      // 导航栏组件
+    FilterBar: 'FilterAndSortBar',       // 筛选排序栏
+    BatchActions: 'BatchOperationBar',   // 批量操作栏
+    RequestList: 'PermissionRequestList', // 申请列表
+    RequestCard: 'PermissionRequestCard', // 申请卡片
+    DetailModal: 'RequestDetailModal',   // 详情弹窗
+    ApprovalForm: 'ApprovalActionForm',  // 审批表单
+    StatusBadge: 'RequestStatusBadge',   // 状态徽章
+  },
+
+  // 状态管理
+  state: {
+    requestList: [],           // 申请列表数据
+    selectedItems: [],         // 批量选择项
+    filterOptions: {},         // 筛选条件
+    sortConfig: {},           // 排序配置
+    paginationInfo: {},       // 分页信息
+    loading: false,           // 加载状态
+    error: null,              // 错误信息
+  },
+
+  // 核心方法
+  methods: {
+    fetchRequestList(),       // 获取申请列表
+    approveRequest(),         // 批准申请
+    rejectRequest(),          // 拒绝申请
+    batchApprove(),          // 批量批准
+    batchReject(),           // 批量拒绝
+    filterRequests(),        // 筛选申请
+    sortRequests(),          // 排序申请
+    searchRequests(),        // 搜索申请
+    exportData(),            // 导出数据
+  }
+}</div>
+
+            <h3>数据接口设计</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>接口名称</th>
+                        <th>请求方法</th>
+                        <th>接口路径</th>
+                        <th>功能说明</th>
+                        <th>权限要求</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>获取申请列表</td>
+                        <td>GET</td>
+                        <td>/api/stats/permissions/requests</td>
+                        <td>分页获取权限申请列表</td>
+                        <td>管理员、社工</td>
+                    </tr>
+                    <tr>
+                        <td>获取申请详情</td>
+                        <td>GET</td>
+                        <td>/api/stats/permissions/requests/{id}</td>
+                        <td>获取单个申请的详细信息</td>
+                        <td>相关角色</td>
+                    </tr>
+                    <tr>
+                        <td>审批申请</td>
+                        <td>POST</td>
+                        <td>/api/stats/permissions/requests/{id}/approve</td>
+                        <td>批准或拒绝权限申请</td>
+                        <td>审批权限</td>
+                    </tr>
+                    <tr>
+                        <td>批量审批</td>
+                        <td>POST</td>
+                        <td>/api/stats/permissions/requests/batch-approve</td>
+                        <td>批量处理多个申请</td>
+                        <td>管理员</td>
+                    </tr>
+                    <tr>
+                        <td>获取统计信息</td>
+                        <td>GET</td>
+                        <td>/api/stats/permissions/summary</td>
+                        <td>获取审批统计数据</td>
+                        <td>管理员</td>
+                    </tr>
+                    <tr>
+                        <td>导出审计日志</td>
+                        <td>GET</td>
+                        <td>/api/stats/permissions/audit-logs/export</td>
+                        <td>导出权限使用审计日志</td>
+                        <td>管理员</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>性能优化策略</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🚀 前端性能优化</h4>
+                    <ul>
+                        <li><strong>虚拟滚动</strong>: 大量申请列表使用虚拟滚动</li>
+                        <li><strong>懒加载</strong>: 申请详情按需加载</li>
+                        <li><strong>防抖节流</strong>: 搜索和筛选操作防抖处理</li>
+                        <li><strong>状态缓存</strong>: 列表状态本地缓存</li>
+                        <li><strong>图片优化</strong>: 头像和图标懒加载压缩</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>⚡ 后端性能优化</h4>
+                    <ul>
+                        <li><strong>数据库索引</strong>: 申请时间、状态、用户ID建立索引</li>
+                        <li><strong>查询优化</strong>: 复杂统计查询优化和缓存</li>
+                        <li><strong>分页优化</strong>: 大数据量分页性能优化</li>
+                        <li><strong>缓存策略</strong>: Redis缓存常用查询结果</li>
+                        <li><strong>异步处理</strong>: 批量操作异步队列处理</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>安全技术实现</h3>
+            <div class="highlight-card">
+                <h4>🔒 核心安全技术</h4>
+                <div class="code-block">// 权限验证中间件示例
+const permissionMiddleware = {
+  // 权限检查
+  checkPermission: (requiredPermission) => {
+    return (req, res, next) => {
+      const userRole = req.user.role;
+      const userPermissions = getUserPermissions(userRole);
+      
+      if (!userPermissions.includes(requiredPermission)) {
+        return res.status(403).json({
+          error: 'Insufficient permissions',
+          required: requiredPermission
+        });
+      }
+      
+      next();
+    };
+  },
+
+  // 数据脱敏处理
+  maskSensitiveData: (data, userRole) => {
+    const maskingRules = getMaskingRules(userRole);
+    return applyDataMasking(data, maskingRules);
+  },
+
+  // 审计日志记录
+  auditLog: (action, resource, details) => {
+    return logAuditEvent({
+      userId: req.user.id,
+      action: action,
+      resource: resource,
+      details: details,
+      timestamp: new Date(),
+      ipAddress: req.ip,
+      userAgent: req.get('User-Agent')
+    });
+  }
+};</div>
+            </div>
+        </section>
+
+        <!-- 8. 测试与质量保证 -->
+        <section id="testing-specs" class="section">
+            <h2>8. 测试与质量保证</h2>
+
+            <h3>测试用例设计</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>测试类型</th>
+                        <th>测试场景</th>
+                        <th>验证要点</th>
+                        <th>预期结果</th>
+                        <th>优先级</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><strong>功能测试</strong></td>
+                        <td>权限申请提交</td>
+                        <td>表单验证、数据保存</td>
+                        <td>申请成功提交，状态正确</td>
+                        <td>高</td>
+                    </tr>
+                    <tr>
+                        <td><strong>功能测试</strong></td>
+                        <td>审批操作</td>
+                        <td>批准/拒绝流程</td>
+                        <td>状态正确流转，通知发送</td>
+                        <td>高</td>
+                    </tr>
+                    <tr>
+                        <td><strong>权限测试</strong></td>
+                        <td>角色权限控制</td>
+                        <td>不同角色访问限制</td>
+                        <td>权限正确控制，越权访问阻止</td>
+                        <td>高</td>
+                    </tr>
+                    <tr>
+                        <td><strong>性能测试</strong></td>
+                        <td>大量数据加载</td>
+                        <td>列表加载性能</td>
+                        <td>1000条数据加载<3秒</td>
+                        <td>中</td>
+                    </tr>
+                    <tr>
+                        <td><strong>安全测试</strong></td>
+                        <td>数据脱敏</td>
+                        <td>敏感信息保护</td>
+                        <td>敏感数据正确脱敏显示</td>
+                        <td>高</td>
+                    </tr>
+                    <tr>
+                        <td><strong>兼容性测试</strong></td>
+                        <td>不同设备适配</td>
+                        <td>响应式布局</td>
+                        <td>各尺寸设备正常显示</td>
+                        <td>中</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>质量检查清单</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🔍 功能完整性检查</h4>
+                    <ul class="feature-list">
+                        <li>申请列表正确显示所有状态的申请</li>
+                        <li>筛选和排序功能正常工作</li>
+                        <li>批量操作功能正确执行</li>
+                        <li>申请详情信息完整准确</li>
+                        <li>审批操作流程顺畅</li>
+                        <li>通知消息正确发送</li>
+                        <li>权限状态正确更新</li>
+                        <li>数据导出功能正常</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🛡️ 安全性检查</h4>
+                    <ul class="feature-list">
+                        <li>用户身份认证正确验证</li>
+                        <li>权限控制严格执行</li>
+                        <li>敏感数据正确脱敏</li>
+                        <li>操作日志完整记录</li>
+                        <li>异常访问正确拦截</li>
+                        <li>数据传输加密保护</li>
+                        <li>会话超时机制生效</li>
+                        <li>SQL注入攻击防护</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>用户验收测试</h3>
+            <div class="success-box">
+                <h4>👥 UAT验收标准</h4>
+                <ul>
+                    <li><strong>管理员验收</strong>: 能够高效处理权限申请，批量操作便捷，统计数据准确</li>
+                    <li><strong>社工验收</strong>: 能够顺利申请所需权限，审批流程清晰，权限使用便利</li>
+                    <li><strong>志愿者验收</strong>: 权限申请简单明了，状态跟踪清楚，使用体验良好</li>
+                    <li><strong>系统管理员验收</strong>: 安全机制完善，性能表现稳定，监控功能完整</li>
+                    <li><strong>业务负责人验收</strong>: 业务流程支撑到位，效率提升明显，合规要求满足</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 9. 附录与参考资料 -->
+        <section id="appendix" class="section">
+            <h2>9. 附录与参考资料</h2>
+
+            <h3>设计规范依据</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>规范文档</th>
+                        <th>版本</th>
+                        <th>应用范围</th>
+                        <th>核心要点</th>
+                        <th>参考链接</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>小家服务管理小程序UX分析报告</td>
+                        <td>v1.0</td>
+                        <td>用户体验设计</td>
+                        <td>信息架构、交互流程</td>
+                        <td>内部文档</td>
+                    </tr>
+                    <tr>
+                        <td>UI设计规范与组件库文档</td>
+                        <td>v2.1</td>
+                        <td>视觉设计</td>
+                        <td>色彩、字体、组件规范</td>
+                        <td>内部文档</td>
+                    </tr>
+                    <tr>
+                        <td>信息架构(IA)设计文档</td>
+                        <td>v1.2</td>
+                        <td>导航结构</td>
+                        <td>页面层级、导航逻辑</td>
+                        <td>内部文档</td>
+                    </tr>
+                    <tr>
+                        <td>微信小程序设计指南</td>
+                        <td>2024</td>
+                        <td>平台规范</td>
+                        <td>交互标准、组件使用</td>
+                        <td>developers.weixin.qq.com</td>
+                    </tr>
+                    <tr>
+                        <td>WCAG 2.1</td>
+                        <td>AA</td>
+                        <td>无障碍设计</td>
+                        <td>对比度、键盘导航</td>
+                        <td>w3.org/WAI/WCAG21</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>技术参考文档</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📚 内部技术文档</h4>
+                    <ul>
+                        <li>前端开发规范与代码标准 v1.3</li>
+                        <li>数据安全与权限管理规范 v2.0</li>
+                        <li>API接口设计规范 v1.1</li>
+                        <li>数据库设计规范 v1.2</li>
+                        <li>性能监控与优化指南 v1.0</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🌐 外部参考标准</h4>
+                    <ul>
+                        <li>React开发最佳实践</li>
+                        <li>小程序性能优化指南</li>
+                        <li>数据安全管理标准</li>
+                        <li>用户隐私保护规范</li>
+                        <li>软件测试标准规范</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>项目团队与协作</h3>
+            <div class="highlight-card">
+                <h4>👥 项目团队分工</h4>
+                <ul>
+                    <li><strong>产品负责人</strong>: 产品经理团队 - 负责需求定义和优先级管理</li>
+                    <li><strong>设计团队</strong>: UX/UI设计组 - 负责交互设计和视觉规范制定</li>
+                    <li><strong>前端开发</strong>: 前端开发组 - 负责页面开发和交互实现</li>
+                    <li><strong>后端开发</strong>: 后端开发组 - 负责API开发和权限控制</li>
+                    <li><strong>测试团队</strong>: QA测试组 - 负责功能测试和质量保证</li>
+                    <li><strong>安全审计</strong>: 信息安全部 - 负责数据安全和权限审计</li>
+                    <li><strong>运维团队</strong>: 系统运维组 - 负责部署和性能监控</li>
+                </ul>
+
+                <h4>📄 相关设计文档</h4>
+                <ul>
+                    <li>📊 《小家服务管理小程序-统计页详细设计文档》</li>
+                    <li>📋 《档案权限申请页详细设计文档》</li>
+                    <li>🏗️《活动详情页详细设计文档》</li>
+                    <li>⚡《服务记录详情页设计文档》</li>
+                    <li>🧪 《通知详情页设计文档》</li>
+                </ul>
+
+                <h4>🔄 文档更新记录</h4>
+                <ul>
+                    <li><strong>v2.0 (2025-09-05)</strong>: 完善权限控制机制，增加批量操作功能</li>
+                    <li><strong>v1.1 (2025-09-04)</strong>: 优化审批流程设计，补充安全测试要求</li>
+                    <li><strong>v1.0 (2025-09-03)</strong>: 初版文档，包含基础设计规范和交互流程</li>
+                </ul>
+
+                <div style="text-align: center; margin-top: 32px; padding: 24px; background: linear-gradient(135deg, #F0F8FF 0%, #E1F5FE 100%); border-radius: 12px; border: 2px solid #007AFF;">
+                    <h4 style="color: #007AFF; margin-bottom: 16px;">💡 文档使用说明</h4>
+                    <p style="margin-bottom: 12px;"><strong>保存文档</strong>: 右键点击页面选择"保存为"可将此文档保存到本地</p>
+                    <p style="margin-bottom: 12px;"><strong>打印文档</strong>: 按 Ctrl+P (Windows) / Cmd+P (Mac) 可打印或导出为PDF</p>
+                    <p style="margin-bottom: 12px;"><strong>分享文档</strong>: 可将HTML文件直接分享给团队成员查看</p>
+                    <p><strong>在线协作</strong>: 建议上传到团队文档管理平台进行版本控制和在线协作</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 页脚 -->
+        <footer style="text-align: center; margin-top: 64px; padding: 32px; background: var(--color-gray-100); border-radius: var(--radius-lg);">
+            <p style="color: var(--color-gray-600); margin-bottom: 8px;">
+                小家服务管理小程序 - 统计权限审批页详细设计文档
+            </p>
+            <p style="color: var(--color-gray-600); font-size: 14px;">
+                © 2025 小家服务管理项目组 | 最后更新: 2025-09-05
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

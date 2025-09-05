@@ -1,0 +1,2074 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小家服务管理小程序 - 档案页详细设计文档</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #374151;
+            background: #f9fafb;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            min-height: 100vh;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 3px solid #22C55E;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            color: #22C55E;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header .subtitle {
+            font-size: 1.2rem;
+            color: #6B7280;
+            margin-bottom: 20px;
+        }
+        
+        .header .meta {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+            color: #9CA3AF;
+        }
+        
+        .toc {
+            background: #F0FDF4;
+            border-left: 4px solid #22C55E;
+            padding: 30px;
+            margin-bottom: 50px;
+            border-radius: 8px;
+        }
+        
+        .toc h2 {
+            color: #22C55E;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .toc ol {
+            list-style: none;
+            counter-reset: section;
+        }
+        
+        .toc li {
+            counter-increment: section;
+            margin: 8px 0;
+        }
+        
+        .toc li:before {
+            content: counter(section) ". ";
+            color: #22C55E;
+            font-weight: bold;
+        }
+        
+        .toc a {
+            color: #374151;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .toc a:hover {
+            color: #22C55E;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+        }
+        
+        .section h2 {
+            color: #22C55E;
+            font-size: 2rem;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #DCFCE7;
+        }
+        
+        .section h3 {
+            color: #059669;
+            font-size: 1.5rem;
+            margin: 30px 0 15px 0;
+        }
+        
+        .section h4 {
+            color: #047857;
+            font-size: 1.2rem;
+            margin: 20px 0 10px 0;
+        }
+        
+        .section p {
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 20px 0;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .card {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .card h4 {
+            color: #22C55E;
+            margin-bottom: 10px;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #22C55E 0%, #059669 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .highlight h3 {
+            color: white;
+            margin-top: 0;
+        }
+        
+        .code-block {
+            background: #1F2937;
+            color: #F9FAFB;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 20px 0;
+            line-height: 1.5;
+        }
+        
+        .ascii-diagram {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            line-height: 1.2;
+            overflow-x: auto;
+            white-space: pre;
+        }
+        
+        .specs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.9rem;
+        }
+        
+        .specs-table th,
+        .specs-table td {
+            border: 1px solid #E5E7EB;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .specs-table th {
+            background: #22C55E;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .specs-table tr:nth-child(even) {
+            background: #F9FAFB;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #22C55E;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 2px;
+        }
+        
+        .badge.high { background: #EF4444; }
+        .badge.medium { background: #F59E0B; }
+        .badge.low { background: #22C55E; }
+        .badge.info { background: #3B82F6; }
+        .badge.purple { background: #8B5CF6; }
+        
+        .download-info {
+            background: #EFF6FF;
+            border: 1px solid #93C5FD;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .download-info h3 {
+            color: #1E40AF;
+            margin-bottom: 10px;
+        }
+        
+        .download-info p {
+            color: #1E3A8A;
+            margin-bottom: 0;
+        }
+        
+        .print-break {
+            page-break-before: always;
+        }
+        
+        ul, ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 5px;
+        }
+        
+        .mockup-container {
+            background: #F3F4F6;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .mockup-phone {
+            width: 360px;
+            margin: 0 auto;
+            background: #000;
+            border-radius: 25px;
+            padding: 8px;
+        }
+        
+        .mockup-screen {
+            background: white;
+            border-radius: 18px;
+            overflow: hidden;
+            height: 640px;
+            position: relative;
+        }
+        
+        .status-bar {
+            height: 24px;
+            background: #22C55E;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            font-size: 12px;
+        }
+        
+        .nav-header {
+            height: 44px;
+            background: #22C55E;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            font-weight: 600;
+        }
+        
+        .search-section {
+            padding: 12px;
+            background: #F9FAFB;
+            border-bottom: 1px solid #E5E7EB;
+        }
+        
+        .search-bar {
+            background: white;
+            border: 1px solid #D1D5DB;
+            border-radius: 20px;
+            padding: 8px 15px;
+            font-size: 14px;
+            color: #6B7280;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            padding: 12px;
+            gap: 8px;
+            font-size: 12px;
+            overflow-x: auto;
+        }
+        
+        .filter-tab {
+            padding: 6px 12px;
+            border-radius: 15px;
+            background: #F3F4F6;
+            color: #6B7280;
+            white-space: nowrap;
+            cursor: pointer;
+        }
+        
+        .filter-tab.active {
+            background: #22C55E;
+            color: white;
+        }
+        
+        .patient-item {
+            padding: 16px 12px;
+            border-bottom: 1px solid #F3F4F6;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .patient-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 20px;
+            background: #E5E7EB;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 16px;
+            flex-shrink: 0;
+        }
+        
+        .patient-content {
+            flex: 1;
+        }
+        
+        .patient-name {
+            font-size: 16px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #111827;
+        }
+        
+        .patient-meta {
+            font-size: 12px;
+            color: #6B7280;
+            margin-bottom: 6px;
+        }
+        
+        .patient-tags {
+            display: flex;
+            gap: 6px;
+            margin-bottom: 8px;
+        }
+        
+        .patient-tag {
+            padding: 2px 6px;
+            border-radius: 8px;
+            font-size: 10px;
+            background: #FEF3C7;
+            color: #92400E;
+        }
+        
+        .patient-actions {
+            display: flex;
+            gap: 8px;
+            margin-top: 8px;
+        }
+        
+        .action-btn {
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 11px;
+            border: 1px solid #D1D5DB;
+            background: white;
+            color: #374151;
+            cursor: pointer;
+        }
+        
+        .action-btn.primary {
+            background: #22C55E;
+            color: white;
+            border-color: #22C55E;
+        }
+        
+        .floating-fab {
+            position: fixed;
+            bottom: 80px;
+            right: 20px;
+            width: 56px;
+            height: 56px;
+            border-radius: 28px;
+            background: #22C55E;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            box-shadow: 0 4px 12px rgba(34, 197, 94, 0.3);
+        }
+        
+        .bottom-tabbar {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: white;
+            border-top: 1px solid #E5E7EB;
+            display: flex;
+            align-items: center;
+            justify-content: around;
+            font-size: 10px;
+        }
+        
+        .tab-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 4px;
+            color: #6B7280;
+        }
+        
+        .tab-item.active {
+            color: #22C55E;
+        }
+        
+        .wireframe-container {
+            background: #FAFAFA;
+            border: 2px dashed #D1D5DB;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            font-family: monospace;
+            font-size: 14px;
+            line-height: 1.4;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .header .meta {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .mockup-phone {
+                width: 300px;
+            }
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .container {
+                box-shadow: none;
+                padding: 0;
+            }
+            
+            .download-info {
+                display: none;
+            }
+            
+            .toc a {
+                text-decoration: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>小家服务管理小程序</h1>
+            <p class="subtitle">档案页详细设计文档</p>
+            <div class="meta">
+                <span><strong>版本:</strong> v2.0</span>
+                <span><strong>创建时间:</strong> 2025-09-04</span>
+                <span><strong>设计师:</strong> UX设计团队</span>
+                <span><strong>项目:</strong> 大病儿童家庭"小家"服务管理小程序</span>
+            </div>
+        </header>
+
+        <div class="download-info">
+            <h3>💾 文档使用说明</h3>
+            <p>右键点击页面选择"保存为"或按 Ctrl+S (Windows) / Cmd+S (Mac) 保存此文档到本地。<br>
+            也可以按 Ctrl+P (Windows) / Cmd+P (Mac) 打印或保存为PDF格式。</p>
+        </div>
+
+        <nav class="toc">
+            <h2>📋 目录</h2>
+            <ol>
+                <li><a href="#design-goals">设计目标与原则</a></li>
+                <li><a href="#page-architecture">页面架构设计</a></li>
+                <li><a href="#patient-list">档案列表页设计</a></li>
+                <li><a href="#patient-detail">档案详情页设计</a></li>
+                <li><a href="#patient-form">档案表单页设计</a></li>
+                <li><a href="#permission-system">权限系统设计</a></li>
+                <li><a href="#search-filter">搜索筛选功能</a></li>
+                <li><a href="#role-differences">角色差异化设计</a></li>
+                <li><a href="#interaction-design">交互行为规范</a></li>
+                <li><a href="#data-security">数据安全与脱敏</a></li>
+                <li><a href="#implementation">技术实现指导</a></li>
+                <li><a href="#quality-standards">质量验收标准</a></li>
+            </ol>
+        </nav>
+
+        <section id="design-goals" class="section">
+            <h2>1. 设计目标与原则</h2>
+            
+            <div class="highlight">
+                <h3>🎯 核心设计目标</h3>
+                <p><strong>高效档案管理</strong>: 提供直观、高效的患者档案管理体验，支持快速检索和更新<br>
+                <strong>安全权限控制</strong>: 基于角色的权限管理，确保敏感信息安全可控<br>
+                <strong>人性化关怀设计</strong>: 体现对患儿和家庭的温暖关怀，减轻使用心理负担<br>
+                <strong>工作流程优化</strong>: 简化档案创建、更新、查阅的操作流程</p>
+            </div>
+
+            <h3>🏆 成功指标</h3>
+            <ul>
+                <li><strong>档案查找效率</strong>: 从2-3分钟缩短至30秒内</li>
+                <li><strong>信息录入准确率</strong>: >98%</li>
+                <li><strong>权限申请成功率</strong>: >95%</li>
+                <li><strong>用户操作满意度</strong>: >4.5分(5分制)</li>
+            </ul>
+
+            <h3>设计原则</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>👥 以人为本</h4>
+                    <p>将患儿和家庭置于中心，每个档案都体现个体的独特性和尊严，避免冰冷的数据化展示。</p>
+                </div>
+                
+                <div class="card">
+                    <h4>🔒 安全第一</h4>
+                    <p>严格的权限控制和数据脱敏，在保护隐私的前提下提供必要的信息访问。</p>
+                </div>
+                
+                <div class="card">
+                    <h4>⚡ 效率优先</h4>
+                    <p>简化操作流程，减少页面跳转，提供智能搜索和快速操作入口。</p>
+                </div>
+                
+                <div class="card">
+                    <h4>🎨 温暖界面</h4>
+                    <p>使用温和的色彩和友好的图标，营造温暖关怀的氛围，减轻医疗场景的紧张感。</p>
+                </div>
+            </div>
+
+            <h3>目标用户画像</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>角色</th>
+                        <th>主要需求</th>
+                        <th>使用频率</th>
+                        <th>关键痛点</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>👨‍💼 管理员</td>
+                        <td>全面监控、数据分析、权限管理</td>
+                        <td>每日多次</td>
+                        <td>信息量大、决策依据不足</td>
+                    </tr>
+                    <tr>
+                        <td>👩‍💼 社工</td>
+                        <td>建档维护、状态跟踪、家庭沟通</td>
+                        <td>每日频繁</td>
+                        <td>录入繁琐、信息更新不及时</td>
+                    </tr>
+                    <tr>
+                        <td>👦 志愿者</td>
+                        <td>查看基本信息、了解服务历史</td>
+                        <td>服务前查看</td>
+                        <td>信息不完整、权限受限</td>
+                    </tr>
+                    <tr>
+                        <td>👨‍👩‍👧‍👦 家长</td>
+                        <td>了解孩子状态、服务记录</td>
+                        <td>定期查看</td>
+                        <td>信息滞后、缺少参与感</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="page-architecture" class="section print-break">
+            <h2>2. 页面架构设计</h2>
+            
+            <h3>档案模块整体架构</h3>
+            <div class="ascii-diagram">档案管理中心
+│
+├── 📋 档案列表页 (TabBar入口)
+│   ├── 🔍 智能搜索栏 
+│   ├── 🏷️ 分类筛选标签
+│   ├── 📊 统计概况卡片
+│   ├── 📁 分组档案列表
+│   │   ├── ⭐ 优先关注组
+│   │   ├── 🏠 当前在住组  
+│   │   └── 📚 历史档案组
+│   └── ➕ 浮动新建按钮
+│
+├── 👤 档案详情页
+│   ├── 📄 基本信息区
+│   ├── 🏥 医疗信息区
+│   ├── 🏠 入住记录区
+│   ├── ❤️ 服务历史区
+│   ├── 📅 活动参与区
+│   ├── 🔒 权限申请区
+│   └── 📱 快速操作栏
+│
+├── ✏️ 档案表单页
+│   ├── 📝 基础信息表单
+│   ├── 🏥 医疗信息表单
+│   ├── 👨‍👩‍👧‍👦 家庭信息表单
+│   ├── 📷 照片上传区
+│   └── 💾 保存操作区
+│
+├── 🛡️ 权限申请页
+│   ├── 🔒 申请字段选择
+│   ├── 📝 申请理由填写
+│   ├── ⏰ 有效期设置
+│   └── 📤 提交申请
+│
+└── 🔍 高级搜索页
+    ├── 🔢 多条件搜索
+    ├── 📅 时间范围选择
+    ├── 🏷️ 标签组合筛选
+    └── 📊 搜索结果统计</div>
+
+            <h3>页面导航关系</h3>
+            <div class="ascii-diagram">首页工作台 → 档案Tab → 档案列表页
+     ↓              ↓          ↓
+   快速操作        直接入口    搜索筛选
+     ↓              ↓          ↓
+   档案速查    →   档案详情 ←   点击档案项
+     ↓              ↓          ↓
+   申请权限    →   权限申请 →   审批流程
+                    ↓
+                编辑档案 → 档案表单页</div>
+
+            <h3>信息层级设计</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>信息层级</th>
+                        <th>展示位置</th>
+                        <th>权限要求</th>
+                        <th>脱敏程度</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>基础概况</td>
+                        <td>列表页卡片</td>
+                        <td>基础查看权限</td>
+                        <td>姓名脱敏、年龄可见</td>
+                    </tr>
+                    <tr>
+                        <td>基本信息</td>
+                        <td>详情页头部</td>
+                        <td>基础查看权限</td>
+                        <td>联系方式脱敏</td>
+                    </tr>
+                    <tr>
+                        <td>医疗信息</td>
+                        <td>详情页专区</td>
+                        <td>医疗查看权限</td>
+                        <td>详细诊断需申请</td>
+                    </tr>
+                    <tr>
+                        <td>家庭信息</td>
+                        <td>详情页专区</td>
+                        <td>家庭查看权限</td>
+                        <td>敏感信息需申请</td>
+                    </tr>
+                    <tr>
+                        <td>服务历史</td>
+                        <td>详情页时间线</td>
+                        <td>服务查看权限</td>
+                        <td>服务者信息脱敏</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="patient-list" class="section">
+            <h2>3. 档案列表页设计</h2>
+            
+            <h3>页面布局结构</h3>
+            <div class="mockup-container">
+                <div class="mockup-phone">
+                    <div class="mockup-screen">
+                        <div class="status-bar">
+                            <span>9:41</span>
+                            <span>100%</span>
+                        </div>
+                        <div class="nav-header">
+                            <span>👥 患者档案</span>
+                            <span>🔍 ⚙️ ➕</span>
+                        </div>
+                        <div class="search-section">
+                            <div class="search-bar">
+                                <span>🔍</span>
+                                <span>搜索患者档案...</span>
+                            </div>
+                        </div>
+                        <div class="filter-tabs">
+                            <div class="filter-tab active">全部</div>
+                            <div class="filter-tab">在住</div>
+                            <div class="filter-tab">即将出院</div>
+                            <div class="filter-tab">历史</div>
+                        </div>
+                        <div style="flex: 1; overflow-y: auto;">
+                            <div style="padding: 12px; background: #FEF3E2; border-bottom: 1px solid #FDBA74;">
+                                <div style="font-size: 14px; font-weight: 600; color: #92400E;">⭐ 优先关注 (3)</div>
+                            </div>
+                            <div class="patient-item">
+                                <div class="patient-avatar">👧</div>
+                                <div class="patient-content">
+                                    <div class="patient-name">李*明 · 8岁</div>
+                                    <div class="patient-meta">3号楼205床 · 入住15天</div>
+                                    <div class="patient-tags">
+                                        <span class="patient-tag">白血病</span>
+                                        <span class="patient-tag">治疗中</span>
+                                    </div>
+                                    <div class="patient-actions">
+                                        <button class="action-btn primary">查看档案</button>
+                                        <button class="action-btn">申请详情</button>
+                                        <button class="action-btn">联系家属</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="patient-item">
+                                <div class="patient-avatar">👦</div>
+                                <div class="patient-content">
+                                    <div class="patient-name">王*伟 · 6岁</div>
+                                    <div class="patient-meta">3号楼206床 · 入住8天</div>
+                                    <div class="patient-tags">
+                                        <span class="patient-tag">脑瘤</span>
+                                        <span class="patient-tag">手术后</span>
+                                    </div>
+                                    <div class="patient-actions">
+                                        <button class="action-btn primary">查看档案</button>
+                                        <button class="action-btn">编辑信息</button>
+                                        <button class="action-btn">服务记录</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div style="padding: 12px; background: #EFF6FF; border-bottom: 1px solid #93C5FD;">
+                                <div style="font-size: 14px; font-weight: 600; color: #1D4ED8;">🏠 当前在住 - 3号楼 (12)</div>
+                            </div>
+                            <div class="patient-item">
+                                <div class="patient-avatar">👧</div>
+                                <div class="patient-content">
+                                    <div class="patient-name">赵*朋友 · 4岁</div>
+                                    <div class="patient-meta">3号楼208床 · 入住3天</div>
+                                    <div class="patient-tags">
+                                        <span class="patient-tag">骨肉瘤</span>
+                                        <span class="patient-tag">新入住</span>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="floating-fab">➕</div>
+                        <div class="bottom-tabbar">
+                            <div class="tab-item">
+                                <span>🏠</span>
+                                <span>工作台</span>
+                            </div>
+                            <div class="tab-item active">
+                                <span>👥</span>
+                                <span>档案</span>
+                            </div>
+                            <div class="tab-item">
+                                <span>❤️</span>
+                                <span>服务</span>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>列表项设计规范</h3>
+            <div class="code-block">.patient-card {
+  background: white;
+  border-radius: 16px;
+  padding: 20px;
+  margin: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-left: 4px solid var(--priority-color);
+  transition: all 0.2s ease;
+}
+
+.patient-card:active {
+  transform: scale(0.98);
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.1);
+}
+
+.patient-header {
+  display: flex;
+  align-items: center;
+  gap: 16px;
+  margin-bottom: 16px;
+}
+
+.patient-avatar {
+  width: 56px;
+  height: 56px;
+  border-radius: 28px;
+  background: linear-gradient(135deg, #FED7E2 0%, #FBB6CE 100%);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 24px;
+}</div>
+
+            <h3>分组显示策略</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>⭐ 优先关注组</h4>
+                    <ul>
+                        <li>手动标星的重点患者</li>
+                        <li>病情危重需密切关注</li>
+                        <li>家庭情况特殊需要帮助</li>
+                        <li>即将出院需要跟进</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🏠 按楼栋分组</h4>
+                    <ul>
+                        <li>相同楼栋患者聚合显示</li>
+                        <li>便于物理位置管理</li>
+                        <li>支持楼栋间快速切换</li>
+                        <li>显示楼栋总体情况</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>快速操作设计</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>操作类型</th>
+                        <th>触发位置</th>
+                        <th>权限要求</th>
+                        <th>执行结果</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>查看档案</td>
+                        <td>主要操作按钮</td>
+                        <td>基础查看权限</td>
+                        <td>跳转到档案详情页</td>
+                    </tr>
+                    <tr>
+                        <td>申请详情</td>
+                        <td>次要操作按钮</td>
+                        <td>权限申请资格</td>
+                        <td>弹出权限申请弹窗</td>
+                    </tr>
+                    <tr>
+                        <td>联系家属</td>
+                        <td>辅助操作按钮</td>
+                        <td>联系权限</td>
+                        <td>调起通话或消息</td>
+                    </tr>
+                    <tr>
+                        <td>编辑信息</td>
+                        <td>管理操作(长按)</td>
+                        <td>编辑权限</td>
+                        <td>跳转到编辑表单页</td>
+                    </tr>
+                    <tr>
+                        <td>标星关注</td>
+                        <td>右上角星标</td>
+                        <td>基础权限</td>
+                        <td>加入优先关注组</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>列表性能优化</h3>
+            <div class="card">
+                <h4>📈 性能优化策略</h4>
+                <ul>
+                    <li><strong>虚拟滚动</strong>: 大量档案时只渲染可视区域项目</li>
+                    <li><strong>图片懒加载</strong>: 患者头像和证件照按需加载</li>
+                    <li><strong>分页加载</strong>: 每页加载20-30条记录</li>
+                    <li><strong>缓存机制</strong>: 缓存最近访问的档案列表</li>
+                    <li><strong>搜索防抖</strong>: 300ms防抖避免频繁请求</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="patient-detail" class="section print-break">
+            <h2>4. 档案详情页设计</h2>
+
+            <h3>页面整体布局</h3>
+            <div class="ascii-diagram">┌─────────────────────────────────────┐ ← 导航栏 (88rpx)
+│ ← 李小明档案        🔒 ⭐ 📤 ⋯      │
+├─────────────────────────────────────┤ ← 患者头像区 (160rpx)
+│     👧              李*明 · 8岁男孩  │
+│  患者头像            身份证: ****1234 │
+│                     床位: 3-205     │
+├─────────────────────────────────────┤ ← Tab导航 (60rpx)  
+│ [基本信息] [医疗信息] [入住记录] [服务历史] │
+├─────────────────────────────────────┤ ← 内容区域 (动态高度)
+│ 📄 基本信息                          │
+│ ┌─ 👤 个人信息                      │
+│ │   年龄: 8岁                       │
+│ │   性别: 男                        │
+│ │   籍贯: 河南省郑州市               │
+│ ├─ 👨‍👩‍👧‍👦 家庭信息 [申请查看详情]     │
+│ │   监护人: 李** (脱敏显示)          │
+│ │   联系电话: 138****5678           │
+│ │   家庭住址: [需要权限申请]          │
+│ └─ 💰 经济状况 [申请查看详情]          │
+│     收入水平: [需要权限申请]           │
+├─────────────────────────────────────┤ ← 快速操作区 (80rpx)
+│ [📞联系家属] [✏️编辑信息] [❤️添加服务]  │
+└─────────────────────────────────────┘</div>
+
+            <h3>Tab页面设计</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📄 基本信息Tab</h4>
+                    <ul>
+                        <li>个人基础信息(年龄、性别、籍贯)</li>
+                        <li>家庭信息(监护人、联系方式)</li>
+                        <li>经济状况(收入、负担能力)</li>
+                        <li>社会关系(紧急联系人)</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🏥 医疗信息Tab</h4>
+                    <ul>
+                        <li>诊断信息(主要诊断、次要诊断)</li>
+                        <li>治疗方案(当前治疗、既往治疗)</li>
+                        <li>过敏史(药物过敏、食物过敏)</li>
+                        <li>医疗文档(检查报告、影像资料)</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🏠 入住记录Tab</h4>
+                    <ul>
+                        <li>入住历史(时间、床位、费用)</li>
+                        <li>住宿状况(房间类型、同住家属)</li>
+                        <li>补助记录(补助金额、发放时间)</li>
+                        <li>退住管理(退住时间、原因)</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>❤️ 服务历史Tab</h4>
+                    <ul>
+                        <li>服务时间线(按时间倒序)</li>
+                        <li>服务类型统计(探访、心理、物资)</li>
+                        <li>服务提供者(志愿者、社工)</li>
+                        <li>服务效果评估(满意度、改善情况)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>权限申请组件设计</h3>
+            <div class="wireframe-container">
+┌─ 敏感字段显示组件 ─────────────┐
+│                                │
+│  🔒 家庭住址: [需要权限申请]     │
+│                                │
+│  [💡 申请查看详情] [ℹ️ 申请说明]  │
+│                                │
+│  申请状态: ⏳ 待审批 (剩余6小时)  │
+│  申请理由: 为患者提供上门服务     │
+│                                │
+└────────────────────────────────┘
+</div>
+
+            <div class="code-block">// 敏感字段组件
+const MaskedField = ({ 
+  label, 
+  value, 
+  masked = true, 
+  permission, 
+  onApply 
+}) => {
+  const [applying, setApplying] = useState(false);
+  const [status, setStatus] = useState(null);
+
+  const handleApply = () => {
+    setApplying(true);
+    onApply(permission).then(setStatus);
+  };
+
+  return (
+    &lt;div className="masked-field"&gt;
+      &lt;div className="field-label"&gt;{label}&lt;/div&gt;
+      &lt;div className="field-content"&gt;
+        {masked ? (
+          &lt;div className="masked-content"&gt;
+            &lt;span className="mask-text"&gt;[需要权限申请]&lt;/span&gt;
+            &lt;button 
+              className="apply-btn" 
+              onClick={handleApply}
+              disabled={applying}
+            &gt;
+              💡 申请查看详情
+            &lt;/button&gt;
+          &lt;/div&gt;
+        ) : (
+          &lt;span className="real-content"&gt;{value}&lt;/span&gt;
+        )}
+        
+        {status && (
+          &lt;div className="apply-status"&gt;
+            申请状态: {status.text}
+          &lt;/div&gt;
+        )}
+      &lt;/div&gt;
+    &lt;/div&gt;
+  );
+};</div>
+
+            <h3>医疗信息展示</h3>
+            <div class="card">
+                <h4>🏥 医疗信息结构</h4>
+                <div class="code-block">.medical-section {
+  .diagnosis-card {
+    background: #FEF3E2;
+    border-left: 4px solid #F59E0B;
+    padding: 16px;
+    border-radius: 12px;
+    margin-bottom: 16px;
+  }
+  
+  .treatment-timeline {
+    position: relative;
+    padding-left: 32px;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      left: 16px;
+      top: 0;
+      bottom: 0;
+      width: 2px;
+      background: #E5E7EB;
+    }
+  }
+  
+  .treatment-item {
+    position: relative;
+    margin-bottom: 24px;
+    
+    &::before {
+      content: '';
+      position: absolute;
+      left: -24px;
+      top: 8px;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      background: #22C55E;
+    }
+  }
+}</div>
+            </div>
+
+            <h3>入住记录时间线</h3>
+            <div class="ascii-diagram">入住记录时间线
+│
+├─ 2024-08-20 ~ 至今 (15天)
+│  ├─ 🏠 3号楼205床
+│  ├─ 💰 补助: ¥800/月  
+│  └─ 👥 陪护: 妈妈李女士
+│
+├─ 2024-07-15 ~ 2024-08-10 (26天) 
+│  ├─ 🏠 2号楼103床
+│  ├─ 💰 补助: ¥600/月
+│  └─ 👥 陪护: 爸爸李先生
+│
+└─ 2024-06-01 ~ 2024-07-10 (39天)
+   ├─ 🏠 1号楼201床  
+   ├─ 💰 补助: ¥500/月
+   └─ 👥 陪护: 奶奶</div>
+        </section>
+
+        <section id="patient-form" class="section">
+            <h2>5. 档案表单页设计</h2>
+
+            <h3>表单页面架构</h3>
+            <div class="ascii-diagram">┌─────────────────────────────────────┐ ← 导航栏
+│ ← 编辑档案          💾 📄 ⋯         │
+├─────────────────────────────────────┤ ← 进度指示器
+│ ● ○ ○ ○  基本信息 (1/4)             │
+├─────────────────────────────────────┤ ← 表单区域
+│ 📝 患者基本信息                      │
+│ ┌─────────────────────────────────┐  │
+│ │ 姓名 *                           │  │
+│ │ [李小明________________]         │  │
+│ │                                 │  │
+│ │ 性别 *   年龄 *                  │  │
+│ │ [男 ▼]   [8 岁__]              │  │
+│ │                                 │  │
+│ │ 身份证号 *                       │  │
+│ │ [41010120160315****]           │  │
+│ │                                 │  │
+│ │ 籍贯                            │  │
+│ │ [河南省_▼] [郑州市_▼]           │  │
+│ └─────────────────────────────────┘  │
+├─────────────────────────────────────┤ ← 操作区
+│ [⬅️ 上一步]        [下一步 ➡️]       │
+└─────────────────────────────────────┘</div>
+
+            <h3>表单分步设计</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>步骤</th>
+                        <th>表单内容</th>
+                        <th>必填字段</th>
+                        <th>验证规则</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1/4 基本信息</td>
+                        <td>姓名、性别、年龄、身份证、籍贯</td>
+                        <td>姓名、性别、年龄、身份证</td>
+                        <td>身份证格式、年龄合理性</td>
+                    </tr>
+                    <tr>
+                        <td>2/4 医疗信息</td>
+                        <td>主要诊断、治疗医院、过敏史</td>
+                        <td>主要诊断、治疗医院</td>
+                        <td>诊断规范性、医院有效性</td>
+                    </tr>
+                    <tr>
+                        <td>3/4 家庭信息</td>
+                        <td>监护人、联系方式、家庭住址</td>
+                        <td>监护人姓名、联系电话</td>
+                        <td>手机号格式、关系合理性</td>
+                    </tr>
+                    <tr>
+                        <td>4/4 补充信息</td>
+                        <td>照片上传、特殊需求、备注</td>
+                        <td>无必填</td>
+                        <td>图片格式、大小限制</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>表单组件规范</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📝 输入框设计</h4>
+                    <ul>
+                        <li><strong>标准高度</strong>: 48px，便于触控操作</li>
+                        <li><strong>边框样式</strong>: 1px灰色，聚焦时绿色</li>
+                        <li><strong>内边距</strong>: 16px水平，12px垂直</li>
+                        <li><strong>错误状态</strong>: 红色边框+错误提示</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📋 下拉选择器</h4>
+                    <ul>
+                        <li><strong>触发区域</strong>: 与输入框样式一致</li>
+                        <li><strong>选项列表</strong>: 最多显示6个选项</li>
+                        <li><strong>搜索支持</strong>: 长列表支持键入搜索</li>
+                        <li><strong>多选模式</strong>: 标签形式显示已选项</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📷 图片上传</h4>
+                    <ul>
+                        <li><strong>拖拽上传</strong>: 支持拖拽和点击上传</li>
+                        <li><strong>预览功能</strong>: 上传后即时预览</li>
+                        <li><strong>格式限制</strong>: JPG、PNG，最大5MB</li>
+                        <li><strong>数量限制</strong>: 患者照片最多3张</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📅 日期选择器</h4>
+                    <ul>
+                        <li><strong>原生组件</strong>: 使用小程序原生picker</li>
+                        <li><strong>日期范围</strong>: 合理的最小最大值</li>
+                        <li><strong>快捷选择</strong>: 今天、昨天等快捷选项</li>
+                        <li><strong>格式显示</strong>: YYYY-MM-DD格式</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>表单验证机制</h3>
+            <div class="code-block">// 表单验证规则
+const validationRules = {
+  name: {
+    required: true,
+    minLength: 2,
+    maxLength: 10,
+    pattern: /^[\u4e00-\u9fa5]+$/,
+    message: '姓名必须为2-10位中文字符'
+  },
+  
+  idCard: {
+    required: true,
+    pattern: /(^\d{15}$)|(^\d{18}$)|(^\d{17}(\d|X|x)$)/,
+    message: '请输入正确的身份证号码',
+    validator: (value) => {
+      // 身份证校验码验证
+      return validateIdCard(value);
+    }
+  },
+  
+  phone: {
+    required: true,
+    pattern: /^1[3-9]\d{9}$/,
+    message: '请输入正确的手机号码'
+  },
+  
+  age: {
+    required: true,
+    min: 0,
+    max: 18,
+    message: '患者年龄必须在0-18岁之间'
+  }
+};
+
+// 实时验证函数
+const validateField = (field, value) => {
+  const rule = validationRules[field];
+  if (!rule) return { valid: true };
+  
+  // 必填验证
+  if (rule.required && !value) {
+    return { valid: false, message: `${field}为必填项` };
+  }
+  
+  // 格式验证
+  if (rule.pattern && !rule.pattern.test(value)) {
+    return { valid: false, message: rule.message };
+  }
+  
+  // 自定义验证
+  if (rule.validator && !rule.validator(value)) {
+    return { valid: false, message: rule.message };
+  }
+  
+  return { valid: true };
+};</div>
+
+            <h3>保存策略设计</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>💾 自动保存</h4>
+                    <ul>
+                        <li><strong>触发时机</strong>: 字段失焦后2秒</li>
+                        <li><strong>保存范围</strong>: 单个字段或字段组</li>
+                        <li><strong>状态提示</strong>: 保存中/已保存/保存失败</li>
+                        <li><strong>冲突处理</strong>: 版本冲突时用户确认</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🔒 手动保存</h4>
+                    <ul>
+                        <li><strong>保存按钮</strong>: 表单底部固定保存</li>
+                        <li><strong>全量验证</strong>: 保存前验证所有字段</li>
+                        <li><strong>确认提示</strong>: 重要信息修改时确认</li>
+                        <li><strong>撤销功能</strong>: 支持撤销最近修改</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="permission-system" class="section print-break">
+            <h2>6. 权限系统设计</h2>
+
+            <h3>权限层级结构</h3>
+            <div class="ascii-diagram">权限层级系统
+│
+├── 📖 基础查看权限 (所有角色)
+│   ├── 脱敏后的姓名、年龄
+│   ├── 病情基本描述  
+│   ├── 床位、入住时间
+│   └── 服务记录概要
+│
+├── 🔍 详细查看权限 (社工、管理员)
+│   ├── 完整姓名、身份证
+│   ├── 详细医疗信息
+│   ├── 家庭基本信息
+│   └── 完整服务历史
+│
+├── ✏️ 编辑权限 (社工、管理员)  
+│   ├── 修改基本信息
+│   ├── 更新医疗状态
+│   ├── 管理入住记录
+│   └── 审核服务记录
+│
+├── 🔒 敏感信息权限 (申请制)
+│   ├── 家庭详细住址
+│   ├── 经济收入状况
+│   ├── 详细联系方式  
+│   └── 隐私敏感信息
+│
+└── 👑 管理员专属权限
+    ├── 用户权限管理
+    ├── 数据导出权限
+    ├── 系统配置管理
+    └── 审计日志查看</div>
+
+            <h3>权限申请流程</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>步骤</th>
+                        <th>操作人</th>
+                        <th>操作内容</th>
+                        <th>时间限制</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1. 申请提交</td>
+                        <td>申请人</td>
+                        <td>选择字段、填写理由、设置期限</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>2. 审核处理</td>
+                        <td>管理员/社工</td>
+                        <td>审查申请理由、决定批准或拒绝</td>
+                        <td>24小时内</td>
+                    </tr>
+                    <tr>
+                        <td>3. 结果通知</td>
+                        <td>系统</td>
+                        <td>发送通知给申请人和相关人员</td>
+                        <td>即时</td>
+                    </tr>
+                    <tr>
+                        <td>4. 权限生效</td>
+                        <td>系统</td>
+                        <td>开放对应字段的查看权限</td>
+                        <td>即时</td>
+                    </tr>
+                    <tr>
+                        <td>5. 权限回收</td>
+                        <td>系统</td>
+                        <td>到期后自动回收权限</td>
+                        <td>按设定期限</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>权限申请界面设计</h3>
+            <div class="wireframe-container">
+┌─ 权限申请表单 ─────────────────────┐
+│                                    │
+│ 🔒 申请查看敏感信息                 │
+│                                    │  
+│ 申请字段: ☑️ 家庭住址                │
+│          ☑️ 监护人身份证             │
+│          ☐ 家庭收入状况             │
+│                                    │
+│ 申请理由: *                        │
+│ ┌────────────────────────────────┐ │
+│ │ 为李小明提供上门康复指导服务，    │ │
+│ │ 需要了解详细家庭住址信息          │ │
+│ └────────────────────────────────┘ │
+│                                    │
+│ 有效期: [7天 ▼]                    │  
+│                                    │
+│ 预计使用: [服务时使用 ▼]            │
+│                                    │
+│ [取消]              [提交申请]      │
+└────────────────────────────────────┘
+</div>
+
+            <h3>权限状态显示</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🟢 权限正常状态</h4>
+                    <ul>
+                        <li>绿色图标和文字提示</li>
+                        <li>显示权限到期时间</li>
+                        <li>提供续期申请入口</li>
+                        <li>显示权限使用次数</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🔴 权限受限状态</h4>
+                    <ul>
+                        <li>红色图标和提示信息</li>
+                        <li>显示受限原因</li>
+                        <li>提供申请权限入口</li>
+                        <li>显示申请处理时间</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🟡 权限申请中状态</h4>
+                    <ul>
+                        <li>黄色图标和等待提示</li>
+                        <li>显示申请提交时间</li>
+                        <li>显示预计处理时间</li>
+                        <li>提供催办或撤销选项</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>⏰ 权限即将过期</h4>
+                    <ul>
+                        <li>橙色图标和倒计时</li>
+                        <li>显示剩余有效时间</li>
+                        <li>提供续期申请按钮</li>
+                        <li>发送过期前提醒</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>审批管理界面</h3>
+            <div class="code-block">// 权限审批组件
+const PermissionApproval = ({ request, onApprove, onReject }) => {
+  const [decision, setDecision] = useState('');
+  const [reason, setReason] = useState('');
+
+  return (
+    &lt;div className="approval-card"&gt;
+      &lt;div className="request-info"&gt;
+        &lt;h3&gt;{request.applicant} 申请查看敏感信息&lt;/h3&gt;
+        &lt;p&gt;患者: {request.patientName}&lt;/p&gt;
+        &lt;p&gt;字段: {request.fields.join(', ')}&lt;/p&gt;
+        &lt;p&gt;理由: {request.reason}&lt;/p&gt;
+        &lt;p&gt;申请时间: {request.createdAt}&lt;/p&gt;
+      &lt;/div&gt;
+      
+      &lt;div className="approval-actions"&gt;
+        &lt;button 
+          className="approve-btn"
+          onClick={() => onApprove(request.id, reason)}
+        &gt;
+          ✅ 批准申请
+        &lt;/button&gt;
+        &lt;button 
+          className="reject-btn"
+          onClick={() => onReject(request.id, reason)}
+        &gt;
+          ❌ 拒绝申请
+        &lt;/button&gt;
+      &lt;/div&gt;
+      
+      &lt;textarea
+        placeholder="审批意见（选填）"
+        value={reason}
+        onChange={(e) => setReason(e.target.value)}
+      /&gt;
+    &lt;/div&gt;
+  );
+};</code>
+            </div>
+        </section>
+
+        <section id="search-filter" class="section">
+            <h2>7. 搜索筛选功能</h2>
+
+            <h3>搜索功能设计</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🔍 智能搜索</h4>
+                    <ul>
+                        <li><strong>模糊匹配</strong>: 姓名、床位号、诊断关键词</li>
+                        <li><strong>拼音支持</strong>: 支持拼音首字母搜索</li>
+                        <li><strong>搜索建议</strong>: 输入时显示相关建议</li>
+                        <li><strong>搜索历史</strong>: 记录最近搜索内容</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🏷️ 筛选分类</h4>
+                    <ul>
+                        <li><strong>入住状态</strong>: 在住、即将出院、已出院</li>
+                        <li><strong>楼栋分组</strong>: 按楼栋号筛选患者</li>
+                        <li><strong>年龄段</strong>: 0-3岁、4-7岁、8-12岁等</li>
+                        <li><strong>病情类型</strong>: 按主要诊断分类</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📊 高级筛选</h4>
+                    <ul>
+                        <li><strong>时间范围</strong>: 入住时间、服务时间筛选</li>
+                        <li><strong>多条件组合</strong>: 支持多个条件同时筛选</li>
+                        <li><strong>自定义保存</strong>: 保存常用筛选组合</li>
+                        <li><strong>统计信息</strong>: 显示筛选结果统计</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📋 排序选项</h4>
+                    <ul>
+                        <li><strong>时间排序</strong>: 按入住时间、更新时间</li>
+                        <li><strong>优先级</strong>: 标星患者优先显示</li>
+                        <li><strong>床位号</strong>: 按楼栋床位号排序</li>
+                        <li><strong>年龄排序</strong>: 按患者年龄升序或降序</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>搜索结果优化</h3>
+            <div class="ascii-diagram">搜索: "李小明"
+│
+├── 🎯 精确匹配 (1)
+│   └── 李小明 · 8岁 · 3-205床
+│
+├── 📋 相关患者 (2)  
+│   ├── 李大明 · 6岁 · 2-103床
+│   └── 王小明 · 7岁 · 1-201床
+│
+├── ❤️ 相关服务记录 (3)
+│   ├── 李小明心理陪伴 - 昨天
+│   ├── 李小明物资发放 - 3天前  
+│   └── 李小明探访记录 - 1周前
+│
+└── 📅 相关活动 (1)
+    └── 小明生日会 - 本周六</div>
+
+            <h3>筛选标签组件</h3>
+            <div class="code-block">.filter-tags {
+  display: flex;
+  gap: 8px;
+  padding: 12px 16px;
+  overflow-x: auto;
+  background: #F9FAFB;
+  border-bottom: 1px solid #E5E7EB;
+}
+
+.filter-tag {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 12px;
+  border-radius: 16px;
+  font-size: 12px;
+  font-weight: 500;
+  white-space: nowrap;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &.active {
+    background: #22C55E;
+    color: white;
+  }
+  
+  &:not(.active) {
+    background: white;
+    color: #6B7280;
+    border: 1px solid #D1D5DB;
+    
+    &:hover {
+      border-color: #22C55E;
+      color: #22C55E;
+    }
+  }
+}
+
+.filter-count {
+  background: rgba(255, 255, 255, 0.3);
+  border-radius: 10px;
+  padding: 0 6px;
+  font-size: 10px;
+}</div>
+
+            <h3>搜索性能优化</h3>
+            <div class="card">
+                <h4>⚡ 搜索优化策略</h4>
+                <ul>
+                    <li><strong>防抖处理</strong>: 输入后300ms才执行搜索</li>
+                    <li><strong>结果缓存</strong>: 缓存最近10次搜索结果</li>
+                    <li><strong>分页加载</strong>: 大量结果时分批加载</li>
+                    <li><strong>索引优化</strong>: 后端建立搜索索引</li>
+                    <li><strong>模糊匹配</strong>: 使用高效的模糊搜索算法</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="role-differences" class="section print-break">
+            <h2>8. 角色差异化设计</h2>
+
+            <h3>管理员档案页面</h3>
+            <div class="card">
+                <h4>👨‍💼 管理员特殊功能</h4>
+                <ul>
+                    <li><strong>全局档案视图</strong>: 可查看所有患者的完整信息</li>
+                    <li><strong>批量操作</strong>: 支持批量编辑、导出、删除</li>
+                    <li><strong>数据分析</strong>: 档案统计分析和趋势展示</li>
+                    <li><strong>权限管理</strong>: 查看和管理其他用户的权限申请</li>
+                    <li><strong>系统配置</strong>: 字段配置、模板设置</li>
+                </ul>
+            </div>
+
+            <h3>社工档案页面</h3>
+            <div class="card">
+                <h4>👩‍💼 社工专业功能</h4>
+                <ul>
+                    <li><strong>案例管理</strong>: 分配给自己的患者案例管理</li>
+                    <li><strong>家庭跟进</strong>: 家庭访问记录、沟通日志</li>
+                    <li><strong>服务计划</strong>: 制定和跟踪服务计划</li>
+                    <li><strong>评估工具</strong>: 专业评估表格和工具</li>
+                    <li><strong>协调联络</strong>: 医护、志愿者、家属协调</li>
+                </ul>
+            </div>
+
+            <h3>志愿者档案页面</h3>
+            <div class="card">
+                <h4>👦 志愿者简化界面</h4>
+                <ul>
+                    <li><strong>服务导向</strong>: 重点显示服务相关信息</li>
+                    <li><strong>脱敏展示</strong>: 隐私信息适度脱敏</li>
+                    <li><strong>服务指南</strong>: 针对患者的服务建议</li>
+                    <li><strong>快速记录</strong>: 简化的服务记录入口</li>
+                    <li><strong>安全提醒</strong>: 隐私保护和安全提醒</li>
+                </ul>
+            </div>
+
+            <h3>家长档案页面</h3>
+            <div class="card">
+                <h4>👨‍👩‍👧‍👦 家长关注重点</h4>
+                <ul>
+                    <li><strong>孩子中心</strong>: 只显示自己孩子的信息</li>
+                    <li><strong>治疗进展</strong>: 重点展示治疗进展和效果</li>
+                    <li><strong>服务记录</strong>: 孩子接受的服务详细记录</li>
+                    <li><strong>活动参与</strong>: 适合参与的活动推荐</li>
+                    <li><strong>沟通渠道</strong>: 与医护人员的沟通记录</li>
+                </ul>
+            </div>
+
+            <h3>角色界面对比</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>功能模块</th>
+                        <th>管理员</th>
+                        <th>社工</th>
+                        <th>志愿者</th>
+                        <th>家长</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>档案列表</td>
+                        <td>全部档案</td>
+                        <td>负责档案</td>
+                        <td>服务档案</td>
+                        <td>自家孩子</td>
+                    </tr>
+                    <tr>
+                        <td>详细信息</td>
+                        <td>完整信息</td>
+                        <td>工作相关</td>
+                        <td>基础信息</td>
+                        <td>孩子全部</td>
+                    </tr>
+                    <tr>
+                        <td>编辑权限</td>
+                        <td>全部可编辑</td>
+                        <td>分配可编辑</td>
+                        <td>不可编辑</td>
+                        <td>不可编辑</td>
+                    </tr>
+                    <tr>
+                        <td>新建档案</td>
+                        <td>✅ 支持</td>
+                        <td>✅ 支持</td>
+                        <td>❌ 不支持</td>
+                        <td>❌ 不支持</td>
+                    </tr>
+                    <tr>
+                        <td>数据导出</td>
+                        <td>✅ 支持</td>
+                        <td>✅ 支持</td>
+                        <td>❌ 不支持</td>
+                        <td>❌ 不支持</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="interaction-design" class="section">
+            <h2>9. 交互行为规范</h2>
+
+            <h3>页面间跳转动画</h3>
+            <div class="code-block">// 页面切换动画
+.page-transition {
+  &.slide-enter {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  
+  &.slide-enter-active {
+    transform: translateX(0);
+    opacity: 1;
+    transition: all 0.3s ease-out;
+  }
+  
+  &.slide-exit {
+    transform: translateX(0);
+    opacity: 1;
+  }
+  
+  &.slide-exit-active {
+    transform: translateX(-100%);
+    opacity: 0;
+    transition: all 0.3s ease-in;
+  }
+}
+
+// 模态框动画
+.modal-transition {
+  &.modal-enter {
+    transform: scale(0.8);
+    opacity: 0;
+  }
+  
+  &.modal-enter-active {
+    transform: scale(1);
+    opacity: 1;
+    transition: all 0.2s ease-out;
+  }
+}</code>
+            </div>
+
+            <h3>手势操作支持</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📱 移动端手势</h4>
+                    <ul>
+                        <li><strong>长按</strong>: 档案卡片长按显示快速操作菜单</li>
+                        <li><strong>左滑</strong>: 档案项左滑显示编辑、删除选项</li>
+                        <li><strong>下拉刷新</strong>: 下拉刷新档案列表</li>
+                        <li><strong>双击</strong>: 双击档案卡片快速进入详情</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🖱️ 桌面端交互</h4>
+                    <ul>
+                        <li><strong>悬停</strong>: 鼠标悬停显示快速预览</li>
+                        <li><strong>右键</strong>: 右键菜单提供常用操作</li>
+                        <li><strong>快捷键</strong>: Ctrl+N新建、Ctrl+F搜索</li>
+                        <li><strong>拖拽</strong>: 拖拽文件到上传区域</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>状态反馈设计</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>操作类型</th>
+                        <th>反馈方式</th>
+                        <th>反馈时间</th>
+                        <th>视觉效果</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>点击操作</td>
+                        <td>视觉反馈</td>
+                        <td>即时</td>
+                        <td>缩放动画(98%)</td>
+                    </tr>
+                    <tr>
+                        <td>数据保存</td>
+                        <td>Toast提示</td>
+                        <td>操作完成后</td>
+                        <td>绿色成功提示</td>
+                    </tr>
+                    <tr>
+                        <td>网络请求</td>
+                        <td>Loading状态</td>
+                        <td>请求期间</td>
+                        <td>旋转Loading图标</td>
+                    </tr>
+                    <tr>
+                        <td>表单验证</td>
+                        <td>实时提示</td>
+                        <td>输入时</td>
+                        <td>红色错误边框</td>
+                    </tr>
+                    <tr>
+                        <td>权限申请</td>
+                        <td>状态更新</td>
+                        <td>状态变化时</td>
+                        <td>彩色状态标签</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>错误处理与恢复</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🚫 错误处理</h4>
+                    <ul>
+                        <li><strong>网络错误</strong>: 显示网络状态，提供重试按钮</li>
+                        <li><strong>权限错误</strong>: 友好提示权限问题，提供申请入口</li>
+                        <li><strong>数据错误</strong>: 具体错误信息，指导用户修正</li>
+                        <li><strong>系统错误</strong>: 通用错误页面，联系管理员</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🔄 恢复机制</h4>
+                    <ul>
+                        <li><strong>自动重试</strong>: 网络请求失败自动重试3次</li>
+                        <li><strong>数据缓存</strong>: 本地缓存避免重复请求</li>
+                        <li><strong>离线模式</strong>: 离线时显示缓存数据</li>
+                        <li><strong>状态恢复</strong>: 刷新页面后恢复用户状态</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>无障碍访问支持</h3>
+            <div class="code-block">// 无障碍访问优化
+.accessible-design {
+  // 键盘导航支持
+  .focusable {
+    &:focus {
+      outline: 3px solid #22C55E;
+      outline-offset: 2px;
+    }
+  }
+  
+  // 屏幕阅读器支持
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+  }
+  
+  // 高对比度模式
+  @media (prefers-contrast: high) {
+    .patient-card {
+      border: 2px solid #000;
+    }
+  }
+  
+  // 减少动画
+  @media (prefers-reduced-motion: reduce) {
+    * {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+    }
+  }
+}</code>
+            </div>
+        </section>
+
+        <section id="data-security" class="section print-break">
+            <h2>10. 数据安全与脱敏</h2>
+
+            <h3>数据脱敏策略</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>数据类型</th>
+                        <th>脱敏规则</th>
+                        <th>显示示例</th>
+                        <th>适用角色</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>姓名</td>
+                        <td>首末字符保留，中间用*代替</td>
+                        <td>李*明、王*华</td>
+                        <td>志愿者</td>
+                    </tr>
+                    <tr>
+                        <td>身份证</td>
+                        <td>前6位和后4位保留</td>
+                        <td>410102********1234</td>
+                        <td>社工、志愿者</td>
+                    </tr>
+                    <tr>
+                        <td>手机号</td>
+                        <td>前3位和后4位保留</td>
+                        <td>138****5678</td>
+                        <td>志愿者</td>
+                    </tr>
+                    <tr>
+                        <td>家庭地址</td>
+                        <td>省市保留，详细地址隐藏</td>
+                        <td>河南省郑州市****</td>
+                        <td>志愿者</td>
+                    </tr>
+                    <tr>
+                        <td>银行账户</td>
+                        <td>完全隐藏，需申请权限</td>
+                        <td>[需要权限申请]</td>
+                        <td>所有角色</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>数据安全措施</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🔐 传输安全</h4>
+                    <ul>
+                        <li><strong>HTTPS加密</strong>: 所有数据传输使用TLS1.3</li>
+                        <li><strong>API签名</strong>: 请求签名防止篡改</li>
+                        <li><strong>敏感数据加密</strong>: AES-256加密存储</li>
+                        <li><strong>访问日志</strong>: 完整记录访问轨迹</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🛡️ 访问控制</h4>
+                    <ul>
+                        <li><strong>JWT Token</strong>: 用户身份验证</li>
+                        <li><strong>权限验证</strong>: 接口级权限检查</li>
+                        <li><strong>IP白名单</strong>: 限制访问来源</li>
+                        <li><strong>会话管理</strong>: 自动过期和安全登出</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📊 审计监控</h4>
+                    <ul>
+                        <li><strong>操作日志</strong>: 记录所有敏感操作</li>
+                        <li><strong>异常检测</strong>: 检测异常访问模式</li>
+                        <li><strong>数据完整性</strong>: 数据校验和一致性检查</li>
+                        <li><strong>备份恢复</strong>: 定期备份和灾难恢复</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>👥 用户安全</h4>
+                    <ul>
+                        <li><strong>密码策略</strong>: 强密码和定期更换</li>
+                        <li><strong>多因素认证</strong>: SMS或邮箱二次验证</li>
+                        <li><strong>隐私保护</strong>: 遵循GDPR等隐私法规</li>
+                        <li><strong>安全培训</strong>: 用户安全意识培训</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>脱敏组件实现</h3>
+            <div class="code-block">// 数据脱敏工具类
+class DataMasker {
+  // 姓名脱敏
+  static maskName(name) {
+    if (!name || name.length < 2) return name;
+    if (name.length === 2) {
+      return name[0] + '*';
+    }
+    return name[0] + '*'.repeat(name.length - 2) + name[name.length - 1];
+  }
+  
+  // 身份证脱敏  
+  static maskIdCard(idCard) {
+    if (!idCard || idCard.length < 8) return '[身份证信息]';
+    return idCard.substring(0, 6) + '********' + idCard.substring(idCard.length - 4);
+  }
+  
+  // 手机号脱敏
+  static maskPhone(phone) {
+    if (!phone || phone.length !== 11) return '[联系电话]';
+    return phone.substring(0, 3) + '****' + phone.substring(7);
+  }
+  
+  // 地址脱敏
+  static maskAddress(address) {
+    if (!address) return '[家庭地址]';
+    const parts = address.split(/[省市区县]/);
+    if (parts.length >= 2) {
+      return parts[0] + '省' + parts[1] + '市****';
+    }
+    return '[家庭地址]';
+  }
+  
+  // 根据权限决定是否脱敏
+  static maskByPermission(value, fieldType, userRole, hasPermission) {
+    if (hasPermission) return value;
+    
+    const maskMethods = {
+      name: this.maskName,
+      idCard: this.maskIdCard, 
+      phone: this.maskPhone,
+      address: this.maskAddress
+    };
+    
+    const maskMethod = maskMethods[fieldType];
+    return maskMethod ? maskMethod(value) : '[需要权限申请]';
+  }
+}</code>
+            </div>
+        </section>
+
+        <section id="implementation" class="section">
+            <h2>11. 技术实现指导</h2>
+
+            <h3>页面组件架构</h3>
+            <div class="code-block">// 档案列表页面组件
+const PatientListPage = () => {
+  const [patients, setPatients] = useState([]);
+  

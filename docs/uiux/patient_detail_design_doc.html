@@ -1,0 +1,1499 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>档案详情页详细设计文档 - 小家服务管理小程序</title>
+    <style>
+        :root {
+            --primary-color: #007AFF;
+            --success-color: #34C759;
+            --warning-color: #FF9500;
+            --error-color: #FF3B30;
+            --text-primary: #1D1D1F;
+            --text-secondary: #8E8E93;
+            --bg-gray: #F2F2F7;
+            --border-color: #E5E5E7;
+            --shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            line-height: 1.6;
+            color: var(--text-primary);
+            background: #FAFAFA;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 32px;
+            background: white;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 48px;
+            padding-bottom: 24px;
+            border-bottom: 3px solid var(--primary-color);
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--primary-color);
+            margin-bottom: 8px;
+        }
+
+        .header .subtitle {
+            font-size: 18px;
+            color: var(--text-secondary);
+            margin-bottom: 16px;
+        }
+
+        .meta-info {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            margin-top: 16px;
+        }
+
+        .meta-info span {
+            padding: 6px 12px;
+            background: var(--bg-gray);
+            border-radius: 20px;
+            font-size: 14px;
+            color: var(--text-secondary);
+        }
+
+        .section {
+            margin-bottom: 48px;
+        }
+
+        .section h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin-bottom: 24px;
+            padding-bottom: 8px;
+            border-bottom: 2px solid var(--bg-gray);
+        }
+
+        .section h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 24px 0 16px 0;
+        }
+
+        .section h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: var(--text-primary);
+            margin: 16px 0 12px 0;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid var(--border-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 16px;
+            box-shadow: var(--shadow);
+        }
+
+        .highlight-card {
+            background: linear-gradient(135deg, #F0F8FF 0%, #E1F5FE 100%);
+            border: 2px solid var(--primary-color);
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .highlight-card h3 {
+            color: var(--primary-color);
+            margin-top: 0;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .wireframe-container {
+            background: #F8F9FA;
+            border: 2px dashed #DEE2E6;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px 0;
+            font-family: 'Courier New', monospace;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.4;
+        }
+
+        .ascii-diagram {
+            background: #1E293B;
+            color: #E2E8F0;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.5;
+        }
+
+        .code-block {
+            background: #282C34;
+            color: #ABB2BF;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 16px 0;
+            font-family: 'Consolas', 'Monaco', 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            white-space: pre;
+            line-height: 1.5;
+        }
+
+        .specs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: var(--shadow);
+        }
+
+        .specs-table th,
+        .specs-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .specs-table th {
+            background: var(--bg-gray);
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .specs-table tr:hover {
+            background: #FAFBFC;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+            margin-right: 8px;
+        }
+
+        .tag.primary {
+            background: #E3F2FD;
+            color: #1565C0;
+        }
+
+        .tag.success {
+            background: #E8F5E8;
+            color: #2E7D32;
+        }
+
+        .tag.warning {
+            background: #FFF3E0;
+            color: #EF6C00;
+        }
+
+        .tag.danger {
+            background: #FFEBEE;
+            color: #C62828;
+        }
+
+        .tag.secondary {
+            background: #F5F5F5;
+            color: #616161;
+        }
+
+        .status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 14px;
+            font-weight: 500;
+        }
+
+        .status-pending {
+            background: #FFF3CD;
+            color: #B25000;
+        }
+
+        .status-approved {
+            background: #D1F2EB;
+            color: #00875A;
+        }
+
+        .status-rejected {
+            background: #FFEBEE;
+            color: #D32F2F;
+        }
+
+        .status-completed {
+            background: #E8F5E8;
+            color: #2E7D32;
+        }
+
+        .mockup-container {
+            display: flex;
+            justify-content: center;
+            margin: 32px 0;
+        }
+
+        .mockup-phone {
+            width: 300px;
+            height: 600px;
+            background: #000;
+            border-radius: 24px;
+            padding: 8px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
+        }
+
+        .mockup-screen {
+            width: 100%;
+            height: 100%;
+            background: white;
+            border-radius: 16px;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .status-bar {
+            height: 24px;
+            background: #F2F2F7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .nav-header {
+            height: 44px;
+            background: white;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 16px;
+            border-bottom: 1px solid var(--border-color);
+            font-weight: 600;
+        }
+
+        .patient-header {
+            padding: 20px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .patient-name {
+            font-size: 24px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .patient-meta {
+            font-size: 14px;
+            opacity: 0.9;
+            margin-bottom: 4px;
+        }
+
+        .permission-section {
+            padding: 16px;
+            background: #FFFBF0;
+            border-left: 4px solid var(--warning-color);
+            margin: 16px 0;
+        }
+
+        .permission-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 0;
+            border-bottom: 1px solid #F0F0F0;
+        }
+
+        .permission-item:last-child {
+            border-bottom: none;
+        }
+
+        .masked-field {
+            color: var(--text-secondary);
+            font-style: italic;
+        }
+
+        .apply-btn {
+            background: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 6px 12px;
+            border-radius: 16px;
+            font-size: 12px;
+            cursor: pointer;
+        }
+
+        .timeline {
+            border-left: 3px solid var(--primary-color);
+            padding-left: 20px;
+            margin: 24px 0;
+        }
+
+        .timeline-item {
+            margin-bottom: 24px;
+            position: relative;
+        }
+
+        .timeline-item::before {
+            content: '';
+            position: absolute;
+            left: -26px;
+            top: 6px;
+            width: 12px;
+            height: 12px;
+            background: var(--primary-color);
+            border-radius: 50%;
+        }
+
+        .timeline-date {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+        }
+
+        .timeline-content {
+            background: white;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+        }
+
+        ul, ol {
+            padding-left: 24px;
+            margin: 12px 0;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .print-break {
+            page-break-before: always;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .grid-2,
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .meta-info {
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .container {
+                max-width: none;
+                padding: 0;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 文档头部 -->
+        <header class="header">
+            <h1>📋 档案详情页详细设计文档</h1>
+            <p class="subtitle">小家服务管理小程序 - 患者档案详情页设计规范</p>
+            <div class="meta-info">
+                <span>📅 创建时间: 2025-09-05</span>
+                <span>👤 设计师: UX/UI团队</span>
+                <span>📝 版本: v2.0</span>
+                <span>🎯 目标: 患者档案信息展示与权限管理</span>
+            </div>
+        </header>
+
+        <!-- 目录 -->
+        <section class="section">
+            <div class="highlight-card">
+                <h3>📋 文档目录</h3>
+                <ol>
+                    <li>设计概述与目标</li>
+                    <li>用户角色与权限体系</li>
+                    <li>页面架构与信息层级</li>
+                    <li>详细界面设计</li>
+                    <li>数据脱敏与权限申请</li>
+                    <li>交互流程设计</li>
+                    <li>技术实现规范</li>
+                    <li>测试用例与验收标准</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- 1. 设计概述与目标 -->
+        <section id="overview" class="section">
+            <h2>1. 设计概述与目标</h2>
+
+            <div class="highlight-card">
+                <h3>🎯 设计目标</h3>
+                <ul>
+                    <li><strong>信息透明</strong>: 为社工、志愿者提供患者完整信息视图</li>
+                    <li><strong>隐私保护</strong>: 严格的数据脱敏和权限控制机制</li>
+                    <li><strong>操作便捷</strong>: 简化权限申请流程，提升工作效率</li>
+                    <li><strong>数据完整</strong>: 整合患者基础信息、医疗状况、服务历史</li>
+                    <li><strong>权限明确</strong>: 不同角色看到相应权限内的信息</li>
+                </ul>
+            </div>
+
+            <h3>核心功能模块</h3>
+            <div class="grid-3">
+                <div class="card">
+                    <h4>👤 基础信息展示</h4>
+                    <ul>
+                        <li>患者基本资料</li>
+                        <li>脱敏处理显示</li>
+                        <li>权限申请入口</li>
+                        <li>信息编辑功能</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🏥 医疗信息管理</h4>
+                    <ul>
+                        <li>病情诊断信息</li>
+                        <li>治疗方案记录</li>
+                        <li>康复进展跟踪</li>
+                        <li>医疗文档上传</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🏠 入住历史记录</h4>
+                    <ul>
+                        <li>入住/退住记录</li>
+                        <li>床位分配信息</li>
+                        <li>补助金额记录</li>
+                        <li>时间线展示</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>用户价值与业务目标</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>用户角色</th>
+                        <th>核心需求</th>
+                        <th>页面价值</th>
+                        <th>成功指标</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>社工</td>
+                        <td>完整患者信息，快速申请权限</td>
+                        <td>提升服务质量和工作效率</td>
+                        <td>权限申请时间 < 2分钟</td>
+                    </tr>
+                    <tr>
+                        <td>志愿者</td>
+                        <td>必要患者信息，服务记录查看</td>
+                        <td>确保服务安全和专业性</td>
+                        <td>信息查找时间 < 30秒</td>
+                    </tr>
+                    <tr>
+                        <td>管理员</td>
+                        <td>全面数据访问，权限审批管理</td>
+                        <td>保障数据安全和合规性</td>
+                        <td>审批处理时间 < 4小时</td>
+                    </tr>
+                    <tr>
+                        <td>家长</td>
+                        <td>孩子基础信息，服务历史查看</td>
+                        <td>增强信任感和参与度</td>
+                        <td>信息准确率 > 98%</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 2. 用户角色与权限体系 -->
+        <section id="user-roles" class="section">
+            <h2>2. 用户角色与权限体系</h2>
+
+            <h3>角色权限矩阵</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>信息类型</th>
+                        <th>管理员</th>
+                        <th>社工</th>
+                        <th>志愿者</th>
+                        <th>家长</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>基础信息</td>
+                        <td><span class="tag success">完全访问</span></td>
+                        <td><span class="tag warning">申请后访问</span></td>
+                        <td><span class="tag secondary">脱敏显示</span></td>
+                        <td><span class="tag secondary">脱敏显示</span></td>
+                    </tr>
+                    <tr>
+                        <td>联系方式</td>
+                        <td><span class="tag success">完全访问</span></td>
+                        <td><span class="tag warning">申请后访问</span></td>
+                        <td><span class="tag danger">无权访问</span></td>
+                        <td><span class="tag secondary">仅自己信息</span></td>
+                    </tr>
+                    <tr>
+                        <td>医疗信息</td>
+                        <td><span class="tag success">完全访问</span></td>
+                        <td><span class="tag primary">基础访问</span></td>
+                        <td><span class="tag secondary">概要显示</span></td>
+                        <td><span class="tag secondary">仅自己孩子</span></td>
+                    </tr>
+                    <tr>
+                        <td>家庭信息</td>
+                        <td><span class="tag success">完全访问</span></td>
+                        <td><span class="tag warning">申请后访问</span></td>
+                        <td><span class="tag danger">无权访问</span></td>
+                        <td><span class="tag secondary">仅自己信息</span></td>
+                    </tr>
+                    <tr>
+                        <td>服务记录</td>
+                        <td><span class="tag success">完全访问</span></td>
+                        <td><span class="tag success">完全访问</span></td>
+                        <td><span class="tag primary">相关记录</span></td>
+                        <td><span class="tag secondary">相关记录</span></td>
+                    </tr>
+                    <tr>
+                        <td>入住历史</td>
+                        <td><span class="tag success">完全访问</span></td>
+                        <td><span class="tag success">完全访问</span></td>
+                        <td><span class="tag primary">基础信息</span></td>
+                        <td><span class="tag secondary">相关记录</span></td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>权限申请机制</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🔐 敏感信息分级</h4>
+                    <ul>
+                        <li><strong>Level 1 - 公开信息</strong>: 姓名(脱敏)、年龄、床位号</li>
+                        <li><strong>Level 2 - 基础信息</strong>: 完整姓名、病情概要</li>
+                        <li><strong>Level 3 - 敏感信息</strong>: 联系方式、家庭住址</li>
+                        <li><strong>Level 4 - 高敏感信息</strong>: 身份证号、经济状况</li>
+                        <li><strong>Level 5 - 核心隐私</strong>: 详细医疗诊断、家庭关系</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>⏰ 权限时效管理</h4>
+                    <ul>
+                        <li><strong>1天权限</strong>: 临时查看，适用于紧急情况</li>
+                        <li><strong>3天权限</strong>: 短期服务，如单次活动</li>
+                        <li><strong>7天权限</strong>: 常规服务，如周期性探访</li>
+                        <li><strong>15天权限</strong>: 长期项目，如康复计划</li>
+                        <li><strong>到期自动回收</strong>: 权限过期后自动恢复脱敏</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 页面架构与信息层级 -->
+        <section id="page-architecture" class="section">
+            <h2>3. 页面架构与信息层级</h2>
+
+            <h3>页面整体布局</h3>
+            <div class="wireframe-container">┌─────────────────────────────────────┐ ← 导航栏 (88rpx)
+│ ← 档案详情          ⭐ ✏️ 📤 ⋯      │
+├─────────────────────────────────────┤ ← 患者头部信息 (160rpx)
+│ 👧 李小明 · 8岁 · 女                │
+│ 🏥 急性淋巴细胞白血病                │
+│ 📍 3号楼205床 · 入住第15天           │
+│ 🔒 [申请查看完整信息] [服务记录]     │
+├─────────────────────────────────────┤ ← 信息卡片区 (滚动区域)
+│ 📋 基础信息                         │
+│ ┌─────────────────────────────────┐ │
+│ │ 👤 姓名: 李*明 [申请查看完整]    │ │
+│ │ 🎂 出生: 2017年3月 (8岁)        │ │
+│ │ 📞 联系: 138****5678 [申请权限]  │ │
+│ │ 🏠 住址: **区**路 [申请权限]     │ │
+│ └─────────────────────────────────┘ │
+│                                     │
+│ 🏥 医疗信息                         │
+│ ┌─────────────────────────────────┐ │
+│ │ 🩺 诊断: 急性淋巴细胞白血病       │ │
+│ │ 📅 确诊: 2024年2月15日           │ │
+│ │ 🏥 医院: 儿童医院                │ │
+│ │ 💊 治疗: 化疗第2周期 [详细]      │ │
+│ └─────────────────────────────────┘ │
+│                                     │
+│ 🏠 入住历史                         │ │ ← 时间线展示
+│ ┌─────────────────────────────────┐ │
+│ │ ● 2024-08-20 入住 3号楼205床     │ │
+│ │   补助: 1200元/月               │ │
+│ │ ● 2024-01-10 首次入住 1号楼108床 │ │
+│ │   2024-03-05 出院回家           │ │
+│ └─────────────────────────────────┘ │
+│                                     │
+│ ❤️ 服务记录 (最近5条)                │
+│ ┌─────────────────────────────────┐ │
+│ │ 📝 2024-09-04 14:30 心理支持     │ │
+│ │    志愿者: 张老师 [查看详情]     │ │
+│ │ 📦 2024-09-03 10:00 物资发放     │ │
+│ │    物品: 学习用品套装           │ │
+│ └─────────────────────────────────┘ │
+└─────────────────────────────────────┘
+┌─────────────────────────────────────┐ ← 底部操作栏 (96rpx)
+│ [📋 新建服务] [🔒 申请权限] [✏️ 编辑] │
+└─────────────────────────────────────┘</div>
+
+            <h3>信息展示优先级</h3>
+            <div class="ascii-diagram">页面信息优先级分层
+
+高优先级 (页面顶部)
+├── 患者身份标识 (头像、姓名、年龄)
+├── 当前状态 (入住信息、床位号)
+└── 快速操作 (权限申请、服务记录)
+
+中优先级 (主要内容区)
+├── 基础信息卡片 (个人资料、联系方式)
+├── 医疗信息卡片 (诊断、治疗进展)
+└── 入住历史 (时间线展示)
+
+低优先级 (展开查看)
+├── 详细服务记录 (历史服务详情)
+├── 活动参与记录 (报名、签到)
+└── 家庭成员信息 (需要权限)</div>
+
+            <h3>响应式布局适配</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📱 移动端布局 (< 768px)</h4>
+                    <ul>
+                        <li><strong>单列垂直布局</strong>: 所有卡片纵向排列</li>
+                        <li><strong>折叠展示</strong>: 非关键信息默认折叠</li>
+                        <li><strong>大点击区域</strong>: 按钮最小44px高度</li>
+                        <li><strong>底部固定操作栏</strong>: 主要操作便于触达</li>
+                        <li><strong>滑动操作</strong>: 支持左滑快速操作</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>💻 桌面端布局 (≥ 768px)</h4>
+                    <ul>
+                        <li><strong>双列布局</strong>: 左侧信息，右侧操作</li>
+                        <li><strong>侧边栏导航</strong>: 快速切换不同患者</li>
+                        <li><strong>悬停效果</strong>: 丰富的交互反馈</li>
+                        <li><strong>快捷键支持</strong>: 键盘操作快捷键</li>
+                        <li><strong>批量操作</strong>: 多选批量处理</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 详细界面设计 -->
+        <section id="interface-design" class="section">
+            <h2>4. 详细界面设计</h2>
+
+            <h3>患者信息展示组件</h3>
+            <div class="mockup-container">
+                <div class="mockup-phone">
+                    <div class="mockup-screen">
+                        <div class="status-bar">
+                            <span>9:41</span>
+                            <span>100%</span>
+                        </div>
+                        <div class="nav-header">
+                            <span>← 档案详情</span>
+                            <span>⭐ ✏️ ⋯</span>
+                        </div>
+                        <div class="patient-header">
+                            <div class="patient-name">👧 李小明 · 8岁</div>
+                            <div class="patient-meta">急性淋巴细胞白血病</div>
+                            <div class="patient-meta">📍 3号楼205床 · 入住第15天</div>
+                        </div>
+                        <div style="flex: 1; overflow-y: auto; padding: 16px;">
+                            <div class="permission-section">
+                                <h4>🔒 权限申请区域</h4>
+                                <div class="permission-item">
+                                    <span>完整姓名</span>
+                                    <button class="apply-btn">申请查看</button>
+                                </div>
+                                <div class="permission-item">
+                                    <span>联系方式</span>
+                                    <button class="apply-btn">申请查看</button>
+                                </div>
+                                <div class="permission-item">
+                                    <span>家庭住址</span>
+                                    <button class="apply-btn">申请查看</button>
+                                </div>
+                            </div>
+                            
+                            <div style="background: white; padding: 16px; border-radius: 12px; margin-bottom: 16px;">
+                                <h4>📋 基础信息</h4>
+                                <div class="permission-item">
+                                    <span>姓名</span>
+                                    <span class="masked-field">李*明</span>
+                                </div>
+                                <div class="permission-item">
+                                    <span>年龄</span>
+                                    <span>8岁 (2017年3月)</span>
+                                </div>
+                                <div class="permission-item">
+                                    <span>性别</span>
+                                    <span>女</span>
+                                </div>
+                            </div>
+                            
+                            <div style="background: white; padding: 16px; border-radius: 12px;">
+                                <h4>🏥 医疗信息</h4>
+                                <div class="permission-item">
+                                    <span>诊断</span>
+                                    <span>急性淋巴细胞白血病</span>
+                                </div>
+                                <div class="permission-item">
+                                    <span>确诊时间</span>
+                                    <span>2024年2月15日</span>
+                                </div>
+                                <div class="permission-item">
+                                    <span>治疗进展</span>
+                                    <span>化疗第2周期</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>数据脱敏显示规则</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>字段类型</th>
+                        <th>原始数据示例</th>
+                        <th>脱敏显示</th>
+                        <th>脱敏规则</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>姓名</td>
+                        <td>李小明</td>
+                        <td>李*明</td>
+                        <td>保留首尾字符，中间用*替代</td>
+                    </tr>
+                    <tr>
+                        <td>手机号</td>
+                        <td>13812345678</td>
+                        <td>138****5678</td>
+                        <td>保留前3位和后4位</td>
+                    </tr>
+                    <tr>
+                        <td>身份证</td>
+                        <td>110101202001011234</td>
+                        <td>1101**********1234</td>
+                        <td>保留前4位和后4位</td>
+                    </tr>
+                    <tr>
+                        <td>地址</td>
+                        <td>北京市朝阳区建国路123号</td>
+                        <td>北京市**区**路</td>
+                        <td>保留省市信息，具体地址模糊化</td>
+                    </tr>
+                    <tr>
+                        <td>诊断信息</td>
+                        <td>急性淋巴细胞白血病(ALL-B)</td>
+                        <td>急性淋巴细胞白血病</td>
+                        <td>保留主要诊断，隐藏详细分型</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>组件样式规范</h3>
+            <div class="code-block">/* 档案详情页主要样式 */
+.patient-detail-page {
+  background: #F2F2F7;
+  min-height: 100vh;
+}
+
+.patient-header {
+  background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+  padding: 32rpx;
+  color: white;
+  position: relative;
+}
+
+.patient-avatar {
+  width: 120rpx;
+  height: 120rpx;
+  border-radius: 60rpx;
+  background: rgba(255, 255, 255, 0.2);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 48rpx;
+  margin-bottom: 16rpx;
+}
+
+.patient-name {
+  font-size: 36rpx;
+  font-weight: 700;
+  margin-bottom: 8rpx;
+}
+
+.patient-condition {
+  font-size: 26rpx;
+  opacity: 0.9;
+  margin-bottom: 8rpx;
+}
+
+.patient-location {
+  font-size: 24rpx;
+  opacity: 0.8;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+/* 信息卡片样式 */
+.info-card {
+  background: white;
+  margin: 16rpx 24rpx;
+  border-radius: 16rpx;
+  padding: 32rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.06);
+}
+
+.info-card-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1D1D1F;
+  margin-bottom: 24rpx;
+  display: flex;
+  align-items: center;
+  gap: 12rpx;
+}
+
+.info-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16rpx 0;
+  border-bottom: 1rpx solid #F2F2F7;
+}
+
+.info-item:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  font-size: 26rpx;
+  color: #8E8E93;
+  min-width: 120rpx;
+}
+
+.info-value {
+  font-size: 26rpx;
+  color: #1D1D1F;
+  flex: 1;
+  text-align: right;
+}
+
+.info-value.masked {
+  color: #8E8E93;
+  font-style: italic;
+}
+
+/* 权限申请按钮 */
+.permission-apply-btn {
+  background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+  color: white;
+  border: none;
+  padding: 8rpx 16rpx;
+  border-radius: 16rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+}
+
+.permission-apply-btn:active {
+  transform: scale(0.96);
+}</div>
+        </section>
+
+        <!-- 5. 数据脱敏与权限申请 -->
+        <section id="permission-system" class="section print-break">
+            <h2>5. 数据脱敏与权限申请</h2>
+
+            <h3>权限申请流程设计</h3>
+            <div class="ascii-diagram">权限申请完整流程
+
+用户触发申请 → 选择权限类型 → 填写申请理由 → 提交审核 → 等待结果
+       ↓              ↓              ↓           ↓         ↓
+   点击申请按钮     多选敏感字段     详细说明用途   系统验证   推送通知
+       ↓              ↓              ↓           ↓         ↓
+   跳转申请页面     智能推荐组合     AI辅助优化    排队处理   状态更新
+
+                             ⬇️ 管理员处理流程
+
+收到申请通知 → 查看申请详情 → 评估申请合理性 → 做出审批决策 → 通知申请结果
+       ↓              ↓              ↓             ↓            ↓
+   邮件+微信推送   查看申请理由   检查申请历史   批准/拒绝/要求补充  系统自动通知
+       ↓              ↓              ↓             ↓            ↓
+   移动端快速审批   关联服务记录   参考同类申请   记录审批日志    权限立即生效</div>
+
+            <h3>权限申请表单设计</h3>
+            <div class="wireframe-container">┌─────────────────────────────────────┐
+│ 📋 权限申请 - 李小明                  │
+├─────────────────────────────────────┤
+│ 🔒 申请权限类型 (必选)                │
+│ ☑️ 完整姓名                         │
+│ ☑️ 联系方式 (手机+微信)              │
+│ ☐ 家庭详细住址                     │
+│ ☐ 身份证完整号码                   │
+│ ☐ 家庭经济状况                     │
+│ ☐ 详细医疗诊断报告                 │
+├─────────────────────────────────────┤
+│ 📝 申请理由 (必填)                   │
+│ ┌─────────────────────────────────┐ │
+│ │ 为了更好地为李小明提供个性化服务， │ │
+│ │ 需要了解其完整联系方式以便:      │ │
+│ │ 1. 紧急情况下及时联系家长        │ │
+│ │ 2. 安排合适的康复训练时间        │ │
+│ │ 3. 提供针对性的心理支持          │ │
+│ └─────────────────────────────────┘ │
+├─────────────────────────────────────┤
+│ ⏰ 权限有效期                       │
+│ ⚪ 1天   🟡 3天   🔵 7天   ⚫ 15天   │
+│                                     │
+│ 🚨 紧急程度                         │
+│ ⚪ 普通   🟡 紧急   🔴 非常紧急       │
+├─────────────────────────────────────┤
+│ 📊 相关信息                         │
+│ 服务类型: [心理支持 ▼]              │
+│ 预计使用: 2024-09-06 上午           │
+│ 申请统计: 本月已申请 2/5 次          │
+└─────────────────────────────────────┘
+┌─────────────────────────────────────┐
+│ [💾 保存草稿]     [✅ 提交申请]      │
+└─────────────────────────────────────┘</div>
+
+            <h3>智能申请建议系统</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🤖 AI智能推荐</h4>
+                    <ul>
+                        <li><strong>历史申请分析</strong>: 基于用户申请历史推荐常用组合</li>
+                        <li><strong>服务类型关联</strong>: 根据服务类型推荐相关权限</li>
+                        <li><strong>申请理由模板</strong>: 提供常用申请理由模板</li>
+                        <li><strong>有效期智能建议</strong>: 根据权限类型推荐合适有效期</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📈 申请优化建议</h4>
+                    <ul>
+                        <li><strong>批量申请提醒</strong>: 建议一次性申请相关权限</li>
+                        <li><strong>申请时机优化</strong>: 推荐最佳申请时间</li>
+                        <li><strong>成功率预测</strong>: 基于历史数据预测审批成功率</li>
+                        <li><strong>替代方案推荐</strong>: 权限不足时推荐其他方案</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>权限状态管理</h3>
+            <div class="timeline">
+                <div class="timeline-item">
+                    <div class="timeline-date">2024-09-05 14:30</div>
+                    <div class="timeline-content">
+                        <strong>📤 提交申请</strong><br>
+                        申请查看李小明的联系方式和家庭住址权限
+                        <div class="status-badge status-pending">等待审批</div>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-date">2024-09-05 16:45</div>
+                    <div class="timeline-content">
+                        <strong>👀 管理员查看</strong><br>
+                        张管理员已查看申请详情
+                        <div class="status-badge status-pending">审核中</div>
+                    </div>
+                </div>
+                
+                <div class="timeline-item">
+                    <div class="timeline-date">2024-09-05 17:15</div>
+                    <div class="timeline-content">
+                        <strong>✅ 申请通过</strong><br>
+                        权限已批准，有效期至2024-09-12 17:15
+                        <div class="status-badge status-approved">已批准</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 6. 交互流程设计 -->
+        <section id="interaction-flow" class="section">
+            <h2>6. 交互流程设计</h2>
+
+            <h3>页面交互状态设计</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🔄 加载状态</h4>
+                    <ul>
+                        <li><strong>骨架屏加载</strong>: 页面首次加载显示内容结构</li>
+                        <li><strong>分段加载</strong>: 优先加载关键信息，次要信息延迟</li>
+                        <li><strong>加载进度</strong>: 显示数据获取进度</li>
+                        <li><strong>网络异常处理</strong>: 网络错误时显示重试选项</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📱 手势操作</h4>
+                    <ul>
+                        <li><strong>下拉刷新</strong>: 刷新页面数据</li>
+                        <li><strong>左滑操作</strong>: 快速访问编辑、申请权限</li>
+                        <li><strong>长按操作</strong>: 复制敏感信息(有权限时)</li>
+                        <li><strong>双击放大</strong>: 放大查看图片或文档</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>错误处理与提示</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>错误类型</th>
+                        <th>触发场景</th>
+                        <th>错误提示</th>
+                        <th>恢复操作</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>网络连接错误</td>
+                        <td>页面加载失败</td>
+                        <td>"网络连接失败，请检查网络设置"</td>
+                        <td>提供重试按钮</td>
+                    </tr>
+                    <tr>
+                        <td>权限不足</td>
+                        <td>访问敏感信息</td>
+                        <td>"您没有权限查看此信息，是否申请权限？"</td>
+                        <td>跳转权限申请页面</td>
+                    </tr>
+                    <tr>
+                        <td>数据加载超时</td>
+                        <td>服务器响应慢</td>
+                        <td>"数据加载超时，正在重试..."</td>
+                        <td>自动重试，可手动取消</td>
+                    </tr>
+                    <tr>
+                        <td>表单验证错误</td>
+                        <td>权限申请提交</td>
+                        <td>"请填写申请理由(20-200字)"</td>
+                        <td>高亮错误字段，聚焦输入</td>
+                    </tr>
+                    <tr>
+                        <td>系统维护</td>
+                        <td>服务器维护中</td>
+                        <td>"系统正在维护，预计XX分钟后恢复"</td>
+                        <td>显示维护结束时间</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>页面性能优化</h3>
+            <div class="highlight-card">
+                <h3>⚡ 性能优化策略</h3>
+                <ul>
+                    <li><strong>数据缓存</strong>: 本地缓存基础信息，减少重复请求</li>
+                    <li><strong>图片懒加载</strong>: 服务记录中的图片按需加载</li>
+                    <li><strong>分页加载</strong>: 服务历史和入住记录分页展示</li>
+                    <li><strong>预加载优化</strong>: 预加载用户可能访问的相关数据</li>
+                    <li><strong>CDN加速</strong>: 静态资源使用CDN分发</li>
+                    <li><strong>压缩传输</strong>: 开启Gzip压缩减少传输大小</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 7. 技术实现规范 -->
+        <section id="technical-specs" class="section print-break">
+            <h2>7. 技术实现规范</h2>
+
+            <h3>前端技术栈</h3>
+            <div class="grid-3">
+                <div class="card">
+                    <h4>🛠️ 核心框架</h4>
+                    <ul>
+                        <li><strong>小程序框架</strong>: 原生微信小程序</li>
+                        <li><strong>状态管理</strong>: Redux + Mobx</li>
+                        <li><strong>UI组件库</strong>: Vant Weapp</li>
+                        <li><strong>数据请求</strong>: wx.request封装</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📦 工具链</h4>
+                    <ul>
+                        <li><strong>构建工具</strong>: 微信开发者工具</li>
+                        <li><strong>代码规范</strong>: ESLint + Prettier</li>
+                        <li><strong>版本控制</strong>: Git + GitFlow</li>
+                        <li><strong>CI/CD</strong>: Jenkins自动化部署</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🔧 开发工具</h4>
+                    <ul>
+                        <li><strong>调试工具</strong>: vConsole</li>
+                        <li><strong>性能监控</strong>: 微信性能监控</li>
+                        <li><strong>错误追踪</strong>: Sentry</li>
+                        <li><strong>数据埋点</strong>: 神策分析</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>接口设计规范</h3>
+            <div class="code-block">// 档案详情页主要接口
+
+// 获取患者详细信息
+GET /api/patients/{patientId}
+Headers: {
+  'Authorization': 'Bearer {token}',
+  'X-Role': 'social_worker|volunteer|admin'
+}
+Response: {
+  code: 200,
+  data: {
+    id: "patient_001",
+    basicInfo: {
+      name: "李*明",           // 根据权限决定是否脱敏
+      fullName: "李小明",      // 需要权限
+      age: 8,
+      gender: "女",
+      avatar: "https://...",
+      bedNumber: "3-205"
+    },
+    medicalInfo: {
+      diagnosis: "急性淋巴细胞白血病",
+      diagnosisDate: "2024-02-15",
+      hospital: "儿童医院",
+      treatment: "化疗第2周期"
+    },
+    contactInfo: {            // 需要权限
+      phone: "138****5678",   // 脱敏显示
+      fullPhone: "13812345678", // 需要权限
+      address: "北京市**区**路", // 脱敏显示
+      fullAddress: "北京市朝阳区建国路123号" // 需要权限
+    },
+    permissions: {
+      currentUser: {
+        basicInfo: true,
+        contactInfo: false,
+        medicalDetails: true,
+        familyInfo: false
+      },
+      pendingRequests: [
+        {
+          id: "req_001",
+          fields: ["fullName", "fullPhone"],
+          status: "pending",
+          submittedAt: "2024-09-05T14:30:00Z"
+        }
+      ]
+    }
+  }
+}
+
+// 提交权限申请
+POST /api/permissions/requests
+Body: {
+  patientId: "patient_001",
+  fields: ["fullName", "fullPhone", "fullAddress"],
+  reason: "为了更好地提供个性化服务...",
+  duration: "7d",
+  urgency: "normal",
+  relatedService: "psychological_support"
+}
+
+// 获取入住历史
+GET /api/patients/{patientId}/tenancies
+Response: {
+  code: 200,
+  data: [
+    {
+      id: "tenancy_001",
+      checkInDate: "2024-08-20",
+      checkOutDate: null,
+      room: "3号楼205",
+      bed: "205-A",
+      subsidy: 1200,
+      status: "active"
+    }
+  ]
+}
+
+// 获取服务记录
+GET /api/patients/{patientId}/services?limit=5&offset=0
+Response: {
+  code: 200,
+  data: {
+    total: 25,
+    services: [
+      {
+        id: "service_001",
+        type: "psychological_support",
+        date: "2024-09-04T14:30:00Z",
+        volunteer: {
+          name: "张老师",
+          avatar: "https://..."
+        },
+        description: "心理支持服务",
+        status: "completed",
+        images: ["https://..."]
+      }
+    ]
+  }
+}</div>
+
+            <h3>数据安全与隐私保护</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🔒 数据加密</h4>
+                    <ul>
+                        <li><strong>传输加密</strong>: HTTPS + TLS 1.3</li>
+                        <li><strong>敏感数据加密</strong>: AES-256加密存储</li>
+                        <li><strong>Token安全</strong>: JWT + 刷新令牌机制</li>
+                        <li><strong>API签名</strong>: 请求签名防篡改</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🛡️ 权限控制</h4>
+                    <ul>
+                        <li><strong>RBAC权限模型</strong>: 基于角色的访问控制</li>
+                        <li><strong>字段级权限</strong>: 精确到字段的权限控制</li>
+                        <li><strong>动态权限检查</strong>: 实时验证用户权限</li>
+                        <li><strong>审计日志</strong>: 完整记录数据访问日志</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 8. 测试用例与验收标准 -->
+        <section id="testing" class="section">
+            <h2>8. 测试用例与验收标准</h2>
+
+            <h3>功能测试用例</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>测试场景</th>
+                        <th>测试步骤</th>
+                        <th>预期结果</th>
+                        <th>优先级</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>页面正常加载</td>
+                        <td>1. 登录应用<br>2. 进入档案列表<br>3. 点击任意患者档案</td>
+                        <td>页面在3秒内完成加载，显示患者基础信息</td>
+                        <td>🔥 高</td>
+                    </tr>
+                    <tr>
+                        <td>权限申请流程</td>
+                        <td>1. 点击敏感字段申请按钮<br>2. 填写申请表单<br>3. 提交申请</td>
+                        <td>申请成功提交，显示待审批状态</td>
+                        <td>🔥 高</td>
+                    </tr>
+                    <tr>
+                        <td>数据脱敏显示</td>
+                        <td>1. 以志愿者身份登录<br>2. 查看患者详情</td>
+                        <td>敏感信息正确脱敏显示</td>
+                        <td>🔥 高</td>
+                    </tr>
+                    <tr>
+                        <td>权限过期自动回收</td>
+                        <td>1. 等待权限到期<br>2. 刷新页面</td>
+                        <td>过期权限自动回收，信息重新脱敏</td>
+                        <td>📊 中</td>
+                    </tr>
+                    <tr>
+                        <td>网络异常处理</td>
+                        <td>1. 断开网络<br>2. 访问页面</td>
+                        <td>显示网络错误提示和重试按钮</td>
+                        <td>📊 中</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>性能测试标准</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>⚡ 性能指标</h4>
+                    <ul>
+                        <li><strong>首屏加载时间</strong>: ≤ 2秒</li>
+                        <li><strong>页面切换响应</strong>: ≤ 500ms</li>
+                        <li><strong>权限申请提交</strong>: ≤ 1秒</li>
+                        <li><strong>数据刷新时间</strong>: ≤ 1.5秒</li>
+                        <li><strong>图片加载时间</strong>: ≤ 3秒</li>
+                        <li><strong>内存使用</strong>: ≤ 100MB</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🧪 兼容性测试</h4>
+                    <ul>
+                        <li><strong>iOS系统</strong>: iOS 12.0+</li>
+                        <li><strong>Android系统</strong>: Android 8.0+</li>
+                        <li><strong>微信版本</strong>: 7.0.0+</li>
+                        <li><strong>屏幕适配</strong>: 320px - 414px宽度</li>
+                        <li><strong>网络环境</strong>: 4G/5G/WiFi</li>
+                        <li><strong>弱网测试</strong>: 2G网络下可用</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>用户体验测试</h3>
+            <div class="card">
+                <h4>👥 可用性测试清单</h4>
+                <ul>
+                    <li><strong>操作直观性</strong>: 新用户能否快速理解页面功能</li>
+                    <li><strong>权限申请流程</strong>: 用户能否在2分钟内完成权限申请</li>
+                    <li><strong>信息查找效率</strong>: 用户能否在30秒内找到所需信息</li>
+                    <li><strong>错误恢复</strong>: 操作错误时用户能否快速恢复</li>
+                    <li><strong>反馈及时性</strong>: 所有操作都有明确的反馈</li>
+                    <li><strong>无障碍访问</strong>: 支持屏幕阅读器和语音操作</li>
+                </ul>
+            </div>
+
+            <h3>安全测试要求</h3>
+            <div class="highlight-card">
+                <h3>🔐 安全测试清单</h3>
+                <ul>
+                    <li><strong>权限控制测试</strong>: 验证不同角色只能访问相应权限的数据</li>
+                    <li><strong>数据脱敏测试</strong>: 确保敏感数据在无权限时正确脱敏</li>
+                    <li><strong>权限过期测试</strong>: 验证权限到期后自动回收机制</li>
+                    <li><strong>SQL注入测试</strong>: 验证所有输入参数的安全性</li>
+                    <li><strong>XSS攻击测试</strong>: 验证用户输入的过滤和转义</li>
+                    <li><strong>CSRF攻击测试</strong>: 验证跨站请求伪造防护</li>
+                    <li><strong>敏感信息泄露测试</strong>: 验证日志和错误信息不包含敏感数据</li>
+                </ul>
+            </div>
+
+            <h3>验收标准</h3>
+            <div class="card">
+                <h4>✅ 发布验收标准</h4>
+                <ul>
+                    <li><strong>功能完整性</strong>: 所有设计功能正常运行，测试用例通过率≥98%</li>
+                    <li><strong>性能达标</strong>: 符合所有性能指标要求，压力测试通过</li>
+                    <li><strong>安全合规</strong>: 通过安全审计和渗透测试，无高危漏洞</li>
+                    <li><strong>用户体验</strong>: 用户满意度≥4.5/5，可用性测试通过</li>
+                    <li><strong>兼容性测试</strong>: 主流设备和系统版本兼容性≥95%</li>
+                    <li><strong>代码质量</strong>: 代码覆盖率≥80%，代码审查通过</li>
+                    <li><strong>文档完善</strong>: 用户手册、技术文档、接口文档齐全</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 文档结尾 -->
+        <footer class="section">
+            <div class="card">
+                <h3>📋 文档状态与维护</h3>
+                <p><span class="status-badge status-completed">✅ 已完成</span> 
+                   本设计文档已完成初版并通过评审，已进入开发实施阶段。</p>
+                
+                <h4>📞 项目联系方式</h4>
+                <ul>
+                    <li><strong>产品负责人</strong>: 产品经理团队 - 负责需求澄清和优先级确定</li>
+                    <li><strong>设计团队</strong>: UX/UI设计组 - 负责交互设计和视觉规范</li>
+                    <li><strong>技术对接</strong>: 前端开发组 - 负责技术实现和性能优化</li>
+                    <li><strong>测试团队</strong>: QA测试组 - 负责功能测试和质量保证</li>
+                    <li><strong>安全审计</strong>: 信息安全部 - 负责数据安全和权限审计</li>
+                </ul>
+
+                <h4>📄 相关设计文档</h4>
+                <ul>
+                    <li>📊 《小家服务管理小程序-UX分析报告》</li>
+                    <li>🎨 《UI设计规范与组件库文档》</li>
+                    <li>🏗️《信息架构(IA)设计文档》</li>
+                    <li>🔒 《数据安全与权限管理规范》</li>
+                    <li>⚡《前端性能优化指南》</li>
+                    <li>🧪 《测试用例设计文档》</li>
+                </ul>
+
+                <h4>🔄 文档更新记录</h4>
+                <ul>
+                    <li><strong>v2.0 (2024-09-05)</strong>: 完善权限申请流程，增加安全测试要求</li>
+                    <li><strong>v1.1 (2024-09-04)</strong>: 优化页面架构设计，补充技术实现细节</li>
+                    <li><strong>v1.0 (2024-09-03)</strong>: 初版文档，包含基础设计规范</li>
+                </ul>
+
+                <div style="text-align: center; margin-top: 32px; padding: 24px; background: linear-gradient(135deg, #F0F8FF 0%, #E1F5FE 100%); border-radius: 12px; border: 2px solid #007AFF;">
+                    <h4 style="color: #007AFF; margin-bottom: 16px;">💡 文档使用说明</h4>
+                    <p style="margin-bottom: 12px;"><strong>保存文档</strong>: 右键点击页面选择"保存为"可将此文档保存到本地</p>
+                    <p style="margin-bottom: 12px;"><strong>打印文档</strong>: 按 Ctrl+P (Windows) / Cmd+P (Mac) 可打印或导出为PDF</p>
+                    <p style="margin-bottom: 12px;"><strong>分享文档</strong>: 可将HTML文件直接分享给团队成员查看</p>
+                    <p><strong>在线协作</strong>: 建议上传到团队文档管理平台进行版本控制</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

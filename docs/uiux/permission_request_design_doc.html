@@ -1,0 +1,1614 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>档案权限申请页 - 详细设计文档</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #fafafa;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: white;
+            min-height: 100vh;
+        }
+
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #007AFF;
+        }
+
+        .header h1 {
+            font-size: 32px;
+            font-weight: 700;
+            color: #1D1D1F;
+            margin-bottom: 8px;
+        }
+
+        .header .subtitle {
+            font-size: 16px;
+            color: #86868B;
+            margin-bottom: 16px;
+        }
+
+        .meta-info {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            font-size: 14px;
+            color: #6B6B6F;
+        }
+
+        .section {
+            margin-bottom: 40px;
+        }
+
+        .section h2 {
+            font-size: 24px;
+            font-weight: 600;
+            color: #1D1D1F;
+            margin-bottom: 20px;
+            padding-left: 16px;
+            border-left: 4px solid #007AFF;
+        }
+
+        .section h3 {
+            font-size: 20px;
+            font-weight: 600;
+            color: #1D1D1F;
+            margin: 24px 0 16px 0;
+        }
+
+        .section h4 {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1D1D1F;
+            margin: 16px 0 12px 0;
+        }
+
+        .card {
+            background: #F8F9FA;
+            border: 1px solid #E5E5E7;
+            border-radius: 12px;
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .highlight-card {
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+            color: white;
+            border-radius: 16px;
+            padding: 24px;
+            margin-bottom: 24px;
+        }
+
+        .highlight-card h3,
+        .highlight-card h4 {
+            color: white;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .specs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .specs-table th,
+        .specs-table td {
+            padding: 12px 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E5E7;
+        }
+
+        .specs-table th {
+            background: #F8F9FA;
+            font-weight: 600;
+            color: #1D1D1F;
+        }
+
+        .specs-table tr:last-child td {
+            border-bottom: none;
+        }
+
+        .wireframe-container {
+            background: #1D1D1F;
+            color: #E5E5E7;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            overflow-x: auto;
+            margin: 16px 0;
+            white-space: pre;
+        }
+
+        .ascii-diagram {
+            background: #F8F9FA;
+            border: 1px solid #E5E5E7;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            line-height: 1.4;
+            overflow-x: auto;
+            margin: 16px 0;
+            white-space: pre;
+        }
+
+        .code-block {
+            background: #1D1D1F;
+            color: #E5E5E7;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 13px;
+            line-height: 1.5;
+            overflow-x: auto;
+            margin: 16px 0;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            margin-right: 8px;
+        }
+
+        .status-completed {
+            background: #D1F2EB;
+            color: #00875A;
+        }
+
+        .status-in-progress {
+            background: #FFF3CD;
+            color: #B25000;
+        }
+
+        .status-pending {
+            background: #F0F0F0;
+            color: #666;
+        }
+
+        ul, ol {
+            margin: 12px 0;
+            padding-left: 24px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        .icon {
+            width: 16px;
+            height: 16px;
+            display: inline-block;
+            margin-right: 8px;
+        }
+
+        .print-break {
+            page-break-after: always;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+
+            .header h1 {
+                font-size: 24px;
+            }
+
+            .grid-2 {
+                grid-template-columns: 1fr;
+            }
+
+            .grid-3 {
+                grid-template-columns: 1fr;
+            }
+
+            .meta-info {
+                flex-direction: column;
+                align-items: center;
+                gap: 8px;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .container {
+                max-width: none;
+                padding: 0;
+                margin: 0;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 文档头部 -->
+        <header class="header">
+            <h1>📄 档案权限申请页详细设计文档</h1>
+            <p class="subtitle">小家服务管理小程序 - 权限申请功能设计规范</p>
+            <div class="meta-info">
+                <span>📅 创建时间: 2025-09-05</span>
+                <span>👤 设计师: UX/UI团队</span>
+                <span>📝 版本: v2.0</span>
+                <span>🎯 目标: 档案权限申请流程优化</span>
+            </div>
+        </header>
+
+        <!-- 目录 -->
+        <section class="section">
+            <div class="highlight-card">
+                <h3>📋 文档目录</h3>
+                <ol>
+                    <li>设计概述与目标</li>
+                    <li>用户角色与权限层级</li>
+                    <li>页面架构与信息流</li>
+                    <li>详细界面设计</li>
+                    <li>交互流程设计</li>
+                    <li>技术实现规范</li>
+                    <li>权限申请表单设计</li>
+                    <li>审批管理界面</li>
+                    <li>状态管理与通知</li>
+                    <li>测试用例与验收标准</li>
+                </ol>
+            </div>
+        </section>
+
+        <!-- 1. 设计概述 -->
+        <section id="overview" class="section">
+            <h2>1. 设计概述与目标</h2>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🎯 设计目标</h4>
+                    <ul>
+                        <li>简化权限申请流程，减少操作步骤</li>
+                        <li>确保敏感信息安全，实现分级脱敏</li>
+                        <li>提供清晰的申请状态跟踪</li>
+                        <li>优化审批效率，支持批量操作</li>
+                        <li>增强用户体验，减少等待时间</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📊 核心指标</h4>
+                    <ul>
+                        <li><strong>申请成功率</strong>: ≥95%</li>
+                        <li><strong>审批平均时间</strong>: ≤4小时</li>
+                        <li><strong>用户满意度</strong>: ≥4.5/5</li>
+                        <li><strong>操作步骤</strong>: ≤3步</li>
+                        <li><strong>页面加载时间</strong>: ≤2秒</li>
+                    </ul>
+                </div>
+            </div>
+
+            <div class="card">
+                <h4>🔐 权限申请场景</h4>
+                <p>档案权限申请页主要服务于以下核心场景：</p>
+                <ul>
+                    <li><strong>紧急联系</strong>: 志愿者需要联系患者家属处理紧急情况</li>
+                    <li><strong>上门服务</strong>: 社工需要患者详细地址信息进行家访</li>
+                    <li><strong>医疗协调</strong>: 需要查看患者完整病历信息</li>
+                    <li><strong>经济评估</strong>: 社工需要了解家庭经济状况提供精准帮助</li>
+                    <li><strong>数据统计</strong>: 管理员需要访问完整数据进行分析</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 2. 用户角色与权限 -->
+        <section id="user-roles" class="section">
+            <h2>2. 用户角色与权限层级</h2>
+
+            <div class="ascii-diagram">权限层级架构图
+
+🏛️ 小家服务管理系统权限体系
+│
+├── 👑 管理员 (Admin) - 最高权限
+│   ├── ✅ 查看所有信息（无脱敏）
+│   ├── ✅ 审批所有权限申请
+│   ├── ✅ 系统配置与用户管理
+│   └── ✅ 数据导出与审计日志
+│
+├── 👩‍💼 社工 (Social Worker) - 核心权限
+│   ├── ✅ 查看基础档案信息
+│   ├── 🔒 申请查看敏感信息
+│   ├── ✅ 审核志愿者权限申请
+│   └── ✅ 创建和管理活动
+│
+├── 👦 志愿者 (Volunteer) - 基础权限
+│   ├── ✅ 查看脱敏档案信息
+│   ├── 🔒 申请查看详细信息
+│   ├── ✅ 填写服务记录
+│   └── ✅ 参与活动报名
+│
+└── 👨‍👩‍👧‍👦 家长 (Parent) - 限制权限
+    ├── ✅ 查看自己孩子信息
+    ├── ✅ 查看服务记录
+    ├── ✅ 参与亲子活动
+    └── 🚫 无法申请其他权限
+</div>
+
+            <div class="grid-3">
+                <div class="card">
+                    <h4>🔍 基础查看权限</h4>
+                    <p><strong>适用角色</strong>: 所有用户</p>
+                    <ul>
+                        <li>脱敏后的患者姓名</li>
+                        <li>年龄、性别基本信息</li>
+                        <li>病情概要描述</li>
+                        <li>床位号、入住时间</li>
+                        <li>服务记录概要</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🔒 敏感信息权限</h4>
+                    <p><strong>需要申请</strong>: 志愿者、社工</p>
+                    <ul>
+                        <li>完整姓名、身份证号</li>
+                        <li>详细联系方式</li>
+                        <li>家庭详细住址</li>
+                        <li>经济收入状况</li>
+                        <li>详细医疗诊断</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>👑 管理员专属</h4>
+                    <p><strong>仅限管理员</strong>: 无需申请</p>
+                    <ul>
+                        <li>系统配置管理</li>
+                        <li>用户权限分配</li>
+                        <li>数据完整性查看</li>
+                        <li>审计日志访问</li>
+                        <li>批量数据导出</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 3. 页面架构设计 -->
+        <section id="page-architecture" class="section print-break">
+            <h2>3. 页面架构与信息流</h2>
+            
+            <h3>权限申请页面架构</h3>
+            <div class="wireframe-container">┌─────────────────────────────────────┐ ← 导航栏 (88rpx)
+│ ← 权限申请          💡 📋 ❓         │
+├─────────────────────────────────────┤ ← 申请对象信息 (120rpx)
+│ 👤 李小明 (患者) - 床位3-205        │
+│ 📅 申请时间: 2025-09-05 14:30       │
+├─────────────────────────────────────┤ ← 权限选择区 (动态高度)
+│ 📋 申请权限类型                     │
+│ ☑️ 家庭详细住址                     │
+│ ☑️ 监护人联系方式                   │
+│ ☐ 经济收入状况                     │
+│ ☐ 详细医疗诊断                     │
+│ ☐ 身份证完整号码                   │
+├─────────────────────────────────────┤ ← 申请信息填写 (240rpx)
+│ 📝 申请理由 *                       │
+│ ┌─────────────────────────────────┐ │
+│ │ 需要为李小明提供上门康复指导服务， │ │
+│ │ 需要了解详细家庭住址信息以便安排  │ │
+│ │ 合适的服务时间和交通路线。       │ │
+│ └─────────────────────────────────┘ │
+│                                     │
+│ ⏰ 权限有效期: [7天 ▼]              │
+│ 🚨 紧急程度: ⚪ 普通 🟡 紧急 🔴 非常紧急 │
+├─────────────────────────────────────┤ ← 相关信息 (80rpx)
+│ 📊 申请统计: 本月已申请3次           │
+│ ⏱️ 预计审批时间: 4小时内             │
+└─────────────────────────────────────┘
+┌─────────────────────────────────────┐ ← 底部操作栏 (96rpx)
+│ [📄 保存草稿] [✅ 提交申请]          │
+└─────────────────────────────────────┘</div>
+
+            <h3>权限申请信息流</h3>
+            <div class="ascii-diagram">权限申请完整流程
+
+[用户触发] → [权限检查] → [申请页面] → [表单填写] → [提交申请]
+     ↓           ↓           ↓           ↓           ↓
+[识别需求]   [验证资格]   [引导填写]   [实时验证]   [生成申请单]
+     ↓           ↓           ↓           ↓           ↓
+[确定字段]   [显示限制]   [智能建议]   [错误提示]   [推送通知]
+
+                    ⬇️ 申请提交后
+
+[审批流程] → [管理员处理] → [审批决策] → [结果通知] → [权限生效]
+     ↓           ↓             ↓           ↓           ↓
+[排队等待]   [查看详情]     [批准/拒绝]   [推送消息]   [定时回收]
+     ↓           ↓             ↓           ↓           ↓
+[状态更新]   [批量处理]     [记录日志]   [邮件通知]   [权限监控]</div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📱 移动端适配要点</h4>
+                    <ul>
+                        <li><strong>单列布局</strong>: 纵向排列所有表单元素</li>
+                        <li><strong>大点击区域</strong>: 按钮最小44px×44px</li>
+                        <li><strong>清晰层级</strong>: 使用间距和分组区分内容</li>
+                        <li><strong>键盘友好</strong>: 输入框获焦时自动滚动</li>
+                        <li><strong>手势操作</strong>: 支持上拉刷新和下拉加载</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🖥️ 桌面端优化</h4>
+                    <ul>
+                        <li><strong>双列布局</strong>: 左侧表单，右侧状态预览</li>
+                        <li><strong>快捷键支持</strong>: Ctrl+S保存，Enter提交</li>
+                        <li><strong>悬停提示</strong>: 丰富的工具提示信息</li>
+                        <li><strong>批量操作</strong>: 支持多选和批量申请</li>
+                        <li><strong>侧边栏导航</strong>: 快速切换不同申请类型</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4. 详细界面设计 -->
+        <section id="interface-design" class="section">
+            <h2>4. 详细界面设计规范</h2>
+
+            <h3>设计系统与颜色规范</h3>
+            <div class="grid-3">
+                <div class="card">
+                    <h4>🎨 主色调系统</h4>
+                    <ul>
+                        <li><strong>主色</strong>: #007AFF (iOS Blue)</li>
+                        <li><strong>成功色</strong>: #34C759 (绿色)</li>
+                        <li><strong>警告色</strong>: #FF9500 (橙色)</li>
+                        <li><strong>错误色</strong>: #FF3B30 (红色)</li>
+                        <li><strong>中性色</strong>: #8E8E93 (灰色)</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📐 间距规范</h4>
+                    <ul>
+                        <li><strong>页面边距</strong>: 32rpx (24px)</li>
+                        <li><strong>卡片间距</strong>: 24rpx (18px)</li>
+                        <li><strong>元素间距</strong>: 16rpx (12px)</li>
+                        <li><strong>文字行距</strong>: 1.4-1.6倍</li>
+                        <li><strong>按钮内距</strong>: 16rpx 32rpx</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🔤 字体规范</h4>
+                    <ul>
+                        <li><strong>主标题</strong>: 32rpx (24px) 粗体</li>
+                        <li><strong>次标题</strong>: 28rpx (21px) 粗体</li>
+                        <li><strong>正文</strong>: 28rpx (21px) 常规</li>
+                        <li><strong>辅助文字</strong>: 24rpx (18px) 常规</li>
+                        <li><strong>提示文字</strong>: 22rpx (16px) 常规</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>组件设计规范</h3>
+            <div class="code-block">/* 权限申请卡片组件样式 */
+.permission-card {
+  background: #FFFFFF;
+  border-radius: 16rpx;
+  padding: 32rpx;
+  margin-bottom: 24rpx;
+  box-shadow: 0 4rpx 20rpx rgba(0, 0, 0, 0.08);
+  border: 1px solid #F2F2F7;
+}
+
+.permission-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 24rpx;
+}
+
+.permission-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1D1D1F;
+}
+
+.permission-status {
+  padding: 8rpx 16rpx;
+  border-radius: 12rpx;
+  font-size: 22rpx;
+  font-weight: 500;
+}
+
+.status-pending {
+  background: #FFF3CD;
+  color: #B25000;
+}
+
+.status-approved {
+  background: #D1F2EB;
+  color: #00875A;
+}
+
+.status-rejected {
+  background: #FFEBEE;
+  color: #D32F2F;
+}
+
+/* 表单控件样式 */
+.form-group {
+  margin-bottom: 32rpx;
+}
+
+.form-label {
+  display: block;
+  font-size: 26rpx;
+  font-weight: 500;
+  color: #1D1D1F;
+  margin-bottom: 12rpx;
+}
+
+.form-input {
+  width: 100%;
+  padding: 20rpx 24rpx;
+  border: 2rpx solid #E5E5E7;
+  border-radius: 12rpx;
+  font-size: 28rpx;
+  color: #1D1D1F;
+  background: #FFFFFF;
+  transition: border-color 0.2s ease;
+}
+
+.form-input:focus {
+  outline: none;
+  border-color: #007AFF;
+  box-shadow: 0 0 0 4rpx rgba(0, 122, 255, 0.1);
+}
+
+.form-textarea {
+  min-height: 120rpx;
+  resize: vertical;
+  font-family: inherit;
+  line-height: 1.5;
+}
+
+/* 权限选择复选框 */
+.permission-checkbox-group {
+  display: grid;
+  gap: 16rpx;
+  margin: 24rpx 0;
+}
+
+.permission-checkbox-item {
+  display: flex;
+  align-items: center;
+  padding: 20rpx;
+  border: 2rpx solid #F2F2F7;
+  border-radius: 12rpx;
+  background: #FFFFFF;
+  transition: all 0.2s ease;
+  cursor: pointer;
+}
+
+.permission-checkbox-item:hover {
+  border-color: #007AFF;
+  background: #F0F8FF;
+}
+
+.permission-checkbox-item.selected {
+  border-color: #007AFF;
+  background: #F0F8FF;
+}
+
+.checkbox-icon {
+  width: 40rpx;
+  height: 40rpx;
+  border: 2rpx solid #C7C7CC;
+  border-radius: 8rpx;
+  margin-right: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.checkbox-icon.checked {
+  background: #007AFF;
+  border-color: #007AFF;
+  color: white;
+}
+
+.checkbox-label {
+  flex: 1;
+  font-size: 26rpx;
+  color: #1D1D1F;
+}
+
+.checkbox-description {
+  font-size: 22rpx;
+  color: #8E8E93;
+  margin-top: 4rpx;
+}</div>
+        </section>
+
+        <!-- 5. 交互流程设计 -->
+        <section id="interaction-flow" class="section print-break">
+            <h2>5. 交互流程设计</h2>
+
+            <h3>权限申请完整流程</h3>
+            <div class="ascii-diagram">用户交互流程图
+
+开始申请 → 选择权限类型 → 填写申请信息 → 提交审核 → 等待结果
+   ↓            ↓              ↓            ↓          ↓
+识别需求     多选敏感字段     填写详细理由   提交申请    接收通知
+   ↓            ↓              ↓            ↓          ↓
+点击申请     实时显示说明     选择有效期     验证表单    查看状态
+   ↓            ↓              ↓            ↓          ↓
+跳转页面     动态计算费用     确认紧急程度   发送请求    使用权限
+
+                        ⬇️ 管理员端流程
+
+收到申请 → 查看详情 → 评估申请 → 做出决策 → 发送结果
+   ↓          ↓          ↓          ↓          ↓
+推送通知   查看理由   评估必要性   批准/拒绝   通知申请人
+   ↓          ↓          ↓          ↓          ↓
+列表显示   检查历史   查看关联信息  记录日志   权限生效</div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🎯 用户操作优化</h4>
+                    <ul>
+                        <li><strong>智能预填</strong>: 根据历史申请自动填充常用理由</li>
+                        <li><strong>一键申请</strong>: 常用权限组合一键申请</li>
+                        <li><strong>草稿保存</strong>: 自动保存未完成的申请</li>
+                        <li><strong>快速复制</strong>: 复制历史申请快速创建新申请</li>
+                        <li><strong>批量操作</strong>: 支持为多个患者同时申请相同权限</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>⚡ 审批效率提升</h4>
+                    <ul>
+                        <li><strong>批量审批</strong>: 支持选择多个申请批量处理</li>
+                        <li><strong>快速决策</strong>: 预设常用审批理由模板</li>
+                        <li><strong>智能分类</strong>: 按紧急程度和申请类型自动分组</li>
+                        <li><strong>历史参考</strong>: 显示申请人历史审批记录</li>
+                        <li><strong>审批提醒</strong>: 超时申请自动提醒处理</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>状态流转设计</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>状态</th>
+                        <th>说明</th>
+                        <th>用户可见内容</th>
+                        <th>可执行操作</th>
+                        <th>状态持续时间</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>📝 草稿</td>
+                        <td>申请未提交</td>
+                        <td>申请表单内容</td>
+                        <td>编辑、提交、删除</td>
+                        <td>无限期</td>
+                    </tr>
+                    <tr>
+                        <td>⏳ 待审批</td>
+                        <td>已提交等待处理</td>
+                        <td>申请详情、提交时间</td>
+                        <td>查看、撤销</td>
+                        <td>最长3个工作日</td>
+                    </tr>
+                    <tr>
+                        <td>🔍 审核中</td>
+                        <td>管理员正在处理</td>
+                        <td>当前审核进度</td>
+                        <td>查看、催办</td>
+                        <td>最长24小时</td>
+                    </tr>
+                    <tr>
+                        <td>✅ 已批准</td>
+                        <td>申请获得批准</td>
+                        <td>权限详情、到期时间</td>
+                        <td>使用权限、申请延期</td>
+                        <td>按设定期限</td>
+                    </tr>
+                    <tr>
+                        <td>❌ 已拒绝</td>
+                        <td>申请被拒绝</td>
+                        <td>拒绝理由、建议</td>
+                        <td>查看、重新申请</td>
+                        <td>永久保留</td>
+                    </tr>
+                    <tr>
+                        <td>⏰ 即将到期</td>
+                        <td>权限24小时内到期</td>
+                        <td>倒计时、延期入口</td>
+                        <td>申请延期、查看</td>
+                        <td>24小时</td>
+                    </tr>
+                    <tr>
+                        <td>🔒 已过期</td>
+                        <td>权限已失效</td>
+                        <td>过期时间、使用记录</td>
+                        <td>重新申请、查看历史</td>
+                        <td>永久保留</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <!-- 6. 技术实现规范 -->
+        <section id="technical-specs" class="section">
+            <h2>6. 技术实现规范</h2>
+
+            <h3>前端技术架构</h3>
+            <div class="code-block">// 权限申请页面组件结构
+const PermissionRequestPage = {
+  // 页面状态管理
+  data: {
+    patient: null,              // 患者信息
+    selectedPermissions: [],    // 选中的权限类型
+    requestForm: {             // 申请表单
+      reason: '',              // 申请理由
+      duration: '7d',          // 有效期
+      urgency: 'normal',       // 紧急程度
+      relatedService: ''       // 相关服务
+    },
+    loading: false,            // 加载状态
+    submitting: false,         // 提交状态
+    errors: {},               // 表单验证错误
+    draftSaved: false         // 草稿保存状态
+  },
+
+  // 生命周期方法
+  onLoad(options) {
+    const { patientId, fields } = options;
+    this.loadPatientInfo(patientId);
+    this.loadDraftRequest(patientId);
+    if (fields) {
+      this.preselectFields(fields.split(','));
+    }
+  },
+
+  // 核心方法
+  methods: {
+    // 加载患者信息
+    async loadPatientInfo(patientId) {
+      try {
+        this.setData({ loading: true });
+        const patient = await api.getPatientBasicInfo(patientId);
+        this.setData({ patient, loading: false });
+      } catch (error) {
+        this.handleError(error);
+      }
+    },
+
+    // 权限选择处理
+    onPermissionToggle(e) {
+      const { field } = e.currentTarget.dataset;
+      const { selectedPermissions } = this.data;
+      
+      const index = selectedPermissions.indexOf(field);
+      if (index > -1) {
+        selectedPermissions.splice(index, 1);
+      } else {
+        selectedPermissions.push(field);
+      }
+      
+      this.setData({ selectedPermissions });
+      this.saveDraft();
+    },
+
+    // 表单验证
+    validateForm() {
+      const { selectedPermissions, requestForm } = this.data;
+      const errors = {};
+
+      if (selectedPermissions.length === 0) {
+        errors.permissions = '请至少选择一个权限类型';
+      }
+
+      if (!requestForm.reason || requestForm.reason.length < 20) {
+        errors.reason = '申请理由至少需要20个字符';
+      }
+
+      if (requestForm.reason.length > 200) {
+        errors.reason = '申请理由不能超过200个字符';
+      }
+
+      this.setData({ errors });
+      return Object.keys(errors).length === 0;
+    },
+
+    // 提交申请
+    async submitRequest() {
+      if (!this.validateForm()) {
+        return;
+      }
+
+      try {
+        this.setData({ submitting: true });
+        
+        const requestData = {
+          patientId: this.data.patient.id,
+          permissions: this.data.selectedPermissions,
+          ...this.data.requestForm
+        };
+
+        const result = await api.submitPermissionRequest(requestData);
+        
+        // 清除草稿
+        this.clearDraft();
+        
+        // 显示成功提示
+        wx.showToast({
+          title: '申请已提交',
+          icon: 'success'
+        });
+
+        // 跳转到申请状态页
+        wx.redirectTo({
+          url: `/pages/permissions/status?requestId=${result.id}`
+        });
+
+      } catch (error) {
+        this.handleError(error);
+      } finally {
+        this.setData({ submitting: false });
+      }
+    },
+
+    // 保存草稿
+    saveDraft() {
+      const draftData = {
+        selectedPermissions: this.data.selectedPermissions,
+        requestForm: this.data.requestForm,
+        timestamp: Date.now()
+      };
+      
+      wx.setStorageSync(
+        `draft_request_${this.data.patient.id}`, 
+        draftData
+      );
+      
+      this.setData({ draftSaved: true });
+      
+      setTimeout(() => {
+        this.setData({ draftSaved: false });
+      }, 2000);
+    },
+
+    // 加载草稿
+    loadDraftRequest(patientId) {
+      try {
+        const draft = wx.getStorageSync(`draft_request_${patientId}`);
+        if (draft && draft.timestamp > Date.now() - 7 * 24 * 60 * 60 * 1000) {
+          this.setData({
+            selectedPermissions: draft.selectedPermissions,
+            requestForm: draft.requestForm
+          });
+        }
+      } catch (error) {
+        console.warn('加载草稿失败:', error);
+      }
+    }
+  }
+};</div>
+
+            <h3>API接口设计</h3>
+            <div class="card">
+                <h4>🔌 核心API接口</h4>
+                <table class="specs-table">
+                    <thead>
+                        <tr>
+                            <th>接口</th>
+                            <th>方法</th>
+                            <th>路径</th>
+                            <th>说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>获取患者基础信息</td>
+                            <td>GET</td>
+                            <td>/api/patients/{id}/basic</td>
+                            <td>获取脱敏后的患者基础信息</td>
+                        </tr>
+                        <tr>
+                            <td>获取权限类型列表</td>
+                            <td>GET</td>
+                            <td>/api/permissions/types</td>
+                            <td>获取可申请的权限类型及说明</td>
+                        </tr>
+                        <tr>
+                            <td>提交权限申请</td>
+                            <td>POST</td>
+                            <td>/api/permissions/requests</td>
+                            <td>提交新的权限申请</td>
+                        </tr>
+                        <tr>
+                            <td>获取申请状态</td>
+                            <td>GET</td>
+                            <td>/api/permissions/requests/{id}</td>
+                            <td>获取申请的详细状态信息</td>
+                        </tr>
+                        <tr>
+                            <td>获取申请历史</td>
+                            <td>GET</td>
+                            <td>/api/permissions/requests</td>
+                            <td>获取用户的申请历史记录</td>
+                        </tr>
+                        <tr>
+                            <td>撤销申请</td>
+                            <td>DELETE</td>
+                            <td>/api/permissions/requests/{id}</td>
+                            <td>撤销待审批的申请</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>数据结构设计</h3>
+            <div class="code-block">// 权限申请数据结构
+interface PermissionRequest {
+  id: string;                    // 申请唯一标识
+  patientId: string;             // 患者ID
+  applicantId: string;           // 申请人ID
+  permissions: string[];         // 申请的权限字段列表
+  reason: string;                // 申请理由
+  duration: string;              // 权限有效期 ('1d'|'3d'|'7d'|'15d')
+  urgency: 'normal'|'urgent'|'critical'; // 紧急程度
+  status: RequestStatus;         // 申请状态
+  submittedAt: Date;            // 提交时间
+  reviewedAt?: Date;            // 审核时间
+  reviewerId?: string;          // 审核人ID
+  reviewComment?: string;       // 审核意见
+  expiresAt?: Date;             // 权限到期时间
+  usageCount: number;           // 权限使用次数
+  lastUsedAt?: Date;            // 最后使用时间
+}
+
+// 申请状态枚举
+enum RequestStatus {
+  DRAFT = 'draft',              // 草稿
+  PENDING = 'pending',          // 待审批
+  REVIEWING = 'reviewing',      // 审核中
+  APPROVED = 'approved',        // 已批准
+  REJECTED = 'rejected',        // 已拒绝
+  EXPIRED = 'expired',          // 已过期
+  CANCELLED = 'cancelled'       // 已取消
+}
+
+// 权限类型定义
+interface PermissionType {
+  field: string;                // 字段名
+  name: string;                 // 显示名称
+  description: string;          // 详细说明
+  category: string;             // 权限分类
+  level: 'basic'|'sensitive'|'critical'; // 权限级别
+  defaultDuration: string;      // 默认有效期
+  autoApprove: boolean;         // 是否支持自动审批
+  approverRoles: string[];      // 可审批的角色
+  relatedFields?: string[];     // 关联字段
+}
+
+// 患者基础信息结构
+interface PatientBasicInfo {
+  id: string;                   // 患者ID
+  name: string;                 // 脱敏姓名 (如: 李*明)
+  age: number;                  // 年龄
+  gender: string;               // 性别
+  bedNumber: string;            // 床位号
+  admissionDate: Date;          // 入住时间
+  condition: string;            // 病情概要
+  avatar?: string;              // 头像URL
+  maskingLevel: number;         // 脱敏级别
+}</div>
+        </section>
+
+        <!-- 7. 权限申请表单设计 -->
+        <section id="form-design" class="section print-break">
+            <h2>7. 权限申请表单设计</h2>
+
+            <h3>表单字段规范</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>字段名称</th>
+                        <th>字段类型</th>
+                        <th>是否必填</th>
+                        <th>验证规则</th>
+                        <th>用户提示</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>权限类型</td>
+                        <td>多选复选框</td>
+                        <td>是</td>
+                        <td>至少选择1项，最多选择5项</td>
+                        <td>选择需要申请的敏感信息权限</td>
+                    </tr>
+                    <tr>
+                        <td>申请理由</td>
+                        <td>多行文本框</td>
+                        <td>是</td>
+                        <td>20-200个字符</td>
+                        <td>请详细说明申请权限的具体原因和用途</td>
+                    </tr>
+                    <tr>
+                        <td>权限有效期</td>
+                        <td>单选选择器</td>
+                        <td>是</td>
+                        <td>1天/3天/7天/15天</td>
+                        <td>权限到期后将自动回收</td>
+                    </tr>
+                    <tr>
+                        <td>紧急程度</td>
+                        <td>单选按钮组</td>
+                        <td>是</td>
+                        <td>普通/紧急/非常紧急</td>
+                        <td>紧急申请将优先处理</td>
+                    </tr>
+                    <tr>
+                        <td>相关服务</td>
+                        <td>选择器</td>
+                        <td>否</td>
+                        <td>从服务类型列表选择</td>
+                        <td>关联的服务类型，便于审批参考</td>
+                    </tr>
+                    <tr>
+                        <td>预计使用时间</td>
+                        <td>日期时间选择</td>
+                        <td>否</td>
+                        <td>不能早于当前时间</td>
+                        <td>预计使用权限的具体时间</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>表单验证规则</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🔍 实时验证</h4>
+                    <ul>
+                        <li><strong>字符计数</strong>: 申请理由实时显示字符数</li>
+                        <li><strong>格式检查</strong>: 输入过程中即时验证格式</li>
+                        <li><strong>重复检查</strong>: 检查是否有相同的待审批申请</li>
+                        <li><strong>权限限制</strong>: 检查用户是否有申请资格</li>
+                        <li><strong>智能建议</strong>: 根据输入内容提供建议</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>✅ 提交验证</h4>
+                    <ul>
+                        <li><strong>完整性检查</strong>: 确保所有必填字段已填写</li>
+                        <li><strong>逻辑校验</strong>: 检查字段间的逻辑关系</li>
+                        <li><strong>权限校验</strong>: 验证申请权限的合理性</li>
+                        <li><strong>频率限制</strong>: 检查申请频率是否超限</li>
+                        <li><strong>数据安全</strong>: 确保提交数据的安全性</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>智能化功能</h3>
+            <div class="card">
+                <h4>🤖 智能辅助功能</h4>
+                <ul>
+                    <li><strong>理由模板</strong>: 提供常用申请理由模板供选择</li>
+                    <li><strong>自动填充</strong>: 根据申请历史自动填充相似内容</li>
+                    <li><strong>关联推荐</strong>: 根据选中权限推荐相关权限</li>
+                    <li><strong>时间建议</strong>: 根据权限类型建议合适的有效期</li>
+                    <li><strong>批量申请</strong>: 支持为多个患者申请相同权限</li>
+                    <li><strong>草稿同步</strong>: 跨设备同步申请草稿</li>
+                </ul>
+            </div>
+
+            <div class="code-block">// 表单验证实现示例
+const formValidation = {
+  // 实时验证申请理由
+  validateReason(reason) {
+    const errors = [];
+    
+    if (!reason || reason.trim().length === 0) {
+      errors.push('申请理由不能为空');
+    } else if (reason.length < 20) {
+      errors.push(`申请理由至少需要20个字符，当前${reason.length}个字符`);
+    } else if (reason.length > 200) {
+      errors.push(`申请理由不能超过200个字符，当前${reason.length}个字符`);
+    }
+    
+    // 检查是否包含敏感词
+    const sensitiveWords = ['测试', '随便', '试试'];
+    const hasSensitiveWord = sensitiveWords.some(word => reason.includes(word));
+    if (hasSensitiveWord) {
+      errors.push('申请理由不能包含测试性质的内容，请填写真实的申请原因');
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors: errors,
+      suggestion: this.generateReasonSuggestion(reason)
+    };
+  },
+
+  // 生成理由建议
+  generateReasonSuggestion(reason) {
+    const keywords = this.extractKeywords(reason);
+    const templates = this.getReasonTemplates();
+    
+    return templates.filter(template => 
+      keywords.some(keyword => template.includes(keyword))
+    ).slice(0, 3);
+  },
+
+  // 验证权限选择
+  validatePermissions(selectedPermissions, userRole) {
+    const errors = [];
+    
+    if (selectedPermissions.length === 0) {
+      errors.push('请至少选择一个权限类型');
+    }
+    
+    if (selectedPermissions.length > 5) {
+      errors.push('最多只能同时申请5个权限类型');
+    }
+    
+    // 检查用户是否有权限申请所选字段
+    const unauthorizedPermissions = selectedPermissions.filter(permission => 
+      !this.canUserRequestPermission(userRole, permission)
+    );
+    
+    if (unauthorizedPermissions.length > 0) {
+      errors.push(`您的角色无权申请以下权限: ${unauthorizedPermissions.join(', ')}`);
+    }
+    
+    return {
+      isValid: errors.length === 0,
+      errors: errors,
+      warnings: this.generatePermissionWarnings(selectedPermissions)
+    };
+  }
+};</div>
+        </section>
+
+        <!-- 8. 审批管理界面 -->
+        <section id="approval-management" class="section">
+            <h2>8. 审批管理界面设计</h2>
+
+            <h3>审批列表页面设计</h3>
+            <div class="wireframe-container">┌─────────────────────────────────────┐ ← 管理员审批页头部
+│ 📋 权限申请审批      🔍 ⚙️ 📊        │
+├─────────────────────────────────────┤ ← 筛选和排序栏
+│ [全部] [待处理] [紧急] [已处理]      │
+│ 排序: [提交时间 ▼] [📅今日] [🔄刷新]  │
+├─────────────────────────────────────┤ ← 批量操作栏
+│ ☑️ 全选  ✅ 批量批准  ❌ 批量拒绝    │
+├─────────────────────────────────────┤ ← 申请列表
+│ ┌─ 🔴 【非常紧急】李小明 - 联系方式   │
+│ │   👤 张志愿者 申请 | ⏰ 2小时前     │
+│ │   📝 患者突发状况需紧急联系家属     │
+│ │   [📖 详情] [✅ 批准] [❌ 拒绝]    │
+│ ├─ 🟡 【紧急】王小红 - 家庭住址      │
+│ │   👤 李社工 申请 | ⏰ 4小时前      │
+│ │   📝 需要上门提供康复指导服务      │
+│ │   [📖 详情] [✅ 批准] [❌ 拒绝]    │
+│ ├─ 🟢 【普通】陈小华 - 医疗诊断      │
+│ │   👤 刘医生 申请 | ⏰ 1天前       │
+│ │   📝 制定个性化治疗计划需要        │
+│ │   [📖 详情] [✅ 批准] [❌ 拒绝]    │
+│ └─ ⏳ 【等待补充】赵小军 - 收入状况   │
+│     👤 周社工 申请 | ⏰ 2天前       │
+│     📝 评估家庭经济状况             │
+│     [📖 详情] [💬 要求补充]         │
+├─────────────────────────────────────┤ ← 页面底部信息
+│ 📊 今日处理: 12个 | 待处理: 8个     │
+│ ⏱️ 平均处理时间: 3.2小时           │
+└─────────────────────────────────────┘</div>
+
+            <h3>申请详情审批页面</h3>
+            <div class="wireframe-container">┌─────────────────────────────────────┐ ← 申请详情页头部
+│ ← 申请详情          📎 🔗 📤        │
+├─────────────────────────────────────┤ ← 申请基本信息
+│ 🔴 【非常紧急】权限申请              │
+│ 👤 申请人: 张志愿者 (ID: V001)       │
+│ 🏥 患者: 李小明 (床位3-205)         │
+│ 📅 申请时间: 2025-09-05 12:30       │
+│ ⏰ 紧急程度: 非常紧急                │
+├─────────────────────────────────────┤ ← 申请权限详情
+│ 📋 申请权限类型:                    │
+│ ✅ 监护人联系方式 (手机号码)         │
+│ ✅ 紧急联系人信息 (备用电话)         │
+│ 📊 权限级别: 敏感信息 (需审批)       │
+│ ⏳ 申请期限: 24小时                 │
+├─────────────────────────────────────┤ ← 申请理由详情
+│ 📝 申请理由:                        │
+│ 患者李小明今日下午突发高烧39.5℃，   │
+│ 现已送医急诊。需要立即联系监护人     │
+│ 告知情况并征得治疗同意。请尽快       │
+│ 批准查看联系方式权限。              │
+├─────────────────────────────────────┤ ← 相关信息
+│ 🔍 申请人历史记录:                  │
+│ • 本月申请次数: 3次 (全部批准)      │
+│ • 权限使用记录: 良好               │
+│ • 信誉评级: ⭐⭐⭐⭐⭐             │
+│                                     │
+│ 📋 患者相关信息:                    │
+│ • 当前状态: 急诊治疗中              │
+│ • 主治医生: 王医生                 │
+│ • 最近服务: 昨日康复训练            │
+├─────────────────────────────────────┤ ← 系统建议
+│ 🤖 系统建议: ✅ 建议批准             │
+│ • 申请理由充分且紧急                │
+│ • 申请人信誉记录良好               │
+│ • 符合紧急联系授权政策              │
+└─────────────────────────────────────┘
+┌─────────────────────────────────────┐ ← 审批操作区
+│ 📝 审批意见:                        │
+│ ┌─────────────────────────────────┐ │
+│ │ 情况紧急，同意开放联系方式权限     │ │
+│ └─────────────────────────────────┘ │
+│ ⏰ 权限有效期: [24小时 ▼]           │
+│ 🔔 通知设置: ☑️ 短信 ☑️ 微信 ☐ 邮件  │
+│                                     │
+│ [❌ 拒绝申请] [⏸️ 要求补充] [✅ 批准申请] │
+└─────────────────────────────────────┘</div>
+
+            <h3>批量审批功能</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🎯 智能批量操作</h4>
+                    <ul>
+                        <li><strong>按类型批量</strong>: 选择相同权限类型的申请</li>
+                        <li><strong>按申请人批量</strong>: 选择同一申请人的多个申请</li>
+                        <li><strong>按紧急程度批量</strong>: 优先处理紧急申请</li>
+                        <li><strong>智能分组</strong>: 系统自动分组相似申请</li>
+                        <li><strong>模板回复</strong>: 预设审批意见模板</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>⚡ 快速审批工具</h4>
+                    <ul>
+                        <li><strong>一键批准</strong>: 信誉良好的申请人快速通道</li>
+                        <li><strong>条件批准</strong>: 设置自动批准条件</li>
+                        <li><strong>批准模板</strong>: 常用审批理由快速选择</li>
+                        <li><strong>时间建议</strong>: 系统建议合适的权限期限</li>
+                        <li><strong>关联处理</strong>: 处理相关联的申请</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>审批决策辅助</h3>
+            <div class="card">
+                <h4>🧠 智能决策支持</h4>
+                <ul>
+                    <li><strong>风险评估</strong>: 基于历史数据评估申请风险</li>
+                    <li><strong>相似案例</strong>: 展示类似申请的处理记录</li>
+                    <li><strong>政策匹配</strong>: 自动匹配相关权限政策</li>
+                    <li><strong>时间分析</strong>: 分析申请的时间合理性</li>
+                    <li><strong>使用预测</strong>: 预测权限的实际使用情况</li>
+                    <li><strong>影响评估</strong>: 评估批准或拒绝的潜在影响</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 9. 状态管理与通知 -->
+        <section id="status-notification" class="section print-break">
+            <h2>9. 状态管理与通知系统</h2>
+
+            <h3>申请状态跟踪</h3>
+            <div class="ascii-diagram">权限申请状态流转图
+
+📝 草稿状态
+   ↓ [用户提交]
+⏳ 待审批状态 ← 🔄 [系统分配审批人]
+   ↓ [管理员开始处理]
+🔍 审核中状态 ← 💬 [可要求补充材料]
+   ↓ [审批决策]
+   ├── ✅ 已批准状态 → ⚡ 权限生效 → ⏰ 即将到期 → 🔒 已过期
+   └── ❌ 已拒绝状态 → 📝 可重新申请
+
+状态通知流:
+📱 实时推送 → 📧 邮件通知 → 💬 站内消息 → 📞 紧急电话</div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📱 推送通知策略</h4>
+                    <ul>
+                        <li><strong>即时推送</strong>: 申请状态变更立即通知</li>
+                        <li><strong>定时提醒</strong>: 权限到期前24/4/1小时提醒</li>
+                        <li><strong>分级通知</strong>: 根据紧急程度选择通知方式</li>
+                        <li><strong>批量摘要</strong>: 每日/周发送处理摘要</li>
+                        <li><strong>异常告警</strong>: 超时未处理的申请告警</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🔔 通知内容设计</h4>
+                    <ul>
+                        <li><strong>简洁明确</strong>: 核心信息一目了然</li>
+                        <li><strong>操作引导</strong>: 提供直接操作链接</li>
+                        <li><strong>上下文信息</strong>: 包含相关背景信息</li>
+                        <li><strong>个性化内容</strong>: 根据用户角色定制内容</li>
+                        <li><strong>多语言支持</strong>: 支持中英文通知</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>权限使用监控</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>监控项目</th>
+                        <th>监控频率</th>
+                        <th>告警条件</th>
+                        <th>处理方式</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>权限使用频率</td>
+                        <td>实时</td>
+                        <td>1小时内访问超过10次</td>
+                        <td>自动限制+管理员通知</td>
+                    </tr>
+                    <tr>
+                        <td>权限共享行为</td>
+                        <td>实时</td>
+                        <td>检测到异常访问模式</td>
+                        <td>立即冻结权限+安全审计</td>
+                    </tr>
+                    <tr>
+                        <td>权限到期提醒</td>
+                        <td>每小时</td>
+                        <td>距离到期不足24小时</td>
+                        <td>发送提醒+提供延期选项</td>
+                    </tr>
+                    <tr>
+                        <td>未使用权限</td>
+                        <td>每日</td>
+                        <td>获得权限后48小时未使用</td>
+                        <td>询问是否仍需要</td>
+                    </tr>
+                    <tr>
+                        <td>权限滥用检测</td>
+                        <td>实时</td>
+                        <td>访问与申请理由不符的信息</td>
+                        <td>记录警告+限制后续申请</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>通知模板设计</h3>
+            <div class="code-block">// 通知消息模板
+const notificationTemplates = {
+  // 申请提交确认
+  requestSubmitted: {
+    title: '权限申请已提交',
+    content: '您的权限申请已成功提交，申请编号：{{requestId}}。预计在{{expectedTime}}内完成审批，请耐心等待。',
+    actions: [
+      { text: '查看详情', url: '/permissions/{{requestId}}' },
+      { text: '申请历史', url: '/permissions/history' }
+    ]
+  },
+
+  // 申请批准通知
+  requestApproved: {
+    title: '🎉 权限申请已批准',
+    content: '您申请的{{permissionName}}权限已获得批准，有效期至{{expiresAt}}。现在可以查看相关信息了。',
+    actions: [
+      { text: '立即使用', url: '/patients/{{patientId}}' },
+      { text: '查看详情', url: '/permissions/{{requestId}}' }
+    ]
+  },
+
+  // 申请拒绝通知
+  requestRejected: {
+    title: '权限申请被拒绝',
+    content: '很抱歉，您的权限申请被拒绝。拒绝原因：{{rejectReason}}。如有疑问，请联系管理员。',
+    actions: [
+      { text: '重新申请', url: '/permissions/request?retry={{requestId}}' },
+      { text: '联系管理员', url: '/support/contact' }
+    ]
+  },
+
+  // 权限即将到期
+  permissionExpiring: {
+    title: '⏰ 权限即将到期',
+    content: '您的{{permissionName}}权限将在{{timeLeft}}后到期。如仍需使用，请及时申请延期。',
+    actions: [
+      { text: '申请延期', url: '/permissions/extend/{{requestId}}' },
+      { text: '查看详情', url: '/permissions/{{requestId}}' }
+    ]
+  },
+
+  // 管理员审批提醒
+  adminReviewNeeded: {
+    title: '📋 新的权限申请待审批',
+    content: '{{applicantName}}申请查看{{patientName}}的{{permissionName}}权限，紧急程度：{{urgency}}。请及时处理。',
+    actions: [
+      { text: '立即审批', url: '/admin/approvals/{{requestId}}' },
+      { text: '审批列表', url: '/admin/approvals' }
+    ]
+  }
+};</div>
+        </section>
+
+        <!-- 10. 测试用例与验收标准 -->
+        <section id="testing" class="section">
+            <h2>10. 测试用例与验收标准</h2>
+
+            <h3>功能测试用例</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>测试场景</th>
+                        <th>测试步骤</th>
+                        <th>预期结果</th>
+                        <th>验收标准</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>申请提交流程</td>
+                        <td>1. 选择权限类型<br>2. 填写申请理由<br>3. 设置有效期<br>4. 提交申请</td>
+                        <td>申请成功提交，获得申请编号，收到确认通知</td>
+                        <td>申请记录正确保存，状态为"待审批"</td>
+                    </tr>
+                    <tr>
+                        <td>表单验证功能</td>
+                        <td>1. 不选择权限类型<br>2. 申请理由少于20字<br>3. 点击提交</td>
+                        <td>显示验证错误提示，阻止提交</td>
+                        <td>错误提示准确，用户可以理解并修正</td>
+                    </tr>
+                    <tr>
+                        <td>管理员审批</td>
+                        <td>1. 查看申请详情<br>2. 填写审批意见<br>3. 选择批准或拒绝</td>
+                        <td>审批结果正确保存，申请人收到通知</td>
+                        <td>状态变更及时，通知推送成功</td>
+                    </tr>
+                    <tr>
+                        <td>权限使用</td>
+                        <td>1. 申请获批准<br>2. 访问患者详情页<br>3. 查看敏感信息</td>
+                        <td>可以查看申请的敏感信息，显示权限到期时间</td>
+                        <td>权限控制准确，只能查看已申请的字段</td>
+                    </tr>
+                    <tr>
+                        <td>权限到期回收</td>
+                        <td>1. 等待权限到期<br>2. 再次访问敏感信息</td>
+                        <td>无法查看敏感信息，显示权限已过期</td>
+                        <td>权限自动回收，系统安全可控</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>性能与安全测试</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>⚡ 性能测试标准</h4>
+                    <ul>
+                        <li><strong>页面加载时间</strong>: ≤2秒</li>
+                        <li><strong>表单提交响应</strong>: ≤1秒</li>
+                        <li><strong>权限验证耗时</strong>: ≤500ms</li>
+                        <li><strong>并发用户支持</strong>: 500+</li>
+                        <li><strong>内存使用</strong>: ≤50MB</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🔒 安全测试要点</h4>
+                    <ul>
+                        <li><strong>权限绕过测试</strong>: 尝试直接访问敏感信息</li>
+                        <li><strong>数据泄露检测</strong>: 检查脱敏数据的安全性</li>
+                        <li><strong>权限提升测试</strong>: 测试角色权限边界</li>
+                        <li><strong>SQL注入防护</strong>: 测试表单输入安全性</li>
+                        <li><strong>会话管理</strong>: 测试权限状态的准确性</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>用户体验测试</h3>
+            <div class="card">
+                <h4>👥 可用性测试清单</h4>
+                <ul>
+                    <li><strong>操作直观性</strong>: 新用户能否快速完成申请流程</li>
+                    <li><strong>错误处理</strong>: 错误提示是否清晰易懂</li>
+                    <li><strong>反馈及时性</strong>: 操作反馈是否及时到位</li>
+                    <li><strong>信息层级</strong>: 信息展示是否清晰有序</li>
+                    <li><strong>移动端适配</strong>: 在小屏设备上的使用体验</li>
+                    <li><strong>无障碍访问</strong>: 屏幕阅读器兼容性</li>
+                </ul>
+            </div>
+
+            <h3>验收标准</h3>
+            <div class="highlight-card">
+                <h4>✅ 发布验收标准</h4>
+                <ul>
+                    <li><strong>功能完整性</strong>: 所有设计功能正常运行</li>
+                    <li><strong>性能达标</strong>: 符合所有性能指标要求</li>
+                    <li><strong>安全合规</strong>: 通过安全审计和渗透测试</li>
+                    <li><strong>用户验收</strong>: 用户满意度≥4.5/5</li>
+                    <li><strong>兼容性测试</strong>: 主流设备和浏览器兼容</li>
+                    <li><strong>文档完善</strong>: 用户手册和技术文档齐全</li>
+                </ul>
+            </div>
+        </section>
+
+        <!-- 文档结尾 -->
+        <footer class="section">
+            <div class="card">
+                <h3>📋 文档状态</h3>
+                <p><span class="status-badge status-completed">✅ 已完成</span> 
+                   本设计文档已完成并通过审查，可进入开发实施阶段。</p>
+                
+                <h4>📞 联系方式</h4>
+                <ul>
+                    <li><strong>产品负责人</strong>: 产品经理团队</li>
+                    <li><strong>设计团队</strong>: UX/UI设计组</li>
+                    <li><strong>技术对接</strong>: 前端开发组</li>
+                    <li><strong>测试团队</strong>: QA测试组</li>
+                </ul>
+
+                <h4>📄 相关文档</h4>
+                <ul>
+                    <li>📊 《小家服务管理小程序-UX分析报告》</li>
+                    <li>🎨 《UI设计规范与组件库》</li>
+                    <li>🔒 《数据安全与权限管理规范》</li>
+                    <li>⚡《性能优化与监控方案》</li>
+                </ul>
+
+                <div style="text-align: center; margin-top: 24px; padding: 16px; background: #F0F8FF; border-radius: 8px;">
+                    <p><strong>💡 使用说明</strong></p>
+                    <p>右键点击页面选择"保存为"可将此文档保存到本地</p>
+                    <p>按 Ctrl+P (Windows) / Cmd+P (Mac) 可打印或导出为PDF</p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

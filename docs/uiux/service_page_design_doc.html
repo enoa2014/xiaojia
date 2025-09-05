@@ -1,0 +1,2033 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小家服务管理小程序 - 服务页详细设计文档</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8fafc;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 12px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+
+        .header {
+            background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+            color: white;
+            padding: 40px 40px 30px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 20"><defs><radialGradient id="a" cx="50%" cy="0%" r="100%"><stop offset="0%" style="stop-color:rgba(255,255,255,.1)"/><stop offset="100%" style="stop-color:rgba(255,255,255,0)"/></radialGradient></defs><rect width="100" height="20" fill="url(%23a)"/></svg>') repeat-x;
+            opacity: 0.3;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 8px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            margin-bottom: 20px;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header .meta {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            font-size: 0.95rem;
+            opacity: 0.9;
+            position: relative;
+            z-index: 1;
+        }
+
+        .header .meta span {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px 12px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+
+        .download-info {
+            background: linear-gradient(135deg, #EBF8FF 0%, #E0F2FE 100%);
+            padding: 20px 40px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .download-info h3 {
+            color: #0369A1;
+            margin-bottom: 10px;
+            font-size: 1.1rem;
+        }
+
+        .download-info p {
+            color: #0F172A;
+            line-height: 1.5;
+        }
+
+        .toc {
+            background: #f8fafc;
+            padding: 30px 40px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .toc h2 {
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-size: 1.3rem;
+        }
+
+        .toc ol {
+            list-style: none;
+            counter-reset: toc-counter;
+        }
+
+        .toc ol li {
+            counter-increment: toc-counter;
+            margin-bottom: 8px;
+        }
+
+        .toc ol li::before {
+            content: counter(toc-counter) ". ";
+            color: #22C55E;
+            font-weight: 600;
+        }
+
+        .toc a {
+            color: #475569;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s ease;
+        }
+
+        .toc a:hover {
+            color: #22C55E;
+        }
+
+        .section {
+            padding: 40px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .section:last-child {
+            border-bottom: none;
+        }
+
+        .section h2 {
+            color: #1e293b;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #22C55E;
+        }
+
+        .section h3 {
+            color: #334155;
+            font-size: 1.3rem;
+            margin: 30px 0 15px;
+        }
+
+        .section h4 {
+            color: #475569;
+            font-size: 1.1rem;
+            margin: 20px 0 10px;
+        }
+
+        .card {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .highlight-card {
+            background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+            border: 1px solid #BBF7D0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .ascii-diagram {
+            background: #1e293b;
+            color: #e2e8f0;
+            font-family: 'Courier New', monospace;
+            padding: 20px;
+            border-radius: 6px;
+            overflow-x: auto;
+            margin: 15px 0;
+            white-space: pre;
+            font-size: 0.85rem;
+            line-height: 1.4;
+        }
+
+        .specs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        .specs-table th,
+        .specs-table td {
+            padding: 12px 15px;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .specs-table th {
+            background: #f8fafc;
+            color: #374151;
+            font-weight: 600;
+        }
+
+        .specs-table tr:hover {
+            background: #f9fafb;
+        }
+
+        .tag {
+            display: inline-block;
+            background: #22C55E;
+            color: white;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 0.8rem;
+            margin: 2px;
+        }
+
+        .tag.secondary {
+            background: #6B7280;
+        }
+
+        .tag.warning {
+            background: #F59E0B;
+        }
+
+        .tag.danger {
+            background: #EF4444;
+        }
+
+        ul, ol {
+            padding-left: 20px;
+            margin: 10px 0;
+        }
+
+        li {
+            margin: 5px 0;
+        }
+
+        strong {
+            color: #1e293b;
+            font-weight: 600;
+        }
+
+        code {
+            background: #f1f5f9;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            color: #475569;
+        }
+
+        .mockup-phone {
+            width: 280px;
+            margin: 20px auto;
+            padding: 20px;
+            border: 8px solid #1f2937;
+            border-radius: 30px;
+            background: #111827;
+        }
+
+        .mockup-screen {
+            background: white;
+            border-radius: 20px;
+            overflow: hidden;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            .header, .section, .toc, .download-info {
+                padding: 20px 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .header .meta {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .mockup-phone {
+                width: 250px;
+            }
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .container {
+                box-shadow: none;
+                padding: 0;
+            }
+            
+            .download-info {
+                display: none;
+            }
+            
+            .toc a {
+                text-decoration: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>小家服务管理小程序</h1>
+            <p class="subtitle">服务页详细设计文档</p>
+            <div class="meta">
+                <span><strong>版本:</strong> v2.0</span>
+                <span><strong>创建时间:</strong> 2025-09-04</span>
+                <span><strong>设计师:</strong> UX设计团队</span>
+                <span><strong>项目:</strong> 大病儿童家庭"小家"服务管理小程序</span>
+            </div>
+        </header>
+
+        <div class="download-info">
+            <h3>💾 文档使用说明</h3>
+            <p>右键点击页面选择"保存为"或按 Ctrl+S (Windows) / Cmd+S (Mac) 保存此文档到本地。<br>
+            也可以按 Ctrl+P (Windows) / Cmd+P (Mac) 打印或保存为PDF格式。</p>
+        </div>
+
+        <nav class="toc">
+            <h2>📋 目录</h2>
+            <ol>
+                <li><a href="#design-goals">设计目标与原则</a></li>
+                <li><a href="#service-types">服务类型与分类</a></li>
+                <li><a href="#page-architecture">页面架构设计</a></li>
+                <li><a href="#service-record">服务记录页设计</a></li>
+                <li><a href="#service-review">服务审核页设计</a></li>
+                <li><a href="#service-history">服务历史页设计</a></li>
+                <li><a href="#role-differences">角色差异化设计</a></li>
+                <li><a href="#permission-control">权限控制与数据脱敏</a></li>
+                <li><a href="#interaction-specs">交互行为规范</a></li>
+                <li><a href="#implementation">技术实现指导</a></li>
+                <li><a href="#quality-standards">质量验收标准</a></li>
+            </ol>
+        </nav>
+
+        <section id="design-goals" class="section">
+            <h2>1. 设计目标与原则</h2>
+            
+            <h3>核心设计目标</h3>
+            <div class="highlight-card">
+                <h4>🎯 主要目标</h4>
+                <ul>
+                    <li><strong>提升服务记录效率</strong>: 志愿者3分钟内完成一次完整服务记录</li>
+                    <li><strong>确保服务质量</strong>: 社工5分钟内完成服务审核，保证服务标准</li>
+                    <li><strong>透明服务进展</strong>: 家长可随时查看孩子相关的服务历史</li>
+                    <li><strong>数据驱动决策</strong>: 管理员能快速获取服务统计数据</li>
+                </ul>
+            </div>
+
+            <h3>设计原则</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>💚 温暖关怀感</h4>
+                    <ul>
+                        <li>主色调: #22C55E (emerald-500)</li>
+                        <li>温暖的渐变色彩</li>
+                        <li>友好的语言表达</li>
+                        <li>情感化的图标设计</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>⚡ 效率优先</h4>
+                    <ul>
+                        <li>一键快速记录</li>
+                        <li>智能表单填写</li>
+                        <li>实时保存功能</li>
+                        <li>快速审核流程</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>成功指标</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>指标类型</th>
+                        <th>目标数值</th>
+                        <th>测量方法</th>
+                        <th>责任角色</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>服务记录完成时间</td>
+                        <td>≤ 3分钟</td>
+                        <td>用户行为统计</td>
+                        <td>志愿者</td>
+                    </tr>
+                    <tr>
+                        <td>服务审核处理时间</td>
+                        <td>≤ 5分钟</td>
+                        <td>审核流程统计</td>
+                        <td>社工</td>
+                    </tr>
+                    <tr>
+                        <td>服务记录准确率</td>
+                        <td>≥ 95%</td>
+                        <td>审核通过率</td>
+                        <td>社工审核</td>
+                    </tr>
+                    <tr>
+                        <td>用户满意度评分</td>
+                        <td>≥ 4.5/5.0</td>
+                        <td>定期用户调研</td>
+                        <td>全体用户</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="service-types" class="section">
+            <h2>2. 服务类型与分类</h2>
+            
+            <h3>服务类型定义</h3>
+            <div class="grid-3">
+                <div class="card">
+                    <h4>👥 探访服务</h4>
+                    <ul>
+                        <li><strong>定义</strong>: 志愿者到"小家"或医院探访患儿及家庭</li>
+                        <li><strong>记录要点</strong>: 探访时间、地点、参与人员、交流内容</li>
+                        <li><strong>审核重点</strong>: 时间合理性、内容真实性</li>
+                        <li><strong>标识色彩</strong>: <span class="tag">#22C55E</span></li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🧠 心理支持</h4>
+                    <ul>
+                        <li><strong>定义</strong>: 专业心理疏导和情感支持服务</li>
+                        <li><strong>记录要点</strong>: 支持方式、情绪状况、改善情况</li>
+                        <li><strong>审核重点</strong>: 专业性、隐私保护</li>
+                        <li><strong>标识色彩</strong>: <span class="tag secondary">#3B82F6</span></li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📦 物资援助</h4>
+                    <ul>
+                        <li><strong>定义</strong>: 提供生活用品、医疗用品等物资支持</li>
+                        <li><strong>记录要点</strong>: 物资类型、数量、发放对象</li>
+                        <li><strong>审核重点</strong>: 物资清单、发放凭证</li>
+                        <li><strong>标识色彩</strong>: <span class="tag warning">#F59E0B</span></li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🔄 转介服务</h4>
+                    <ul>
+                        <li><strong>定义</strong>: 协助联系其他专业机构或资源</li>
+                        <li><strong>记录要点</strong>: 转介原因、目标机构、跟进情况</li>
+                        <li><strong>审核重点</strong>: 转介合理性、后续跟踪</li>
+                        <li><strong>标识色彩</strong>: <span class="tag secondary">#8B5CF6</span></li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📋 随访服务</h4>
+                    <ul>
+                        <li><strong>定义</strong>: 定期跟踪患儿治疗和生活状况</li>
+                        <li><strong>记录要点</strong>: 随访方式、健康状况、需求变化</li>
+                        <li><strong>审核重点</strong>: 随访频率、信息准确性</li>
+                        <li><strong>标识色彩</strong>: <span class="tag secondary">#06B6D4</span></li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🎯 其他服务</h4>
+                    <ul>
+                        <li><strong>定义</strong>: 不在上述分类的其他支持服务</li>
+                        <li><strong>记录要点</strong>: 具体服务内容、服务成效</li>
+                        <li><strong>审核重点</strong>: 服务合规性、价值评估</li>
+                        <li><strong>标识色彩</strong>: <span class="tag secondary">#6B7280</span></li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>服务状态流转</h3>
+            <div class="ascii-diagram">服务记录生命周期
+
+[志愿者填写] → [提交记录] → [待审核状态]
+                              ↓
+                    [社工审核] → [审核决策]
+                              ↓        ↓
+                        [审核通过] ← 或 → [审核拒绝]
+                              ↓              ↓
+                        [服务生效]      [返回修改]
+                              ↓              ↓
+                        [档案归档]      [重新提交]</div>
+
+            <h3>服务优先级定义</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>优先级</th>
+                        <th>服务类型</th>
+                        <th>响应时间</th>
+                        <th>审核时限</th>
+                        <th>标识</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>🔴 紧急</td>
+                        <td>紧急心理干预、紧急物资援助</td>
+                        <td>1小时内</td>
+                        <td>2小时内</td>
+                        <td><span class="tag danger">紧急</span></td>
+                    </tr>
+                    <tr>
+                        <td>🟡 重要</td>
+                        <td>定期随访、重要转介</td>
+                        <td>4小时内</td>
+                        <td>1工作日内</td>
+                        <td><span class="tag warning">重要</span></td>
+                    </tr>
+                    <tr>
+                        <td>🟢 常规</td>
+                        <td>日常探访、常规心理支持</td>
+                        <td>1工作日内</td>
+                        <td>2工作日内</td>
+                        <td><span class="tag">常规</span></td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="page-architecture" class="section">
+            <h2>3. 页面架构设计</h2>
+            
+            <h3>服务模块整体架构</h3>
+            <div class="ascii-diagram">服务管理中心
+│
+├── 📋 服务记录页 (TabBar主入口)
+│   ├── 🎯 快速记录区 (一键记录)
+│   ├── 📝 详细记录区 (完整表单)
+│   ├── 📊 我的统计区 (个人数据)
+│   └── 📜 历史记录区 (时间线)
+│
+├── ✅ 服务审核页 (社工专用)
+│   ├── 🔔 待审核列表 (按紧急程度排序)
+│   ├── 📄 审核详情页 (记录详情+操作)
+│   ├── 📈 审核统计区 (处理效率)
+│   └── 🔍 审核搜索区 (条件筛选)
+│
+├── 📚 服务历史页 (查看模式)
+│   ├── 🔍 智能搜索栏 (多维度搜索)
+│   ├── 🏷️ 分类筛选标签 (按类型/状态)
+│   ├── 📈 统计概况卡片 (数据汇总)
+│   ├── 📋 服务记录列表 (时间倒序)
+│   │   ├── 👤 按服务对象分组
+│   │   ├── 📅 按时间范围分组
+│   │   └── 🎯 按服务类型分组
+│   └── 📊 可视化图表 (趋势分析)
+│
+├── 👤 个人服务页 (志愿者视图)
+│   ├── 📊 我的服务统计
+│   ├── ⏰ 今日服务安排
+│   ├── 🏆 服务成就展示
+│   └── 📅 服务日历视图
+│
+└── 📈 服务统计页 (管理视图)
+    ├── 📊 整体数据概览
+    ├── 👥 人员服务统计
+    ├── 📋 服务类型分析
+    └── 📤 数据导出功能</div>
+
+            <h3>页面导航关系</h3>
+            <div class="ascii-diagram">首页工作台 → 服务记录 → 服务记录页
+     ↓              ↓          ↓
+   快速记录        TabBar     一键记录
+     ↓              ↓          ↓
+   详细表单    →   记录详情 ←   查看历史
+     ↓              ↓          ↓
+   提交审核    →   审核页面 →   审核操作
+                    ↓
+                服务生效 → 服务历史页</div>
+
+            <h3>信息层级设计</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>信息层级</th>
+                        <th>展示位置</th>
+                        <th>权限要求</th>
+                        <th>内容摘要</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>服务概要</td>
+                        <td>列表页卡片</td>
+                        <td>基础查看权限</td>
+                        <td>服务类型、时间、状态</td>
+                    </tr>
+                    <tr>
+                        <td>服务详情</td>
+                        <td>详情页主体</td>
+                        <td>详细查看权限</td>
+                        <td>完整服务记录内容</td>
+                    </tr>
+                    <tr>
+                        <td>审核信息</td>
+                        <td>详情页专区</td>
+                        <td>审核权限</td>
+                        <td>审核意见、状态变更</td>
+                    </tr>
+                    <tr>
+                        <td>敏感信息</td>
+                        <td>详情页保护区</td>
+                        <td>高级权限</td>
+                        <td>患者隐私、医疗信息</td>
+                    </tr>
+                    <tr>
+                        <td>统计数据</td>
+                        <td>统计页图表</td>
+                        <td>统计权限</td>
+                        <td>汇总分析、趋势图表</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="service-record" class="section">
+            <h2>4. 服务记录页设计</h2>
+            
+            <h3>页面布局结构</h3>
+            <div class="ascii-diagram">┌─────────────────────────────────────┐ ← 导航栏 (88rpx)
+│  ← 返回    服务记录    📊 我的统计     │
+├─────────────────────────────────────┤ ← 快速操作区 (160rpx)
+│  🎯 一键快速记录  |  📝 详细记录表单   │
+├─────────────────────────────────────┤ ← 服务类型选择 (120rpx)
+│  👥探访  🧠心理  📦物资  🔄转介  📋随访  │
+├─────────────────────────────────────┤ ← 表单填写区 (动态高度)
+│                                     │
+│          📝 服务内容填写区             │
+│                                     │
+├─────────────────────────────────────┤ ← 附件上传区 (100rpx)
+│     📷 拍照上传    📁 选择文件        │
+├─────────────────────────────────────┤ ← 操作按钮区 (80rpx)
+│   💾 保存草稿      ✅ 提交审核        │
+└─────────────────────────────────────┘</div>
+
+            <h3>快速记录模式</h3>
+            <div class="highlight-card">
+                <h4>🎯 设计理念</h4>
+                <p>为志愿者提供最简化的记录方式，通过预设模板和智能输入，将记录时间缩短到1-2分钟。</p>
+                
+                <h4>功能特性</h4>
+                <ul>
+                    <li><strong>服务类型一键选择</strong>: 大按钮设计，快速选定</li>
+                    <li><strong>智能时间填充</strong>: 自动填入当前时间，可手动调整</li>
+                    <li><strong>模板化内容</strong>: 提供常用服务内容模板</li>
+                    <li><strong>语音输入支持</strong>: 支持语音转文字功能</li>
+                    <li><strong>实时保存</strong>: 每3秒自动保存草稿</li>
+                </ul>
+            </div>
+
+            <div class="mockup-phone">
+                <div class="mockup-screen">
+                    <div style="background: #22C55E; color: white; padding: 15px; text-align: center; font-weight: 600;">
+                        快速记录服务
+                    </div>
+                    <div style="padding: 20px;">
+                        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-bottom: 20px;">
+                            <button style="padding: 15px 8px; border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb; font-size: 12px; text-align: center;">👥<br>探访</button>
+                            <button style="padding: 15px 8px; border: 2px solid #22C55E; border-radius: 8px; background: #F0FDF4; font-size: 12px; text-align: center;">🧠<br>心理</button>
+                            <button style="padding: 15px 8px; border: 1px solid #e5e7eb; border-radius: 8px; background: #f9fafb; font-size: 12px; text-align: center;">📦<br>物资</button>
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-size: 14px; color: #374151; margin-bottom: 5px;">服务时间</label>
+                            <input type="text" value="2025-09-04 14:30" style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px;">
+                        </div>
+                        <div style="margin-bottom: 15px;">
+                            <label style="display: block; font-size: 14px; color: #374151; margin-bottom: 5px;">服务内容</label>
+                            <textarea placeholder="请简要描述本次服务内容..." style="width: 100%; padding: 10px; border: 1px solid #d1d5db; border-radius: 6px; font-size: 14px; height: 80px; resize: vertical;"></textarea>
+                        </div>
+                        <div style="display: flex; gap: 10px;">
+                            <button style="flex: 1; padding: 12px; background: #f3f4f6; color: #374151; border: none; border-radius: 6px; font-weight: 500;">💾 保存草稿</button>
+                            <button style="flex: 1; padding: 12px; background: #22C55E; color: white; border: none; border-radius: 6px; font-weight: 500;">✅ 提交审核</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>详细记录模式</h3>
+            <div class="card">
+                <h4>📝 完整表单结构</h4>
+                <table class="specs-table">
+                    <thead>
+                        <tr>
+                            <th>字段名称</th>
+                            <th>字段类型</th>
+                            <th>是否必填</th>
+                            <th>验证规则</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>服务对象</td>
+                            <td>选择器</td>
+                            <td>必填</td>
+                            <td>必须是有效的患者档案</td>
+                        </tr>
+                        <tr>
+                            <td>服务类型</td>
+                            <td>单选</td>
+                            <td>必填</td>
+                            <td>仅限预定义的6种类型</td>
+                        </tr>
+                        <tr>
+                            <td>服务时间</td>
+                            <td>日期时间</td>
+                            <td>必填</td>
+                            <td>不能早于7天前，不能晚于当前时间</td>
+                        </tr>
+                        <tr>
+                            <td>服务地点</td>
+                            <td>文本输入</td>
+                            <td>可选</td>
+                            <td>最多50个字符</td>
+                        </tr>
+                        <tr>
+                            <td>服务内容</td>
+                            <td>文本域</td>
+                            <td>必填</td>
+                            <td>最少20字符，最多500字符</td>
+                        </tr>
+                        <tr>
+                            <td>服务成效</td>
+                            <td>文本域</td>
+                            <td>可选</td>
+                            <td>最多200字符</td>
+                        </tr>
+                        <tr>
+                            <td>相关图片</td>
+                            <td>文件上传</td>
+                            <td>可选</td>
+                            <td>最多3张，每张不超过5MB</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>表单验证与反馈</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>实时验证规则</h4>
+                    <ul>
+                        <li><strong>字段失焦验证</strong>: 离开字段时立即验证</li>
+                        <li><strong>字符计数显示</strong>: 实时显示剩余字符数</li>
+                        <li><strong>格式校验</strong>: 日期、时间格式实时校验</li>
+                        <li><strong>必填项提醒</strong>: 红色星号标识，空值时边框变红</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>提交反馈机制</h4>
+                    <ul>
+                        <li><strong>成功提交</strong>: 绿色Toast提示"提交成功，等待审核"</li>
+                        <li><strong>验证失败</strong>: 错误字段高亮，显示具体错误信息</li>
+                        <li><strong>网络异常</strong>: 提示"网络异常，已保存为草稿"</li>
+                        <li><strong>重复提交</strong>: 防抖处理，按钮置灰3秒</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="service-review" class="section">
+            <h2>5. 服务审核页设计</h2>
+            
+            <h3>审核列表页布局</h3>
+            <div class="ascii-diagram">┌─────────────────────────────────────┐ ← 导航栏 + 统计
+│  ← 返回    审核中心    🔔 待审核: 5    │
+├─────────────────────────────────────┤ ← 筛选标签区
+│  🔴紧急(2) 🟡重要(1) 🟢常规(2) 🔄全部  │
+├─────────────────────────────────────┤ ← 审核列表区
+│ ┌─┬─────────────────────────┐     │
+│ │🔴│ 心理支持 | 李小明          │     │
+│ │ │ 2025-09-04 10:30        │     │
+│ │ │ 提交者: 张志愿者 [详情>]   │     │
+│ └─┴─────────────────────────┘     │
+│ ┌─┬─────────────────────────┐     │
+│ │🟡│ 物资援助 | 王小红          │     │
+│ │ │ 2025-09-04 09:15        │     │
+│ │ │ 提交者: 李志愿者 [详情>]   │     │
+│ └─┴─────────────────────────┘     │
+├─────────────────────────────────────┤ ← 批量操作区
+│    📋 全选    ✅ 批量通过    📤导出   │
+└─────────────────────────────────────┘</div>
+
+            <h3>审核详情页设计</h3>
+            <div class="highlight-card">
+                <h4>💡 审核效率优化</h4>
+                <p>通过信息分层展示和快捷操作按钮，确保社工能在5分钟内完成一次完整的审核流程。</p>
+            </div>
+
+            <div class="card">
+                <h4>📋 审核信息展示结构</h4>
+                <div class="ascii-diagram">┌─ 🎯 服务基本信息 ─────────────────┐
+│ 服务类型: 心理支持    紧急程度: 🔴紧急 │
+│ 服务时间: 2025-09-04 10:30-11:30   │
+│ 服务地点: 小家活动室               │
+│ 服务对象: 李**  (档案号: #A001)     │
+│ 提交时间: 2025-09-04 11:45         │
+│ 提交人员: 张志愿者                 │
+└────────────────────────────────┘
+
+┌─ 📝 服务内容详情 ─────────────────┐
+│                                  │
+│ 本次主要进行心理疏导，小朋友情绪     │
+│ 状态有明显改善。通过绘画治疗的方式   │
+│ 帮助她表达内心感受，家长也参与了     │
+│ 整个过程...                      │
+│                                  │
+│ [展开全文 ▼]                      │
+└────────────────────────────────┘
+
+┌─ 📸 相关图片 (2张) ────────────────┐
+│  [图片1]    [图片2]     [+更多]     │
+└────────────────────────────────┘
+
+┌─ ⚡ 快速审核操作 ──────────────────┐
+│  ✅ 审核通过    ❌ 驳回修改    💬 留言 │
+└────────────────────────────────┘</div>
+            </div>
+
+            <h3>审核操作流程</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>操作类型</th>
+                        <th>操作步骤</th>
+                        <th>必填信息</th>
+                        <th>后续状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="tag">审核通过</span></td>
+                        <td>点击✅按钮 → 确认弹窗</td>
+                        <td>无</td>
+                        <td>服务生效，记录归档</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag warning">驳回修改</span></td>
+                        <td>点击❌按钮 → 填写驳回原因</td>
+                        <td>驳回原因(必填)</td>
+                        <td>返回提交者修改</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag secondary">审核留言</span></td>
+                        <td>点击💬按钮 → 填写留言</td>
+                        <td>留言内容</td>
+                        <td>状态不变，增加留言</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag secondary">申请协助</span></td>
+                        <td>长按操作区 → 选择协助审核</td>
+                        <td>协助理由</td>
+                        <td>转给其他社工审核</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>批量审核功能</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>适用场景</h4>
+                    <ul>
+                        <li>同类型常规服务记录</li>
+                        <li>同一志愿者的多条记录</li>
+                        <li>格式规范、内容简单的记录</li>
+                        <li>紧急情况下的快速处理</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>操作限制</h4>
+                    <ul>
+                        <li>单次最多选择10条记录</li>
+                        <li>不能批量处理紧急级别记录</li>
+                        <li>必须是同一服务类型</li>
+                        <li>操作需要二次确认</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="service-history" class="section">
+            <h2>6. 服务历史页设计</h2>
+            
+            <h3>历史记录列表设计</h3>
+            <div class="ascii-diagram">┌─ 🔍 智能搜索与筛选区 ────────────────┐
+│ 🔍[搜索框] 🎯类型筛选 📅时间筛选 👤人员 │
+├────────────────────────────────┤
+│ ┌─ 💚 2025年09月 (本月服务: 28次) ─┐ │
+│ │                                  │ │
+│ │ 📋 09-04 心理支持 | 李小明         │ │
+│ │    时间: 10:30-11:30  状态: ✅    │ │
+│ │    服务者: 张志愿者    [查看详情]   │ │
+│ │                                  │ │
+│ │ 👥 09-03 探访服务 | 王小红         │ │
+│ │    时间: 15:00-16:30  状态: ✅    │ │  
+│ │    服务者: 李志愿者    [查看详情]   │ │
+│ │                                  │ │
+│ │ 📦 09-02 物资援助 | 赵小刚         │ │
+│ │    时间: 09:00-09:30  状态: ✅    │ │
+│ │    服务者: 陈志愿者    [查看详情]   │ │
+│ │                                  │ │
+│ └──────────────────────────────┘ │
+│                                    │
+│ ┌─ 🗓️ 2025年08月 (上月服务: 35次) ─┐ │
+│ │ [点击展开查看详情...]             │ │
+│ └──────────────────────────────┘ │
+└────────────────────────────────┘</div>
+
+            <h3>服务统计可视化</h3>
+            <div class="highlight-card">
+                <h4>📊 数据图表展示</h4>
+                <div class="grid-2">
+                    <div style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px; text-align: center; background: #f9fafb;">
+                        <h4>服务类型分布</h4>
+                        <div style="margin: 15px 0;">
+                            <div style="display: inline-block; width: 80px; height: 80px; border-radius: 50%; background: conic-gradient(#22C55E 0deg 144deg, #3B82F6 144deg 216deg, #F59E0B 216deg 288deg, #8B5CF6 288deg 360deg); margin: 10px;"></div>
+                        </div>
+                        <div style="font-size: 12px; color: #6B7280;">
+                            <span style="color: #22C55E;">■</span> 探访 40% 
+                            <span style="color: #3B82F6;">■</span> 心理 20%<br>
+                            <span style="color: #F59E0B;">■</span> 物资 20% 
+                            <span style="color: #8B5CF6;">■</span> 其他 20%
+                        </div>
+                    </div>
+                    
+                    <div style="padding: 20px; border: 2px solid #e5e7eb; border-radius: 8px; text-align: center; background: #f9fafb;">
+                        <h4>服务趋势图</h4>
+                        <div style="margin: 15px 0;">
+                            <svg width="140" height="80" viewBox="0 0 140 80" style="border: 1px solid #e5e7eb;">
+                                <polyline points="10,60 30,50 50,30 70,40 90,20 110,35 130,25" 
+                                         fill="none" stroke="#22C55E" stroke-width="2"/>
+                                <circle cx="130" cy="25" r="3" fill="#22C55E"/>
+                            </svg>
+                        </div>
+                        <div style="font-size: 12px; color: #6B7280;">
+                            月度服务量持续增长 ↗️
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <h3>高级筛选功能</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>筛选维度</th>
+                        <th>筛选选项</th>
+                        <th>组合规则</th>
+                        <th>快捷预设</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>时间范围</td>
+                        <td>今日、本周、本月、自定义</td>
+                        <td>AND 逻辑</td>
+                        <td>最近7天</td>
+                    </tr>
+                    <tr>
+                        <td>服务类型</td>
+                        <td>6种服务类型多选</td>
+                        <td>OR 逻辑</td>
+                        <td>心理+探访</td>
+                    </tr>
+                    <tr>
+                        <td>服务状态</td>
+                        <td>已完成、审核中、已驳回</td>
+                        <td>OR 逻辑</td>
+                        <td>已完成</td>
+                    </tr>
+                    <tr>
+                        <td>服务人员</td>
+                        <td>根据权限显示可选人员</td>
+                        <td>OR 逻辑</td>
+                        <td>我的服务</td>
+                    </tr>
+                    <tr>
+                        <td>服务对象</td>
+                        <td>患者姓名模糊搜索</td>
+                        <td>AND 逻辑</td>
+                        <td>重点关注</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>历史记录详情展示</h3>
+            <div class="card">
+                <h4>📋 记录卡片设计规范</h4>
+                <div style="border: 1px solid #e5e7eb; border-radius: 8px; padding: 15px; background: #fafafa;">
+                    <div style="display: flex; align-items: flex-start; gap: 12px;">
+                        <div style="width: 40px; height: 40px; background: #22C55E; border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 18px;">
+                            🧠
+                        </div>
+                        <div style="flex: 1;">
+                            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 8px;">
+                                <div>
+                                    <h4 style="margin: 0; font-size: 16px; color: #1f2937;">心理支持服务</h4>
+                                    <p style="margin: 0; font-size: 14px; color: #6b7280;">服务对象: 李**  (档案号: #A001)</p>
+                                </div>
+                                <span style="background: #dcfce7; color: #166534; padding: 4px 8px; border-radius: 12px; font-size: 12px; font-weight: 500;">✅ 已完成</span>
+                            </div>
+                            <div style="font-size: 13px; color: #9ca3af; margin-bottom: 8px;">
+                                📅 2025-09-04 10:30-11:30  📍 小家活动室  👤 张志愿者
+                            </div>
+                            <div style="font-size: 14px; color: #374151; line-height: 1.4;">
+                                本次主要进行心理疏导，小朋友情绪状态有明显改善...
+                            </div>
+                            <div style="display: flex; justify-content: flex-end; margin-top: 10px;">
+                                <button style="background: #f3f4f6; border: none; padding: 6px 12px; border-radius: 4px; font-size: 12px; color: #374151; cursor: pointer;">查看详情</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="role-differences" class="section">
+            <h2>7. 角色差异化设计</h2>
+            
+            <h3>管理员视图 (Admin View)</h3>
+            <div class="highlight-card">
+                <h4>🔑 独有权限功能</h4>
+                <ul>
+                    <li><strong>全局服务统计</strong>: 查看所有用户的服务数据</li>
+                    <li><strong>服务质量分析</strong>: 审核通过率、服务效果评估</li>
+                    <li><strong>数据导出功能</strong>: 支持Excel、CSV格式导出</li>
+                    <li><strong>用户服务报表</strong>: 个人和团队服务绩效</li>
+                </ul>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📊 管理员专属统计面板</h4>
+                    <ul>
+                        <li>总服务次数: 1,247 (+15%)</li>
+                        <li>活跃志愿者: 28人 (+3)</li>
+                        <li>服务通过率: 94.5% (-1.2%)</li>
+                        <li>平均审核时长: 4.2min (-0.8)</li>
+                        <li>服务满意度: 4.7/5.0 (+0.1)</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>⚡ 快速管理操作</h4>
+                    <ul>
+                        <li>批量审核服务记录</li>
+                        <li>重置用户服务权限</li>
+                        <li>生成月度服务报表</li>
+                        <li>设置服务提醒策略</li>
+                        <li>管理服务类型配置</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>社工视图 (Social Worker View)</h3>
+            <div class="card">
+                <h4>👩‍💼 核心工作场景优化</h4>
+                <table class="specs-table">
+                    <thead>
+                        <tr>
+                            <th>功能模块</th>
+                            <th>权限范围</th>
+                            <th>快捷入口</th>
+                            <th>效率优化</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>服务审核</td>
+                            <td>所有服务记录</td>
+                            <td>首页待审核提醒</td>
+                            <td>批量操作、快捷审核</td>
+                        </tr>
+                        <tr>
+                            <td>服务记录</td>
+                            <td>创建、编辑、删除</td>
+                            <td>浮动添加按钮</td>
+                            <td>模板快填、实时保存</td>
+                        </tr>
+                        <tr>
+                            <td>服务统计</td>
+                            <td>负责范围内统计</td>
+                            <td>个人工作台</td>
+                            <td>可视化图表、趋势分析</td>
+                        </tr>
+                        <tr>
+                            <td>质量管控</td>
+                            <td>服务质量评估</td>
+                            <td>审核页面集成</td>
+                            <td>智能质量检查提示</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>志愿者视图 (Volunteer View)</h3>
+            <div class="highlight-card">
+                <h4>💖 以服务为中心的用户体验</h4>
+                <p>志愿者的核心需求是快速、准确地记录服务，因此界面设计突出简洁性和效率性。</p>
+            </div>
+
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🎯 服务记录快捷功能</h4>
+                    <ul>
+                        <li><strong>一键快速记录</strong>: 3步完成记录</li>
+                        <li><strong>常用内容模板</strong>: 避免重复输入</li>
+                        <li><strong>语音输入支持</strong>: 提高录入效率</li>
+                        <li><strong>离线草稿保存</strong>: 网络异常时保护数据</li>
+                        <li><strong>拍照即传功能</strong>: 现场照片直接上传</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📈 个人服务统计</h4>
+                    <ul>
+                        <li><strong>本月服务次数</strong>: 12次 (+3)</li>
+                        <li><strong>服务时长统计</strong>: 24小时 (+6h)</li>
+                        <li><strong>服务通过率</strong>: 96.5% (+1.5%)</li>
+                        <li><strong>服务类型分布</strong>: 探访70% 心理30%</li>
+                        <li><strong>服务对象数量</strong>: 8人</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>家长视图 (Parent View)</h3>
+            <div class="card">
+                <h4>👨‍👩‍👧‍👦 以关怀为核心的信息展示</h4>
+                
+                <div class="ascii-diagram">┌─ 📋 我的孩子服务记录 ─────────────────┐
+│                                      │
+│ 👶 李小明 的服务历史                    │
+│                                      │
+│ 🕐 最近一次服务                        │
+│ ├─ 时间: 2025-09-04 10:30            │
+│ ├─ 类型: 心理支持服务                  │
+│ ├─ 服务者: 张志愿者                    │
+│ └─ 状态: ✅ 服务完成                   │
+│                                      │
+│ 📊 本月服务总览                        │
+│ ├─ 服务次数: 5次                      │
+│ ├─ 服务类型: 心理3次, 探访2次           │
+│ ├─ 服务时长: 共8小时                   │
+│ └─ 进展评价: 状态良好 😊               │
+│                                      │
+│ 🔍 [查看完整服务历史]                  │
+│                                      │
+└──────────────────────────────────┘</div>
+                
+                <h4>功能限制与保护</h4>
+                <ul>
+                    <li><strong>查看权限</strong>: 仅能查看与自己孩子相关的服务记录</li>
+                    <li><strong>数据脱敏</strong>: 服务者信息显示昵称或角色</li>
+                    <li><strong>隐私保护</strong>: 敏感医疗信息需要申请权限</li>
+                    <li><strong>反馈渠道</strong>: 可对服务质量进行评价和建议</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="permission-control" class="section">
+            <h2>8. 权限控制与数据脱敏</h2>
+            
+            <h3>权限等级定义</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>权限等级</th>
+                        <th>适用角色</th>
+                        <th>可访问内容</th>
+                        <th>操作限制</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td><span class="tag danger">超级权限</span></td>
+                        <td>管理员</td>
+                        <td>所有服务记录、敏感信息、统计数据</td>
+                        <td>无限制</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag warning">管理权限</span></td>
+                        <td>社工</td>
+                        <td>工作范围内的服务记录、审核权限</td>
+                        <td>不能访问其他社工的敏感记录</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag">基础权限</span></td>
+                        <td>志愿者</td>
+                        <td>脱敏后的患者信息、自己的服务记录</td>
+                        <td>不能查看敏感医疗信息</td>
+                    </tr>
+                    <tr>
+                        <td><span class="tag secondary">受限权限</span></td>
+                        <td>家长</td>
+                        <td>仅自己孩子相关的服务记录</td>
+                        <td>只读权限，不能修改任何信息</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>数据脱敏规则</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🔒 患者信息脱敏</h4>
+                    <ul>
+                        <li><strong>姓名</strong>: 姓+* 显示 (如: 李*明)</li>
+                        <li><strong>身份证</strong>: 仅显示后4位</li>
+                        <li><strong>联系电话</strong>: 中间4位显示为* </li>
+                        <li><strong>住址信息</strong>: 仅显示区县级别</li>
+                        <li><strong>医疗诊断</strong>: 大类显示，详情需申请</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>👤 服务者信息脱敏</h4>
+                    <ul>
+                        <li><strong>志愿者姓名</strong>: 昵称或"XX志愿者"</li>
+                        <li><strong>社工姓名</strong>: 角色+姓氏 (如: 李社工)</li>
+                        <li><strong>联系方式</strong>: 不对家长显示</li>
+                        <li><strong>个人照片</strong>: 头像或角色图标</li>
+                        <li><strong>工作单位</strong>: 仅显示职能角色</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>权限申请流程</h3>
+            <div class="ascii-diagram">权限申请工作流程
+
+[用户申请] → [权限验证] → [申请提交]
+     ↓            ↓            ↓
+[填写申请理由] [验证当前权限] [生成申请单]
+     ↓            ↓            ↓
+[选择申请时长] [检查申请资格] [推送审批人]
+     ↓            ↓            ↓
+[提交申请单]  →  [审批流程]  ←  [审批决策]
+                    ↓            ↓
+            [管理员审核] ← [自动审批/人工审批]
+                    ↓
+            [审批结果通知] → [权限生效/拒绝]</div>
+
+            <h3>权限申请表单设计</h3>
+            <div class="highlight-card">
+                <h4>📝 申请表单结构</h4>
+                <table class="specs-table">
+                    <thead>
+                        <tr>
+                            <th>字段名称</th>
+                            <th>字段类型</th>
+                            <th>是否必填</th>
+                            <th>验证规则</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>申请权限类型</td>
+                            <td>多选框</td>
+                            <td>必填</td>
+                            <td>至少选择一项</td>
+                        </tr>
+                        <tr>
+                            <td>申请理由</td>
+                            <td>文本域</td>
+                            <td>必填</td>
+                            <td>最少50字符，最多200字符</td>
+                        </tr>
+                        <tr>
+                            <td>使用期限</td>
+                            <td>选择器</td>
+                            <td>必填</td>
+                            <td>1天、3天、7天、15天</td>
+                        </tr>
+                        <tr>
+                            <td>紧急程度</td>
+                            <td>单选</td>
+                            <td>必填</td>
+                            <td>普通、紧急、非常紧急</td>
+                        </tr>
+                        <tr>
+                            <td>相关患者</td>
+                            <td>搜索选择</td>
+                            <td>可选</td>
+                            <td>必须是有效档案</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>审批时限与通知</h3>
+            <div class="card">
+                <h4>⏰ 审批时效标准</h4>
+                <ul>
+                    <li><strong>非常紧急</strong>: 2小时内响应，4小时内完成</li>
+                    <li><strong>紧急申请</strong>: 4小时内响应，12小时内完成</li>
+                    <li><strong>普通申请</strong>: 1工作日内响应，3工作日内完成</li>
+                    <li><strong>批量申请</strong>: 按最高紧急程度处理</li>
+                </ul>
+                
+                <h4>📱 通知推送机制</h4>
+                <ul>
+                    <li><strong>申请提交</strong>: 立即推送给审批人员</li>
+                    <li><strong>审批进展</strong>: 申请人收到状态更新通知</li>
+                    <li><strong>审批完成</strong>: 推送最终结果和权限生效信息</li>
+                    <li><strong>权限到期</strong>: 提前24小时提醒申请延期</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="interaction-specs" class="section">
+            <h2>9. 交互行为规范</h2>
+            
+            <h3>页面加载与状态反馈</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>⏳ 加载状态设计</h4>
+                    <ul>
+                        <li><strong>页面初始加载</strong>: 骨架屏 + 渐进式内容展示</li>
+                        <li><strong>数据刷新</strong>: 下拉刷新动画 + 顶部加载条</li>
+                        <li><strong>分页加载</strong>: 底部加载更多 + 加载动画</li>
+                        <li><strong>搜索加载</strong>: 搜索框内旋转图标</li>
+                        <li><strong>表单提交</strong>: 按钮加载态 + 禁用状态</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>✅ 操作反馈设计</h4>
+                    <ul>
+                        <li><strong>成功操作</strong>: 绿色Toast提示 + 成功图标</li>
+                        <li><strong>错误操作</strong>: 红色Toast提示 + 错误详情</li>
+                        <li><strong>警告提示</strong>: 黄色Toast提示 + 注意图标</li>
+                        <li><strong>确认操作</strong>: 模态对话框 + 二次确认</li>
+                        <li><strong>长时操作</strong>: 进度条 + 预计完成时间</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>手势与触摸交互</h3>
+            <div class="highlight-card">
+                <h4>📱 移动端交互优化</h4>
+                <div class="grid-3">
+                    <div class="card">
+                        <h4>点击交互</h4>
+                        <ul>
+                            <li>最小点击区域: 44px × 44px</li>
+                            <li>点击反馈: 0.1秒阴影变化</li>
+                            <li>长按操作: 0.8秒触发</li>
+                            <li>双击防抖: 300ms间隔</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>滑动手势</h4>
+                        <ul>
+                            <li>下拉刷新: 顶部60px触发</li>
+                            <li>上拉加载: 底部30px触发</li>
+                            <li>左滑删除: 支持服务记录</li>
+                            <li>右滑操作: 快捷审核菜单</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>缩放与导航</h4>
+                        <ul>
+                            <li>图片双击放大: 2x缩放</li>
+                            <li>返回手势: 边缘滑动返回</li>
+                            <li>快速滚动: 惯性滚动支持</li>
+                            <li>定位滚动: 平滑滚动动画</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <h3>表单交互设计</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>交互元素</th>
+                        <th>交互方式</th>
+                        <th>反馈机制</th>
+                        <th>错误处理</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>文本输入框</td>
+                        <td>点击聚焦，失焦验证</td>
+                        <td>边框颜色变化，字数统计</td>
+                        <td>红色边框+错误提示</td>
+                    </tr>
+                    <tr>
+                        <td>选择器</td>
+                        <td>点击展开选项列表</td>
+                        <td>选中项高亮显示</td>
+                        <td>必填项红色*号标识</td>
+                    </tr>
+                    <tr>
+                        <td>日期时间</td>
+                        <td>点击弹出日期选择器</td>
+                        <td>选择后立即显示结果</td>
+                        <td>无效日期格式提示</td>
+                    </tr>
+                    <tr>
+                        <td>文件上传</td>
+                        <td>点击选择+拖拽上传</td>
+                        <td>上传进度条显示</td>
+                        <td>格式/大小限制提示</td>
+                    </tr>
+                    <tr>
+                        <td>提交按钮</td>
+                        <td>点击提交表单</td>
+                        <td>加载状态+禁用按钮</td>
+                        <td>验证失败自动定位到错误字段</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>页面转场动画</h3>
+            <div class="card">
+                <h4>🎬 动画时长与缓动</h4>
+                
+                <div class="ascii-diagram">页面转场动画时序
+
+[触发导航] → [开始动画] → [页面切换] → [动画结束]
+    ↓           ↓           ↓           ↓
+  用户操作    淡出当前页   加载新页面   淡入新页面
+   0ms         0-200ms     200-300ms   300-500ms
+    ↓           ↓           ↓           ↓
+  点击确认     opacity     内容切换    opacity
+  手势识别     0.8→0.0     DOM更新     0.0→1.0</div>
+                
+                <h4>动画参数配置</h4>
+                <ul>
+                    <li><strong>标准转场</strong>: 300ms, cubic-bezier(0.25, 0.8, 0.25, 1)</li>
+                    <li><strong>快速反馈</strong>: 150ms, ease-out</li>
+                    <li><strong>内容加载</strong>: 200ms, ease-in-out</li>
+                    <li><strong>错误提示</strong>: 250ms, cubic-bezier(0.68, -0.55, 0.265, 1.55)</li>
+                </ul>
+            </div>
+
+            <h3>无障碍设计规范</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>♿ 视觉无障碍</h4>
+                    <ul>
+                        <li><strong>颜色对比度</strong>: 所有文字与背景对比度 ≥ 4.5:1</li>
+                        <li><strong>字体大小</strong>: 最小字号14px，支持放大150%</li>
+                        <li><strong>颜色依赖</strong>: 不仅依靠颜色传达信息</li>
+                        <li><strong>焦点指示</strong>: 明显的焦点高亮边框</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🗣️ 操作无障碍</h4>
+                    <ul>
+                        <li><strong>语义化标签</strong>: 合理使用HTML语义标签</li>
+                        <li><strong>键盘导航</strong>: 支持Tab键遍历所有交互元素</li>
+                        <li><strong>屏幕阅读</strong>: 提供aria-label属性描述</li>
+                        <li><strong>操作提示</strong>: 重要操作提供语音或文字说明</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="implementation" class="section">
+            <h2>10. 技术实现指导</h2>
+            
+            <h3>前端技术栈</h3>
+            <div class="highlight-card">
+                <h4>🛠️ 推荐技术组合</h4>
+                <table class="specs-table">
+                    <thead>
+                        <tr>
+                            <th>技术领域</th>
+                            <th>推荐技术</th>
+                            <th>版本要求</th>
+                            <th>使用理由</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>框架基础</td>
+                            <td>微信小程序原生 / Taro</td>
+                            <td>最新稳定版</td>
+                            <td>性能最优，API丰富</td>
+                        </tr>
+                        <tr>
+                            <td>状态管理</td>
+                            <td>Zustand / Pinia</td>
+                            <td>^4.0.0 / ^2.0.0</td>
+                            <td>轻量级，易于维护</td>
+                        </tr>
+                        <tr>
+                            <td>UI组件</td>
+                            <td>TDesign WeApp</td>
+                            <td>^1.0.0</td>
+                            <td>腾讯官方，设计统一</td>
+                        </tr>
+                        <tr>
+                            <td>网络请求</td>
+                            <td>Axios适配器</td>
+                            <td>^1.0.0</td>
+                            <td>统一请求封装</td>
+                        </tr>
+                        <tr>
+                            <td>数据可视化</td>
+                            <td>ECharts for WeApp</td>
+                            <td>^5.0.0</td>
+                            <td>图表功能完整</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>组件架构设计</h3>
+            <div class="ascii-diagram">服务页面组件层级结构
+
+ServicePage (服务主页面)
+├── ServiceHeader (页面头部)
+│   ├── NavigationBar (导航栏组件)
+│   └── ServiceStats (统计面板组件)
+├── ServiceContent (服务内容区)
+│   ├── QuickRecord (快速记录组件)
+│   │   ├── ServiceTypeSelector (服务类型选择)
+│   │   ├── ContentForm (内容表单)
+│   │   └── SubmitButton (提交按钮)
+│   ├── ServiceList (服务列表组件)
+│   │   ├── FilterBar (筛选栏)
+│   │   ├── ServiceCard (服务记录卡片)
+│   │   └── LoadMore (加载更多)
+│   └── ServiceDetail (服务详情组件)
+│       ├── DetailHeader (详情头部)
+│       ├── DetailContent (详情内容)
+│       └── ActionButtons (操作按钮组)
+└── ServiceFooter (页面底部)
+    ├── TabBar (底部导航)
+    └── FloatingButton (浮动操作按钮)</div>
+
+            <h3>数据流设计</h3>
+            <div class="card">
+                <h4>📊 状态管理结构</h4>
+                <code style="display: block; white-space: pre; background: #1e293b; color: #e2e8f0; padding: 20px; border-radius: 6px; font-size: 13px; line-height: 1.4;">
+// 服务状态管理 Store
+const useServiceStore = create((set, get) => ({
+  // 服务记录相关状态
+  serviceRecords: [],
+  currentService: null,
+  loading: false,
+  
+  // 筛选和搜索状态
+  filters: {
+    type: 'all',
+    dateRange: 'thisMonth',
+    status: 'all'
+  },
+  
+  // 用户权限状态
+  userPermissions: [],
+  canEdit: false,
+  canApprove: false,
+  
+  // 操作方法
+  fetchServices: async (params) => {
+    set({ loading: true });
+    const data = await serviceAPI.getList(params);
+    set({ serviceRecords: data, loading: false });
+  },
+  
+  submitService: async (serviceData) => {
+    const result = await serviceAPI.submit(serviceData);
+    if (result.success) {
+      // 更新本地状态
+      get().fetchServices();
+    }
+    return result;
+  },
+  
+  updateFilters: (newFilters) => {
+    set(state => ({
+      filters: { ...state.filters, ...newFilters }
+    }));
+  }
+}));
+                </code>
+            </div>
+
+            <h3>API接口规范</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>接口功能</th>
+                        <th>请求方法</th>
+                        <th>接口路径</th>
+                        <th>主要参数</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>获取服务列表</td>
+                        <td>GET</td>
+                        <td>/api/services</td>
+                        <td>page, size, type, dateRange</td>
+                    </tr>
+                    <tr>
+                        <td>创建服务记录</td>
+                        <td>POST</td>
+                        <td>/api/services</td>
+                        <td>serviceData (JSON)</td>
+                    </tr>
+                    <tr>
+                        <td>获取服务详情</td>
+                        <td>GET</td>
+                        <td>/api/services/:id</td>
+                        <td>id (路径参数)</td>
+                    </tr>
+                    <tr>
+                        <td>审核服务记录</td>
+                        <td>PUT</td>
+                        <td>/api/services/:id/review</td>
+                        <td>id, status, comment</td>
+                    </tr>
+                    <tr>
+                        <td>服务统计数据</td>
+                        <td>GET</td>
+                        <td>/api/services/stats</td>
+                        <td>timeRange, groupBy</td>
+                    </tr>
+                    <tr>
+                        <td>权限申请</td>
+                        <td>POST</td>
+                        <td>/api/permissions/apply</td>
+                        <td>permissionType, reason, duration</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>性能优化策略</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>⚡ 页面性能优化</h4>
+                    <ul>
+                        <li><strong>懒加载</strong>: 服务列表分页加载，图片懒加载</li>
+                        <li><strong>缓存策略</strong>: 服务类型配置本地缓存</li>
+                        <li><strong>预加载</strong>: 热门服务记录预先获取</li>
+                        <li><strong>虚拟滚动</strong>: 大列表使用虚拟滚动</li>
+                        <li><strong>骨架屏</strong>: 加载状态友好展示</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📦 资源优化</h4>
+                    <ul>
+                        <li><strong>图片压缩</strong>: WebP格式，多尺寸适配</li>
+                        <li><strong>代码分割</strong>: 按页面和功能模块分割</li>
+                        <li><strong>树摇优化</strong>: 移除未使用的代码</li>
+                        <li><strong>CDN加速</strong>: 静态资源CDN分发</li>
+                        <li><strong>Gzip压缩</strong>: 服务端开启压缩</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>错误处理机制</h3>
+            <div class="highlight-card">
+                <h4>🚨 异常处理策略</h4>
+                <div class="ascii-diagram">错误处理流程
+
+[用户操作] → [业务逻辑] → [异常检测]
+    ↓           ↓           ↓
+[界面响应]   [数据处理]   [错误分类]
+    ↓           ↓           ↓
+[状态更新] ← [错误处理] ← [错误上报]
+    ↓           ↓           ↓
+[用户反馈]   [日志记录]   [监控告警]</div>
+
+                <h4>错误分类与处理</h4>
+                <ul>
+                    <li><strong>网络错误</strong>: 自动重试3次，提示"网络异常，请检查网络连接"</li>
+                    <li><strong>权限错误</strong>: 跳转权限申请页面，提示具体权限要求</li>
+                    <li><strong>业务错误</strong>: 显示服务端返回的具体错误信息</li>
+                    <li><strong>系统错误</strong>: 显示通用错误信息，自动上报错误日志</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="quality-standards" class="section">
+            <h2>11. 质量验收标准</h2>
+            
+            <h3>功能验收清单</h3>
+            <div class="highlight-card">
+                <h4>✅ 核心功能验收</h4>
+                <table class="specs-table">
+                    <thead>
+                        <tr>
+                            <th>功能模块</th>
+                            <th>验收要点</th>
+                            <th>测试方法</th>
+                            <th>通过标准</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>服务记录提交</td>
+                            <td>志愿者3分钟内完成记录</td>
+                            <td>计时测试，多用户验证</td>
+                            <td>95%用户3分钟内完成</td>
+                        </tr>
+                        <tr>
+                            <td>服务审核流程</td>
+                            <td>社工5分钟内完成审核</td>
+                            <td>审核操作计时统计</td>
+                            <td>90%审核5分钟内完成</td>
+                        </tr>
+                        <tr>
+                            <td>权限申请</td>
+                            <td>申请流程顺畅，状态清晰</td>
+                            <td>端到端流程测试</td>
+                            <td>无卡顿，状态准确更新</td>
+                        </tr>
+                        <tr>
+                            <td>数据脱敏</td>
+                            <td>敏感信息正确脱敏</td>
+                            <td>不同角色权限测试</td>
+                            <td>脱敏规则100%正确</td>
+                        </tr>
+                        <tr>
+                            <td>服务统计</td>
+                            <td>数据准确，图表正常</td>
+                            <td>数据校验，图表渲染测试</td>
+                            <td>统计误差 < 1%，图表正常显示</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>性能验收标准</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>⚡ 页面性能指标</h4>
+                    <ul>
+                        <li><strong>首屏加载时间</strong>: ≤ 2秒 (3G网络环境)</li>
+                        <li><strong>页面切换响应</strong>: ≤ 300ms</li>
+                        <li><strong>接口响应时间</strong>: ≤ 1秒 (90%请求)</li>
+                        <li><strong>列表滚动流畅度</strong>: ≥ 55fps</li>
+                        <li><strong>内存使用峰值</strong>: ≤ 150MB</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🔄 交互响应指标</h4>
+                    <ul>
+                        <li><strong>点击响应时间</strong>: ≤ 100ms</li>
+                        <li><strong>表单提交反馈</strong>: ≤ 200ms</li>
+                        <li><strong>搜索结果显示</strong>: ≤ 500ms</li>
+                        <li><strong>图片加载显示</strong>: ≤ 800ms</li>
+                        <li><strong>动画流畅度</strong>: 60fps 无掉帧</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>兼容性测试标准</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>测试维度</th>
+                        <th>测试范围</th>
+                        <th>通过标准</th>
+                        <th>测试工具</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>微信版本</td>
+                        <td>最近3个主要版本</td>
+                        <td>功能完全正常</td>
+                        <td>微信开发者工具</td>
+                    </tr>
+                    <tr>
+                        <td>系统版本</td>
+                        <td>iOS 12+, Android 7+</td>
+                        <td>界面正常，功能可用</td>
+                        <td>真机测试</td>
+                    </tr>
+                    <tr>
+                        <td>屏幕适配</td>
+                        <td>375px-428px 宽度</td>
+                        <td>布局不变形，文字清晰</td>
+                        <td>多设备测试</td>
+                    </tr>
+                    <tr>
+                        <td>网络环境</td>
+                        <td>WiFi, 4G, 3G</td>
+                        <td>弱网下可正常使用</td>
+                        <td>网络模拟工具</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>用户体验验收</h3>
+            <div class="highlight-card">
+                <h4>👥 用户测试评估</h4>
+                <div class="grid-3">
+                    <div class="card">
+                        <h4>易用性测试</h4>
+                        <ul>
+                            <li><strong>新用户学习时长</strong>: ≤ 5分钟掌握核心功能</li>
+                            <li><strong>任务完成率</strong>: ≥ 90%用户能独立完成主要任务</li>
+                            <li><strong>操作错误率</strong>: ≤ 5%的操作出现错误</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>满意度评估</h4>
+                        <ul>
+                            <li><strong>整体满意度</strong>: ≥ 4.5分 (5分制)</li>
+                            <li><strong>功能有用性</strong>: ≥ 4.3分</li>
+                            <li><strong>界面美观度</strong>: ≥ 4.2分</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>可用性问题</h4>
+                        <ul>
+                            <li><strong>严重问题</strong>: 0个</li>
+                            <li><strong>中等问题</strong>: ≤ 3个</li>
+                            <li><strong>轻微问题</strong>: ≤ 10个</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <h3>数据安全验收</h3>
+            <div class="card">
+                <h4>🔐 安全测试检查项</h4>
+                <table class="specs-table">
+                    <thead>
+                        <tr>
+                            <th>安全项目</th>
+                            <th>检查内容</th>
+                            <th>验收标准</th>
+                            <th>测试方法</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>数据传输</td>
+                            <td>所有接口使用HTTPS</td>
+                            <td>100%接口加密传输</td>
+                            <td>网络抓包检测</td>
+                        </tr>
+                        <tr>
+                            <td>数据脱敏</td>
+                            <td>敏感信息正确脱敏</td>
+                            <td>脱敏规则100%生效</td>
+                            <td>不同角色权限测试</td>
+                        </tr>
+                        <tr>
+                            <td>权限控制</td>
+                            <td>角色权限严格限制</td>
+                            <td>无越权访问情况</td>
+                            <td>权限边界测试</td>
+                        </tr>
+                        <tr>
+                            <td>数据存储</td>
+                            <td>本地数据加密存储</td>
+                            <td>敏感数据无明文存储</td>
+                            <td>本地存储检查</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <h3>发布前检查清单</h3>
+            <div class="highlight-card">
+                <h4>📋 发布检查清单 (Checklist)</h4>
+                <div class="grid-2">
+                    <div class="card">
+                        <h4>技术检查项</h4>
+                        <ul style="list-style: none; padding-left: 0;">
+                            <li>☐ 代码审查通过，无安全漏洞</li>
+                            <li>☐ 单元测试覆盖率 ≥ 80%</li>
+                            <li>☐ 端到端测试全部通过</li>
+                            <li>☐ 性能测试达到预期指标</li>
+                            <li>☐ 兼容性测试完成</li>
+                            <li>☐ 错误监控系统配置完成</li>
+                            <li>☐ 日志记录功能正常</li>
+                            <li>☐ 数据备份机制就绪</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>业务检查项</h4>
+                        <ul style="list-style: none; padding-left: 0;">
+                            <li>☐ 产品需求100%实现</li>
+                            <li>☐ 用户验收测试通过</li>
+                            <li>☐ 权限配置验证完成</li>
+                            <li>☐ 数据迁移脚本测试通过</li>
+                            <li>☐ 用户操作手册完成</li>
+                            <li>☐ 培训材料准备完成</li>
+                            <li>☐ 应急处理预案制定</li>
+                            <li>☐ 上线回滚方案确认</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <h3>持续监控指标</h3>
+            <div class="card">
+                <h4>📊 上线后监控项目</h4>
+                <div class="ascii-diagram">监控指标体系
+
+技术指标监控
+├─ 系统性能
+│  ├─ API响应时间
+│  ├─ 页面加载速度  
+│  ├─ 错误率统计
+│  └─ 系统可用性
+├─ 用户行为
+│  ├─ DAU/MAU统计
+│  ├─ 功能使用率
+│  ├─ 用户留存率
+│  └─ 操作路径分析
+└─ 业务指标
+   ├─ 服务记录提交量
+   ├─ 审核通过率
+   ├─ 权限申请频次
+   └─ 用户满意度评分</div>
+                
+                <h4>告警阈值设置</h4>
+                <ul>
+                    <li><strong>系统异常</strong>: 错误率超过5%立即告警</li>
+                    <li><strong>性能异常</strong>: API响应时间超过3秒告警</li>
+                    <li><strong>业务异常</strong>: 服务记录提交量异常下降50%告警</li>
+                    <li><strong>用户体验</strong>: 用户满意度评分低于4.0分告警</li>
+                </ul>
+            </div>
+        </section>
+
+        <footer style="background: #f8fafc; padding: 40px; text-align: center; border-top: 1px solid #e2e8f0; color: #6b7280;">
+            <div style="max-width: 800px; margin: 0 auto;">
+                <h3 style="color: #1e293b; margin-bottom: 15px;">📋 文档总结</h3>
+                <p style="margin-bottom: 20px; line-height: 1.6;">
+                    本文档详细定义了小家服务管理小程序服务页的设计规范，涵盖了从用户体验设计到技术实现的完整方案。
+                    通过角色差异化设计、权限精细控制和数据安全脱敏，确保不同角色用户都能高效、安全地使用服务功能。
+                </p>
+                
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin: 30px 0;">
+                    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <h4 style="color: #22C55E; margin-bottom: 10px;">🎯 设计目标</h4>
+                        <p style="font-size: 14px;">志愿者3分钟完成记录<br>社工5分钟完成审核</p>
+                    </div>
+                    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <h4 style="color: #3B82F6; margin-bottom: 10px;">🛡️ 安全保障</h4>
+                        <p style="font-size: 14px;">4级权限体系<br>智能数据脱敏</p>
+                    </div>
+                    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <h4 style="color: #F59E0B; margin-bottom: 10px;">⚡ 性能优化</h4>
+                        <p style="font-size: 14px;">首屏≤2秒加载<br>交互≤100ms响应</p>
+                    </div>
+                    <div style="background: white; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">
+                        <h4 style="color: #8B5CF6; margin-bottom: 10px;">👥 用户体验</h4>
+                        <p style="font-size: 14px;">满意度≥4.5分<br>学习时长≤5分钟</p>
+                    </div>
+                </div>
+                
+                <div style="border-top: 1px solid #e2e8f0; padding-top: 20px; margin-top: 30px;">
+                    <p style="font-size: 14px; margin-bottom: 10px;">
+                        <strong>文档维护</strong>: UX设计团队 | <strong>技术支持</strong>: 前端开发团队 | <strong>产品决策</strong>: 产品经理
+                    </p>
+                    <p style="font-size: 13px; color: #9ca3af;">
+                        最后更新: 2025-09-04 | 版本: v2.0 | 
+                        <strong>使用提示</strong>: 此文档可保存为本地文件或打印为PDF格式，建议开发团队人手一份 📖
+                    </p>
+                </div>
+            </div>
+        </footer>
+    </div>
+</body>
+</html>

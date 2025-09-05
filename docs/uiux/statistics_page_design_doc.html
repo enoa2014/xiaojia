@@ -1,0 +1,1564 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小家服务管理小程序 - 统计页详细设计文档</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background-color: #f8f9fa;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 16px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #22C55E 0%, #10B981 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+        
+        .subtitle {
+            font-size: 1.25rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+        
+        .meta {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: 30px;
+            font-size: 0.9rem;
+        }
+        
+        .meta span {
+            background: rgba(255, 255, 255, 0.2);
+            padding: 6px 12px;
+            border-radius: 20px;
+            backdrop-filter: blur(10px);
+        }
+        
+        .download-info {
+            background: linear-gradient(135deg, #3B82F6, #1D4ED8);
+            color: white;
+            padding: 20px;
+            margin: 20px;
+            border-radius: 12px;
+            text-align: center;
+        }
+        
+        .download-info h3 {
+            margin-bottom: 10px;
+        }
+        
+        .toc {
+            padding: 40px;
+            background: #f8f9fa;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .toc h2 {
+            color: #22C55E;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .toc ol {
+            list-style: none;
+            counter-reset: toc-counter;
+        }
+        
+        .toc li {
+            counter-increment: toc-counter;
+            margin: 8px 0;
+        }
+        
+        .toc li::before {
+            content: counter(toc-counter) ". ";
+            font-weight: bold;
+            color: #22C55E;
+        }
+        
+        .toc a {
+            color: #374151;
+            text-decoration: none;
+            font-weight: 500;
+            transition: color 0.2s;
+        }
+        
+        .toc a:hover {
+            color: #22C55E;
+        }
+        
+        .section {
+            padding: 40px;
+        }
+        
+        .section:nth-child(even) {
+            background: #f8f9fa;
+        }
+        
+        .section h2 {
+            color: #22C55E;
+            font-size: 2rem;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #22C55E;
+            padding-bottom: 10px;
+        }
+        
+        .section h3 {
+            color: #374151;
+            font-size: 1.5rem;
+            margin: 30px 0 15px 0;
+        }
+        
+        .section h4 {
+            color: #4B5563;
+            font-size: 1.25rem;
+            margin: 20px 0 10px 0;
+        }
+        
+        .card {
+            background: white;
+            border-radius: 12px;
+            padding: 25px;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.1);
+            margin: 20px 0;
+        }
+        
+        .highlight-card {
+            background: linear-gradient(135deg, #EEF2FF, #E0E7FF);
+            border: 2px solid #818CF8;
+            border-radius: 12px;
+            padding: 25px;
+            margin: 20px 0;
+        }
+        
+        .highlight-card h4 {
+            color: #4338CA;
+            margin-bottom: 15px;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .specs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+        
+        .specs-table th {
+            background: #22C55E;
+            color: white;
+            padding: 15px;
+            text-align: left;
+            font-weight: 600;
+        }
+        
+        .specs-table td {
+            padding: 12px 15px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .specs-table tr:nth-child(even) {
+            background: #f9fafb;
+        }
+        
+        .ascii-diagram {
+            background: #1f2937;
+            color: #10b981;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            line-height: 1.4;
+            overflow-x: auto;
+            margin: 20px 0;
+            white-space: pre;
+        }
+        
+        .color-palette {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            margin: 20px 0;
+        }
+        
+        .color-item {
+            text-align: center;
+            min-width: 120px;
+        }
+        
+        .color-swatch {
+            width: 80px;
+            height: 80px;
+            border-radius: 8px;
+            margin: 0 auto 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+        }
+        
+        .code-block {
+            background: #1f2937;
+            color: #e5e7eb;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 15px 0;
+            white-space: pre-wrap;
+        }
+        
+        ul, ol {
+            padding-left: 20px;
+            margin: 15px 0;
+        }
+        
+        li {
+            margin: 8px 0;
+        }
+        
+        strong {
+            color: #22C55E;
+            font-weight: 600;
+        }
+        
+        .warning-box {
+            background: linear-gradient(135deg, #FEF3C7, #FDE68A);
+            border: 2px solid #F59E0B;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .success-box {
+            background: linear-gradient(135deg, #D1FAE5, #A7F3D0);
+            border: 2px solid #22C55E;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                margin: 10px;
+                border-radius: 8px;
+            }
+            
+            .header {
+                padding: 20px 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .header .meta {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .container {
+                box-shadow: none;
+                padding: 0;
+            }
+            
+            .download-info {
+                display: none;
+            }
+            
+            .toc a {
+                text-decoration: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>小家服务管理小程序</h1>
+            <p class="subtitle">统计页详细设计文档</p>
+            <div class="meta">
+                <span><strong>版本:</strong> v2.0</span>
+                <span><strong>创建时间:</strong> 2025-09-04</span>
+                <span><strong>设计师:</strong> UX设计团队</span>
+                <span><strong>项目:</strong> 大病儿童家庭"小家"服务管理小程序</span>
+            </div>
+        </header>
+
+        <div class="download-info">
+            <h3>💾 文档使用说明</h3>
+            <p>右键点击页面选择"保存为"或按 Ctrl+S (Windows) / Cmd+S (Mac) 保存此文档到本地。<br>
+            也可以按 Ctrl+P (Windows) / Cmd+P (Mac) 打印或保存为PDF格式。</p>
+        </div>
+
+        <nav class="toc">
+            <h2>📋 目录</h2>
+            <ol>
+                <li><a href="#design-goals">设计目标与原则</a></li>
+                <li><a href="#page-architecture">页面架构设计</a></li>
+                <li><a href="#data-visualization">数据可视化设计</a></li>
+                <li><a href="#dashboard-design">统计仪表板设计</a></li>
+                <li><a href="#chart-components">图表组件设计</a></li>
+                <li><a href="#time-dimension">时间维度切换</a></li>
+                <li><a href="#data-export">数据导出功能</a></li>
+                <li><a href="#role-differences">角色差异化设计</a></li>
+                <li><a href="#interaction-specs">交互行为规范</a></li>
+                <li><a href="#responsive-design">响应式设计</a></li>
+                <li><a href="#implementation">技术实现指导</a></li>
+                <li><a href="#quality-standards">质量验收标准</a></li>
+            </ol>
+        </nav>
+
+        <section id="design-goals" class="section">
+            <h2>1. 设计目标与原则</h2>
+            
+            <h3>核心设计目标</h3>
+            <div class="highlight-card">
+                <h4>🎯 主要目标</h4>
+                <ul>
+                    <li><strong>数据可视化效率</strong>: 用户5秒内理解关键统计数据</li>
+                    <li><strong>决策支持</strong>: 为管理层提供清晰的数据洞察</li>
+                    <li><strong>趋势分析</strong>: 支持时间维度的数据对比分析</li>
+                    <li><strong>数据导出</strong>: 便于生成报表和进一步分析</li>
+                </ul>
+            </div>
+
+            <h3>设计原则</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📊 清晰直观</h4>
+                    <ul>
+                        <li>简洁的图表设计</li>
+                        <li>一致的颜色编码</li>
+                        <li>清晰的数据标签</li>
+                        <li>直观的趋势展示</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>⚡ 快速响应</h4>
+                    <ul>
+                        <li>秒级数据加载</li>
+                        <li>流畅的切换动画</li>
+                        <li>智能数据缓存</li>
+                        <li>增量数据更新</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>成功指标</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>指标类型</th>
+                        <th>目标数值</th>
+                        <th>测量方法</th>
+                        <th>责任角色</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>数据加载时间</td>
+                        <td>≤ 3秒</td>
+                        <td>性能监控</td>
+                        <td>全体用户</td>
+                    </tr>
+                    <tr>
+                        <td>图表渲染时间</td>
+                        <td>≤ 1秒</td>
+                        <td>前端性能统计</td>
+                        <td>全体用户</td>
+                    </tr>
+                    <tr>
+                        <td>数据准确性</td>
+                        <td>≥ 99%</td>
+                        <td>数据校验</td>
+                        <td>系统管理员</td>
+                    </tr>
+                    <tr>
+                        <td>用户满意度</td>
+                        <td>≥ 4.0/5.0</td>
+                        <td>定期用户调研</td>
+                        <td>管理用户</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="page-architecture" class="section">
+            <h2>2. 页面架构设计</h2>
+            
+            <h3>统计页整体架构</h3>
+            <div class="ascii-diagram">统计分析中心
+│
+├── 📊 统计仪表板 (主入口)
+│   ├── 🎯 关键指标概览 (KPI卡片)
+│   ├── 📈 趋势分析图表 (时间序列)
+│   ├── 🔄 时间维度切换器 (月度/年度)
+│   └── 📤 快速导出功能 (Excel/PDF)
+│
+├── 📋 服务统计页
+│   ├── 🎯 服务总量统计 (柱状图)
+│   ├── 📊 服务类型分布 (饼图)
+│   ├── 👥 志愿者服务排行 (排行榜)
+│   └── ⭐ 服务质量分析 (评分图)
+│
+├── 👤 用户统计页
+│   ├── 📈 用户增长趋势 (折线图)
+│   ├── 🎯 用户活跃度分析 (热力图)
+│   ├── 📊 角色分布统计 (环形图)
+│   └── 🏆 用户参与排名 (表格)
+│
+├── 🏃 活动统计页
+│   ├── 📅 活动举办频次 (日历热图)
+│   ├── 👥 参与人数统计 (面积图)
+│   ├── 📊 活动类型效果 (对比图)
+│   └── 💬 反馈满意度 (仪表盘)
+│
+└── 📤 数据导出页
+    ├── 📋 报表模板选择 (预设模板)
+    ├── 🎛️ 自定义筛选器 (条件配置)
+    ├── 📊 预览生成报表 (实时预览)
+    └── 💾 下载管理 (历史记录)</div>
+
+            <h3>页面导航关系</h3>
+            <div class="ascii-diagram">首页工作台 → 统计总览 → 统计仪表板
+     ↓              ↓          ↓
+  快速统计        TabBar     数据概览
+     ↓              ↓          ↓
+  详细分析    →   专项统计 ←   图表钻取
+     ↓              ↓          ↓
+  数据导出    →   报表生成 →   下载保存</div>
+
+            <h3>信息层级设计</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>信息层级</th>
+                        <th>展示位置</th>
+                        <th>权限要求</th>
+                        <th>内容摘要</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>概览数据</td>
+                        <td>仪表板顶部</td>
+                        <td>基础查看权限</td>
+                        <td>关键指标、总量统计</td>
+                    </tr>
+                    <tr>
+                        <td>趋势分析</td>
+                        <td>图表展示区</td>
+                        <td>统计权限</td>
+                        <td>时间序列、对比分析</td>
+                    </tr>
+                    <tr>
+                        <td>详细数据</td>
+                        <td>专项统计页</td>
+                        <td>详细统计权限</td>
+                        <td>分类统计、细分数据</td>
+                    </tr>
+                    <tr>
+                        <td>原始数据</td>
+                        <td>数据导出</td>
+                        <td>导出权限</td>
+                        <td>完整数据集、报表</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="data-visualization" class="section">
+            <h2>3. 数据可视化设计</h2>
+            
+            <h3>图表类型选择指南</h3>
+            <div class="grid-3">
+                <div class="card">
+                    <h4>📈 趋势类数据</h4>
+                    <ul>
+                        <li><strong>折线图</strong>: 时间序列趋势</li>
+                        <li><strong>面积图</strong>: 累积趋势</li>
+                        <li><strong>柱状图</strong>: 周期对比</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📊 分布类数据</h4>
+                    <ul>
+                        <li><strong>饼图</strong>: 占比分析</li>
+                        <li><strong>环形图</strong>: 多级分类</li>
+                        <li><strong>树状图</strong>: 层级结构</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🔍 对比类数据</h4>
+                    <ul>
+                        <li><strong>条形图</strong>: 排行对比</li>
+                        <li><strong>雷达图</strong>: 多维评估</li>
+                        <li><strong>散点图</strong>: 相关性分析</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>颜色系统设计</h3>
+            <div class="color-palette">
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #22C55E;"></div>
+                    <div><strong>主色调</strong><br>#22C55E</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #3B82F6;"></div>
+                    <div><strong>辅助蓝</strong><br>#3B82F6</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #F59E0B;"></div>
+                    <div><strong>警告黄</strong><br>#F59E0B</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #EF4444;"></div>
+                    <div><strong>错误红</strong><br>#EF4444</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #8B5CF6;"></div>
+                    <div><strong>品牌紫</strong><br>#8B5CF6</div>
+                </div>
+                <div class="color-item">
+                    <div class="color-swatch" style="background: #06B6D4;"></div>
+                    <div><strong>信息青</strong><br>#06B6D4</div>
+                </div>
+            </div>
+
+            <h3>图表样式规范</h3>
+            <div class="code-block">.chart-container {
+  background: white;
+  border-radius: 12rpx;
+  padding: 24rpx;
+  box-shadow: 0 2rpx 12rpx rgba(0, 0, 0, 0.06);
+  margin-bottom: 20rpx;
+}
+
+.chart-title {
+  font-size: 28rpx;
+  font-weight: 600;
+  color: #1F2937;
+  margin-bottom: 20rpx;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.chart-subtitle {
+  font-size: 22rpx;
+  color: #6B7280;
+  margin-bottom: 16rpx;
+}
+
+.chart-legend {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+  margin-top: 16rpx;
+  padding-top: 16rpx;
+  border-top: 1px solid #E5E7EB;
+}
+
+.legend-item {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  font-size: 20rpx;
+  color: #4B5563;
+}</div>
+        </section>
+
+        <section id="dashboard-design" class="section">
+            <h2>4. 统计仪表板设计</h2>
+            
+            <h3>KPI指标卡片设计</h3>
+            <div class="ascii-diagram">┌─────────────────────────────────────────────────────────────┐
+│ 📊 关键指标概览                              本月 〉      │
+│ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ │
+│ │服务  │ │活跃  │ │新增  │ │满意  │ │响应  │ │
+│ │总量  │ │用户  │ │档案  │ │评分  │ │时间  │ │
+│ │1,247│ │ 156  │ │ 23   │ │4.8/5 │ │2.3min│ │
+│ │+15% │ │ +12  │ │ +8   │ │+0.2  │ │-0.5  │ │
+│ │ ↗   │ │ ↗    │ │ ↗    │ │ ↗    │ │ ↘    │ │
+│ └──────┘ └──────┘ └──────┘ └──────┘ └──────┘ │
+└─────────────────────────────────────────────────────────────┘</div>
+
+            <h3>KPI卡片规范</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>指标名称</th>
+                        <th>数据源</th>
+                        <th>计算方式</th>
+                        <th>更新频率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>服务总量</td>
+                        <td>服务记录表</td>
+                        <td>COUNT(已完成服务)</td>
+                        <td>实时</td>
+                    </tr>
+                    <tr>
+                        <td>活跃用户</td>
+                        <td>用户活动日志</td>
+                        <td>DISTINCT(本月登录用户)</td>
+                        <td>每日</td>
+                    </tr>
+                    <tr>
+                        <td>新增档案</td>
+                        <td>患者档案表</td>
+                        <td>COUNT(本月新建档案)</td>
+                        <td>实时</td>
+                    </tr>
+                    <tr>
+                        <td>满意评分</td>
+                        <td>服务评价表</td>
+                        <td>AVG(服务满意度评分)</td>
+                        <td>每日</td>
+                    </tr>
+                    <tr>
+                        <td>响应时间</td>
+                        <td>审核记录表</td>
+                        <td>AVG(审核处理时长)</td>
+                        <td>实时</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>趋势图表设计</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📈 服务趋势分析</h4>
+                    <ul>
+                        <li>时间范围: 最近6个月</li>
+                        <li>图表类型: 折线图 + 柱状图</li>
+                        <li>数据点: 每日/每周/每月</li>
+                        <li>对比维度: 同比/环比</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>👥 用户活跃分析</h4>
+                    <ul>
+                        <li>用户类型: 管理员/社工/志愿者</li>
+                        <li>图表类型: 堆叠面积图</li>
+                        <li>活跃定义: 7天内有操作</li>
+                        <li>热力图: 一周活跃时间分布</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>数据概览布局</h3>
+            <div class="code-block">.dashboard-layout {
+  display: grid;
+  grid-template-areas: 
+    "kpi kpi kpi"
+    "trend1 trend1 trend2"
+    "chart1 chart2 chart3";
+  grid-gap: 20rpx;
+  padding: 24rpx;
+}
+
+.kpi-section {
+  grid-area: kpi;
+  display: flex;
+  gap: 16rpx;
+  overflow-x: auto;
+}
+
+.trend-primary {
+  grid-area: trend1;
+  min-height: 400rpx;
+}
+
+.trend-secondary {
+  grid-area: trend2;
+  min-height: 400rpx;
+}</div>
+        </section>
+
+        <section id="chart-components" class="section">
+            <h2>5. 图表组件设计</h2>
+            
+            <h3>服务统计图表</h3>
+            <div class="highlight-card">
+                <h4>🎯 服务量趋势图</h4>
+                <ul>
+                    <li><strong>图表类型</strong>: 组合图表（折线 + 柱状）</li>
+                    <li><strong>数据维度</strong>: 时间、服务类型、服务状态</li>
+                    <li><strong>交互功能</strong>: 点击钻取、区域缩放、图例筛选</li>
+                    <li><strong>导出支持</strong>: PNG、SVG、数据表格</li>
+                </ul>
+            </div>
+
+            <h3>用户分析图表</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>👥 用户增长漏斗</h4>
+                    <ul>
+                        <li>注册用户 → 激活用户</li>
+                        <li>激活用户 → 活跃用户</li>
+                        <li>活跃用户 → 核心用户</li>
+                        <li>转化率统计与优化建议</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📊 角色分布饼图</h4>
+                    <ul>
+                        <li>管理员: 5% (深绿色)</li>
+                        <li>社工: 25% (蓝色)</li>
+                        <li>志愿者: 60% (浅绿色)</li>
+                        <li>家长: 10% (黄色)</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>活动效果分析</h3>
+            <div class="ascii-diagram">活动统计Dashboard
+├── 📅 活动日历热力图
+│   └── 显示每日活动密度（颜色深浅表示活动数量）
+├── 📊 参与度分析雷达图
+│   ├── 报名率: 85%
+│   ├── 出席率: 78%
+│   ├── 完成率: 92%
+│   ├── 满意度: 4.6/5
+│   └── 推荐度: 4.3/5
+├── 📈 活动类型效果对比
+│   ├── 康复训练 (参与度最高)
+│   ├── 心理辅导 (满意度最高)  
+│   ├── 亲子互动 (推荐度最高)
+│   └── 知识讲座 (完成率最高)
+└── 🎯 活动成效评估表
+    ├── 短期效果: 即时反馈
+    ├── 中期效果: 行为改变
+    └── 长期效果: 康复进展</div>
+
+            <h3>图表交互规范</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>交互类型</th>
+                        <th>触发方式</th>
+                        <th>响应效果</th>
+                        <th>适用场景</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>数据点悬停</td>
+                        <td>鼠标悬停/手指触摸</td>
+                        <td>显示详细数据卡片</td>
+                        <td>所有图表类型</td>
+                    </tr>
+                    <tr>
+                        <td>数据点点击</td>
+                        <td>单击/点击</td>
+                        <td>钻取到详细页面</td>
+                        <td>聚合数据图表</td>
+                    </tr>
+                    <tr>
+                        <td>图例交互</td>
+                        <td>点击图例项</td>
+                        <td>显示/隐藏数据系列</td>
+                        <td>多系列图表</td>
+                    </tr>
+                    <tr>
+                        <td>区域缩放</td>
+                        <td>拖拽选择区域</td>
+                        <td>放大选中时间范围</td>
+                        <td>时间序列图表</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="time-dimension" class="section">
+            <h2>6. 时间维度切换</h2>
+            
+            <h3>时间选择器设计</h3>
+            <div class="ascii-diagram">┌─────────────────────────────────────────────────┐
+│ ⏰ 时间维度  [今天] [本周] [本月] [本季] [本年]    │
+│              ╭─────╮                            │
+│              │本月 │ 〉 2024年9月              │
+│              ╰─────╯                            │
+│                                                │
+│ 📅 自定义时间范围                               │
+│ 开始: [2024-08-01] 结束: [2024-09-04]         │
+│ ┌─────────┐ ┌─────────┐                       │
+│ │快速选择  │ │应用筛选 │                       │
+│ └─────────┘ └─────────┘                       │
+└─────────────────────────────────────────────────┘</div>
+
+            <h3>时间维度配置</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📅 预设时间范围</h4>
+                    <ul>
+                        <li><strong>今天</strong>: 当前日期00:00-23:59</li>
+                        <li><strong>本周</strong>: 周一00:00至周日23:59</li>
+                        <li><strong>本月</strong>: 月初00:00至月末23:59</li>
+                        <li><strong>本季度</strong>: 季度开始至结束</li>
+                        <li><strong>本年</strong>: 年初00:00至年末23:59</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🔄 对比分析模式</h4>
+                    <ul>
+                        <li><strong>同比对比</strong>: 与去年同期对比</li>
+                        <li><strong>环比对比</strong>: 与上个周期对比</li>
+                        <li><strong>自定义对比</strong>: 指定时间段对比</li>
+                        <li><strong>基准线对比</strong>: 与设定目标对比</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>数据聚合规则</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>时间粒度</th>
+                        <th>数据聚合方式</th>
+                        <th>展示形式</th>
+                        <th>性能优化</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>小时级别</td>
+                        <td>按小时聚合</td>
+                        <td>24点折线图</td>
+                        <td>实时计算</td>
+                    </tr>
+                    <tr>
+                        <td>日级别</td>
+                        <td>按日聚合</td>
+                        <td>日历热力图/折线图</td>
+                        <td>每日预计算</td>
+                    </tr>
+                    <tr>
+                        <td>周级别</td>
+                        <td>按周聚合</td>
+                        <td>柱状图/面积图</td>
+                        <td>每周预计算</td>
+                    </tr>
+                    <tr>
+                        <td>月级别</td>
+                        <td>按月聚合</td>
+                        <td>柱状图/趋势线</td>
+                        <td>每月预计算</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>时间切换交互</h3>
+            <div class="code-block">.time-selector {
+  display: flex;
+  background: #F3F4F6;
+  border-radius: 8rpx;
+  padding: 4rpx;
+  margin-bottom: 24rpx;
+}
+
+.time-option {
+  flex: 1;
+  padding: 12rpx 20rpx;
+  text-align: center;
+  border-radius: 6rpx;
+  font-size: 24rpx;
+  color: #6B7280;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.time-option.active {
+  background: #22C55E;
+  color: white;
+  font-weight: 600;
+  box-shadow: 0 2rpx 8rpx rgba(34, 197, 94, 0.3);
+}
+
+.custom-range {
+  display: flex;
+  gap: 12rpx;
+  align-items: center;
+  margin-top: 16rpx;
+  padding: 16rpx;
+  background: white;
+  border-radius: 8rpx;
+}</div>
+        </section>
+
+        <section id="data-export" class="section">
+            <h2>7. 数据导出功能</h2>
+            
+            <h3>导出功能设计</h3>
+            <div class="highlight-card">
+                <h4>📤 支持导出格式</h4>
+                <ul>
+                    <li><strong>Excel表格</strong>: 原始数据+图表，支持多sheet</li>
+                    <li><strong>PDF报表</strong>: 格式化报告，包含图表和文字分析</li>
+                    <li><strong>CSV数据</strong>: 纯数据导出，便于二次分析</li>
+                    <li><strong>图片格式</strong>: PNG/JPG/SVG图表导出</li>
+                </ul>
+            </div>
+
+            <h3>导出流程设计</h3>
+            <div class="ascii-diagram">数据导出流程
+├── 🎯 选择导出范围
+│   ├── 时间范围选择
+│   ├── 数据类型选择
+│   └── 统计维度选择
+├── 📋 选择导出模板
+│   ├── 📊 管理层月报模板
+│   ├── 👥 团队绩效模板  
+│   ├── 📈 趋势分析模板
+│   └── 🎯 自定义模板
+├── ⚙️ 配置导出参数
+│   ├── 文件格式选择
+│   ├── 图表样式配置
+│   ├── 数据精度设置
+│   └── 个性化设置
+├── 👀 预览导出结果
+│   ├── 实时预览界面
+│   ├── 页面布局调整
+│   └── 内容确认
+└── 💾 生成并下载
+    ├── 后台生成任务
+    ├── 进度实时显示  
+    └── 完成通知下载</div>
+
+            <h3>报表模板配置</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📊 管理层月度报表</h4>
+                    <ul>
+                        <li>关键指标概览</li>
+                        <li>服务趋势分析</li>
+                        <li>用户活跃情况</li>
+                        <li>问题分析与建议</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>👥 团队绩效报表</h4>
+                    <ul>
+                        <li>个人服务统计</li>
+                        <li>团队排行榜</li>
+                        <li>服务质量评估</li>
+                        <li>改进建议</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>导出权限控制</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>用户角色</th>
+                        <th>导出范围</th>
+                        <th>可用格式</th>
+                        <th>频率限制</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>管理员</td>
+                        <td>全部数据</td>
+                        <td>所有格式</td>
+                        <td>无限制</td>
+                    </tr>
+                    <tr>
+                        <td>社工</td>
+                        <td>相关业务数据</td>
+                        <td>Excel, PDF, CSV</td>
+                        <td>10次/天</td>
+                    </tr>
+                    <tr>
+                        <td>志愿者</td>
+                        <td>个人相关数据</td>
+                        <td>PDF, 图片</td>
+                        <td>5次/天</td>
+                    </tr>
+                    <tr>
+                        <td>家长</td>
+                        <td>孩子相关数据</td>
+                        <td>PDF</td>
+                        <td>3次/天</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="role-differences" class="section">
+            <h2>8. 角色差异化设计</h2>
+            
+            <h3>管理员视图 (Admin View)</h3>
+            <div class="highlight-card">
+                <h4>🔑 管理员专享功能</h4>
+                <ul>
+                    <li><strong>全局统计权限</strong>: 查看所有用户和数据的统计信息</li>
+                    <li><strong>高级分析工具</strong>: 数据挖掘、预测分析、异常检测</li>
+                    <li><strong>系统性能监控</strong>: 访问量、响应时间、错误率统计</li>
+                    <li><strong>完整导出权限</strong>: 支持所有格式和数据范围的导出</li>
+                </ul>
+            </div>
+
+            <h3>社工视图 (Social Worker View)</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>👩‍💼 业务重点统计</h4>
+                    <ul>
+                        <li>负责区域服务统计</li>
+                        <li>审核处理效率分析</li>
+                        <li>服务质量监控</li>
+                        <li>志愿者工作评估</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📊 关注核心指标</h4>
+                    <ul>
+                        <li>待审核服务数量</li>
+                        <li>平均审核时长</li>
+                        <li>服务满意度评分</li>
+                        <li>异常情况提醒</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>志愿者视图 (Volunteer View)</h3>
+            <div class="success-box">
+                <h4>🏆 个人成就展示</h4>
+                <ul>
+                    <li><strong>服务里程碑</strong>: 服务时长、服务次数成就徽章</li>
+                    <li><strong>个人趋势</strong>: 服务频率、质量评分变化趋势</li>
+                    <li><strong>排行榜位置</strong>: 在团队中的服务表现排名</li>
+                    <li><strong>成长轨迹</strong>: 能力提升、培训完成进度</li>
+                </ul>
+            </div>
+
+            <h3>家长视图 (Parent View)</h3>
+            <div class="ascii-diagram">家长关注统计视图
+├── 👶 孩子相关服务
+│   ├── 本月接受服务次数: 8次
+│   ├── 服务类型分布饼图
+│   ├── 康复进展趋势图
+│   └── 活动参与记录
+├── 📅 服务时间安排
+│   ├── 下周服务日程
+│   ├── 定期复查提醒
+│   └── 活动报名状态
+├── 💬 反馈与评价
+│   ├── 服务满意度评分
+│   ├── 改进建议提交
+│   └── 感谢信展示
+└── 📞 联系方式快捷入口
+    ├── 责任社工联系
+    ├── 紧急联系方式
+    └── 在线咨询入口</div>
+        </section>
+
+        <section id="interaction-specs" class="section">
+            <h2>9. 交互行为规范</h2>
+            
+            <h3>加载状态设计</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📊 图表加载动画</h4>
+                    <ul>
+                        <li><strong>骨架屏</strong>: 显示图表基本轮廓</li>
+                        <li><strong>渐进式加载</strong>: 先显示坐标轴，再显示数据</li>
+                        <li><strong>数据点动画</strong>: 数据点从0开始增长</li>
+                        <li><strong>加载进度</strong>: 显示数据处理进度条</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>⏳ 数据更新反馈</h4>
+                    <ul>
+                        <li><strong>实时刷新图标</strong>: 数据更新时的旋转动画</li>
+                        <li><strong>最后更新时间</strong>: 显示数据最新更新时间</li>
+                        <li><strong>变化高亮</strong>: 新增或变化的数据点高亮</li>
+                        <li><strong>自动刷新设置</strong>: 可配置自动刷新间隔</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>错误状态处理</h3>
+            <div class="warning-box">
+                <h4>⚠️ 错误处理策略</h4>
+                <ul>
+                    <li><strong>网络错误</strong>: 显示重试按钮，提供离线数据展示</li>
+                    <li><strong>数据缺失</strong>: 显示空状态图标，提供数据收集建议</li>
+                    <li><strong>权限不足</strong>: 显示权限说明，提供申请入口</li>
+                    <li><strong>系统错误</strong>: 提供错误代码，联系技术支持入口</li>
+                </ul>
+            </div>
+
+            <h3>手势操作支持</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>手势操作</th>
+                        <th>触发效果</th>
+                        <th>适用图表</th>
+                        <th>响应动画</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>单指点击</td>
+                        <td>显示数据详情</td>
+                        <td>所有图表</td>
+                        <td>弹出卡片动画</td>
+                    </tr>
+                    <tr>
+                        <td>双指缩放</td>
+                        <td>放大缩小图表</td>
+                        <td>折线图、散点图</td>
+                        <td>平滑缩放动画</td>
+                    </tr>
+                    <tr>
+                        <td>左右滑动</td>
+                        <td>切换时间范围</td>
+                        <td>时间序列图</td>
+                        <td>滑动跟手效果</td>
+                    </tr>
+                    <tr>
+                        <td>长按拖拽</td>
+                        <td>选择数据区间</td>
+                        <td>柱状图、面积图</td>
+                        <td>选中区域高亮</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="responsive-design" class="section">
+            <h2>10. 响应式设计</h2>
+            
+            <h3>屏幕适配方案</h3>
+            <div class="code-block">/* 移动端优先设计 */
+@media screen and (max-width: 768rpx) {
+  .dashboard-layout {
+    grid-template-areas: 
+      "kpi"
+      "trend1"
+      "trend2"
+      "chart1"
+      "chart2"
+      "chart3";
+    grid-template-columns: 1fr;
+  }
+  
+  .kpi-section {
+    overflow-x: auto;
+    snap-type: x mandatory;
+  }
+  
+  .chart-container {
+    margin-bottom: 32rpx;
+  }
+}
+
+/* 平板适配 */
+@media screen and (min-width: 769rpx) and (max-width: 1024rpx) {
+  .dashboard-layout {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+/* 桌面端适配 */
+@media screen and (min-width: 1025rpx) {
+  .dashboard-layout {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}</div>
+
+            <h3>组件响应式规则</h3>
+            <div class="grid-3">
+                <div class="card">
+                    <h4>📱 移动端 (<768px)</h4>
+                    <ul>
+                        <li>单列布局</li>
+                        <li>卡片式展示</li>
+                        <li>简化图例</li>
+                        <li>手势优先</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📱 平板端 (768-1024px)</h4>
+                    <ul>
+                        <li>双列布局</li>
+                        <li>适中图表尺寸</li>
+                        <li>触摸+鼠标</li>
+                        <li>侧边栏显示</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>💻 桌面端 (>1024px)</h4>
+                    <ul>
+                        <li>多列网格布局</li>
+                        <li>丰富的交互</li>
+                        <li>悬停效果</li>
+                        <li>快捷键支持</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>图表自适应设计</h3>
+            <div class="ascii-diagram">响应式图表适配策略
+
+移动端 (320-768px)
+├── 📊 简化数据展示
+│   ├── 减少图例项目
+│   ├── 增大点击区域 
+│   ├── 简化坐标轴标签
+│   └── 优化触摸交互
+├── 📈 垂直优先布局
+│   ├── 图表占满宽度
+│   ├── 控制器下置
+│   ├── 操作按钮大号
+│   └── 滚动查看更多
+
+平板端 (768-1024px)  
+├── 📊 平衡展示
+│   ├── 适中的图例
+│   ├── 双指缩放支持
+│   ├── 悬停提示
+│   └── 侧滑操作面板
+├── 📈 混合布局
+│   ├── 主图表居中
+│   ├── 控制面板侧置
+│   ├── 快速切换标签
+│   └── 分屏查看支持
+
+桌面端 (>1024px)
+├── 📊 完整功能展示
+│   ├── 详细图例说明
+│   ├── 丰富的悬停交互
+│   ├── 快捷键操作
+│   └── 多图表对比
+├── 📈 仪表板布局
+│   ├── 多列网格排列
+│   ├── 拖拽调整大小
+│   ├── 自定义布局
+│   └── 全屏查看模式</div>
+        </section>
+
+        <section id="implementation" class="section">
+            <h2>11. 技术实现指导</h2>
+            
+            <h3>技术架构选择</h3>
+            <div class="highlight-card">
+                <h4>📊 图表库推荐</h4>
+                <ul>
+                    <li><strong>ECharts</strong>: 功能强大，支持丰富的图表类型</li>
+                    <li><strong>Chart.js</strong>: 轻量级，适合简单图表需求</li>
+                    <li><strong>D3.js</strong>: 高度自定义，适合复杂数据可视化</li>
+                    <li><strong>AntV G2</strong>: 移动端优化，性能表现优秀</li>
+                </ul>
+            </div>
+
+            <h3>性能优化策略</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>⚡ 数据加载优化</h4>
+                    <ul>
+                        <li><strong>分页加载</strong>: 大数据集分批次加载</li>
+                        <li><strong>缓存策略</strong>: Redis缓存常用统计结果</li>
+                        <li><strong>预计算</strong>: 定时任务计算常用指标</li>
+                        <li><strong>CDN加速</strong>: 静态资源CDN分发</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🎯 渲染性能优化</h4>
+                    <ul>
+                        <li><strong>虚拟滚动</strong>: 长列表数据虚拟化</li>
+                        <li><strong>懒加载</strong>: 非可视区域图表延迟渲染</li>
+                        <li><strong>防抖节流</strong>: 限制频繁的数据请求</li>
+                        <li><strong>Web Worker</strong>: 复杂计算后台处理</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>数据安全考虑</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>安全层面</th>
+                        <th>防护措施</th>
+                        <th>实现方式</th>
+                        <th>检查频率</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>接口权限</td>
+                        <td>Token验证 + 角色检查</td>
+                        <td>JWT + RBAC</td>
+                        <td>每次请求</td>
+                    </tr>
+                    <tr>
+                        <td>数据脱敏</td>
+                        <td>敏感数据掩码处理</td>
+                        <td>前后端双重过滤</td>
+                        <td>实时</td>
+                    </tr>
+                    <tr>
+                        <td>传输加密</td>
+                        <td>HTTPS + 数据加密</td>
+                        <td>TLS 1.3 + AES</td>
+                        <td>持续</td>
+                    </tr>
+                    <tr>
+                        <td>操作审计</td>
+                        <td>访问日志 + 行为记录</td>
+                        <td>ELK Stack</td>
+                        <td>实时监控</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>关键代码示例</h3>
+            <div class="code-block">// 图表组件封装示例
+class StatisticsChart {
+  constructor(container, config) {
+    this.container = container;
+    this.config = {
+      theme: 'light',
+      responsive: true,
+      animation: true,
+      ...config
+    };
+    this.chart = null;
+    this.init();
+  }
+
+  init() {
+    // 初始化图表实例
+    this.chart = echarts.init(this.container);
+    this.bindEvents();
+    this.loadData();
+  }
+
+  bindEvents() {
+    // 响应式处理
+    window.addEventListener('resize', () => {
+      this.chart.resize();
+    });
+
+    // 图表交互事件
+    this.chart.on('click', (params) => {
+      this.onChartClick(params);
+    });
+  }
+
+  async loadData() {
+    try {
+      const response = await this.fetchStatistics();
+      this.renderChart(response.data);
+    } catch (error) {
+      this.handleError(error);
+    }
+  }
+
+  renderChart(data) {
+    const option = this.generateChartOption(data);
+    this.chart.setOption(option, true);
+  }
+}</div>
+        </section>
+
+        <section id="quality-standards" class="section">
+            <h2>12. 质量验收标准</h2>
+            
+            <h3>功能完整性检查</h3>
+            <div class="success-box">
+                <h4>✅ 必须实现功能清单</h4>
+                <ul>
+                    <li>KPI指标卡片展示，数据准确更新</li>
+                    <li>多种图表类型支持，交互正常</li>
+                    <li>时间维度切换，数据联动刷新</li>
+                    <li>角色权限差异化展示</li>
+                    <li>数据导出功能，格式完整</li>
+                    <li>响应式布局适配各种屏幕</li>
+                    <li>错误处理和加载状态展示</li>
+                    <li>数据安全和权限控制</li>
+                </ul>
+            </div>
+
+            <h3>性能指标要求</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>性能指标</th>
+                        <th>目标值</th>
+                        <th>测试方法</th>
+                        <th>评估标准</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>首屏加载时间</td>
+                        <td>< 3秒</td>
+                        <td>Chrome DevTools</td>
+                        <td>LCP指标</td>
+                    </tr>
+                    <tr>
+                        <td>图表渲染时间</td>
+                        <td>< 1秒</td>
+                        <td>Performance API</td>
+                        <td>从数据加载到图表完成</td>
+                    </tr>
+                    <tr>
+                        <td>交互响应时间</td>
+                        <td>< 100ms</td>
+                        <td>用户操作监控</td>
+                        <td>FID指标</td>
+                    </tr>
+                    <tr>
+                        <td>内存使用</td>
+                        <td>< 100MB</td>
+                        <td>浏览器任务管理器</td>
+                        <td>长时间运行稳定性</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>用户体验评估</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📱 移动端体验要求</h4>
+                    <ul>
+                        <li>触摸区域不小于44px</li>
+                        <li>滑动操作流畅无卡顿</li>
+                        <li>文字清晰易读，不少于14px</li>
+                        <li>图表适配小屏，信息完整</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>💻 桌面端体验要求</h4>
+                    <ul>
+                        <li>鼠标悬停反馈及时</li>
+                        <li>快捷键操作支持</li>
+                        <li>多窗口和分屏兼容</li>
+                        <li>打印输出格式正确</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>测试用例覆盖</h3>
+            <div class="warning-box">
+                <h4>🧪 测试覆盖范围</h4>
+                <ul>
+                    <li><strong>功能测试</strong>: 所有功能点正常工作，边界情况处理</li>
+                    <li><strong>兼容性测试</strong>: 主流浏览器、不同设备尺寸兼容</li>
+                    <li><strong>性能测试</strong>: 大数据量下的响应时间和稳定性</li>
+                    <li><strong>安全测试</strong>: 权限控制、数据泄露防护验证</li>
+                    <li><strong>用户体验测试</strong>: 真实用户场景下的可用性验证</li>
+                </ul>
+            </div>
+
+            <h3>验收交付清单</h3>
+            <div class="ascii-diagram">📋 最终交付物清单
+
+├── 💻 源代码
+│   ├── 前端页面代码 (Vue/React)
+│   ├── 图表组件库 (封装复用)
+│   ├── API接口文档 (Swagger)
+│   └── 数据库设计文档 (DDL)
+│
+├── 📚 文档资料  
+│   ├── 用户操作手册
+│   ├── 管理员配置指南
+│   ├── 技术实现文档
+│   └── 部署运维手册
+│
+├── 🧪 测试报告
+│   ├── 功能测试报告
+│   ├── 性能测试报告  
+│   ├── 兼容性测试报告
+│   └── 用户验收测试报告
+│
+└── 🚀 部署包
+    ├── 生产环境部署包
+    ├── 数据库初始化脚本
+    ├── 配置文件模板
+    └── 监控配置文件</div>
+        </section>
+
+        <footer style="background: #22C55E; color: white; text-align: center; padding: 40px; margin-top: 40px;">
+            <h3>🎯 项目成功标准</h3>
+            <p>当用户能够在5秒内理解关键数据，3分钟内完成数据导出，并对统计功能满意度达到4.0分以上时，本设计方案即为成功实现。</p>
+            <p style="margin-top: 20px; opacity: 0.9;">
+                <strong>设计原则</strong>: 数据驱动决策 · 用户体验优先 · 性能稳定可靠
+            </p>
+        </footer>
+    </div>
+</body>
+</html>

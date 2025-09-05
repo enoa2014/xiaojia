@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>服务记录填写页详细设计文档 - 小家服务管理小程序</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #333;
+            background: #f8fafc;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        .header {
+            background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+            color: white;
+            padding: 40px;
+            text-align: center;
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .header .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 20px;
+        }
+
+        .document-info {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .info-card {
+            background: rgba(255,255,255,0.1);
+            padding: 15px;
+            border-radius: 8px;
+            text-align: left;
+        }
+
+        .info-card strong {
+            display: block;
+            margin-bottom: 5px;
+        }
+
+        .toc {
+            background: #f8fafc;
+            padding: 30px;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .toc h2 {
+            color: #1e293b;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+
+        .toc-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 10px;
+        }
+
+        .toc-list a {
+            color: #22C55E;
+            text-decoration: none;
+            padding: 8px 0;
+            display: block;
+            border-left: 3px solid transparent;
+            padding-left: 15px;
+            transition: all 0.3s ease;
+        }
+
+        .toc-list a:hover {
+            border-left-color: #22C55E;
+            background: rgba(34, 197, 94, 0.05);
+        }
+
+        .content {
+            padding: 40px;
+        }
+
+        .section {
+            margin-bottom: 50px;
+        }
+
+        .section h2 {
+            color: #1e293b;
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            border-bottom: 3px solid #22C55E;
+            padding-bottom: 10px;
+        }
+
+        .section h3 {
+            color: #334155;
+            font-size: 1.3rem;
+            margin: 25px 0 15px 0;
+        }
+
+        .section h4 {
+            color: #475569;
+            font-size: 1.1rem;
+            margin: 20px 0 10px 0;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .highlight-card {
+            background: linear-gradient(135deg, #f0f9ff 0%, #e0f2fe 100%);
+            border: 1px solid #0ea5e9;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+
+        .specs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .specs-table th {
+            background: #f1f5f9;
+            color: #334155;
+            font-weight: 600;
+            padding: 12px;
+            text-align: left;
+            border-bottom: 2px solid #e2e8f0;
+        }
+
+        .specs-table td {
+            padding: 12px;
+            border-bottom: 1px solid #f1f5f9;
+        }
+
+        .specs-table tr:hover {
+            background: #f8fafc;
+        }
+
+        .code-block {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .ascii-diagram {
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 20px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+
+        .mockup-phone {
+            width: 300px;
+            margin: 20px auto;
+            border: 8px solid #1f2937;
+            border-radius: 25px;
+            overflow: hidden;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+        }
+
+        .mockup-screen {
+            background: white;
+            height: 500px;
+            overflow-y: auto;
+        }
+
+        .color-palette {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .color-item {
+            text-align: center;
+        }
+
+        .color-swatch {
+            width: 100%;
+            height: 60px;
+            border-radius: 8px;
+            margin-bottom: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: 600;
+        }
+
+        .color-name {
+            font-size: 0.9rem;
+            color: #475569;
+            margin-bottom: 4px;
+        }
+
+        .color-value {
+            font-size: 0.8rem;
+            color: #64748b;
+            font-family: monospace;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 500;
+            margin: 2px;
+        }
+
+        .status-draft { background: #fef3c7; color: #92400e; }
+        .status-pending { background: #dbeafe; color: #1e40af; }
+        .status-approved { background: #d1fae5; color: #065f46; }
+        .status-rejected { background: #fee2e2; color: #dc2626; }
+
+        .flow-step {
+            background: white;
+            border: 2px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 15px;
+            margin: 10px 0;
+            position: relative;
+        }
+
+        .flow-step::after {
+            content: '↓';
+            position: absolute;
+            bottom: -15px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: #22C55E;
+            color: white;
+            width: 30px;
+            height: 30px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+
+        .flow-step:last-child::after {
+            display: none;
+        }
+
+        .print-break {
+            page-break-after: always;
+        }
+
+        @media (max-width: 768px) {
+            .container {
+                margin: 0;
+                box-shadow: none;
+            }
+            
+            .header {
+                padding: 30px 20px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .content {
+                padding: 20px;
+            }
+            
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .specs-table {
+                font-size: 0.9rem;
+            }
+            
+            .specs-table th, .specs-table td {
+                padding: 8px;
+            }
+        }
+
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .container {
+                box-shadow: none;
+            }
+            
+            .header {
+                background: #22C55E !important;
+                color: white !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- 文档头部 -->
+        <header class="header">
+            <h1>服务记录填写页详细设计文档</h1>
+            <p class="subtitle">小家服务管理小程序 - Service Record Form Design Specification</p>
+            
+            <div class="document-info">
+                <div class="info-card">
+                    <strong>📅 文档版本</strong>
+                    v2.1 (2025-09-05)
+                </div>
+                <div class="info-card">
+                    <strong>👤 设计团队</strong>
+                    UX/UI设计组
+                </div>
+                <div class="info-card">
+                    <strong>🎯 目标用户</strong>
+                    志愿者、社工、管理员
+                </div>
+                <div class="info-card">
+                    <strong>📱 适配平台</strong>
+                    微信小程序
+                </div>
+            </div>
+        </header>
+
+        <!-- 目录 -->
+        <nav class="toc">
+            <h2>📚 目录导航</h2>
+            <ul class="toc-list">
+                <li><a href="#overview">1. 设计概述</a></li>
+                <li><a href="#architecture">2. 页面架构设计</a></li>
+                <li><a href="#user-flow">3. 用户流程设计</a></li>
+                <li><a href="#ui-components">4. UI组件规范</a></li>
+                <li><a href="#form-design">5. 表单设计规范</a></li>
+                <li><a href="#interaction">6. 交互设计规范</a></li>
+                <li><a href="#permissions">7. 权限与安全设计</a></li>
+                <li><a href="#responsive">8. 响应式设计</a></li>
+                <li><a href="#performance">9. 性能优化</a></li>
+                <li><a href="#testing">10. 测试与验证</a></li>
+                <li><a href="#implementation">11. 技术实现指南</a></li>
+                <li><a href="#maintenance">12. 维护与更新</a></li>
+            </ul>
+        </nav>
+
+        <!-- 文档内容 -->
+        <main class="content">
+            <!-- 1. 设计概述 -->
+            <section id="overview" class="section">
+                <h2>1. 设计概述</h2>
+                
+                <div class="highlight-card">
+                    <h3>🎯 设计目标</h3>
+                    <p>为志愿者和社工提供高效、直观的服务记录填写体验，通过智能化的表单设计和人性化的交互流程，将服务记录填写时间缩短到2-3分钟，同时确保数据的准确性和完整性。</p>
+                </div>
+
+                <h3>核心设计原则</h3>
+                <div class="grid-2">
+                    <div class="card">
+                        <h4>🚀 效率优先</h4>
+                        <ul>
+                            <li>提供快速记录和详细记录两种模式</li>
+                            <li>智能默认值和自动填充功能</li>
+                            <li>支持语音输入和模板选择</li>
+                            <li>实时保存，防止数据丢失</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>👥 用户友好</h4>
+                        <ul>
+                            <li>清晰的视觉层级和操作引导</li>
+                            <li>智能错误提示和输入验证</li>
+                            <li>适配不同角色的使用场景</li>
+                            <li>支持离线填写和同步上传</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>目标用户画像</h3>
+                <div class="grid-3">
+                    <div class="card">
+                        <h4>👦 志愿者 (主要用户)</h4>
+                        <ul>
+                            <li><strong>使用场景</strong>: 服务结束后立即记录</li>
+                            <li><strong>核心需求</strong>: 快速、简单的记录流程</li>
+                            <li><strong>技术水平</strong>: 中等，需要简化操作</li>
+                            <li><strong>时间限制</strong>: 希望在3分钟内完成</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>👩‍💼 社工 (审核用户)</h4>
+                        <ul>
+                            <li><strong>使用场景</strong>: 创建详细服务记录</li>
+                            <li><strong>核心需求</strong>: 完整的信息录入和管理</li>
+                            <li><strong>技术水平</strong>: 较高，可使用复杂功能</li>
+                            <li><strong>准确要求</strong>: 信息完整性和规范性</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>👨‍💼 管理员 (监督用户)</h4>
+                        <ul>
+                            <li><strong>使用场景</strong>: 质量检查和数据分析</li>
+                            <li><strong>核心需求</strong>: 数据统计和导出功能</li>
+                            <li><strong>技术水平</strong>: 高，熟悉系统操作</li>
+                            <li><strong>管理职能</strong>: 流程优化和规范制定</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>成功衡量标准</h3>
+                <table class="specs-table">
+                    <thead>
+                        <tr>
+                            <th>指标类型</th>
+                            <th>具体指标</th>
+                            <th>目标值</th>
+                            <th>当前基线</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>效率指标</td>
+                            <td>平均填写完成时间</td>
+                            <td>≤ 3分钟</td>
+                            <td>5-8分钟</td>
+                        </tr>
+                        <tr>
+                            <td>质量指标</td>
+                            <td>表单验证通过率</td>
+                            <td>≥ 95%</td>
+                            <td>80%</td>
+                        </tr>
+                        <tr>
+                            <td>用户体验</td>
+                            <td>用户满意度评分</td>
+                            <td>≥ 4.5/5.0</td>
+                            <td>3.8/5.0</td>
+                        </tr>
+                        <tr>
+                            <td>业务指标</td>
+                            <td>服务记录提交率</td>
+                            <td>≥ 90%</td>
+                            <td>75%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- 2. 页面架构设计 -->
+            <section id="architecture" class="section print-break">
+                <h2>2. 页面架构设计</h2>
+
+                <h3>整体布局结构</h3>
+                <div class="ascii-diagram">┌─────────────────────────────────────┐ ← 导航栏 (88rpx)
+│  ← 返回    服务记录    📊 我的统计     │   background: #22C55E
+├─────────────────────────────────────┤ ← 模式选择区 (120rpx)
+│  🎯 快速记录  |  📝 详细记录         │   toggle切换设计
+├─────────────────────────────────────┤ ← 服务类型选择 (140rpx)
+│ [👥探访] [🧠心理] [📦物资] [🔄转介] [📋随访] │   大按钮设计，易于点击
+├─────────────────────────────────────┤ ← 表单填写区 (动态高度)
+│                                     │   
+│          📝 核心内容填写区             │   根据记录模式动态调整
+│                                     │   
+├─────────────────────────────────────┤ ← 附件上传区 (可折叠)
+│   📷 拍照上传  📁 选择文件  🎤 语音     │   可选功能，节省空间
+├─────────────────────────────────────┤ ← 底部操作区 (80rpx)
+│   💾 保存草稿      ✅ 提交审核        │   固定底部，始终可见
+└─────────────────────────────────────┘</div>
+
+                <h3>响应式布局适配</h3>
+                <div class="grid-2">
+                    <div class="card">
+                        <h4>📱 小屏设备 (≤375px)</h4>
+                        <ul>
+                            <li>单列布局，垂直排列所有元素</li>
+                            <li>服务类型按钮改为2列网格</li>
+                            <li>文本输入框适配小屏键盘</li>
+                            <li>底部操作按钮改为垂直排列</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>💻 大屏设备 (≥768px)</h4>
+                        <ul>
+                            <li>左右分栏布局，表单+预览</li>
+                            <li>服务类型显示完整标签文字</li>
+                            <li>多字段横向排列优化空间</li>
+                            <li>侧边栏显示填写进度和提示</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>信息层级架构</h3>
+                <div class="ascii-diagram">服务记录填写页
+├─ Level 1: 核心操作层
+│  ├─ 记录模式选择 (快速/详细)
+│  ├─ 服务类型选择 (必选)
+│  └─ 提交/保存操作 (主要CTA)
+│
+├─ Level 2: 基础信息层
+│  ├─ 服务对象选择
+│  ├─ 服务时间设置
+│  ├─ 服务地点填写
+│  └─ 服务内容描述
+│
+├─ Level 3: 扩展信息层
+│  ├─ 服务目标设定
+│  ├─ 服务成果记录
+│  ├─ 后续计划安排
+│  └─ 备注和补充说明
+│
+└─ Level 4: 附件支持层
+   ├─ 现场照片上传
+   ├─ 相关文档附件
+   ├─ 语音记录上传
+   └─ 其他补充材料</div>
+
+                <h3>页面状态设计</h3>
+                <table class="specs-table">
+                    <thead>
+                        <tr>
+                            <th>状态名称</th>
+                            <th>触发条件</th>
+                            <th>页面表现</th>
+                            <th>用户操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>初始状态</td>
+                            <td>页面首次加载</td>
+                            <td>显示记录模式选择，表单为空</td>
+                            <td>选择记录模式</td>
+                        </tr>
+                        <tr>
+                            <td>填写中状态</td>
+                            <td>用户开始输入内容</td>
+                            <td>实时验证，显示填写进度</td>
+                            <td>继续填写或保存草稿</td>
+                        </tr>
+                        <tr>
+                            <td>验证错误状态</td>
+                            <td>必填项缺失或格式错误</td>
+                            <td>错误字段高亮，显示错误提示</td>
+                            <td>修正错误内容</td>
+                        </tr>
+                        <tr>
+                            <td>提交中状态</td>
+                            <td>用户点击提交按钮</td>
+                            <td>按钮显示加载动画，禁用表单</td>
+                            <td>等待提交完成</td>
+                        </tr>
+                        <tr>
+                            <td>提交成功状态</td>
+                            <td>数据成功提交到服务器</td>
+                            <td>显示成功提示，跳转到记录列表</td>
+                            <td>查看记录或创建新记录</td>
+                        </tr>
+                        <tr>
+                            <td>离线状态</td>
+                            <td>网络连接中断</td>
+                            <td>显示离线提示，支持继续填写</td>
+                            <td>填写完成后自动同步</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- 3. 用户流程设计 -->
+            <section id="user-flow" class="section">
+                <h2>3. 用户流程设计</h2>
+
+                <h3>快速记录流程</h3>
+                <div class="highlight-card">
+                    <h4>🎯 设计目标：1-2分钟完成记录</h4>
+                    <p>为经验丰富的志愿者设计的精简流程，通过预设选项和智能默认值，最大化提升填写效率。</p>
+                </div>
+
+                <div class="flow-step">
+                    <strong>步骤1: 选择服务类型</strong>
+                    <p>大图标按钮展示6种服务类型，一键选择。系统根据用户历史记录智能推荐最常用的类型。</p>
+                </div>
+
+                <div class="flow-step">
+                    <strong>步骤2: 确认服务信息</strong>
+                    <p>自动填入当前时间和常用地点，用户可快速调整。支持语音输入服务内容，系统自动转换为文字。</p>
+                </div>
+
+                <div class="flow-step">
+                    <strong>步骤3: 一键提交</strong>
+                    <p>智能验证必填信息，自动补全缺失的非关键数据，直接提交审核。</p>
+                </div>
+
+                <h3>详细记录流程</h3>
+                <div class="highlight-card">
+                    <h4>📝 设计目标：完整信息记录</h4>
+                    <p>为社工和需要详细记录的场景设计，采用分步式表单设计，确保信息的完整性和规范性。</p>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h4>📋 步骤1: 基础信息</h4>
+                        <ul>
+                            <li>服务对象选择（搜索患者档案）</li>
+                            <li>服务类型选择（单选必填）</li>
+                            <li>服务时间设置（日期时间选择器）</li>
+                            <li>服务地点填写（文本输入+常用地点）</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>📝 步骤2: 服务内容</h4>
+                        <ul>
+                            <li>服务内容描述（富文本编辑器）</li>
+                            <li>服务目标设定（可选，模板选择）</li>
+                            <li>服务成果记录（可选，效果评估）</li>
+                            <li>后续计划安排（可选，跟进计划）</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <div class="grid-2">
+                    <div class="card">
+                        <h4>📎 步骤3: 附件上传</h4>
+                        <ul>
+                            <li>现场照片上传（最多5张，自动压缩）</li>
+                            <li>相关文档附件（PDF/DOC支持）</li>
+                            <li>语音记录上传（录音转文字）</li>
+                            <li>其他补充材料（自定义上传）</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>✅ 步骤4: 确认提交</h4>
+                        <ul>
+                            <li>信息预览确认（格式化显示）</li>
+                            <li>电子签名确认（身份验证）</li>
+                            <li>提交审核流程（选择审核人）</li>
+                            <li>通知设置选择（推送和邮件）</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>错误处理流程</h3>
+                <table class="specs-table">
+                    <thead>
+                        <tr>
+                            <th>错误类型</th>
+                            <th>触发场景</th>
+                            <th>处理策略</th>
+                            <th>用户体验</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>必填字段缺失</td>
+                            <td>提交时发现必填项为空</td>
+                            <td>字段边框变红，显示具体提示</td>
+                            <td>自动聚焦到第一个错误字段</td>
+                        </tr>
+                        <tr>
+                            <td>格式验证失败</td>
+                            <td>日期、时间格式不正确</td>
+                            <td>实时验证，即时显示错误</td>
+                            <td>提供正确格式示例</td>
+                        </tr>
+                        <tr>
+                            <td>文件上传失败</td>
+                            <td>网络异常或文件过大</td>
+                            <td>显示重试按钮和失败原因</td>
+                            <td>支持批量重试或跳过</td>
+                        </tr>
+                        <tr>
+                            <td>服务器连接失败</td>
+                            <td>网络中断或服务器异常</td>
+                            <td>自动保存本地，等待重连</td>
+                            <td>显示离线模式，数据不丢失</td>
+                        </tr>
+                        <tr>
+                            <td>权限验证失败</td>
+                            <td>登录过期或权限不足</td>
+                            <td>引导重新登录或申请权限</td>
+                            <td>保留填写内容，无需重新填写</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- 4. UI组件规范 -->
+            <section id="ui-components" class="section print-break">
+                <h2>4. UI组件规范</h2>
+
+                <h3>色彩系统</h3>
+                <div class="color-palette">
+                    <div class="color-item">
+                        <div class="color-swatch" style="background: #22C55E;">Primary</div>
+                        <div class="color-name">主色调</div>
+                        <div class="color-value">#22C55E</div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch" style="background: #16A34A;">Primary Dark</div>
+                        <div class="color-name">主色调深色</div>
+                        <div class="color-value">#16A34A</div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch" style="background: #DCFCE7;">Primary Light</div>
+                        <div class="color-name">主色调浅色</div>
+                        <div class="color-value">#DCFCE7</div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch" style="background: #EF4444;">Error</div>
+                        <div class="color-name">错误色</div>
+                        <div class="color-value">#EF4444</div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch" style="background: #F59E0B;">Warning</div>
+                        <div class="color-name">警告色</div>
+                        <div class="color-value">#F59E0B</div>
+                    </div>
+                    <div class="color-item">
+                        <div class="color-swatch" style="background: #3B82F6;">Info</div>
+                        <div class="color-name">信息色</div>
+                        <div class="color-value">#3B82F6</div>
+                    </div>
+                </div>
+
+                <h3>字体排版系统</h3>
+                <table class="specs-table">
+                    <thead>
+                        <tr>
+                            <th>字体级别</th>
+                            <th>小程序单位</th>
+                            <th>像素值</th>
+                            <th>字重</th>
+                            <th>行高</th>
+                            <th>使用场景</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>页面标题</td>
+                            <td>36rpx</td>
+                            <td>18px</td>
+                            <td>600 (SemiBold)</td>
+                            <td>1.4</td>
+                            <td>页面主标题</td>
+                        </tr>
+                        <tr>
+                            <td>区块标题</td>
+                            <td>32rpx</td>
+                            <td>16px</td>
+                            <td>500 (Medium)</td>
+                            <td>1.5</td>
+                            <td>表单区块标题</td>
+                        </tr>
+                        <tr>
+                            <td>字段标签</td>
+                            <td>28rpx</td>
+                            <td>14px</td>
+                            <td>500 (Medium)</td>
+                            <td>1.5</td>
+                            <td>表单字段标签</td>
+                        </tr>
+                        <tr>
+                            <td>正文内容</td>
+                            <td>26rpx</td>
+                            <td>13px</td>
+                            <td>400 (Regular)</td>
+                            <td>1.6</td>
+                            <td>输入框内容、正文</td>
+                        </tr>
+                        <tr>
+                            <td>辅助文字</td>
+                            <td>24rpx</td>
+                            <td>12px</td>
+                            <td>400 (Regular)</td>
+                            <td>1.4</td>
+                            <td>提示文字、说明</td>
+                        </tr>
+                        <tr>
+                            <td>错误提示</td>
+                            <td>24rpx</td>
+                            <td>12px</td>
+                            <td>400 (Regular)</td>
+                            <td>1.4</td>
+                            <td>表单验证错误</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>按钮组件规范</h3>
+                <div class="grid-2">
+                    <div class="card">
+                        <h4>🔘 主要按钮 (Primary Button)</h4>
+                        <ul>
+                            <li><strong>背景色</strong>: #22C55E</li>
+                            <li><strong>文字色</strong>: #FFFFFF</li>
+                            <li><strong>高度</strong>: 48px (96rpx)</li>
+                            <li><strong>圆角</strong>: 8px (16rpx)</li>
+                            <li><strong>字体</strong>: 16px (32rpx) Medium</li>
+                            <li><strong>状态</strong>: Hover时背景变#16A34A</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>🔲 次要按钮 (Secondary Button)</h4>
+                        <ul>
+                            <li><strong>背景色</strong>: #F3F4F6</li>
+                            <li><strong>文字色</strong>: #374151</li>
+                            <li><strong>高度</strong>: 48px (96rpx)</li>
+                            <li><strong>圆角</strong>: 8px (16rpx)</li>
+                            <li><strong>字体</strong>: 16px (32rpx) Medium</li>
+                            <li><strong>状态</strong>: Hover时背景变#E5E7EB</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>输入框组件规范</h3>
+                <div class="code-block">/* 标准输入框样式 */
+.form-input {
+  width: 100%;
+  height: 48px;           /* 96rpx */
+  padding: 12px 16px;     /* 24rpx 32rpx */
+  border: 1px solid #D1D5DB;
+  border-radius: 8px;     /* 16rpx */
+  font-size: 16px;        /* 32rpx */
+  line-height: 1.5;
+  background: #FFFFFF;
+  transition: all 0.3s ease;
+}
+
+/* 聚焦状态 */
+.form-input:focus {
+  border-color: #22C55E;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+  outline: none;
+}
+
+/* 错误状态 */
+.form-input.error {
+  border-color: #EF4444;
+  box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.1);
+}
+
+/* 成功状态 */
+.form-input.success {
+  border-color: #22C55E;
+  box-shadow: 0 0 0 3px rgba(34, 197, 94, 0.1);
+}</div>
+
+                <h3>服务类型选择器设计</h3>
+                <div class="mockup-phone">
+                    <div class="mockup-screen">
+                        <div style="background: #22C55E; color: white; padding: 15px; text-align: center; font-weight: 600;">
+                            选择服务类型
+                        </div>
+                        <div style="padding: 20px;">
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 20px;">
+                                <button style="background: #F0F9FF; border: 2px solid #22C55E; padding: 20px; border-radius: 12px; text-align: center;">
+                                    <div style="font-size: 24px; margin-bottom: 8px;">👥</div>
+                                    <div style="font-weight: 600; color: #22C55E;">探访服务</div>
+                                </button>
+                                <button style="background: #F8FAFC; border: 2px solid #E2E8F0; padding: 20px; border-radius: 12px; text-align: center;">
+                                    <div style="font-size: 24px; margin-bottom: 8px;">🧠</div>
+                                    <div style="font-weight: 600; color: #64748B;">心理支持</div>
+                                </button>
+                                <button style="background: #F8FAFC; border: 2px solid #E2E8F0; padding: 20px; border-radius: 12px; text-align: center;">
+                                    <div style="font-size: 24px; margin-bottom: 8px;">📦</div>
+                                    <div style="font-weight: 600; color: #64748B;">物资发放</div>
+                                </button>
+                                <button style="background: #F8FAFC; border: 2px solid #E2E8F0; padding: 20px; border-radius: 12px; text-align: center;">
+                                    <div style="font-size: 24px; margin-bottom: 8px;">🔄</div>
+                                    <div style="font-weight: 600; color: #64748B;">转介服务</div>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 5. 表单设计规范 -->
+            <section id="form-design" class="section">
+                <h2>5. 表单设计规范</h2>
+
+                <h3>表单字段规范</h3>
+                <table class="specs-table">
+                    <thead>
+                        <tr>
+                            <th>字段名称</th>
+                            <th>字段类型</th>
+                            <th>是否必填</th>
+                            <th>验证规则</th>
+                            <th>错误提示</th>
+                            <th>默认值策略</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>服务对象</td>
+                            <td>选择器(搜索)</td>
+                            <td>✅ 必填</td>
+                            <td>必须是有效的患者档案ID</td>
+                            <td>"请选择服务对象"</td>
+                            <td>智能推荐最近服务对象</td>
+                        </tr>
+                        <tr>
+                            <td>服务类型</td>
+                            <td>单选按钮组</td>
+                            <td>✅ 必填</td>
+                            <td>仅限6种预定义类型</td>
+                            <td>"请选择服务类型"</td>
+                            <td>根据用户历史最常用类型</td>
+                        </tr>
+                        <tr>
+                            <td>服务时间</td>
+                            <td>日期时间选择器</td>
+                            <td>✅ 必填</td>
+                            <td>不早于7天前，不晚于当前时间</td>
+                            <td>"服务时间不能超过当前时间"</td>
+                            <td>当前时间</td>
+                        </tr>
+                        <tr>
+                            <td>服务地点</td>
+                            <td>文本输入框</td>
+                            <td>⚪ 可选</td>
+                            <td>最多50个字符</td>
+                            <td>"地点描述不能超过50个字符"</td>
+                            <td>用户常用地点</td>
+                        </tr>
+                        <tr>
+                            <td>服务内容</td>
+                            <td>多行文本框</td>
+                            <td>✅ 必填</td>
+                            <td>10-500个字符</td>
+                            <td>"服务内容需要10-500个字符"</td>
+                            <td>根据服务类型提供模板</td>
+                        </tr>
+                        <tr>
+                            <td>服务目标</td>
+                            <td>多行文本框</td>
+                            <td>⚪ 可选</td>
+                            <td>最多200个字符</td>
+                            <td>"目标描述不能超过200个字符"</td>
+                            <td>空值</td>
+                        </tr>
+                        <tr>
+                            <td>服务成果</td>
+                            <td>多行文本框</td>
+                            <td>⚪ 可选</td>
+                            <td>最多300个字符</td>
+                            <td>"成果描述不能超过300个字符"</td>
+                            <td>空值</td>
+                        </tr>
+                        <tr>
+                            <td>照片附件</td>
+                            <td>图片上传组件</td>
+                            <td>⚪ 可选</td>
+                            <td>最多5张，每张&lt;5MB，格式JPG/PNG</td>
+                            <td>"照片大小不能超过5MB"</td>
+                            <td>空值</td>
+                        </tr>
+                        <tr>
+                            <td>文档附件</td>
+                            <td>文件上传组件</td>
+                            <td>⚪ 可选</td>
+                            <td>支持PDF/DOC/DOCX，&lt;10MB</td>
+                            <td>"文档格式不支持或文件过大"</td>
+                            <td>空值</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>智能化表单功能</h3>
+                <div class="grid-2">
+                    <div class="card">
+                        <h4>🤖 自动填充功能</h4>
+                        <ul>
+                            <li><strong>服务对象智能推荐</strong>: 根据最近记录推荐</li>
+                            <li><strong>地点自动补全</strong>: 基于历史地点数据</li>
+                            <li><strong>内容模板</strong>: 不同服务类型提供预设模板</li>
+                            <li><strong>时间智能默认</strong>: 工作时间内默认当前时间</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>✨ 智能验证提醒</h4>
+                        <ul>
+                            <li><strong>实时验证</strong>: 输入过程中即时检查格式</li>
+                            <li><strong>字数统计</strong>: 显示剩余可输入字符数</li>
+                            <li><strong>重复检查</strong>: 检测是否存在相似记录</li>
+                            <li><strong>完整性提示</strong>: 提醒用户补充关键信息</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>表单布局设计</h3>
+                <div class="ascii-diagram">快速记录模式 (移动端优化)
+┌─────────────────────────────────────┐
+│ 📋 快速服务记录                      │
+├─────────────────────────────────────┤
+│ 服务类型 *                          │
+│ [👥探访] [🧠心理] [📦物资]            │ ← 3列网格布局
+│ [🔄转介] [📋随访] [🏠其他]            │
+├─────────────────────────────────────┤
+│ 服务对象 *                          │
+│ [🔍 搜索患者...] [📝 李小明]         │ ← 搜索+快速选择
+├─────────────────────────────────────┤
+│ 服务时间 *                          │
+│ 📅 2025-09-05  ⏰ 14:30            │ ← 日期+时间并排
+├─────────────────────────────────────┤
+│ 服务内容 * (10-500字)               │
+│ ┌─────────────────────────────────┐ │
+│ │今天为李小明提供了心理支持服务...  │ │ ← 多行文本，显示字数
+│ │                     [🎤语音输入] │ │
+│ └─────────────────────────────────┘ │
+├─────────────────────────────────────┤
+│ 📷 添加照片 (可选)                   │ ← 可折叠的附件区
+└─────────────────────────────────────┘
+┌─────────────────────────────────────┐ ← 固定底部操作区
+│ [💾 保存草稿]     [✅ 提交审核]      │
+└─────────────────────────────────────┘</div>
+
+                <h3>表单状态管理</h3>
+                <div class="grid-3">
+                    <div class="card">
+                        <h4>📝 草稿状态</h4>
+                        <div class="status-badge status-draft">草稿</div>
+                        <ul>
+                            <li>自动保存: 每30秒保存一次</li>
+                            <li>离线支持: 断网时本地存储</li>
+                            <li>恢复提醒: 重新进入时询问恢复</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>⏳ 提交中状态</h4>
+                        <div class="status-badge status-pending">提交中</div>
+                        <ul>
+                            <li>按钮禁用: 防止重复提交</li>
+                            <li>进度显示: 显示上传进度</li>
+                            <li>取消支持: 允许取消操作</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>✅ 提交完成</h4>
+                        <div class="status-badge status-approved">已提交</div>
+                        <ul>
+                            <li>成功反馈: 显示提交成功消息</li>
+                            <li>后续操作: 提供查看或新建选项</li>
+                            <li>数据清理: 清除本地草稿数据</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 6. 交互设计规范 -->
+            <section id="interaction" class="section print-break">
+                <h2>6. 交互设计规范</h2>
+
+                <h3>点击反馈设计</h3>
+                <div class="grid-2">
+                    <div class="card">
+                        <h4>🔘 按钮点击反馈</h4>
+                        <ul>
+                            <li><strong>视觉反馈</strong>: 点击时缩放至95%，持续150ms</li>
+                            <li><strong>颜色变化</strong>: 背景色加深5%</li>
+                            <li><strong>触觉反馈</strong>: 轻微震动(iOS)或波纹效果(Android)</li>
+                            <li><strong>声音反馈</strong>: 系统默认点击音效</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>📝 输入框聚焦反馈</h4>
+                        <ul>
+                            <li><strong>边框动画</strong>: 边框颜色渐变至主色调</li>
+                            <li><strong>阴影效果</strong>: 添加柔和的外阴影</li>
+                            <li><strong>标签动画</strong>: 标签上移并缩小</li>
+                            <li><strong>键盘联动</strong>: 自动弹出对应键盘类型</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>页面转场动画</h3>
+                <div class="code-block">/* 页面进入动画 */
+.page-enter {
+  animation: slideInRight 0.3s ease-out;
+}
+
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+
+/* 模态框弹出动画 */
+.modal-enter {
+  animation: modalSlideUp 0.25s ease-out;
+}
+
+@keyframes modalSlideUp {
+  from {
+    transform: translateY(100%);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}</div>
+
+                <h3>加载状态设计</h3>
+                <div class="highlight-card">
+                    <h4>⏳ 加载体验设计原则</h4>
+                    <p>通过骨架屏、进度指示和智能预加载，确保用户在等待过程中保持良好的体验感知。</p>
+                </div>
+
+                <div class="grid-3">
+                    <div class="card">
+                        <h4>🔄 按钮加载状态</h4>
+                        <ul>
+                            <li>旋转图标替换按钮文字</li>
+                            <li>按钮变为灰色并禁用点击</li>
+                            <li>显示"提交中..."文字</li>
+                            <li>保持按钮尺寸不变</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>📄 页面加载状态</h4>
+                        <ul>
+                            <li>骨架屏显示页面结构</li>
+                            <li>渐进式内容加载</li>
+                            <li>关键内容优先显示</li>
+                            <li>加载失败时显示重试</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>📤 文件上传状态</h4>
+                        <ul>
+                            <li>进度条显示上传百分比</li>
+                            <li>缩略图预览上传文件</li>
+                            <li>支持取消和重试操作</li>
+                            <li>批量上传队列管理</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>手势交互设计</h3>
+                <table class="specs-table">
+                    <thead>
+                        <tr>
+                            <th>手势类型</th>
+                            <th>触发区域</th>
+                            <th>交互效果</th>
+                            <th>视觉反馈</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>单击</td>
+                            <td>按钮、链接、输入框</td>
+                            <td>激活、聚焦、跳转</td>
+                            <td>缩放动画、颜色变化</td>
+                        </tr>
+                        <tr>
+                            <td>长按</td>
+                            <td>文本内容、图片</td>
+                            <td>复制、预览、选择</td>
+                            <td>放大效果、菜单弹出</td>
+                        </tr>
+                        <tr>
+                            <td>滑动</td>
+                            <td>列表项、卡片</td>
+                            <td>删除、编辑、操作</td>
+                            <td>滑动动画、操作按钮显示</td>
+                        </tr>
+                        <tr>
+                            <td>下拉</td>
+                            <td>页面顶部</td>
+                            <td>刷新页面内容</td>
+                            <td>下拉箭头、刷新动画</td>
+                        </tr>
+                        <tr>
+                            <td>双击</td>
+                            <td>图片、可缩放内容</td>
+                            <td>放大、缩小</td>
+                            <td>缩放动画、边界提示</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>错误状态交互</h3>
+                <div class="ascii-diagram">错误处理流程图:
+
+用户操作 → 验证检查 → 发现错误
+    ↓           ↓           ↓
+继续操作    通过验证    显示错误提示
+              ↓           ↓
+          执行操作    高亮错误字段
+              ↓           ↓
+          成功反馈    提供修正建议
+                        ↓
+                    用户修正错误
+                        ↓
+                    重新验证</div>
+            </section>
+
+            <!-- 7. 权限与安全设计 -->
+            <section id="permissions" class="section">
+                <h2>7. 权限与安全设计</h2>
+
+                <h3>角色权限矩阵</h3>
+                <table class="specs-table">
+                    <thead>
+                        <tr>
+                            <th>功能模块</th>
+                            <th>志愿者</th>
+                            <th>社工</th>
+                            <th>管理员</th>
+                            <th>安全说明</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>创建服务记录</td>
+                            <td>✅ 自己的记录</td>
+                            <td>✅ 全部记录</td>
+                            <td>✅ 全部记录</td>
+                            <td>数据创建者记录，防止越权</td>
+                        </tr>
+                        <tr>
+                            <td>编辑服务记录</td>
+                            <td>✅ 提交前可编辑</td>
+                            <td>✅ 审核前可编辑</td>
+                            <td>✅ 任意时间编辑</td>
+                            <td>状态检查，审核后锁定</td>
+                        </tr>
+                        <tr>
+                            <td>删除服务记录</td>
+                            <td>⚠️ 仅草稿状态</td>
+                            <td>✅ 未审核记录</td>
+                            <td>✅ 全部记录</td>
+                            <td>软删除，保留审计日志</td>
+                        </tr>
+                        <tr>
+                            <td>查看患者信息</td>
+                            <td>⚠️ 脱敏显示</td>
+                            <td>✅ 完整信息</td>
+                            <td>✅ 完整信息</td>
+                            <td>敏感信息脱敏处理</td>
+                        </tr>
+                        <tr>
+                            <td>审核服务记录</td>
+                            <td>❌ 无权限</td>
+                            <td>✅ 有权限</td>
+                            <td>✅ 有权限</td>
+                            <td>审核流程记录可追溯</td>
+                        </tr>
+                        <tr>
+                            <td>导出数据</td>
+                            <td>❌ 无权限</td>
+                            <td>⚠️ 部分数据</td>
+                            <td>✅ 全部数据</td>
+                            <td>导出操作记录和水印</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>数据安全保护</h3>
+                <div class="grid-2">
+                    <div class="card">
+                        <h4>🔒 敏感信息脱敏</h4>
+                        <ul>
+                            <li><strong>姓名脱敏</strong>: 李*明 (保留首末字符)</li>
+                            <li><strong>身份证脱敏</strong>: 330***********1234</li>
+                            <li><strong>手机号脱敏</strong>: 138****5678</li>
+                            <li><strong>地址脱敏</strong>: 杭州市**区**街道</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>🛡️ 数据传输安全</h4>
+                        <ul>
+                            <li><strong>HTTPS加密</strong>: 全站SSL证书</li>
+                            <li><strong>接口签名</strong>: 请求参数数字签名</li>
+                            <li><strong>令牌验证</strong>: JWT token认证</li>
+                            <li><strong>IP白名单</strong>: 限制访问来源</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>权限申请流程</h3>
+                <div class="flow-step">
+                    <strong>步骤1: 发现需要权限的信息</strong>
+                    <p>用户点击脱敏信息时，显示权限申请入口，说明申请理由的重要性。</p>
+                </div>
+
+                <div class="flow-step">
+                    <strong>步骤2: 填写申请理由</strong>
+                    <p>提供申请理由模板选择，或自定义填写，明确申请的信息类型和使用目的。</p>
+                </div>
+
+                <div class="flow-step">
+                    <strong>步骤3: 提交审批</strong>
+                    <p>申请自动路由给相应的审批人，记录申请时间和申请人信息。</p>
+                </div>
+
+                <div class="flow-step">
+                    <strong>步骤4: 审批处理</strong>
+                    <p>审批人收到通知，查看申请详情，进行同意或拒绝操作，必要时可要求补充说明。</p>
+                </div>
+
+                <div class="flow-step">
+                    <strong>步骤5: 结果通知</strong>
+                    <p>申请人收到审批结果通知，通过的申请在有效期内可查看完整信息。</p>
+                </div>
+
+                <h3>审计日志记录</h3>
+                <table class="specs-table">
+                    <thead>
+                        <tr>
+                            <th>操作类型</th>
+                            <th>记录内容</th>
+                            <th>记录时机</th>
+                            <th>保存期限</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>登录认证</td>
+                            <td>用户ID、登录时间、IP地址、设备信息</td>
+                            <td>每次登录</td>
+                            <td>6个月</td>
+                        </tr>
+                        <tr>
+                            <td>数据查看</td>
+                            <td>查看人、查看时间、查看内容、数据敏感级别</td>
+                            <td>查看敏感数据时</td>
+                            <td>3年</td>
+                        </tr>
+                        <tr>
+                            <td>数据修改</td>
+                            <td>修改人、修改时间、修改前后值、修改原因</td>
+                            <td>每次修改操作</td>
+                            <td>永久保存</td>
+                        </tr>
+                        <tr>
+                            <td>权限申请</td>
+                            <td>申请人、申请时间、申请内容、审批结果</td>
+                            <td>申请和审批时</td>
+                            <td>5年</td>
+                        </tr>
+                        <tr>
+                            <td>数据导出</td>
+                            <td>导出人、导出时间、导出范围、导出用途</td>
+                            <td>每次导出</td>
+                            <td>5年</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- 8. 响应式设计 -->
+            <section id="responsive" class="section print-break">
+                <h2>8. 响应式设计</h2>
+
+                <h3>断点设计系统</h3>
+                <table class="specs-table">
+                    <thead>
+                        <tr>
+                            <th>设备类型</th>
+                            <th>屏幕宽度</th>
+                            <th>断点名称</th>
+                            <th>布局特点</th>
+                            <th>设计重点</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>小屏手机</td>
+                            <td>≤375px</td>
+                            <td>xs</td>
+                            <td>单列布局，垂直堆叠</td>
+                            <td>拇指操作优化，关键信息优先</td>
+                        </tr>
+                        <tr>
+                            <td>标准手机</td>
+                            <td>376px-414px</td>
+                            <td>sm</td>
+                            <td>单列布局，适度间距</td>
+                            <td>平衡信息密度和可读性</td>
+                        </tr>
+                        <tr>
+                            <td>大屏手机</td>
+                            <td>415px-768px</td>
+                            <td>md</td>
+                            <td>部分双列布局</td>
+                            <td>充分利用屏幕空间</td>
+                        </tr>
+                        <tr>
+                            <td>平板设备</td>
+                            <td>769px-1024px</td>
+                            <td>lg</td>
+                            <td>多列网格布局</td>
+                            <td>桌面级交互体验</td>
+                        </tr>
+                        <tr>
+                            <td>桌面设备</td>
+                            <td>≥1025px</td>
+                            <td>xl</td>
+                            <td>侧边栏+主内容区</td>
+                            <td>高效的信息展示和操作</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>移动端优化策略</h3>
+                <div class="grid-2">
+                    <div class="card">
+                        <h4>📱 触控体验优化</h4>
+                        <ul>
+                            <li><strong>最小点击区域</strong>: 44px × 44px (88rpx)</li>
+                            <li><strong>安全区域</strong>: 避开状态栏和底部指示器</li>
+                            <li><strong>拇指热区</strong>: 常用操作放在易触达区域</li>
+                            <li><strong>防误触设计</strong>: 重要操作增加确认步骤</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>⌨️ 键盘适配优化</h4>
+                        <ul>
+                            <li><strong>输入类型匹配</strong>: 数字键盘、邮箱键盘等</li>
+                            <li><strong>焦点管理</strong>: Tab顺序合理，支持快速切换</li>
+                            <li><strong>页面滚动</strong>: 键盘弹出时自动滚动到输入框</li>
+                            <li><strong>固定元素处理</strong>: 避免被键盘遮挡</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>屏幕适配示例</h3>
+                <div class="ascii-diagram">小屏设备布局 (≤375px):
+┌─────────────────────────────────────┐
+│ 服务类型 *                          │
+│ [👥探访服务] [🧠心理支持]             │ ← 2列网格
+│ [📦物资发放] [🔄转介服务]             │
+│ [📋随访服务] [🏠其他服务]             │
+├─────────────────────────────────────┤
+│ 服务对象 *                          │
+│ [🔍 搜索或选择患者...]              │ ← 全宽度搜索框
+├─────────────────────────────────────┤
+│ 📅 服务日期: 2025-09-05             │ ← 日期和时间
+│ ⏰ 服务时间: 14:30                  │   分行显示
+└─────────────────────────────────────┘
+
+大屏设备布局 (≥768px):
+┌─────────────────────────────────────────────────────────┐
+│ 服务类型 * [👥探访] [🧠心理] [📦物资] [🔄转介] [📋随访] [🏠其他] │ ← 单行显示
+├─────────────────────────────────────────────────────────┤
+│ 服务对象 *  [🔍 搜索患者...]  📅 2025-09-05  ⏰ 14:30   │ ← 横向排列
+└─────────────────────────────────────────────────────────┘</div>
+
+                <h3>无障碍访问设计</h3>
+                <div class="highlight-card">
+                    <h4>♿ 无障碍设计原则</h4>
+                    <p>遵循WCAG 2.1 AA标准，确保视觉障碍、听觉障碍、运动障碍等用户都能正常使用。</p>
+                </div>
+
+                <div class="grid-3">
+                    <div class="card">
+                        <h4>🎯 焦点管理</h4>
+                        <ul>
+                            <li>清晰的焦点指示器</li>
+                            <li>逻辑的Tab顺序</li>
+                            <li>键盘快捷键支持</li>
+                            <li>跳过链接功能</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>🎨 视觉对比度</h4>
+                        <ul>
+                            <li>文字对比度≥4.5:1</li>
+                            <li>UI元素对比度≥3:1</li>
+                            <li>错误状态高对比度</li>
+                            <li>暗色主题支持</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>🔊 屏幕阅读器</h4>
+                        <ul>
+                            <li>语义化HTML标签</li>
+                            <li>ARIA标签完整</li>
+                            <li>图片Alt文本</li>
+                            <li>状态变化通知</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 9. 性能优化 -->
+            <section id="performance" class="section">
+                <h2>9. 性能优化</h2>
+
+                <h3>页面性能指标</h3>
+                <table class="specs-table">
+                    <thead>
+                        <tr>
+                            <th>性能指标</th>
+                            <th>目标值</th>
+                            <th>测试方法</th>
+                            <th>优化策略</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>首屏加载时间</td>
+                            <td>≤2秒</td>
+                            <td>Performance API测量</td>
+                            <td>代码分割、预加载关键资源</td>
+                        </tr>
+                        <tr>
+                            <td>表单交互响应</td>
+                            <td>≤100毫秒</td>
+                            <td>用户输入到界面响应</td>
+                            <td>防抖处理、虚拟列表</td>
+                        </tr>
+                        <tr>
+                            <td>文件上传速度</td>
+                            <td>≤5秒(5MB文件)</td>
+                            <td>上传完成时间测量</td>
+                            <td>分片上传、压缩优化</td>
+                        </tr>
+                        <tr>
+                            <td>页面内存占用</td>
+                            <td>≤50MB</td>
+                            <td>Chrome DevTools监控</td>
+                            <td>内存泄漏检查、组件销毁</td>
+                        </tr>
+                        <tr>
+                            <td>网络请求次数</td>
+                            <td>≤10个/页面</td>
+                            <td>Network面板统计</td>
+                            <td>请求合并、缓存策略</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>缓存策略设计</h3>
+                <div class="grid-2">
+                    <div class="card">
+                        <h4>🔄 数据缓存策略</h4>
+                        <ul>
+                            <li><strong>患者列表</strong>: 本地缓存30分钟</li>
+                            <li><strong>用户信息</strong>: 本地缓存1小时</li>
+                            <li><strong>服务类型</strong>: 本地缓存24小时</li>
+                            <li><strong>表单草稿</strong>: 本地缓存7天</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>🖼️ 资源缓存策略</h4>
+                        <ul>
+                            <li><strong>静态资源</strong>: 强缓存30天</li>
+                            <li><strong>图片资源</strong>: CDN缓存7天</li>
+                            <li><strong>API响应</strong>: 协商缓存5分钟</li>
+                            <li><strong>离线资源</strong>: Service Worker缓存</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>图片优化策略</h3>
+                <div class="code-block">// 图片压缩配置
+const imageConfig = {
+  quality: 0.8,           // 压缩质量
+  maxWidth: 1200,         // 最大宽度
+  maxHeight: 1200,        // 最大高度
+  format: 'jpeg',         // 输出格式
+  progressive: true       // 渐进式加载
+};
+
+// 自适应图片策略
+const responsiveImages = {
+  thumbnail: '200x200',   // 缩略图
+  medium: '600x600',      // 中等尺寸
+  large: '1200x1200'      // 大尺寸原图
+};</div>
+
+                <h3>网络优化</h3>
+                <div class="highlight-card">
+                    <h4>📶 弱网环境优化</h4>
+                    <p>针对移动端弱网环境，设计降级策略和离线功能，确保用户在网络不佳时仍能正常使用。</p>
+                </div>
+
+                <div class="grid-3">
+                    <div class="card">
+                        <h4>⚡ 请求优化</h4>
+                        <ul>
+                            <li>请求防抖和节流</li>
+                            <li>批量请求合并</li>
+                            <li>预加载下一页数据</li>
+                            <li>智能重试机制</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>📱 离线支持</h4>
+                        <ul>
+                            <li>关键功能离线可用</li>
+                            <li>本地数据同步</li>
+                            <li>离线状态提示</li>
+                            <li>数据冲突解决</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>🔄 加载策略</h4>
+                        <ul>
+                            <li>骨架屏占位</li>
+                            <li>懒加载实现</li>
+                            <li>渐进式增强</li>
+                            <li>关键路径优先</li>
+                        </ul>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 10. 测试与验证 -->
+            <section id="testing" class="section print-break">
+                <h2>10. 测试与验证</h2>
+
+                <h3>功能测试用例</h3>
+                <table class="specs-table">
+                    <thead>
+                        <tr>
+                            <th>测试场景</th>
+                            <th>测试步骤</th>
+                            <th>预期结果</th>
+                            <th>验收标准</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>快速记录提交</td>
+                            <td>1.选择服务类型 2.填写必填字段 3.点击提交</td>
+                            <td>成功提交并跳转到记录列表</td>
+                            <td>≤3分钟完成，100%验证通过</td>
+                        </tr>
+                        <tr>
+                            <td>表单验证测试</td>
+                            <td>1.留空必填字段 2.输入无效数据 3.点击提交</td>
+                            <td>显示错误提示，阻止提交</td>
+                            <td>所有验证规则生效，错误提示清晰</td>
+                        </tr>
+                        <tr>
+                            <td>文件上传测试</td>
+                            <td>1.选择图片文件 2.检查上传进度 3.验证上传结果</td>
+                            <td>文件成功上传并显示预览</td>
+                            <td>支持多种格式，大小限制生效</td>
+                        </tr>
+                        <tr>
+                            <td>权限控制测试</td>
+                            <td>1.使用不同角色登录 2.访问权限受限功能</td>
+                            <td>正确显示权限提示或隐藏功能</td>
+                            <td>权限控制准确，无越权访问</td>
+                        </tr>
+                        <tr>
+                            <td>离线功能测试</td>
+                            <td>1.断开网络 2.填写表单 3.恢复网络后同步</td>
+                            <td>离线填写正常，恢复后自动同步</td>
+                            <td>数据不丢失，同步成功率≥95%</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <h3>兼容性测试</h3>
+                <div class="grid-2">
+                    <div class="card">
+                        <h4>📱 设备兼容性</h4>
+                        <ul>
+                            <li><strong>iOS设备</strong>: iPhone 8及以上，iOS 12+</li>
+                            <li><strong>Android设备</strong>: Android 7.0+，主流品牌</li>
+                            <li><strong>屏幕尺寸</strong>: 4.7寸-12.9寸，适配各种分辨率</li>
+                            <li><strong>性能要求</strong>: 2GB RAM及以上</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>🌐 浏览器兼容性</h4>
+                        <ul>
+                            <li><strong>微信内置浏览器</strong>: 主要测试环境</li>
+                            <li><strong>Safari</strong>: iOS默认浏览器支持</li>
+                            <li><strong>Chrome</strong>: Android默认浏览器支持</li>
+                            <li><strong>其他浏览器</strong>: 基础功能保证</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>用户体验测试</h3>
+                <div class="highlight-card">
+                    <h4>👥 可用性测试计划</h4>
+                    <p>通过真实用户测试，验证设计方案的有效性，发现潜在的使用问题并优化。</p>
+                </div>
+
+                <div class="grid-3">
+                    <div class="card">
+                        <h4>🎯 测试目标</h4>
+                        <ul>
+                            <li>验证任务完成率≥90%</li>
+                            <li>平均完成时间≤3分钟</li>
+                            <li>用户满意度≥4.5/5</li>
+                            <li>错误率≤5%</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>👤 测试用户</h4>
+                        <ul>
+                            <li>新手志愿者 (3人)</li>
+                            <li>经验志愿者 (3人)</li>
+                            <li>社工用户 (2人)</li>
+                            <li>管理员用户 (1人)</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>📋 测试任务</h4>
+                        <ul>
+                            <li>完成一次快速记录</li>
+                            <li>创建详细服务记录</li>
+                            <li>处理表单验证错误</li>
+                            <li>上传附件文件</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>性能测试标准</h3>
+                <table class="specs-table">
+                    <thead>
+                        <tr>
+                            <th>性能指标</th>
+                            <th>测试工具</th>
+                            <th>测试环境</th>
+                            <th>通过标准</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>页面加载时间</td>
+                            <td>Lighthouse, WebPageTest</td>
+                            <td>3G网络，中低端设备</td>
+                            <td>First Paint ≤ 2s</td>
+                        </tr>
+                        <tr>
+                            <td>交互响应时间</td>
+                            <td>Performance API</td>
+                            <td>真实设备测试</td>
+                            <td>Input Response ≤ 100ms</td>
+                        </tr>
+                        <tr>
+                            <td>内存使用量</td>
+                            <td>Chrome DevTools</td>
+                            <td>长时间使用测试</td>
+                            <td>Memory Usage ≤ 50MB</td>
+                        </tr>
+                        <tr>
+                            <td>网络请求效率</td>
+                            <td>Network Monitor</td>
+                            <td>弱网环境测试</td>
+                            <td>Request Count ≤ 10</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </section>
+
+            <!-- 11. 技术实现指南 -->
+            <section id="implementation" class="section">
+                <h2>11. 技术实现指南</h2>
+
+                <h3>前端技术栈</h3>
+                <div class="grid-2">
+                    <div class="card">
+                        <h4>🛠️ 核心技术</h4>
+                        <ul>
+                            <li><strong>框架</strong>: 微信小程序原生框架</li>
+                            <li><strong>状态管理</strong>: MobX / Vuex</li>
+                            <li><strong>UI组件库</strong>: Vant Weapp / TDesign</li>
+                            <li><strong>工具链</strong>: webpack, babel, eslint</li>
+                        </ul>
+                    </div>
+                    
+                    <div class="card">
+                        <h4>📦 第三方依赖</h4>
+                        <ul>
+                            <li><strong>日期处理</strong>: moment.js / dayjs</li>
+                            <li><strong>表单验证</strong>: async-validator</li>
+                            <li><strong>图片处理</strong>: canvas-api</li>
+                            <li><strong>文件上传</strong>: cos-js-sdk-v5</li>
+                        </ul>
+                    </div>
+                </div>
+
+                <h3>关键模块实现</h3>
+                <div class="code-block">// 表单验证模块
+class FormValidator {
+  constructor(rules) {
+    this.rules = rules;
+    this.errors = {};
+  }
+
+  // 验证单个字段
+  validateField(field, value) {
+    const rule = this.rules[field];
+    if (!rule) return true;
+
+    // 必填验证
+    if (rule.required && (!value || value.trim() === '')) {
+      this.errors[field] = rule.message || `${field}不能为空`;
+      return false;
+    }
+
+    // 格式验证
+    if (value && rule.pattern && !rule.pattern.test(value)) {
+      this.errors[field] = rule.patternMessage || `${field}格式不正确`;
+      return false;
+    }
+
+    delete this.errors[field];
+    return true;
+  }
+
+  // 验证所有字段
+  validateAll(data) {
+    this.errors = {};
+    let isValid = true;
+
+    Object.keys(this.rules).forEach(field => {
+      if (!this.validateField(field, data[field])) {
+        isValid = false;
+      }
+    });
+
+    return isValid;
+  }
+}</div>
+
+                <h3>数据结构设计</h3>
+                <div class="code-block">// 服务记录数据模型
+interface ServiceRecord {
+  id: string;                    // 记录唯一标识
+  patientId: string;             // 患者ID
+  serviceType: ServiceType;      // 服务类型
+  serviceTime: Date;             // 服务时间
+  location?: string;             // 服务地点
+  content: string;               // 服务内容
+  objective?: string;            // 服务目标
+  outcome?: string;              // 服务成果
+  nextPlan?: string;             // 后续计划
+  attachments: Attachment[];     // 附件列表
+  status: RecordStatus;          // 记录状态
+  createdBy: string;             // 创建人
+  createdAt

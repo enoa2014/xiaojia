@@ -1,0 +1,1993 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>活动报名管理页详细设计文档 - 小家服务管理小程序</title>
+    <style>
+        /* 基础样式 */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', sans-serif;
+            line-height: 1.6;
+            color: #1F2937;
+            background: #F9FAFB;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            background: white;
+            min-height: 100vh;
+            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+        }
+
+        /* 头部样式 */
+        .header {
+            background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+            color: white;
+            padding: 40px 32px;
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .header::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"><defs><pattern id="grid" width="10" height="10" patternUnits="userSpaceOnUse"><path d="M 10 0 L 0 0 0 10" fill="none" stroke="rgba(255,255,255,0.1)" stroke-width="1"/></pattern></defs><rect width="100" height="100" fill="url(%23grid)"/></svg>');
+            animation: float 20s linear infinite;
+            pointer-events: none;
+        }
+
+        @keyframes float {
+            0% { transform: translate(-50%, -50%) rotate(0deg); }
+            100% { transform: translate(-50%, -50%) rotate(360deg); }
+        }
+
+        .header h1 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            margin-bottom: 16px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .subtitle {
+            font-size: 1.2rem;
+            opacity: 0.9;
+            margin-bottom: 24px;
+            position: relative;
+            z-index: 1;
+        }
+
+        .meta {
+            display: flex;
+            justify-content: center;
+            gap: 24px;
+            flex-wrap: wrap;
+            position: relative;
+            z-index: 1;
+        }
+
+        .meta span {
+            background: rgba(255,255,255,0.2);
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            backdrop-filter: blur(10px);
+        }
+
+        /* 目录样式 */
+        .toc {
+            background: #F8FAFC;
+            padding: 32px;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .toc h2 {
+            color: #1F2937;
+            margin-bottom: 20px;
+            font-size: 1.4rem;
+        }
+
+        .toc ol {
+            list-style: none;
+            counter-reset: section;
+        }
+
+        .toc li {
+            counter-increment: section;
+            margin-bottom: 8px;
+        }
+
+        .toc li::before {
+            content: counter(section) ". ";
+            font-weight: 600;
+            color: #22C55E;
+            margin-right: 8px;
+        }
+
+        .toc a {
+            color: #374151;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+
+        .toc a:hover {
+            color: #22C55E;
+        }
+
+        /* 内容区域样式 */
+        .section {
+            padding: 40px 32px;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .section h2 {
+            color: #1F2937;
+            font-size: 1.8rem;
+            margin-bottom: 24px;
+            padding-bottom: 12px;
+            border-bottom: 3px solid #22C55E;
+            position: relative;
+        }
+
+        .section h2::after {
+            content: '';
+            position: absolute;
+            bottom: -3px;
+            left: 0;
+            width: 60px;
+            height: 3px;
+            background: #16A34A;
+        }
+
+        .section h3 {
+            color: #374151;
+            font-size: 1.3rem;
+            margin: 32px 0 16px 0;
+            font-weight: 600;
+        }
+
+        .section h4 {
+            color: #4B5563;
+            font-size: 1.1rem;
+            margin: 24px 0 12px 0;
+            font-weight: 600;
+        }
+
+        /* 卡片样式 */
+        .card {
+            background: #FFFFFF;
+            border: 1px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px 0;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            transition: all 0.2s;
+        }
+
+        .card:hover {
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            transform: translateY(-1px);
+        }
+
+        .highlight-card {
+            background: linear-gradient(135deg, #EBF8FF 0%, #E0F2FE 100%);
+            border: 1px solid #0EA5E9;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+
+        .warning-card {
+            background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
+            border: 1px solid #F59E0B;
+            border-radius: 12px;
+            padding: 24px;
+            margin: 16px 0;
+        }
+
+        /* 网格布局 */
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 24px;
+            margin: 16px 0;
+        }
+
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+            margin: 16px 0;
+        }
+
+        @media (max-width: 768px) {
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        /* 表格样式 */
+        .specs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 16px 0;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .specs-table th {
+            background: #F9FAFB;
+            color: #374151;
+            font-weight: 600;
+            padding: 16px;
+            text-align: left;
+            border-bottom: 1px solid #E5E7EB;
+        }
+
+        .specs-table td {
+            padding: 16px;
+            border-bottom: 1px solid #F3F4F6;
+            vertical-align: top;
+        }
+
+        .specs-table tr:hover {
+            background: #F9FAFB;
+        }
+
+        /* 代码块样式 */
+        .code-block {
+            background: #1F2937;
+            color: #F9FAFB;
+            padding: 24px;
+            border-radius: 8px;
+            font-family: 'Fira Code', 'Consolas', monospace;
+            font-size: 0.9rem;
+            line-height: 1.6;
+            overflow-x: auto;
+            margin: 16px 0;
+            border-left: 4px solid #22C55E;
+        }
+
+        /* ASCII图表样式 */
+        .ascii-diagram {
+            background: #F8FAFC;
+            border: 1px solid #E5E7EB;
+            border-radius: 8px;
+            padding: 24px;
+            font-family: 'Courier New', monospace;
+            font-size: 0.85rem;
+            line-height: 1.4;
+            overflow-x: auto;
+            margin: 16px 0;
+            white-space: pre;
+        }
+
+        /* 列表样式 */
+        ul, ol {
+            margin: 16px 0;
+            padding-left: 24px;
+        }
+
+        li {
+            margin-bottom: 8px;
+        }
+
+        /* 状态标签 */
+        .status-tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .status-draft { background: #F3F4F6; color: #6B7280; }
+        .status-active { background: #DBEAFE; color: #1E40AF; }
+        .status-full { background: #FEE2E2; color: #991B1B; }
+        .status-ended { background: #F3F4F6; color: #6B7280; }
+
+        /* 打印样式 */
+        @media print {
+            .container {
+                box-shadow: none;
+            }
+            
+            .header::before {
+                display: none;
+            }
+            
+            .section {
+                break-inside: avoid;
+            }
+            
+            .print-break {
+                page-break-before: always;
+            }
+        }
+
+        /* 响应式 */
+        @media (max-width: 768px) {
+            .header {
+                padding: 24px 16px;
+            }
+            
+            .header h1 {
+                font-size: 1.8rem;
+            }
+            
+            .meta {
+                flex-direction: column;
+                align-items: center;
+            }
+            
+            .section {
+                padding: 24px 16px;
+            }
+            
+            .toc {
+                padding: 16px;
+            }
+            
+            .download-info {
+                display: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>活动报名管理页</h1>
+            <p class="subtitle">详细设计文档</p>
+            <div class="meta">
+                <span><strong>版本:</strong> v2.0</span>
+                <span><strong>创建时间:</strong> 2025-09-05</span>
+                <span><strong>设计师:</strong> UX设计团队</span>
+                <span><strong>项目:</strong> 小家服务管理小程序</span>
+            </div>
+        </header>
+
+        <div class="download-info">
+            <h3>💾 文档使用说明</h3>
+            <p>右键点击页面选择"保存为"或按 Ctrl+S (Windows) / Cmd+S (Mac) 保存此文档到本地。<br>
+            也可以按 Ctrl+P (Windows) / Cmd+P (Mac) 打印或保存为PDF格式。</p>
+        </div>
+
+        <nav class="toc">
+            <h2>📋 目录</h2>
+            <ol>
+                <li><a href="#overview">页面概述与定位</a></li>
+                <li><a href="#user-roles">用户角色与权限</a></li>
+                <li><a href="#page-architecture">页面架构设计</a></li>
+                <li><a href="#interface-layout">界面布局设计</a></li>
+                <li><a href="#component-specs">组件设计规范</a></li>
+                <li><a href="#interaction-design">交互设计详情</a></li>
+                <li><a href="#data-management">数据管理与同步</a></li>
+                <li><a href="#responsive-design">响应式适配</a></li>
+                <li><a href="#accessibility">无障碍设计</a></li>
+                <li><a href="#performance">性能优化</a></li>
+                <li><a href="#security">安全与权限</a></li>
+                <li><a href="#testing">测试方案</a></li>
+                <li><a href="#implementation">技术实现</a></li>
+                <li><a href="#deployment">部署与运维</a></li>
+                <li><a href="#appendix">附录与参考</a></li>
+            </ol>
+        </nav>
+
+        <section id="overview" class="section">
+            <h2>1. 页面概述与定位</h2>
+            
+            <h3>页面定义</h3>
+            <div class="highlight-card">
+                <h4>🎯 核心功能定位</h4>
+                <p><strong>活动报名管理页</strong> 是小家服务管理小程序中专门用于管理单个活动报名情况的核心页面。该页面主要服务于社工和管理员角色，提供全面的报名名单管理、签到操作、候补队列管理等功能。</p>
+                
+                <p><strong>页面路径:</strong> <code>pages/activities/registrations</code></p>
+                <p><strong>页面入口:</strong> 活动详情页 → 管理报名 → 报名管理页</p>
+                <p><strong>目标用户:</strong> 社工、管理员（志愿者无访问权限）</p>
+            </div>
+
+            <h3>业务价值</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📊 数据管理价值</h4>
+                    <ul>
+                        <li><strong>统一管理:</strong> 集中展示活动的所有报名信息</li>
+                        <li><strong>实时监控:</strong> 动态跟踪报名状态和人数变化</li>
+                        <li><strong>数据导出:</strong> 支持报名名单的Excel导出</li>
+                        <li><strong>历史追踪:</strong> 完整记录参与者的报名历程</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>⚡ 操作效率价值</h4>
+                    <ul>
+                        <li><strong>批量操作:</strong> 支持批量审核、签到等操作</li>
+                        <li><strong>快速查找:</strong> 多维度搜索和筛选功能</li>
+                        <li><strong>现场管理:</strong> 扫码签到、现场报名功能</li>
+                        <li><strong>状态同步:</strong> 实时更新避免信息不一致</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>核心使用场景</h3>
+            <div class="ascii-diagram">报名管理页使用场景流程图
+
+活动准备阶段
+    ↓
+查看报名概况 → 审核报名申请 → 管理候补名单 → 发送通知消息
+    ↓              ↓              ↓              ↓
+实时监控        批量审核        候补转正        参与者沟通
+
+活动进行阶段
+    ↓
+现场签到 → 补充报名 → 状态更新 → 实时统计
+    ↓         ↓         ↓         ↓
+扫码签到   现场加入   状态同步   数据监控
+
+活动结束阶段
+    ↓
+导出名单 → 统计分析 → 满意度调查 → 数据归档
+    ↓         ↓         ↓           ↓
+Excel导出  参与统计  反馈收集    历史存档</div>
+        </section>
+
+        <section id="user-roles" class="section">
+            <h2>2. 用户角色与权限</h2>
+            
+            <h3>角色权限矩阵</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>功能模块</th>
+                        <th>管理员</th>
+                        <th>社工</th>
+                        <th>志愿者</th>
+                        <th>备注说明</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>查看报名列表</td>
+                        <td>✅ 完整信息</td>
+                        <td>✅ 完整信息</td>
+                        <td>❌ 无权限</td>
+                        <td>可查看所有参与者详细信息</td>
+                    </tr>
+                    <tr>
+                        <td>审核报名申请</td>
+                        <td>✅ 全部权限</td>
+                        <td>✅ 负责活动</td>
+                        <td>❌ 无权限</td>
+                        <td>社工仅能审核自己负责的活动</td>
+                    </tr>
+                    <tr>
+                        <td>签到管理</td>
+                        <td>✅ 全部权限</td>
+                        <td>✅ 负责活动</td>
+                        <td>❌ 无权限</td>
+                        <td>支持手动签到和扫码签到</td>
+                    </tr>
+                    <tr>
+                        <td>候补队列管理</td>
+                        <td>✅ 全部权限</td>
+                        <td>✅ 负责活动</td>
+                        <td>❌ 无权限</td>
+                        <td>候补转正、优先级调整</td>
+                    </tr>
+                    <tr>
+                        <td>数据导出</td>
+                        <td>✅ 全部导出</td>
+                        <td>✅ 负责活动</td>
+                        <td>❌ 无权限</td>
+                        <td>Excel格式，包含统计信息</td>
+                    </tr>
+                    <tr>
+                        <td>发送通知</td>
+                        <td>✅ 全部权限</td>
+                        <td>✅ 负责活动</td>
+                        <td>❌ 无权限</td>
+                        <td>活动提醒、状态变更通知</td>
+                    </tr>
+                    <tr>
+                        <td>删除报名</td>
+                        <td>✅ 全部权限</td>
+                        <td>⚠️ 需审批</td>
+                        <td>❌ 无权限</td>
+                        <td>社工删除需要管理员确认</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>权限验证机制</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🔐 页面级权限控制</h4>
+                    <ul>
+                        <li><strong>路由守卫:</strong> 页面访问前验证用户角色</li>
+                        <li><strong>角色白名单:</strong> 仅限管理员和社工访问</li>
+                        <li><strong>活动归属验证:</strong> 社工仅能管理负责的活动</li>
+                        <li><strong>会话验证:</strong> 定期验证登录状态有效性</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>⚙️ 功能级权限控制</h4>
+                    <ul>
+                        <li><strong>按钮权限:</strong> 根据角色动态显示/隐藏操作按钮</li>
+                        <li><strong>字段权限:</strong> 敏感信息根据权限等级脱敏显示</li>
+                        <li><strong>操作权限:</strong> API调用前再次验证操作权限</li>
+                        <li><strong>审计日志:</strong> 记录所有敏感操作的审计信息</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>角色场景分析</h3>
+            <div class="highlight-card">
+                <h4>👥 典型用户场景</h4>
+                
+                <p><strong>管理员 - 全局监控场景:</strong></p>
+                <ul>
+                    <li>跨活动数据分析，监控整体参与度趋势</li>
+                    <li>处理争议报名，协调资源分配冲突</li>
+                    <li>设置系统级规则，如候补转正策略</li>
+                    <li>导出汇总报告，支持上级部门汇报</li>
+                </ul>
+
+                <p><strong>社工 - 活动执行场景:</strong></p>
+                <ul>
+                    <li>日常报名审核，确保参与者符合活动要求</li>
+                    <li>现场活动管理，处理签到和临时报名</li>
+                    <li>参与者沟通，发送活动提醒和变更通知</li>
+                    <li>活动效果评估，收集参与反馈</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="page-architecture" class="section">
+            <h2>3. 页面架构设计</h2>
+            
+            <h3>信息架构层次</h3>
+            <div class="ascii-diagram">活动报名管理页 - 信息架构
+
+┌─────────────────────────────────────┐
+│ 导航栏区域 (NavBar)                 │ ← 高度: 88rpx
+│ ← 返回 | 活动名称 | 更多操作 ≡       │   层级: L1 - 全局导航
+├─────────────────────────────────────┤
+│ 活动状态概览 (StatusOverview)       │ ← 高度: 120rpx
+│ 📊 总计45人 | 已确认38人 | 候补7人   │   层级: L2 - 关键指标
+├─────────────────────────────────────┤
+│ 操作工具栏 (ActionToolbar)          │ ← 高度: 96rpx
+│ [搜索🔍] [筛选⚙️] [签到📝] [导出📊] │   层级: L3 - 快捷操作
+├─────────────────────────────────────┤
+│ Tab导航切换 (TabNavigation)         │ ← 高度: 72rpx
+│ 已确认(38) | 待审核(5) | 候补(7)    │   层级: L4 - 内容分类
+├─────────────────────────────────────┤
+│                                     │
+│ 报名列表内容区 (RegistrationList)   │ ← 动态高度
+│                                     │   层级: L5 - 核心内容
+│ ┌─────────────────────────────────┐ │
+│ │ 👤 张小朋友 | 患者 | 2025-09-01  │ │
+│ │ 📱 138****8888 | ✅已确认       │ │
+│ │ [签到] [详情] [编辑]            │ │
+│ └─────────────────────────────────┘ │
+│                                     │
+│ [更多记录...]                       │
+│                                     │
+├─────────────────────────────────────┤
+│ 底部操作区 (BottomActions)          │ ← 高度: 96rpx
+│ [批量操作] [发送通知] [统计分析]    │   层级: L6 - 全局操作
+└─────────────────────────────────────┘</div>
+
+            <h3>组件架构设计</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🧩 页面组件树</h4>
+                    <div class="code-block">RegistrationManagementPage
+├── NavigationBar
+│   ├── BackButton
+│   ├── PageTitle
+│   └── MoreActions
+├── StatusOverview
+│   ├── StatCard (总计)
+│   ├── StatCard (已确认)
+│   └── StatCard (候补)
+├── ActionToolbar
+│   ├── SearchInput
+│   ├── FilterButton
+│   ├── CheckInButton
+│   └── ExportButton
+├── TabNavigation
+│   ├── TabItem (已确认)
+│   ├── TabItem (待审核)
+│   └── TabItem (候补)
+├── RegistrationList
+│   ├── RegistrationCard[]
+│   │   ├── UserInfo
+│   │   ├── StatusBadge
+│   │   └── ActionButtons
+│   ├── EmptyState
+│   └── LoadingState
+└── BottomActions
+    ├── BatchActions
+    ├── NotificationSender
+    └── AnalyticsButton</div>
+                </div>
+                
+                <div class="card">
+                    <h4>🔄 状态管理架构</h4>
+                    <div class="code-block">State Management Structure
+
+GlobalState (Redux/Vuex)
+├── user
+│   ├── userInfo
+│   ├── permissions
+│   └── currentRole
+├── activity
+│   ├── activityInfo
+│   ├── registrationStats
+│   └── lastUpdated
+└── registrations
+    ├── confirmed[]
+    ├── pending[]
+    ├── waitlist[]
+    ├── selectedItems[]
+    ├── filters
+    └── pagination
+
+LocalState (Component)
+├── searchQuery
+├── activeTab
+├── showModal
+├── loadingStates
+└── formData</div>
+                </div>
+            </div>
+
+            <h3>数据流架构</h3>
+            <div class="ascii-diagram">数据流向图
+
+用户操作层 (User Actions)
+    ↓
+组件事件层 (Component Events)
+    ↓
+状态管理层 (State Management)
+    ↓
+API服务层 (API Services)
+    ↓
+后端数据层 (Backend Data)
+
+具体流程示例:
+用户点击签到 → RegistrationCard.onCheckIn() → dispatch(checkInUser)
+    ↓
+StateManager.updateRegistration() → API.checkInUser()
+    ↓
+Backend.updateDatabase() → Response.success
+    ↓
+StateManager.updateLocalState() → UI.refresh()
+    ↓
+用户看到签到成功状态</div>
+
+            <h3>页面生命周期</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>生命周期阶段</th>
+                        <th>主要任务</th>
+                        <th>性能指标</th>
+                        <th>错误处理</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>页面初始化</td>
+                        <td>权限验证、路由参数解析、基础数据加载</td>
+                        <td>首屏加载 &lt; 2s</td>
+                        <td>权限不足跳转、参数错误提示</td>
+                    </tr>
+                    <tr>
+                        <td>数据加载</td>
+                        <td>获取活动信息、报名列表、统计数据</td>
+                        <td>API响应 &lt; 1s</td>
+                        <td>网络异常重试、数据异常提示</td>
+                    </tr>
+                    <tr>
+                        <td>交互响应</td>
+                        <td>用户操作响应、状态更新、UI刷新</td>
+                        <td>操作响应 &lt; 300ms</td>
+                        <td>操作失败回滚、用户友好提示</td>
+                    </tr>
+                    <tr>
+                        <td>实时同步</td>
+                        <td>WebSocket连接、数据推送、状态同步</td>
+                        <td>延迟 &lt; 500ms</td>
+                        <td>连接断开重连、冲突解决</td>
+                    </tr>
+                    <tr>
+                        <td>页面卸载</td>
+                        <td>保存草稿、清理监听、释放资源</td>
+                        <td>卸载时间 &lt; 100ms</td>
+                        <td>数据保存失败提示</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="interface-layout" class="section print-break">
+            <h2>4. 界面布局设计</h2>
+            
+            <h3>整体布局结构</h3>
+            <div class="ascii-diagram">移动端布局 (375px基准)
+
+┌─────────────────────────────────────┐ ← 状态栏 (44px)
+│  9:41      WiFi  ■■■■  100%        │
+├─────────────────────────────────────┤ ← 导航栏 (88rpx)
+│ ←  周末亲子康复训练 - 报名管理  ⋯   │   背景: --color-bg-primary
+│                                     │   文字: --color-text-primary
+├─────────────────────────────────────┤ ← 状态概览 (120rpx)
+│ 📊 总计45人    ✅ 已确认38人        │   背景: --color-primary-50
+│ ⏳ 待审核5人   📋 候补7人           │   间距: 24rpx
+├─────────────────────────────────────┤ ← 工具栏 (96rpx)
+│ 🔍[搜索参与者] ⚙️ 📝签到 📊导出    │   背景: --color-bg-secondary
+│                                     │   按钮间距: 16rpx
+├─────────────────────────────────────┤ ← Tab导航 (72rpx)
+│ 已确认(38) | 待审核(5) | 候补(7)    │   活跃色: --color-primary-600
+│ ――――――――                            │   底线高度: 4rpx
+├─────────────────────────────────────┤
+│                                     │ ← 列表内容区 (动态高度)
+│ ┌─────────────────────────────────┐ │   项目间距: 16rpx
+│ │ 👤 张小朋友 (8岁) 患者           │ │   内边距: 24rpx
+│ │ 📱 138****8888                  │ │
+│ │ 📅 报名时间: 2025-09-01 14:30   │ │
+│ │ ✅ 已确认  🕐 未签到            │ │
+│ │                                 │ │
+│ │ [📝 签到] [👁 详情] [✏️ 编辑]   │ │
+│ └─────────────────────────────────┘ │
+│                                     │
+│ ┌─────────────────────────────────┐ │
+│ │ 👤 李小朋友 (6岁) 患者           │ │
+│ │ 📱 139****9999                  │ │
+│ │ 📅 报名时间: 2025-09-02 09:15   │ │
+│ │ ⏳ 待审核                       │ │
+│ │                                 │ │
+│ │ [✅ 通过] [❌ 拒绝] [👁 详情]   │ │
+│ └─────────────────────────────────┘ │
+│                                     │
+│ [加载更多...]                       │
+│                                     │
+├─────────────────────────────────────┤ ← 底部操作栏 (96rpx)
+│ [批量操作] [发送通知] [统计分析]    │   背景: --color-bg-primary
+│                                     │   阴影: --shadow-lg
+├─────────────────────────────────────┤ ← 安全区域 (34px)
+│                                     │   适配iPhone底部手势条
+└─────────────────────────────────────┘
+
+总高度计算: 44 + 88 + 120 + 96 + 72 + 动态内容 + 96 + 34 = 550rpx + 内容</div>
+
+            <h3>关键区域详细设计</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📊 状态概览区域</h4>
+                    <div class="code-block">.status-overview {
+  height: 120rpx;
+  background: linear-gradient(135deg, 
+    var(--color-primary-50) 0%, 
+    var(--color-primary-100) 100%);
+  padding: 24rpx;
+  display: flex;
+  justify-content: space-between;
+  border-bottom: 2rpx solid var(--color-gray-100);
+}
+
+.stat-item {
+  flex: 1;
+  text-align: center;
+  
+  .stat-number {
+    font-size: 32rpx;
+    font-weight: 700;
+    color: var(--color-primary-600);
+    line-height: 1.2;
+  }
+  
+  .stat-label {
+    font-size: 24rpx;
+    color: var(--color-gray-600);
+    margin-top: 8rpx;
+  }
+}
+
+.stat-divider {
+  width: 2rpx;
+  background: var(--color-gray-200);
+  margin: 16rpx 0;
+}</div>
+                </div>
+                
+                <div class="card">
+                    <h4>🎯 报名卡片设计</h4>
+                    <div class="code-block">.registration-card {
+  background: #FFFFFF;
+  border-radius: 16rpx;
+  padding: 24rpx;
+  margin-bottom: 16rpx;
+  border: 2rpx solid var(--color-gray-100);
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s ease;
+}
+
+.registration-card:hover {
+  border-color: var(--color-primary-200);
+  box-shadow: var(--shadow-md);
+  transform: translateY(-2rpx);
+}
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 16rpx;
+}
+
+.user-info {
+  .user-name {
+    font-size: 28rpx;
+    font-weight: 600;
+    color: var(--color-gray-900);
+  }
+  
+  .user-meta {
+    font-size: 24rpx;
+    color: var(--color-gray-600);
+    margin-top: 4rpx;
+  }
+}
+
+.status-badges {
+  display: flex;
+  gap: 8rpx;
+  flex-wrap: wrap;
+}</div>
+                </div>
+            </div>
+
+            <h3>响应式断点设计</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>断点名称</th>
+                        <th>屏幕尺寸</th>
+                        <th>布局调整</th>
+                        <th>组件变化</th>
+                        <th>交互优化</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>小屏手机</td>
+                        <td>&lt; 375px</td>
+                        <td>紧凑布局，减少内边距</td>
+                        <td>工具栏图标化，隐藏次要功能</td>
+                        <td>增大点击区域，简化操作步骤</td>
+                    </tr>
+                    <tr>
+                        <td>标准手机</td>
+                        <td>375px - 414px</td>
+                        <td>标准布局，均衡显示</td>
+                        <td>完整功能展示，合理间距</td>
+                        <td>标准交互模式，滑动操作</td>
+                    </tr>
+                    <tr>
+                        <td>大屏手机</td>
+                        <td>414px - 768px</td>
+                        <td>宽松布局，更多信息</td>
+                        <td>展示更多详细信息</td>
+                        <td>支持双手操作，快捷键</td>
+                    </tr>
+                    <tr>
+                        <td>平板横屏</td>
+                        <td>&gt; 768px</td>
+                        <td>分栏布局，左右分割</td>
+                        <td>侧边栏导航，主从视图</td>
+                        <td>悬停效果，右键菜单</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>布局适配原则</h3>
+            <div class="highlight-card">
+                <h4>🎨 设计原则与考量</h4>
+                
+                <p><strong>1. 移动优先原则</strong></p>
+                <ul>
+                    <li>优先保证小屏设备的用户体验</li>
+                    <li>关键功能在小屏上完整可用</li>
+                    <li>渐进增强到大屏设备</li>
+                </ul>
+
+                <p><strong>2. 内容优先级</strong></p>
+                <ul>
+                    <li>最重要的统计数据始终可见</li>
+                    <li>次要功能可折叠或隐藏</li>
+                    <li>根据用户角色调整显示内容</li>
+                </ul>
+
+                <p><strong>3. 操作便利性</strong></p>
+                <ul>
+                    <li>常用操作放在拇指易达区域</li>
+                    <li>支持单手操作的交互模式</li>
+                    <li>减少页面跳转，增加就地编辑</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="component-specs" class="section">
+            <h2>5. 组件设计规范</h2>
+            
+            <h3>核心组件清单</h3>
+            <div class="grid-3">
+                <div class="card">
+                    <h4>📝 RegistrationCard</h4>
+                    <p><strong>用途:</strong> 展示单个报名者信息</p>
+                    <p><strong>状态:</strong> 默认、选中、加载中</p>
+                    <p><strong>操作:</strong> 签到、审核、编辑、详情</p>
+                    <p><strong>尺寸:</strong> 宽度100%，高度160rpx</p>
+                </div>
+                
+                <div class="card">
+                    <h4>📊 StatusOverview</h4>
+                    <p><strong>用途:</strong> 显示活动报名统计</p>
+                    <p><strong>数据:</strong> 总数、已确认、待审核、候补</p>
+                    <p><strong>更新:</strong> 实时刷新，动画过渡</p>
+                    <p><strong>尺寸:</strong> 宽度100%，高度120rpx</p>
+                </div>
+                
+                <div class="card">
+                    <h4>🔍 SearchFilter</h4>
+                    <p><strong>用途:</strong> 搜索和筛选报名者</p>
+                    <p><strong>功能:</strong> 姓名搜索、状态筛选、日期筛选</p>
+                    <p><strong>交互:</strong> 实时搜索，防抖处理</p>
+                    <p><strong>尺寸:</strong> 宽度100%，高度88rpx</p>
+                </div>
+                
+                <div class="card">
+                    <h4>📱 CheckInModal</h4>
+                    <p><strong>用途:</strong> 签到操作确认弹窗</p>
+                    <p><strong>模式:</strong> 手动签到、扫码签到</p>
+                    <p><strong>验证:</strong> 重复签到检查、时间验证</p>
+                    <p><strong>尺寸:</strong> 宽度80%，高度适应内容</p>
+                </div>
+                
+                <div class="card">
+                    <h4>📋 BatchActions</h4>
+                    <p><strong>用途:</strong> 批量操作工具栏</p>
+                    <p><strong>操作:</strong> 批量审核、批量签到、批量导出</p>
+                    <p><strong>状态:</strong> 隐藏、显示、加载中</p>
+                    <p><strong>尺寸:</strong> 宽度100%，高度96rpx</p>
+                </div>
+                
+                <div class="card">
+                    <h4>🏷️ StatusBadge</h4>
+                    <p><strong>用途:</strong> 状态标识组件</p>
+                    <p><strong>类型:</strong> 已确认、待审核、候补、已签到</p>
+                    <p><strong>样式:</strong> 圆角标签，颜色区分</p>
+                    <p><strong>尺寸:</strong> 内容自适应，高度48rpx</p>
+                </div>
+            </div>
+
+            <h3>组件状态规范</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>组件名称</th>
+                        <th>默认状态</th>
+                        <th>交互状态</th>
+                        <th>加载状态</th>
+                        <th>错误状态</th>
+                        <th>禁用状态</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>RegistrationCard</td>
+                        <td>白色背景，完整信息显示</td>
+                        <td>悬停提升，边框高亮</td>
+                        <td>骨架屏占位，灰色动画</td>
+                        <td>红色边框，错误提示</td>
+                        <td>灰色背景，操作按钮禁用</td>
+                    </tr>
+                    <tr>
+                        <td>StatusOverview</td>
+                        <td>数据正常显示</td>
+                        <td>数值变化动画</td>
+                        <td>数字闪烁效果</td>
+                        <td>显示"加载失败"</td>
+                        <td>-</td>
+                    </tr>
+                    <tr>
+                        <td>SearchFilter</td>
+                        <td>占位符文本显示</td>
+                        <td>输入框聚焦高亮</td>
+                        <td>搜索图标旋转动画</td>
+                        <td>红色边框，错误提示</td>
+                        <td>灰色背景，不可输入</td>
+                    </tr>
+                    <tr>
+                        <td>CheckInModal</td>
+                        <td>弹窗关闭状态</td>
+                        <td>按钮悬停效果</td>
+                        <td>提交按钮loading</td>
+                        <td>错误消息显示</td>
+                        <td>确认按钮禁用</td>
+                    </tr>
+                    <tr>
+                        <td>BatchActions</td>
+                        <td>隐藏状态</td>
+                        <td>选择项目后显示</td>
+                        <td>操作按钮loading</td>
+                        <td>操作失败提示</td>
+                        <td>按钮全部禁用</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>组件交互规范</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🎯 点击交互</h4>
+                    <div class="code-block">// 点击反馈规范
+.clickable {
+  cursor: pointer;
+  transition: all 0.2s ease;
+  
+  &:hover {
+    transform: translateY(-2rpx);
+    box-shadow: var(--shadow-md);
+  }
+  
+  &:active {
+    transform: translateY(0);
+    box-shadow: var(--shadow-sm);
+  }
+}
+
+// 按钮点击波纹效果
+.button-ripple {
+  position: relative;
+  overflow: hidden;
+  
+  &::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(255,255,255,0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s, height 0.3s;
+  }
+  
+  &:active::after {
+    width: 200px;
+    height: 200px;
+  }
+}</div>
+                </div>
+                
+                <div class="card">
+                    <h4>🔄 状态切换</h4>
+                    <div class="code-block">// 状态切换动画
+.status-transition {
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+// 加载状态
+.loading-state {
+  opacity: 0.6;
+  pointer-events: none;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 32rpx;
+    height: 32rpx;
+    border: 4rpx solid var(--color-gray-200);
+    border-top-color: var(--color-primary-500);
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+    transform: translate(-50%, -50%);
+  }
+}
+
+@keyframes spin {
+  to { transform: translate(-50%, -50%) rotate(360deg); }
+}</div>
+                </div>
+            </div>
+
+            <h3>组件API设计</h3>
+            <div class="highlight-card">
+                <h4>🔌 RegistrationCard 组件API</h4>
+                <div class="code-block">interface RegistrationCardProps {
+  // 数据属性
+  registration: {
+    id: string;
+    userName: string;
+    userAge: number;
+    userRole: 'patient' | 'family' | 'volunteer';
+    phone: string;
+    registrationTime: string;
+    status: 'confirmed' | 'pending' | 'waitlist' | 'checked_in';
+    checkInTime?: string;
+    specialRequests?: string;
+  };
+  
+  // 行为属性
+  selectable?: boolean;
+  selected?: boolean;
+  showActions?: boolean;
+  
+  // 权限属性
+  canEdit?: boolean;
+  canCheckIn?: boolean;
+  canDelete?: boolean;
+  
+  // 事件回调
+  onSelect?: (id: string, selected: boolean) => void;
+  onCheckIn?: (id: string) => void;
+  onEdit?: (id: string) => void;
+  onView?: (id: string) => void;
+  onDelete?: (id: string) => void;
+  
+  // 样式属性
+  className?: string;
+  style?: CSSProperties;
+}
+
+// 使用示例
+<RegistrationCard 
+  registration={registrationData}
+  selectable={true}
+  selected={selectedIds.includes(registrationData.id)}
+  canCheckIn={userRole === 'admin' || userRole === 'social_worker'}
+  onSelect={handleSelect}
+  onCheckIn={handleCheckIn}
+  onEdit={handleEdit}
+/></div>
+            </div>
+        </section>
+
+        <section id="interaction-design" class="section print-break">
+            <h2>6. 交互设计详情</h2>
+            
+            <h3>核心交互流程</h3>
+            <div class="ascii-diagram">签到交互流程
+
+用户选择参与者 → 点击签到按钮 → 确认弹窗 → 提交签到 → 状态更新
+       ↓               ↓            ↓         ↓         ↓
+   多选/单选      权限验证    信息确认   API调用   UI刷新
+       ↓               ↓            ↓         ↓         ↓
+   选中高亮      按钮可用    时间显示  Loading   成功反馈
+
+详细步骤:
+1. 用户在列表中选择要签到的参与者
+2. 系统验证用户是否有签到权限
+3. 弹出签到确认弹窗，显示参与者信息和当前时间
+4. 用户确认后调用签到API
+5. API成功返回后更新本地状态
+6. UI显示签到成功状态，更新统计数据
+
+异常处理:
+- 重复签到: 提示"该参与者已签到"
+- 权限不足: 提示"您没有签到权限"
+- 网络异常: 提示"网络连接失败，请重试"</div>
+
+            <h3>搜索与筛选交互</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🔍 搜索功能设计</h4>
+                    <ul>
+                        <li><strong>实时搜索:</strong> 输入防抖300ms，避免频繁请求</li>
+                        <li><strong>模糊匹配:</strong> 支持姓名、电话后四位模糊搜索</li>
+                        <li><strong>搜索历史:</strong> 记录最近5次搜索关键词</li>
+                        <li><strong>搜索建议:</strong> 输入时显示匹配的用户名称</li>
+                        <li><strong>清空搜索:</strong> 一键清空搜索条件和结果</li>
+                    </ul>
+                    
+                    <div class="code-block">// 搜索防抖实现
+const useDebounceSearch = (callback, delay = 300) => {
+  const timeoutRef = useRef(null);
+  
+  return useCallback((query) => {
+    if (timeoutRef.current) {
+      clearTimeout(timeoutRef.current);
+    }
+    
+    timeoutRef.current = setTimeout(() => {
+      callback(query);
+    }, delay);
+  }, [callback, delay]);
+};</div>
+                </div>
+                
+                <div class="card">
+                    <h4>⚙️ 筛选功能设计</h4>
+                    <ul>
+                        <li><strong>多维筛选:</strong> 状态、角色、报名时间、签到状态</li>
+                        <li><strong>筛选器组合:</strong> 支持多个筛选条件同时生效</li>
+                        <li><strong>快速筛选:</strong> 预设常用筛选组合</li>
+                        <li><strong>筛选状态:</strong> 显示当前生效的筛选条件</li>
+                        <li><strong>重置筛选:</strong> 一键清除所有筛选条件</li>
+                    </ul>
+                    
+                    <div class="code-block">// 筛选器状态管理
+interface FilterState {
+  status: string[];
+  role: string[];
+  dateRange: [Date, Date] | null;
+  checkedIn: boolean | null;
+}
+
+const defaultFilters: FilterState = {
+  status: [],
+  role: [],
+  dateRange: null,
+  checkedIn: null,
+};</div>
+                </div>
+            </div>
+
+            <h3>批量操作交互</h3>
+            <div class="ascii-diagram">批量操作交互流程
+
+选择模式切换 → 多选参与者 → 选择批量操作 → 确认操作 → 执行完成
+      ↓              ↓             ↓            ↓          ↓
+   显示选择框      选中计数    显示操作菜单   确认弹窗   结果反馈
+      ↓              ↓             ↓            ↓          ↓
+   全选/取消全选   实时更新    权限验证     批量处理   进度显示
+
+批量操作类型:
+1. 批量审核通过/拒绝
+2. 批量签到
+3. 批量发送通知
+4. 批量导出信息
+5. 批量删除记录
+
+进度展示:
+┌─────────────────────────────────────┐
+│ 正在批量签到... (3/10)              │
+│ ████████░░░░░░░░░░░░░░░░ 30%        │
+│                                     │
+│ ✅ 张小朋友 - 签到成功               │
+│ ✅ 李小朋友 - 签到成功               │
+│ ❌ 王小朋友 - 已经签到过            │
+│                                     │
+│ [取消操作] [查看详情]               │
+└─────────────────────────────────────┘</div>
+
+            <h3>实时数据同步</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📡 WebSocket通信</h4>
+                    <div class="code-block">// WebSocket连接管理
+class ActivityWebSocket {
+  private ws: WebSocket | null = null;
+  private activityId: string;
+  private reconnectAttempts = 0;
+  private maxReconnects = 5;
+  
+  connect(activityId: string) {
+    this.activityId = activityId;
+    this.ws = new WebSocket(
+      `wss://api.xiaojia.com/ws/activity/${activityId}`
+    );
+    
+    this.ws.onmessage = (event) => {
+      const data = JSON.parse(event.data);
+      this.handleMessage(data);
+    };
+    
+    this.ws.onclose = () => {
+      this.handleReconnect();
+    };
+  }
+  
+  private handleMessage(data: any) {
+    switch (data.type) {
+      case 'REGISTRATION_UPDATE':
+        store.dispatch(updateRegistration(data.payload));
+        break;
+      case 'STATS_UPDATE':
+        store.dispatch(updateStats(data.payload));
+        break;
+      case 'CHECK_IN_UPDATE':
+        store.dispatch(updateCheckIn(data.payload));
+        break;
+    }
+  }
+}</div>
+                </div>
+                
+                <div class="card">
+                    <h4>🔄 状态同步策略</h4>
+                    <ul>
+                        <li><strong>乐观更新:</strong> 操作后立即更新UI，提升响应速度</li>
+                        <li><strong>冲突检测:</strong> 服务端返回冲突时回滚本地状态</li>
+                        <li><strong>版本控制:</strong> 每次更新携带版本号避免覆盖</li>
+                        <li><strong>离线缓存:</strong> 离线时缓存操作，联网后自动同步</li>
+                        <li><strong>错误恢复:</strong> 同步失败时提供手动重试机制</li>
+                    </ul>
+                    
+                    <div class="code-block">// 乐观更新示例
+const handleCheckIn = async (registrationId: string) => {
+  // 1. 乐观更新UI
+  dispatch(updateRegistrationOptimistic({
+    id: registrationId,
+    status: 'checked_in',
+    checkInTime: new Date().toISOString()
+  }));
+  
+  try {
+    // 2. 发送API请求
+    const result = await api.checkIn(registrationId);
+    
+    // 3. 确认更新
+    dispatch(confirmUpdate(result));
+  } catch (error) {
+    // 4. 回滚更新
+    dispatch(rollbackUpdate(registrationId));
+    showError('签到失败，请重试');
+  }
+};</div>
+                </div>
+            </div>
+
+            <h3>错误处理与用户反馈</h3>
+            <div class="highlight-card">
+                <h4>🚨 错误处理策略</h4>
+                
+                <p><strong>1. 网络错误处理</strong></p>
+                <ul>
+                    <li>连接超时: 自动重试3次，每次间隔递增(1s, 2s, 4s)</li>
+                    <li>请求失败: 显示具体错误信息，提供重试按钮</li>
+                    <li>离线检测: 监听网络状态，离线时显示离线提示</li>
+                </ul>
+
+                <p><strong>2. 业务错误处理</strong></p>
+                <ul>
+                    <li>权限不足: 跳转权限申请页面或联系管理员</li>
+                    <li>数据冲突: 显示冲突详情，提供解决方案选择</li>
+                    <li>操作限制: 清晰说明限制原因和解决方法</li>
+                </ul>
+
+                <p><strong>3. 用户反馈设计</strong></p>
+                <ul>
+                    <li>成功反馈: 绿色Toast提示，2秒后自动消失</li>
+                    <li>警告反馈: 橙色提示条，需要用户确认</li>
+                    <li>错误反馈: 红色弹窗，提供详细信息和操作建议</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="data-management" class="section">
+            <h2>7. 数据管理与同步</h2>
+            
+            <h3>数据结构设计</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📊 核心数据模型</h4>
+                    <div class="code-block">// 报名记录数据结构
+interface Registration {
+  id: string;
+  activityId: string;
+  userId: string;
+  userName: string;
+  userAge: number;
+  userRole: 'patient' | 'family' | 'volunteer';
+  phone: string;
+  emergencyContact?: string;
+  emergencyPhone?: string;
+  participantCount: number;
+  specialRequests?: string;
+  transportMethod?: string;
+  dietaryRequirements?: string[];
+  
+  // 状态信息
+  status: 'pending' | 'confirmed' | 'rejected' | 'waitlist';
+  priority: number; // 候补队列优先级
+  registrationTime: string;
+  approvalTime?: string;
+  approvedBy?: string;
+  
+  // 签到信息
+  checkInStatus: 'not_checked_in' | 'checked_in';
+  checkInTime?: string;
+  checkInBy?: string;
+  checkInMethod?: 'manual' | 'qr_code';
+  
+  // 元数据
+  createdAt: string;
+  updatedAt: string;
+  version: number; // 版本控制
+}</div>
+                </div>
+                
+                <div class="card">
+                    <h4>📈 统计数据模型</h4>
+                    <div class="code-block">// 活动统计数据结构
+interface ActivityStats {
+  activityId: string;
+  totalRegistrations: number;
+  confirmedCount: number;
+  pendingCount: number;
+  waitlistCount: number;
+  rejectedCount: number;
+  checkedInCount: number;
+  
+  // 按角色统计
+  roleStats: {
+    patient: number;
+    family: number;
+    volunteer: number;
+  };
+  
+  // 时间分布
+  registrationTrend: {
+    date: string;
+    count: number;
+  }[];
+  
+  // 实时更新
+  lastUpdated: string;
+  nextUpdate: string;
+}</div>
+                </div>
+            </div>
+
+            <h3>缓存策略</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>数据类型</th>
+                        <th>缓存时长</th>
+                        <th>更新策略</th>
+                        <th>失效条件</th>
+                        <th>降级方案</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>活动基础信息</td>
+                        <td>30分钟</td>
+                        <td>定时刷新 + 手动刷新</td>
+                        <td>活动更新、管理员修改</td>
+                        <td>显示缓存数据 + 过期提示</td>
+                    </tr>
+                    <tr>
+                        <td>报名列表</td>
+                        <td>5分钟</td>
+                        <td>WebSocket实时 + 轮询备份</td>
+                        <td>新报名、状态变更</td>
+                        <td>最后缓存 + 刷新按钮</td>
+                    </tr>
+                    <tr>
+                        <td>统计数据</td>
+                        <td>1分钟</td>
+                        <td>WebSocket推送 + 定时更新</td>
+                        <td>任何报名状态变化</td>
+                        <td>计算本地数据 + 同步提示</td>
+                    </tr>
+                    <tr>
+                        <td>用户权限</td>
+                        <td>60分钟</td>
+                        <td>登录时获取 + 权限变更推送</td>
+                        <td>管理员修改权限</td>
+                        <td>安全降级，限制敏感操作</td>
+                    </tr>
+                    <tr>
+                        <td>筛选结果</td>
+                        <td>会话期间</td>
+                        <td>条件变更时重新计算</td>
+                        <td>筛选条件改变</td>
+                        <td>清空筛选条件重新加载</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>数据同步机制</h3>
+            <div class="ascii-diagram">数据同步架构图
+
+客户端数据层                     服务端数据层
+     ↓                              ↓
+┌─────────────┐                ┌─────────────┐
+│ 本地状态管理 │ ←── WebSocket ──→ │ 实时推送服务 │
+│ (Redux)     │                │             │
+└─────────────┘                └─────────────┘
+     ↓                              ↓
+┌─────────────┐                ┌─────────────┐
+│ 本地缓存    │ ←── HTTP API ───→ │ 业务逻辑层  │
+│ (IndexedDB) │                │             │
+└─────────────┘                └─────────────┘
+     ↓                              ↓
+┌─────────────┐                ┌─────────────┐
+│ 离线队列    │ ←── 同步任务 ───→ │ 数据持久层  │
+│ (本地存储)  │                │ (Database)  │
+└─────────────┘                └─────────────┘
+
+同步流程:
+1. 用户操作 → 更新本地状态 → 发送到服务端
+2. 服务端处理 → 广播更新 → 其他客户端接收
+3. 离线操作 → 本地队列 → 网络恢复后批量同步
+4. 冲突检测 → 版本比较 → 智能合并或用户选择</div>
+
+            <h3>离线数据处理</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📱 离线缓存策略</h4>
+                    <ul>
+                        <li><strong>关键数据缓存:</strong> 活动信息、报名列表本地存储</li>
+                        <li><strong>操作队列:</strong> 离线操作排队，联网后自动执行</li>
+                        <li><strong>冲突解决:</strong> 基于时间戳和版本号的冲突检测</li>
+                        <li><strong>数据压缩:</strong> 大量数据使用压缩算法减少存储</li>
+                        <li><strong>过期清理:</strong> 定期清理过期缓存释放空间</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🔄 同步恢复机制</h4>
+                    <ul>
+                        <li><strong>增量同步:</strong> 只传输变更数据减少网络开销</li>
+                        <li><strong>断点续传:</strong> 大文件上传支持断点续传</li>
+                        <li><strong>重试机制:</strong> 失败操作自动重试，指数退避</li>
+                        <li><strong>合并优化:</strong> 相同数据的多次操作智能合并</li>
+                        <li><strong>用户确认:</strong> 重要冲突需要用户手动确认</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>数据安全与隐私</h3>
+            <div class="warning-card">
+                <h4>🔒 数据安全措施</h4>
+                
+                <p><strong>1. 数据加密</strong></p>
+                <ul>
+                    <li>传输加密: 所有API请求使用HTTPS协议</li>
+                    <li>存储加密: 敏感数据本地存储时进行AES加密</li>
+                    <li>字段加密: 身份证、电话等敏感字段单独加密</li>
+                </ul>
+
+                <p><strong>2. 访问控制</strong></p>
+                <ul>
+                    <li>权限验证: 每个API请求都进行权限验证</li>
+                    <li>数据脱敏: 根据用户角色自动脱敏显示</li>
+                    <li>操作审计: 记录所有数据变更操作日志</li>
+                </ul>
+
+                <p><strong>3. 隐私保护</strong></p>
+                <ul>
+                    <li>最小化原则: 只获取必要的数据字段</li>
+                    <li>本地清理: 用户登出时清理本地敏感数据</li>
+                    <li>匿名统计: 统计数据不包含个人识别信息</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="responsive-design" class="section print-break">
+            <h2>8. 响应式适配</h2>
+            
+            <h3>设备适配矩阵</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>设备类型</th>
+                        <th>屏幕尺寸</th>
+                        <th>布局模式</th>
+                        <th>交互优化</th>
+                        <th>性能考量</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>iPhone SE</td>
+                        <td>375 × 667px</td>
+                        <td>紧凑单列，最小化边距</td>
+                        <td>增大按钮，简化菜单</td>
+                        <td>减少动画，优化渲染</td>
+                    </tr>
+                    <tr>
+                        <td>iPhone 12/13</td>
+                        <td>390 × 844px</td>
+                        <td>标准单列，平衡显示</td>
+                        <td>完整功能，流畅动画</td>
+                        <td>标准性能配置</td>
+                    </tr>
+                    <tr>
+                        <td>iPhone Pro Max</td>
+                        <td>428 × 926px</td>
+                        <td>宽松单列，更多信息</td>
+                        <td>增强交互，丰富反馈</td>
+                        <td>启用高级特性</td>
+                    </tr>
+                    <tr>
+                        <td>iPad Mini</td>
+                        <td>768 × 1024px</td>
+                        <td>双列网格，侧边栏</td>
+                        <td>悬停效果，快捷键</td>
+                        <td>并行加载，预缓存</td>
+                    </tr>
+                    <tr>
+                        <td>iPad Pro</td>
+                        <td>1024 × 1366px</td>
+                        <td>多列布局，主从视图</td>
+                        <td>多点触控，手势操作</td>
+                        <td>桌面级体验</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>断点设计系统</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📏 CSS断点定义</h4>
+                    <div class="code-block">// 响应式断点
+$breakpoints: (
+  xs: 0,       // 超小屏手机
+  sm: 576px,   // 小屏手机
+  md: 768px,   // 平板竖屏
+  lg: 992px,   // 平板横屏
+  xl: 1200px,  // 小型桌面
+  xxl: 1400px  // 大型桌面
+);
+
+// 媒体查询混合
+@mixin respond-to($breakpoint) {
+  @if map-has-key($breakpoints, $breakpoint) {
+    @media (min-width: #{map-get($breakpoints, $breakpoint)}) {
+      @content;
+    }
+  }
+}
+
+// 使用示例
+.registration-list {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 16rpx;
+  
+  @include respond-to(md) {
+    grid-template-columns: 1fr 1fr;
+  }
+  
+  @include respond-to(lg) {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}</div>
+                </div>
+                
+                <div class="card">
+                    <h4>🎨 组件响应式设计</h4>
+                    <div class="code-block">// 组件级响应式
+.registration-card {
+  padding: 24rpx;
+  
+  @include respond-to(xs) {
+    padding: 16rpx;
+    
+    .card-actions {
+      flex-direction: column;
+      gap: 8rpx;
+    }
+  }
+  
+  @include respond-to(md) {
+    padding: 32rpx;
+    
+    .card-content {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      align-items: center;
+    }
+  }
+  
+  @include respond-to(lg) {
+    &:hover {
+      transform: translateY(-4rpx);
+      box-shadow: var(--shadow-lg);
+    }
+  }
+}</div>
+                </div>
+            </div>
+
+            <h3>布局适配策略</h3>
+            <div class="ascii-diagram">响应式布局演变
+
+手机竖屏 (< 768px)
+┌─────────────────────────────────────┐
+│ ← 活动报名管理                      │
+├─────────────────────────────────────┤
+│ 总计45 | 确认38 | 待审5 | 候补7      │
+├─────────────────────────────────────┤
+│ [搜索框        ] [筛选] [更多]      │
+├─────────────────────────────────────┤
+│ 确认(38) | 待审(5) | 候补(7)        │
+├─────────────────────────────────────┤
+│ ┌─────────────────────────────────┐ │
+│ │ 👤 张小朋友 (8岁)               │ │
+│ │ 📱 138****8888 ✅已确认         │ │
+│ │ [签到] [详情]                   │ │
+│ └─────────────────────────────────┘ │
+│ ┌─────────────────────────────────┐ │
+│ │ 👤 李小朋友 (6岁)               │ │
+│ │ 📱 139****9999 ⏳待审核         │ │
+│ │ [通过] [拒绝] [详情]            │ │
+│ └─────────────────────────────────┘ │
+└─────────────────────────────────────┘
+
+平板横屏 (≥ 768px)
+┌─────────────────────────────────────┐
+│ ← 活动报名管理               ⋯ 更多 │
+├─────────────────────────────────────┤
+│ 📊 总计45   ✅ 确认38   ⏳ 待审5   📋 候补7 │
+├─────────────────────────────────────┤
+│ [搜索框     ] [筛选▼] [导出] [签到] │
+├─────────────────────────────────────┤
+│ 确认(38) | 待审(5) | 候补(7)        │
+├─────────────────────────────────────┤
+│ ┌───────────────┐ ┌───────────────┐ │
+│ │ 👤 张小朋友     │ │ 👤 李小朋友     │ │
+│ │ 📱 138****8888 │ │ 📱 139****9999 │ │
+│ │ ✅已确认 未签到 │ │ ⏳待审核      │ │
+│ │ [签到][详情]   │ │ [通过][拒绝]  │ │
+│ └───────────────┘ └───────────────┘ │
+└─────────────────────────────────────┘</div>
+
+            <h3>触摸交互优化</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>👆 触摸目标设计</h4>
+                    <ul>
+                        <li><strong>最小尺寸:</strong> 44px × 44px (iOS) / 48dp (Android)</li>
+                        <li><strong>间距要求:</strong> 相邻可点击元素间距≥8px</li>
+                        <li><strong>触摸反馈:</strong> 0.1s内提供视觉或触觉反馈</li>
+                        <li><strong>误触防护:</strong> 重要操作需要二次确认</li>
+                        <li><strong>手势支持:</strong> 滑动删除、长按多选等</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📱 手势交互设计</h4>
+                    <ul>
+                        <li><strong>下拉刷新:</strong> 标准下拉手势刷新列表</li>
+                        <li><strong>左滑操作:</strong> 左滑显示快捷操作菜单</li>
+                        <li><strong>长按选择:</strong> 长按进入多选模式</li>
+                        <li><strong>双击缩放:</strong> 双击卡片查看详情</li>
+                        <li><strong>捏合手势:</strong> 在支持的设备上调整字号</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>性能优化策略</h3>
+            <div class="highlight-card">
+                <h4>⚡ 响应式性能优化</h4>
+                
+                <p><strong>1. 图片适配优化</strong></p>
+                <ul>
+                    <li>使用WebP格式，降级支持JPEG</li>
+                    <li>根据设备DPR提供不同分辨率的图片</li>
+                    <li>懒加载非关键图片，优先加载首屏内容</li>
+                    <li>使用CSS Sprites减少HTTP请求</li>
+                </ul>
+
+                <p><strong>2. 布局计算优化</strong></p>
+                <ul>
+                    <li>使用CSS Grid和Flexbox减少JavaScript计算</li>
+                    <li>避免频繁的DOM查询和样式计算</li>
+                    <li>使用transform替代position进行动画</li>
+                    <li>合理使用will-change属性优化渲染</li>
+                </ul>
+
+                <p><strong>3. 内存管理优化</strong></p>
+                <ul>
+                    <li>虚拟滚动处理大量数据列表</li>
+                    <li>及时清理事件监听器和定时器</li>
+                    <li>使用对象池复用DOM元素</li>
+                    <li>适当的内存阈值控制缓存大小</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="accessibility" class="section">
+            <h2>9. 无障碍设计</h2>
+            
+            <h3>WCAG 2.1 合规设计</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>无障碍原则</th>
+                        <th>设计要求</th>
+                        <th>实现方式</th>
+                        <th>测试标准</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>可感知性</td>
+                        <td>足够的颜色对比度</td>
+                        <td>文字与背景对比度≥4.5:1</td>
+                        <td>使用对比度检测工具验证</td>
+                    </tr>
+                    <tr>
+                        <td>可操作性</td>
+                        <td>支持键盘导航</td>
+                        <td>Tab顺序逻辑，焦点可见</td>
+                        <td>纯键盘操作完整流程测试</td>
+                    </tr>
+                    <tr>
+                        <td>可理解性</td>
+                        <td>清晰的标签和说明</td>
+                        <td>使用语义化HTML和ARIA标签</td>
+                        <td>屏幕阅读器测试</td>
+                    </tr>
+                    <tr>
+                        <td>健壮性</td>
+                        <td>兼容辅助技术</td>
+                        <td>标准HTML结构，ARIA属性</td>
+                        <td>多种辅助工具兼容性测试</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>屏幕阅读器优化</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🔊 ARIA标签应用</h4>
+                    <div class="code-block"><!-- 报名卡片无障碍标记 -->
+<div class="registration-card" 
+     role="article"
+     aria-labelledby="user-name-123"
+     aria-describedby="user-status-123">
+  
+  <h3 id="user-name-123">张小朋友 (8岁患者)</h3>
+  
+  <div id="user-status-123" 
+       aria-live="polite">
+    报名状态: 已确认，未签到
+  </div>
+  
+  <div class="card-actions" 
+       role="group" 
+       aria-label="用户操作">
+    
+    <button aria-label="为张小朋友签到">
+      签到
+    </button>
+    
+    <button aria-label="查看张小朋友详细信息">
+      详情
+    </button>
+  </div>
+</div>
+
+<!-- 批量操作区域 -->
+<div class="batch-actions" 
+     role="toolbar" 
+     aria-label="批量操作工具栏"
+     aria-hidden="true">
+  <!-- 未选择时隐藏 -->
+</div></div>
+                </div>
+                
+                <div class="card">
+                    <h4>📢 动态内容通知</h4>
+                    <div class="code-block"><!-- 状态更新通知区域 -->
+<div aria-live="assertive" 
+     aria-atomic="true" 
+     class="sr-only">
+  <!-- 重要状态变更即时通知 -->
+</div>
+
+<div aria-live="polite" 
+     aria-atomic="false" 
+     class="sr-only">
+  <!-- 一般信息更新通知 -->
+</div>
+
+<!-- JavaScript更新示例 -->
+const announceUpdate = (message, priority = 'polite') => {
+  const announcer = document.querySelector(
+    `[aria-live="${priority}"]`
+  );
+  announcer.textContent = message;
+  
+  // 清空以便下次通知
+  setTimeout(() => {
+    announcer.textContent = '';
+  }, 1000);
+};
+
+// 使用示例
+announceUpdate('张小朋友签到成功', 'assertive');
+announceUpdate('报名列表已更新，新增3人', 'polite');</div>
+                </div>
+            </div>
+
+            <h3>键盘导航设计</h3>
+            <div class="ascii-diagram">键盘导航路径图
+
+页面加载 → 焦点在搜索框
+    ↓ Tab
+状态概览区 (可跳过)
+    ↓ Tab
+工具栏按钮组
+    ↓ Tab / ← → 方向键在按钮间切换
+Tab导航区
+    ↓ Tab / ← → 方向键切换Tab
+报名列表区
+    ↓ Tab / ↑ ↓ 方向键在卡片间移动
+    ↓ Enter 激活选中的卡片
+    ↓ Space 选择/取消选择
+卡片内操作按钮
+    ↓ Tab / ← → 方向键在操作间切换
+    ↓ Enter 执行操作
+底部操作栏
+    ↓ Tab
+结束或循环回到顶部
+
+快捷键设计:
+- Ctrl/Cmd + F: 聚焦搜索框
+- Ctrl/Cmd + A: 全选当前Tab的项目
+- Ctrl/Cmd + D: 取消全选
+- Escape: 关闭弹窗或退出选择模式
+- Enter: 确认操作
+- Space: 选择/取消选择项目</div>
+
+            <h3>视觉辅助设计</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🎨 颜色对比度优化</h4>
+                    <ul>
+                        <li><strong>文字对比:</strong> 正文文字对比度≥4.5:1</li>
+                        <li><strong>大字体:</strong> 18pt以上文字对比度≥3:1</li>
+                        <li><strong>UI元素:</strong> 按钮、边框对比度≥3:1</li>
+                        <li><strong>状态指示:</strong> 不仅依赖颜色，增加图标标识</li>
+                        <li><strong>焦点指示:</strong> 明显的焦点外框，对比度≥4.5:1</li>
+                    </ul>
+                    
+                    <div class="code-block">/* 焦点指示器 */
+.focusable:focus {
+  outline: 3px solid #0EA5E9;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 1px rgba(14, 165, 233, 0.3);
+}
+
+/* 高对比度模式适配 */
+@media (prefers-contrast: high) {
+  .registration-card {
+    border-width: 2px;
+    border-color: #000000;
+  }
+  
+  .status-badge {
+    font-weight: 

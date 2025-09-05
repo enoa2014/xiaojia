@@ -1,0 +1,36 @@
+name: Contract Tests
+
+on:
+  pull_request:
+    branches: [ main ]
+  workflow_dispatch: {}
+
+jobs:
+  contract:
+    runs-on: ubuntu-latest
+    env:
+      TCB_ENV_ID: ${{ secrets.TCB_ENV_ID }}
+      TCB_SECRET_ID: ${{ secrets.TCB_SECRET_ID }}
+      TCB_SECRET_KEY: ${{ secrets.TCB_SECRET_KEY }}
+      TEST_PATIENT_ID: ${{ secrets.TEST_PATIENT_ID }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 18
+          cache: 'npm'
+
+      - name: Install deps
+        run: npm ci
+
+      - name: Preflight
+        run: node scripts/ci-preflight.js
+
+      - name: Seed test data
+        run: npm run seed:testdata
+
+      - name: Run contract tests
+        run: npm run test:contract

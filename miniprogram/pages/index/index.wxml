@@ -1,0 +1,15 @@
+
+<view class="nav">助医小家 · 工作台</view>
+<view class="card">
+  <view>ENV：cloud1-3grb87gwaba26b64</view>
+  <view style="margin:8px 0;">最近患者（示例调用 patients.list ）</view>
+  <button class="btn" bindtap="loadPatients">加载列表</button>
+</view>
+<view class="card">
+  <block wx:for="{list}" wx:key="_id">
+    <view>{item.name}（{item.id_card_tail || '--'}）</view>
+  </block>
+  <block wx:if="{list.length===0}">
+    <view>暂无数据（先初始化集合再尝试）</view>
+  </block>
+</view>

@@ -1,0 +1,34 @@
+# Ignore all dotfiles
+.*
+!.gitignore
+!.github
+!.github/**
+
+# Dependency directories
+node_modules/
+
+# Build outputs
+dist/
+build/
+out/
+.next/
+coverage/
+*.tsbuildinfo
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# OS junk
+.DS_Store
+Thumbs.db
+
+# Env files (keep example)
+.env
+.env.*
+!.env.example

@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>小家服务管理小程序 - 工作台搜索结果页设计文档</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+            line-height: 1.6;
+            color: #374151;
+            background: #f9fafb;
+        }
+        
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 40px 20px;
+            background: white;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+            min-height: 100vh;
+        }
+        
+        .header {
+            text-align: center;
+            margin-bottom: 60px;
+            padding-bottom: 40px;
+            border-bottom: 3px solid #22C55E;
+        }
+        
+        .header h1 {
+            font-size: 2.5rem;
+            color: #22C55E;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+        
+        .header .subtitle {
+            font-size: 1.2rem;
+            color: #6B7280;
+            margin-bottom: 20px;
+        }
+        
+        .header .meta {
+            display: flex;
+            justify-content: center;
+            gap: 30px;
+            flex-wrap: wrap;
+            font-size: 0.9rem;
+            color: #9CA3AF;
+        }
+        
+        .toc {
+            background: #F0FDF4;
+            border-left: 4px solid #22C55E;
+            padding: 30px;
+            margin-bottom: 50px;
+            border-radius: 8px;
+        }
+        
+        .toc h2 {
+            color: #22C55E;
+            margin-bottom: 20px;
+            font-size: 1.5rem;
+        }
+        
+        .toc ol {
+            list-style: none;
+            counter-reset: section;
+        }
+        
+        .toc li {
+            counter-increment: section;
+            margin: 8px 0;
+        }
+        
+        .toc li:before {
+            content: counter(section) ". ";
+            color: #22C55E;
+            font-weight: bold;
+        }
+        
+        .toc a {
+            color: #374151;
+            text-decoration: none;
+            transition: color 0.2s;
+        }
+        
+        .toc a:hover {
+            color: #22C55E;
+        }
+        
+        .section {
+            margin-bottom: 50px;
+        }
+        
+        .section h2 {
+            color: #22C55E;
+            font-size: 2rem;
+            margin-bottom: 25px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #DCFCE7;
+        }
+        
+        .section h3 {
+            color: #059669;
+            font-size: 1.5rem;
+            margin: 30px 0 15px 0;
+        }
+        
+        .section h4 {
+            color: #047857;
+            font-size: 1.2rem;
+            margin: 20px 0 10px 0;
+        }
+        
+        .section p {
+            margin-bottom: 15px;
+            font-size: 1rem;
+        }
+        
+        .grid-2 {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 30px;
+            margin: 20px 0;
+        }
+        
+        .grid-3 {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .card {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 15px 0;
+        }
+        
+        .card h4 {
+            color: #22C55E;
+            margin-bottom: 10px;
+        }
+        
+        .highlight {
+            background: linear-gradient(120deg, #22C55E 0%, #059669 100%);
+            color: white;
+            padding: 20px;
+            border-radius: 8px;
+            margin: 20px 0;
+        }
+        
+        .highlight h3 {
+            color: white;
+            margin-top: 0;
+        }
+        
+        .code-block {
+            background: #1F2937;
+            color: #F9FAFB;
+            padding: 20px;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.9rem;
+            overflow-x: auto;
+            margin: 20px 0;
+            line-height: 1.5;
+        }
+        
+        .ascii-diagram {
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
+            padding: 20px;
+            margin: 20px 0;
+            border-radius: 8px;
+            font-family: 'Monaco', 'Menlo', monospace;
+            font-size: 0.85rem;
+            line-height: 1.2;
+            overflow-x: auto;
+            white-space: pre;
+        }
+        
+        .specs-table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+            font-size: 0.9rem;
+        }
+        
+        .specs-table th,
+        .specs-table td {
+            border: 1px solid #E5E7EB;
+            padding: 12px;
+            text-align: left;
+        }
+        
+        .specs-table th {
+            background: #22C55E;
+            color: white;
+            font-weight: 600;
+        }
+        
+        .specs-table tr:nth-child(even) {
+            background: #F9FAFB;
+        }
+        
+        .badge {
+            display: inline-block;
+            background: #22C55E;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin: 2px;
+        }
+        
+        .badge.high { background: #EF4444; }
+        .badge.medium { background: #F59E0B; }
+        .badge.low { background: #22C55E; }
+        .badge.info { background: #3B82F6; }
+        .badge.purple { background: #8B5CF6; }
+        
+        .download-info {
+            background: #EFF6FF;
+            border: 1px solid #93C5FD;
+            border-radius: 8px;
+            padding: 20px;
+            margin: 20px 0;
+            text-align: center;
+        }
+        
+        .download-info h3 {
+            color: #1E40AF;
+            margin-bottom: 10px;
+        }
+        
+        .download-info p {
+            color: #1E3A8A;
+            margin-bottom: 0;
+        }
+        
+        .print-break {
+            page-break-before: always;
+        }
+        
+        ul, ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        li {
+            margin-bottom: 5px;
+        }
+        
+        .mockup-container {
+            background: #F3F4F6;
+            border: 2px solid #E5E7EB;
+            border-radius: 12px;
+            padding: 20px;
+            margin: 20px 0;
+        }
+        
+        .mockup-phone {
+            width: 360px;
+            margin: 0 auto;
+            background: #000;
+            border-radius: 25px;
+            padding: 8px;
+        }
+        
+        .mockup-screen {
+            background: white;
+            border-radius: 18px;
+            overflow: hidden;
+            height: 640px;
+            position: relative;
+        }
+        
+        .status-bar {
+            height: 24px;
+            background: #22C55E;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            font-size: 12px;
+        }
+        
+        .nav-header {
+            height: 44px;
+            background: #22C55E;
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 15px;
+            font-weight: 600;
+        }
+        
+        .search-bar {
+            height: 40px;
+            background: #F3F4F6;
+            margin: 12px;
+            border-radius: 20px;
+            display: flex;
+            align-items: center;
+            padding: 0 15px;
+            font-size: 14px;
+            color: #6B7280;
+        }
+        
+        .filter-tabs {
+            display: flex;
+            padding: 0 12px;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        
+        .filter-tab {
+            padding: 6px 12px;
+            margin-right: 8px;
+            border-radius: 15px;
+            background: #F3F4F6;
+            color: #6B7280;
+        }
+        
+        .filter-tab.active {
+            background: #22C55E;
+            color: white;
+        }
+        
+        .result-item {
+            padding: 12px;
+            border-bottom: 1px solid #F3F4F6;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
+        }
+        
+        .result-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 4px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            color: white;
+            margin-top: 2px;
+        }
+        
+        .result-icon.patient { background: #3B82F6; }
+        .result-icon.service { background: #F59E0B; }
+        .result-icon.activity { background: #8B5CF6; }
+        
+        .result-content {
+            flex: 1;
+        }
+        
+        .result-title {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #111827;
+        }
+        
+        .result-meta {
+            font-size: 12px;
+            color: #6B7280;
+            margin-bottom: 2px;
+        }
+        
+        .result-snippet {
+            font-size: 12px;
+            color: #374151;
+            line-height: 1.4;
+        }
+        
+        .highlight-text {
+            background: #FEF3C7;
+            color: #92400E;
+            padding: 0 2px;
+        }
+        
+        @media (max-width: 768px) {
+            .container {
+                padding: 20px 10px;
+            }
+            
+            .header h1 {
+                font-size: 2rem;
+            }
+            
+            .grid-2, .grid-3 {
+                grid-template-columns: 1fr;
+            }
+            
+            .header .meta {
+                flex-direction: column;
+                gap: 10px;
+            }
+            
+            .mockup-phone {
+                width: 320px;
+            }
+        }
+        
+        @media print {
+            body {
+                background: white;
+            }
+            
+            .container {
+                box-shadow: none;
+                padding: 0;
+            }
+            
+            .download-info {
+                display: none;
+            }
+            
+            .toc a {
+                text-decoration: none;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <h1>小家服务管理小程序</h1>
+            <p class="subtitle">工作台搜索结果页设计文档</p>
+            <div class="meta">
+                <span><strong>版本:</strong> v1.0</span>
+                <span><strong>创建时间:</strong> 2025-09-04</span>
+                <span><strong>设计师:</strong> UX设计团队</span>
+                <span><strong>项目:</strong> 大病儿童家庭"小家"服务管理小程序</span>
+            </div>
+        </header>
+
+        <div class="download-info">
+            <h3>💾 文档使用说明</h3>
+            <p>右键点击页面选择"保存为"或按 Ctrl+S (Windows) / Cmd+S (Mac) 保存此文档到本地。<br>
+            也可以按 Ctrl+P (Windows) / Cmd+P (Mac) 打印或保存为PDF格式。</p>
+        </div>
+
+        <nav class="toc">
+            <h2>📋 目录</h2>
+            <ol>
+                <li><a href="#design-goals">设计目标与原则</a></li>
+                <li><a href="#search-architecture">搜索功能架构</a></li>
+                <li><a href="#page-layout">页面布局设计</a></li>
+                <li><a href="#search-types">搜索内容分类</a></li>
+                <li><a href="#role-permissions">角色权限差异</a></li>
+                <li><a href="#result-display">搜索结果展示</a></li>
+                <li><a href="#interaction-design">交互行为设计</a></li>
+                <li><a href="#performance">性能优化策略</a></li>
+                <li><a href="#implementation">技术实现指导</a></li>
+                <li><a href="#quality-standards">质量验收标准</a></li>
+            </ol>
+        </nav>
+
+        <section id="design-goals" class="section">
+            <h2>1. 设计目标与原则</h2>
+            
+            <div class="highlight">
+                <h3>🎯 核心设计目标</h3>
+                <p><strong>快速精准定位</strong>: 通过智能搜索算法，让用户在3秒内找到目标信息<br>
+                <strong>统一搜索入口</strong>: 整合档案、服务、活动等多类型内容的搜索<br>
+                <strong>权限安全保障</strong>: 基于角色权限显示不同程度的搜索结果<br>
+                <strong>操作路径优化</strong>: 搜索结果支持快速操作，减少页面跳转</p>
+            </div>
+
+            <h3>🏆 成功指标</h3>
+            <ul>
+                <li><strong>搜索成功率</strong>: >90% (用户能找到期望内容)</li>
+                <li><strong>搜索响应时间</strong>: <2秒</li>
+                <li><strong>结果点击率</strong>: >70% (说明结果相关性高)</li>
+                <li><strong>任务完成效率</strong>: 提升50% (相比逐级导航)</li>
+            </ul>
+
+            <h3>设计原则</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🔍 智能搜索</h4>
+                    <p>支持模糊匹配、拼音搜索、关键词联想，降低搜索门槛，提升搜索成功率。</p>
+                </div>
+                
+                <div class="card">
+                    <h4>📊 结果分类</h4>
+                    <p>按内容类型分类展示，使用不同的视觉样式区分档案、服务、活动等。</p>
+                </div>
+                
+                <div class="card">
+                    <h4>🛡️ 权限控制</h4>
+                    <p>根据用户角色显示不同的搜索范围和结果详细程度，确保数据安全。</p>
+                </div>
+                
+                <div class="card">
+                    <h4>⚡ 快速操作</h4>
+                    <p>结果页面提供常用操作入口，如查看详情、申请权限、快速联系等。</p>
+                </div>
+            </div>
+        </section>
+
+        <section id="search-architecture" class="section print-break">
+            <h2>2. 搜索功能架构</h2>
+            
+            <h3>搜索范围定义</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>搜索类型</th>
+                        <th>搜索字段</th>
+                        <th>权重</th>
+                        <th>权限要求</th>
+                        <th>脱敏程度</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>患者档案</td>
+                        <td>姓名、身份证、诊断、床位</td>
+                        <td>高</td>
+                        <td>基础查看权限</td>
+                        <td>姓名脱敏、身份证后4位</td>
+                    </tr>
+                    <tr>
+                        <td>服务记录</td>
+                        <td>服务内容、服务类型、服务者</td>
+                        <td>中</td>
+                        <td>服务查看权限</td>
+                        <td>患者信息脱敏</td>
+                    </tr>
+                    <tr>
+                        <td>活动信息</td>
+                        <td>活动标题、描述、地点</td>
+                        <td>中</td>
+                        <td>无限制</td>
+                        <td>无脱敏</td>
+                    </tr>
+                    <tr>
+                        <td>用户信息</td>
+                        <td>姓名、角色、联系方式</td>
+                        <td>低</td>
+                        <td>管理员权限</td>
+                        <td>联系方式脱敏</td>
+                    </tr>
+                    <tr>
+                        <td>系统配置</td>
+                        <td>配置项、描述</td>
+                        <td>低</td>
+                        <td>管理员权限</td>
+                        <td>敏感配置隐藏</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>搜索算法策略</h3>
+            <div class="ascii-diagram">用户输入 → 预处理 → 多字段匹配 → 权限过滤 → 相关性排序 → 结果返回
+    ↓         ↓         ↓         ↓         ↓         ↓
+  分词处理   去重合并   并行搜索   数据脱敏   智能排序   分页展示
+  拼音转换   同义词     精确匹配   权限验证   历史优化   快速加载
+  关键词    扩展       模糊匹配   数据过滤   个性化     用户体验</div>
+
+            <h3>搜索性能优化</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>索引优化</h4>
+                    <ul>
+                        <li>建立全文搜索索引</li>
+                        <li>分词索引支持拼音</li>
+                        <li>定期索引更新维护</li>
+                        <li>热门搜索词缓存</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>查询优化</h4>
+                    <ul>
+                        <li>并行多表查询</li>
+                        <li>结果集合并去重</li>
+                        <li>分页懒加载</li>
+                        <li>搜索结果缓存</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="page-layout" class="section">
+            <h2>3. 页面布局设计</h2>
+            
+            <h3>整体页面结构</h3>
+            <div class="ascii-diagram">┌─────────────────────────────────────┐ ← 导航栏 (88rpx)
+│ ← 搜索结果          🔍 ⚙️ ⭐        │
+├─────────────────────────────────────┤ ← 搜索框 (80rpx)
+│ 🔍 "李小明"的搜索结果               │
+├─────────────────────────────────────┤ ← 结果统计 (60rpx)
+│ 找到 127 条结果 • 用时 0.8s          │
+├─────────────────────────────────────┤ ← 分类筛选 (70rpx)
+│ [全部] [档案45] [服务32] [活动8]     │
+├─────────────────────────────────────┤ ← 排序选择 (50rpx)
+│ 📊 按相关度排序 ▼                   │
+├─────────────────────────────────────┤ ← 搜索结果列表 (动态)
+│ ┌─ 👤 李小明 | 患者档案 | 3-205床   │
+│ │   男 • 8岁 • 白血病 • 入住15天    │
+│ │   [查看档案] [申请详情] [联系家属] │
+│ ├─ ❤️ 李小明心理陪伴 | 服务记录      │
+│ │   张志愿者 • 昨天16:30 • 已审核   │
+│ │   [查看详情] [相关服务]           │
+│ ├─ 📅 小明生日会 | 活动              │
+│ │   亲子活动 • 本周六 • 可报名       │
+│ │   [立即报名] [查看详情]           │
+│ └─ 更多结果...                     │
+├─────────────────────────────────────┤ ← 快速操作 (60rpx)
+│ [🔍 优化搜索] [📋 保存搜索] [📤 分享] │
+└─────────────────────────────────────┘</div>
+
+            <h3>页面布局规格</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>区域</th>
+                        <th>高度</th>
+                        <th>内边距</th>
+                        <th>背景色</th>
+                        <th>功能描述</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>导航栏</td>
+                        <td>88rpx</td>
+                        <td>24rpx</td>
+                        <td>primary-600</td>
+                        <td>返回按钮、搜索、设置</td>
+                    </tr>
+                    <tr>
+                        <td>搜索框</td>
+                        <td>80rpx</td>
+                        <td>24rpx</td>
+                        <td>gray-50</td>
+                        <td>显示搜索词、支持修改</td>
+                    </tr>
+                    <tr>
+                        <td>结果统计</td>
+                        <td>60rpx</td>
+                        <td>24rpx</td>
+                        <td>white</td>
+                        <td>结果数量、搜索时间</td>
+                    </tr>
+                    <tr>
+                        <td>分类筛选</td>
+                        <td>70rpx</td>
+                        <td>24rpx</td>
+                        <td>white</td>
+                        <td>按类型筛选结果</td>
+                    </tr>
+                    <tr>
+                        <td>搜索结果</td>
+                        <td>动态</td>
+                        <td>24rpx</td>
+                        <td>white</td>
+                        <td>结果列表展示</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>移动端适配设计</h3>
+            <div class="mockup-container">
+                <div class="mockup-phone">
+                    <div class="mockup-screen">
+                        <div class="status-bar">
+                            <span>9:41</span>
+                            <span>100%</span>
+                        </div>
+                        <div class="nav-header">
+                            <span>← 搜索结果</span>
+                            <span>⭐ ⚙️</span>
+                        </div>
+                        <div class="search-bar">
+                            🔍 "李小明" 找到127条结果
+                        </div>
+                        <div class="filter-tabs">
+                            <div class="filter-tab active">全部</div>
+                            <div class="filter-tab">档案 45</div>
+                            <div class="filter-tab">服务 32</div>
+                            <div class="filter-tab">活动 8</div>
+                        </div>
+                        <div style="flex: 1; overflow-y: auto;">
+                            <div class="result-item">
+                                <div class="result-icon patient">👤</div>
+                                <div class="result-content">
+                                    <div class="result-title">李*明 | 患者档案</div>
+                                    <div class="result-meta">3-205床 • 入住15天</div>
+                                    <div class="result-snippet">男 • 8岁 • <span class="highlight-text">白血病</span></div>
+                                </div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-icon service">❤️</div>
+                                <div class="result-content">
+                                    <div class="result-title">心理陪伴服务</div>
+                                    <div class="result-meta">张志愿者 • 昨天16:30</div>
+                                    <div class="result-snippet">为<span class="highlight-text">李小明</span>进行心理疏导...</div>
+                                </div>
+                            </div>
+                            <div class="result-item">
+                                <div class="result-icon activity">📅</div>
+                                <div class="result-content">
+                                    <div class="result-title">小明生日会</div>
+                                    <div class="result-meta">亲子活动 • 本周六</div>
+                                    <div class="result-snippet">为<span class="highlight-text">李小明</span>举办生日庆祝活动</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section id="search-types" class="section print-break">
+            <h2>4. 搜索内容分类</h2>
+            
+            <h3>患者档案搜索</h3>
+            <div class="card">
+                <h4>🏥 搜索特点</h4>
+                <ul>
+                    <li><strong>搜索字段</strong>: 姓名、身份证后4位、床位号、诊断关键词</li>
+                    <li><strong>显示信息</strong>: 脱敏姓名、年龄、诊断、床位、入住天数</li>
+                    <li><strong>快速操作</strong>: 查看详情、申请权限、联系家属</li>
+                    <li><strong>权限控制</strong>: 不同角色看到不同详细程度的信息</li>
+                </ul>
+            </div>
+
+            <div class="code-block">// 患者档案搜索结果结构
+const PatientSearchResult = {
+  id: "patient_001",
+  type: "patient",
+  title: "李*明",
+  subtitle: "患者档案 • 3-205床",
+  metadata: {
+    age: "8岁",
+    gender: "男",
+    diagnosis: "白血病",
+    stayDays: 15,
+    bedNumber: "3-205"
+  },
+  permissions: {
+    canViewDetail: true,
+    canContact: false,
+    needApproval: true
+  },
+  actions: ["查看档案", "申请详情", "联系家属"]
+};</div>
+
+            <h3>服务记录搜索</h3>
+            <div class="card">
+                <h4>❤️ 搜索特点</h4>
+                <ul>
+                    <li><strong>搜索字段</strong>: 服务内容、服务类型、服务提供者、患者姓名</li>
+                    <li><strong>显示信息</strong>: 服务类型、时间、服务者、审核状态</li>
+                    <li><strong>快速操作</strong>: 查看详情、相关服务、审核操作</li>
+                    <li><strong>时间排序</strong>: 默认按时间倒序，突出最新服务</li>
+                </ul>
+            </div>
+
+            <h3>活动信息搜索</h3>
+            <div class="card">
+                <h4>📅 搜索特点</h4>
+                <ul>
+                    <li><strong>搜索字段</strong>: 活动标题、描述、地点、组织者</li>
+                    <li><strong>显示信息</strong>: 活动类型、时间、地点、报名状态</li>
+                    <li><strong>快速操作</strong>: 立即报名、查看详情、分享活动</li>
+                    <li><strong>状态标识</strong>: 报名中、进行中、已结束等状态</li>
+                </ul>
+            </div>
+
+            <h3>搜索结果优先级</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>优先级</th>
+                        <th>内容类型</th>
+                        <th>排序规则</th>
+                        <th>权重系数</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>1</td>
+                        <td>完全匹配的患者档案</td>
+                        <td>精确匹配 > 最近更新</td>
+                        <td>1.0</td>
+                    </tr>
+                    <tr>
+                        <td>2</td>
+                        <td>用户最近访问过的内容</td>
+                        <td>访问频率 > 时间近度</td>
+                        <td>0.9</td>
+                    </tr>
+                    <tr>
+                        <td>3</td>
+                        <td>当前用户有权限的内容</td>
+                        <td>权限级别 > 相关性</td>
+                        <td>0.8</td>
+                    </tr>
+                    <tr>
+                        <td>4</td>
+                        <td>部分匹配的其他内容</td>
+                        <td>匹配度 > 创建时间</td>
+                        <td>0.6</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="role-permissions" class="section">
+            <h2>5. 角色权限差异</h2>
+
+            <h3>管理员搜索权限</h3>
+            <div class="card">
+                <h4>👨‍💼 管理员特权</h4>
+                <ul>
+                    <li><strong>搜索范围</strong>: 全部数据无限制</li>
+                    <li><strong>敏感信息</strong>: 可查看完整未脱敏信息</li>
+                    <li><strong>用户搜索</strong>: 可搜索所有用户信息</li>
+                    <li><strong>系统配置</strong>: 可搜索系统设置项</li>
+                    <li><strong>删除权限</strong>: 可删除搜索历史和无关结果</li>
+                </ul>
+            </div>
+
+            <h3>社工搜索权限</h3>
+            <div class="card">
+                <h4>👩‍💼 社工权限</h4>
+                <ul>
+                    <li><strong>档案搜索</strong>: 可搜索完整患者档案</li>
+                    <li><strong>服务审核</strong>: 可搜索所有服务记录</li>
+                    <li><strong>活动管理</strong>: 可搜索和管理所有活动</li>
+                    <li><strong>部分脱敏</strong>: 联系方式等敏感信息需申请</li>
+                    <li><strong>报告导出</strong>: 可导出搜索结果统计</li>
+                </ul>
+            </div>
+
+            <h3>志愿者搜索权限</h3>
+            <div class="card">
+                <h4>👦 志愿者限制</h4>
+                <ul>
+                    <li><strong>档案查看</strong>: 只能查看脱敏后的基本信息</li>
+                    <li><strong>服务相关</strong>: 主要搜索自己的服务记录</li>
+                    <li><strong>活动参与</strong>: 可搜索所有公开活动</li>
+                    <li><strong>联系限制</strong>: 无法直接获取联系方式</li>
+                    <li><strong>申请权限</strong>: 可申请查看更详细信息</li>
+                </ul>
+            </div>
+
+            <h3>家长搜索权限</h3>
+            <div class="card">
+                <h4>👨‍👩‍👧‍👦 家长范围</h4>
+                <ul>
+                    <li><strong>孩子信息</strong>: 只能搜索自己孩子的相关信息</li>
+                    <li><strong>服务记录</strong>: 查看孩子接受的服务记录</li>
+                    <li><strong>适合活动</strong>: 搜索适合参与的亲子活动</li>
+                    <li><strong>社区内容</strong>: 可搜索家长交流社区内容</li>
+                    <li><strong>严格限制</strong>: 无法搜索其他家庭信息</li>
+                </ul>
+            </div>
+
+            <h3>权限申请流程</h3>
+            <div class="ascii-diagram">用户搜索 → 权限检查 → 结果过滤 → 显示申请入口
+    ↓         ↓         ↓         ↓
+  识别需求   验证角色   脱敏处理   一键申请
+  权限不足   权限等级   安全展示   快速审批
+  显示提示   数据访问   用户友好   状态跟踪</div>
+        </section>
+
+        <section id="result-display" class="section print-break">
+            <h2>6. 搜索结果展示</h2>
+
+            <h3>结果卡片设计</h3>
+            <div class="code-block">.search-result-item {
+  background: white;
+  border: 1px solid #F3F4F6;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+  transition: all 0.2s ease;
+}
+
+.search-result-item:hover {
+  border-color: #22C55E;
+  box-shadow: 0 4px 12px rgba(34, 197, 94, 0.1);
+}
+
+.result-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+}
+
+.result-icon {
+  width: 24px;
+  height: 24px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  color: white;
+}</div>
+
+            <h3>不同类型结果的视觉差异</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>内容类型</th>
+                        <th>图标</th>
+                        <th>颜色</th>
+                        <th>标识符</th>
+                        <th>特殊元素</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>患者档案</td>
+                        <td>👤</td>
+                        <td>#3B82F6</td>
+                        <td>蓝色圆角矩形</td>
+                        <td>床位号、入住天数</td>
+                    </tr>
+                    <tr>
+                        <td>服务记录</td>
+                        <td>❤️</td>
+                        <td>#F59E0B</td>
+                        <td>橙色圆角矩形</td>
+                        <td>服务类型、审核状态</td>
+                    </tr>
+                    <tr>
+                        <td>活动信息</td>
+                        <td>📅</td>
+                        <td>#8B5CF6</td>
+                        <td>紫色圆角矩形</td>
+                        <td>时间、报名状态</td>
+                    </tr>
+                    <tr>
+                        <td>用户信息</td>
+                        <td>👥</td>
+                        <td>#10B981</td>
+                        <td>绿色圆角矩形</td>
+                        <td>角色、在线状态</td>
+                    </tr>
+                    <tr>
+                        <td>系统设置</td>
+                        <td>⚙️</td>
+                        <td>#6B7280</td>
+                        <td>灰色圆角矩形</td>
+                        <td>配置类型、状态</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>高亮匹配词设计</h3>
+            <div class="card">
+                <h4>🎨 高亮规则</h4>
+                <ul>
+                    <li><strong>完全匹配</strong>: 黄色背景 + 深橙色文字</li>
+                    <li><strong>部分匹配</strong>: 浅黄色背景 + 橙色文字</li>
+                    <li><strong>拼音匹配</strong>: 浅蓝色背景 + 蓝色文字</li>
+                    <li><strong>同义词匹配</strong>: 浅绿色背景 + 绿色文字</li>
+                </ul>
+            </div>
+
+            <div class="code-block">// 高亮样式定义
+.highlight-exact {
+  background: #FEF3C7;
+  color: #92400E;
+  font-weight: 600;
+}
+
+.highlight-partial {
+  background: #FFF7ED;
+  color: #C2410C;
+}
+
+.highlight-pinyin {
+  background: #EFF6FF;
+  color: #2563EB;
+}
+
+.highlight-synonym {
+  background: #F0FDF4;
+  color: #16A34A;
+}</div>
+
+            <h3>空状态和错误状态</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🔍 搜索无结果</h4>
+                    <ul>
+                        <li>友好的插图和提示</li>
+                        <li>搜索建议和相关推荐</li>
+                        <li>拼写检查和纠错建议</li>
+                        <li>扩大搜索范围的选项</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>⚠️ 搜索错误</h4>
+                    <ul>
+                        <li>网络错误的重试机制</li>
+                        <li>权限不足的申请指引</li>
+                        <li>系统异常的联系方式</li>
+                        <li>离线状态的提示信息</li>
+                    </ul>
+                </div>
+            </div>
+        </section>
+
+        <section id="interaction-design" class="section">
+            <h2>7. 交互行为设计</h2>
+
+            <h3>搜索交互流程</h3>
+            <div class="ascii-diagram">进入搜索 → 输入关键词 → 实时联想 → 选择结果 → 执行搜索
+    ↓          ↓          ↓          ↓          ↓
+  点击入口    键盘输入    显示建议    点击选择    展示结果
+  语音搜索    手写输入    历史记录    修改搜索    筛选排序
+  扫码搜索    粘贴输入    热门推荐    清空重搜    操作执行</div>
+
+            <h3>手势操作支持</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>📱 触控手势</h4>
+                    <ul>
+                        <li><strong>下拉刷新</strong>: 重新执行搜索</li>
+                        <li><strong>上拉加载</strong>: 加载更多结果</li>
+                        <li><strong>左滑操作</strong>: 收藏、分享、删除</li>
+                        <li><strong>长按选择</strong>: 多选批量操作</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>⌨️ 快捷键支持</h4>
+                    <ul>
+                        <li><strong>Ctrl+F</strong>: 快速聚焦搜索框</li>
+                        <li><strong>Enter</strong>: 执行搜索</li>
+                        <li><strong>Esc</strong>: 清空搜索内容</li>
+                        <li><strong>↑↓</strong>: 浏览搜索建议</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>搜索状态反馈</h3>
+            <div class="code-block">.search-states {
+  /* 搜索中状态 */
+  .searching {
+    .search-input::after {
+      content: '';
+      animation: searching 1.5s infinite;
+    }
+  }
+  
+  /* 搜索完成 */
+  .completed {
+    .results-container {
+      animation: slideInUp 0.3s ease-out;
+    }
+  }
+  
+  /* 无结果状态 */
+  .no-results {
+    .empty-state {
+      opacity: 0;
+      animation: fadeIn 0.5s ease-in forwards;
+    }
+  }
+}</div>
+
+            <h3>快速操作设计</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>操作类型</th>
+                        <th>触发方式</th>
+                        <th>执行时间</th>
+                        <th>反馈形式</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>查看详情</td>
+                        <td>点击结果卡片</td>
+                        <td>即时跳转</td>
+                        <td>页面切换动画</td>
+                    </tr>
+                    <tr>
+                        <td>申请权限</td>
+                        <td>点击申请按钮</td>
+                        <td>弹窗确认</td>
+                        <td>Toast提示</td>
+                    </tr>
+                    <tr>
+                        <td>联系相关人</td>
+                        <td>点击联系按钮</td>
+                        <td>调起通话/消息</td>
+                        <td>系统调用反馈</td>
+                    </tr>
+                    <tr>
+                        <td>收藏保存</td>
+                        <td>左滑或长按</td>
+                        <td>即时保存</td>
+                        <td>图标状态变化</td>
+                    </tr>
+                </tbody>
+            </table>
+        </section>
+
+        <section id="performance" class="section print-break">
+            <h2>8. 性能优化策略</h2>
+
+            <h3>搜索性能优化</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>⚡ 前端优化</h4>
+                    <ul>
+                        <li><strong>防抖处理</strong>: 减少不必要的搜索请求</li>
+                        <li><strong>结果缓存</strong>: 缓存最近的搜索结果</li>
+                        <li><strong>虚拟滚动</strong>: 大量结果的性能优化</li>
+                        <li><strong>懒加载</strong>: 图片和附件按需加载</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🔧 后端优化</h4>
+                    <ul>
+                        <li><strong>索引优化</strong>: 建立高效的搜索索引</li>
+                        <li><strong>分页查询</strong>: 避免一次性返回大量数据</li>
+                        <li><strong>并行处理</strong>: 多数据源并行搜索</li>
+                        <li><strong>缓存机制</strong>: 热门搜索结果缓存</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>用户体验优化</h3>
+            <div class="code-block">// 搜索性能监控
+const SearchPerformance = {
+  // 搜索响应时间监控
+  trackSearchTime: (query, startTime) => {
+    const endTime = Date.now();
+    const duration = endTime - startTime;
+    
+    analytics.track('search_performance', {
+      query,
+      duration,
+      timestamp: endTime
+    });
+    
+    // 超过2秒的搜索记录为慢搜索
+    if (duration > 2000) {
+      this.reportSlowSearch(query, duration);
+    }
+  },
+  
+  // 搜索成功率监控
+  trackSearchSuccess: (query, resultCount) => {
+    const isSuccessful = resultCount > 0;
+    
+    analytics.track('search_success', {
+      query,
+      resultCount,
+      isSuccessful
+    });
+  }
+};</div>
+
+            <h3>内存和存储优化</h3>
+            <div class="card">
+                <h4>💾 存储策略</h4>
+                <ul>
+                    <li><strong>搜索历史</strong>: 本地存储最近100条搜索</li>
+                    <li><strong>结果缓存</strong>: 内存缓存最近10次搜索结果</li>
+                    <li><strong>图片缓存</strong>: 使用HTTP缓存策略</li>
+                    <li><strong>数据清理</strong>: 定期清理过期缓存</li>
+                </ul>
+            </div>
+        </section>
+
+        <section id="implementation" class="section">
+            <h2>9. 技术实现指导</h2>
+
+            <h3>核心组件架构</h3>
+            <div class="code-block">// 搜索结果页面组件
+const SearchResultsPage = () => {
+  const [searchQuery, setSearchQuery] = useState('');
+  const [results, setResults] = useState([]);
+  const [loading, setLoading] = useState(false);
+  const [filters, setFilters] = useState({});
+  const [sortBy, setSortBy] = useState('relevance');
+
+  // 搜索功能
+  const performSearch = useCallback(
+    debounce(async (query) => {
+      setLoading(true);
+      try {
+        const searchResults = await searchAPI.search({
+          query,
+          filters,
+          sortBy,
+          userRole: currentUser.role
+        });
+        
+        setResults(searchResults);
+      } catch (error) {
+        handleSearchError(error);
+      } finally {
+        setLoading(false);
+      }
+    }, 300),
+    [filters, sortBy]
+  );
+
+  // 权限检查
+  const checkPermission = (item, action) => {
+    return permissionService.canPerform(
+      currentUser.role, 
+      action, 
+      item.type
+    );
+  };
+
+  return (
+    &lt;div className="search-results-page"&gt;
+      &lt;SearchHeader query={searchQuery} onQueryChange={setSearchQuery} /&gt;
+      &lt;SearchFilters filters={filters} onFilterChange={setFilters} /&gt;
+      &lt;SearchResults 
+        results={results} 
+        loading={loading}
+        onItemClick={handleItemClick}
+        checkPermission={checkPermission}
+      /&gt;
+    &lt;/div&gt;
+  );
+};</div>
+
+            <h3>搜索API设计</h3>
+            <div class="code-block">// 搜索API接口
+export const searchAPI = {
+  // 综合搜索
+  search: async (params) => {
+    const { query, filters, sortBy, userRole, page = 1 } = params;
+    
+    const response = await request('/api/search', {
+      method: 'POST',
+      body: JSON.stringify({
+        q: query,
+        filters,
+        sort: sortBy,
+        role: userRole,
+        page,
+        limit: 20
+      })
+    });
+    
+    return response.data;
+  },
+  
+  // 搜索建议
+  getSuggestions: async (query) => {
+    const response = await request(`/api/search/suggestions?q=${query}`);
+    return response.data;
+  },
+  
+  // 搜索历史
+  getHistory: () => {
+    return JSON.parse(localStorage.getItem('searchHistory') || '[]');
+  },
+  
+  // 保存搜索历史
+  saveHistory: (query) => {
+    const history = searchAPI.getHistory();
+    const newHistory = [query, ...history.filter(h => h !== query)].slice(0, 10);
+    localStorage.setItem('searchHistory', JSON.stringify(newHistory));
+  }
+};</div>
+
+            <h3>权限控制实现</h3>
+            <div class="code-block">// 权限服务
+class PermissionService {
+  constructor() {
+    this.rolePermissions = {
+      admin: ['*'], // 管理员所有权限
+      socialWorker: [
+        'patients.view',
+        'patients.edit', 
+        'services.review',
+        'activities.manage'
+      ],
+      volunteer: [
+        'patients.view_basic',
+        'services.create',
+        'activities.join'
+      ],
+      parent: [
+        'children.view',
+        'activities.family'
+      ]
+    };
+  }
+  
+  canPerform(userRole, permission, resourceType) {
+    const permissions = this.rolePermissions[userRole] || [];
+    
+    // 管理员拥有所有权限
+    if (permissions.includes('*')) {
+      return true;
+    }
+    
+    // 检查具体权限
+    const fullPermission = `${resourceType}.${permission}`;
+    return permissions.includes(fullPermission);
+  }
+  
+  maskSensitiveData(data, userRole) {
+    const maskingRules = {
+      volunteer: {
+        name: (name) => name.charAt(0) + '*' + name.charAt(name.length - 1),
+        phone: (phone) => phone.substring(0, 3) + '****' + phone.substring(7),
+        idCard: (id) => '***************' + id.substring(15)
+      }
+    };
+    
+    const rules = maskingRules[userRole];
+    if (!rules) return data;
+    
+    const maskedData = { ...data };
+    Object.keys(rules).forEach(field => {
+      if (maskedData[field]) {
+        maskedData[field] = rules[field](maskedData[field]);
+      }
+    });
+    
+    return maskedData;
+  }
+}</div>
+        </section>
+
+        <section id="quality-standards" class="section print-break">
+            <h2>10. 质量验收标准</h2>
+
+            <h3>功能完整性检查</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🔍 搜索功能 ✅</h4>
+                    <ul>
+                        <li>☐ 关键词搜索正常工作</li>
+                        <li>☐ 拼音搜索支持完善</li>
+                        <li>☐ 模糊匹配准确率高</li>
+                        <li>☐ 搜索建议相关性强</li>
+                        <li>☐ 搜索历史正确保存</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🎯 结果展示 ✅</h4>
+                    <ul>
+                        <li>☐ 结果分类清晰</li>
+                        <li>☐ 排序逻辑正确</li>
+                        <li>☐ 高亮匹配准确</li>
+                        <li>☐ 分页加载流畅</li>
+                        <li>☐ 空状态友好</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>权限安全检查</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>🛡️ 权限控制 ✅</h4>
+                    <ul>
+                        <li>☐ 角色权限正确限制</li>
+                        <li>☐ 敏感信息正确脱敏</li>
+                        <li>☐ 权限申请流程正常</li>
+                        <li>☐ 未授权访问被阻止</li>
+                        <li>☐ 数据泄露防护到位</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>🔐 数据安全 ✅</h4>
+                    <ul>
+                        <li>☐ 搜索日志安全记录</li>
+                        <li>☐ 用户隐私得到保护</li>
+                        <li>☐ 敏感词过滤正常</li>
+                        <li>☐ 访问控制严格执行</li>
+                        <li>☐ 审计追踪完整</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>性能指标检查</h3>
+            <table class="specs-table">
+                <thead>
+                    <tr>
+                        <th>性能指标</th>
+                        <th>目标值</th>
+                        <th>检查方法</th>
+                        <th>验收标准</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>搜索响应时间</td>
+                        <td>&lt; 2秒</td>
+                        <td>性能测试工具</td>
+                        <td>90%的搜索在2秒内完成</td>
+                    </tr>
+                    <tr>
+                        <td>结果加载时间</td>
+                        <td>&lt; 1秒</td>
+                        <td>页面性能监控</td>
+                        <td>首屏结果1秒内显示</td>
+                    </tr>
+                    <tr>
+                        <td>内存占用</td>
+                        <td>&lt; 50MB</td>
+                        <td>浏览器开发工具</td>
+                        <td>长时间使用内存稳定</td>
+                    </tr>
+                    <tr>
+                        <td>搜索准确率</td>
+                        <td>&gt; 85%</td>
+                        <td>用户测试反馈</td>
+                        <td>用户找到期望结果的比例</td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <h3>用户体验检查</h3>
+            <div class="grid-2">
+                <div class="card">
+                    <h4>💡 易用性 ✅</h4>
+                    <ul>
+                        <li>☐ 搜索入口容易找到</li>
+                        <li>☐ 搜索指导清晰明确</li>
+                        <li>☐ 错误提示友好有用</li>
+                        <li>☐ 操作反馈及时准确</li>
+                        <li>☐ 快捷操作便于使用</li>
+                    </ul>
+                </div>
+                
+                <div class="card">
+                    <h4>📱 响应式 ✅</h4>
+                    <ul>
+                        <li>☐ 移动端适配完善</li>
+                        <li>☐ 触控操作体验良好</li>
+                        <li>☐ 横竖屏切换正常</li>
+                        <li>☐ 不同屏幕尺寸适配</li>
+                        <li>☐ 键盘导航支持完整</li>
+                    </ul>
+                </div>
+            </div>
+
+            <h3>可访问性检查</h3>
+            <div class="card">
+                <h4>♿ 无障碍访问 ✅</h4>
+                <ul>
+                    <li>☐ 颜色对比度符合WCAG AA标准</li>
+                    <li>☐ 键盘导航路径清晰合理</li>
+                    <li>☐ 屏幕阅读器支持完善</li>
+                    <li>☐ 焦点指示器清晰可见</li>
+                    <li>☐ 语音搜索功能正常</li>
+                </ul>
+            </div>
+        </section>
+
+        <section class="section">
+            <h2>📄 附录</h2>
+            
+            <h3>A. 搜索算法配置</h3>
+            <div class="code-block">// 搜索权重配置
+const searchWeights = {
+  exactMatch: 10,      // 完全匹配
+  startsWith: 8,       // 开头匹配
+  contains: 6,         // 包含匹配
+  pinyin: 4,          // 拼音匹配
+  synonym: 3,         // 同义词匹配
+  fuzzy: 1            // 模糊匹配
+};
+
+// 字段权重配置
+const fieldWeights = {
+  name: 1.0,          // 姓名
+  id: 0.9,            // 身份证
+  diagnosis: 0.8,     // 诊断
+  bed: 0.7,           // 床位
+  content: 0.6        // 内容
+};</div>
+
+            <h3>B. 错误码定义</h3>
+            <div class="code-block">// 搜索相关错误码
+const SearchErrorCodes = {
+  SEARCH_TIMEOUT: {
+    code: 'SEARCH_001',
+    message: '搜索请求超时，请重试',
+    action: '重新搜索'
+  },
+  
+  PERMISSION_DENIED: {
+    code: 'SEARCH_002', 
+    message: '您没有权限搜索此内容',
+    action: '申请权限'
+  },
+  
+  INVALID_QUERY: {
+    code: 'SEARCH_003',
+    message: '搜索关键词格式不正确',
+    action: '修改关键词'
+  },
+  
+  SERVER_ERROR: {
+    code: 'SEARCH_004',
+    message: '搜索服务暂时不可用', 
+    action: '稍后重试'
+  }
+};</div>
+
+            <h3>C. 性能监控指标</h3>
+            <div class="code-block">// 搜索性能监控
+const performanceMetrics = {
+  // 搜索时间分布
+  searchTimeDistribution: {
+    '<1s': 0,
+    '1-2s': 0, 
+    '2-5s': 0,
+    '>5s': 0
+  },
+  
+  // 搜索成功率
+  searchSuccessRate: {
+    total: 0,
+    successful: 0,
+    failed: 0
+  },
+  
+  // 用户行为统计
+  userBehavior: {
+    averageQueryLength: 0,
+    popularKeywords: [],
+    retryRate: 0
+  }
+};</div>
+
+            <div class="card" style="margin-top: 40px; text-align: center; background: #F0FDF4; border: 2px solid #22C55E;">
+                <h4 style="color: #059669; margin-bottom: 15px;">📄 文档信息</h4>
+                <p><strong>版本:</strong> v1.0 | <strong>最后更新:</strong> 2025-09-04</p>
+                <p><strong>维护团队:</strong> UX设计团队</p>
+                <p><strong>适用项目:</strong> 大病儿童家庭"小家"服务管理小程序</p>
+                <p><strong>技术支持:</strong> 前端开发团队 & 后端开发团队</p>
+                <p><strong>产品负责:</strong> 产品经理团队</p>
+            </div>
+        </section>
+    </div>
+</body>
+</html>
