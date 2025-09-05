@@ -1,0 +1,48 @@
+<view class="page">
+  <view class="section">
+    <text class="label">患者ID</text>
+    <input class="input" placeholder="填写 patientId" value="{{patientId}}" bindinput="e=>setData({patientId:e.detail.value})" />
+    <text class="error" wx:if="{{errors.patientId}}">{{errors.patientId}}</text>
+  </view>
+
+  <view class="section">
+    <text class="label">服务类型</text>
+    <radio-group class="seg" bindchange="onType">
+      <label class="seg-item"><radio value="visit" checked="{{type==='visit'}}"/>探访</label>
+      <label class="seg-item"><radio value="psych" checked="{{type==='psych'}}"/>心理</label>
+      <label class="seg-item"><radio value="goods" checked="{{type==='goods'}}"/>物资</label>
+      <label class="seg-item"><radio value="referral" checked="{{type==='referral'}}"/>转介</label>
+      <label class="seg-item"><radio value="followup" checked="{{type==='followup'}}"/>随访</label>
+    </radio-group>
+    <text class="error" wx:if="{{errors.type}}">{{errors.type}}</text>
+  </view>
+
+  <view class="section">
+    <text class="label">日期</text>
+    <picker mode="date" value="{{date}}" bindchange="onDate">
+      <view class="picker">{{date || '选择日期'}}</view>
+    </picker>
+    <text class="error" wx:if="{{errors.date}}">{{errors.date}}</text>
+  </view>
+
+  <view class="section">
+    <text class="label">描述（≤500）</text>
+    <textarea class="textarea" maxlength="500" placeholder="请输入描述" value="{{desc}}" bindinput="e=>setData({desc:e.detail.value})" />
+  </view>
+
+  <view class="section">
+    <text class="label">图片（≤9，单张≤5MB）</text>
+    <view class="grid">
+      <block wx:for="{{images}}" wx:key="index">
+        <view class="thumb" bindtap="preview" data-index="{{index}}">
+          <image mode="aspectFill" src="{{item.local || item.fileID}}"/>
+          <view class="del" bindtap="remove" data-index="{{index}}">×</view>
+        </view>
+      </block>
+      <view class="thumb add" bindtap="choose">＋</view>
+    </view>
+    <text class="error" wx:if="{{errors.images}}">{{errors.images}}</text>
+  </view>
+
+  <button class="submit" loading="{{submitting}}" bindtap="onSubmit">提交</button>
+</view>
