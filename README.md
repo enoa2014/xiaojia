@@ -45,6 +45,11 @@ pnpm run deploy:importxlsx
 wx cloud callFunction --name import-xlsx --data '{"action":"fromCos","payload":{"fileID":"<fileID>"}}'
 ```
 
+示例（prepare/b.xlsx 的 COS 路径）
+```bash
+wx cloud callFunction --name import-xlsx --data '{"action":"fromCos","payload":{"fileID":"cloud://cloud1-3grb87gwaba26b64.636c-cloud1-3grb87gwaba26b64-1374503701/b.xlsx"}}'
+```
+
 ## 4. 表头映射（已适配你提供的截图）
 
 - 姓名 → `name`
