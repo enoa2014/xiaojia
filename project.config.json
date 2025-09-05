@@ -1,0 +1,17 @@
+{
+  "appid": "wx664e7353f0dfc67e",
+  "compileType": "miniprogram",
+  "projectname": "xiaojia",
+  "miniprogramRoot": "miniprogram/",
+  "cloudfunctionRoot": "functions/",
+  "setting": {
+    "urlCheck": false,
+    "es6": true,
+    "enhance": true,
+    "postcss": true,
+    "minified": true,
+    "bigPackageSizeSupport": true
+  },
+  "condition": {}
+}
+
