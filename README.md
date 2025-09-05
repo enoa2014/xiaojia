@@ -1,6 +1,9 @@
 
 # 小家服务管理小程序 · Milestone 0 一体化交付包
 
+## 文档索引
+- 文档总览与所有权: [docs/docs-index.md](docs/docs-index.md)
+
 **环境**：ENV_ID=`cloud1-3grb87gwaba26b64`（单环境）  
 **包含**：
 - 小程序（JS）+ 云函数（TS）项目骨架
