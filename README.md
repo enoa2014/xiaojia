@@ -3,6 +3,7 @@
 
 ## 文档索引
 - 文档总览与所有权: [docs/docs-index.md](docs/docs-index.md)
+- 代码结构总览: [docs/source-tree.md](docs/source-tree.md)
 
 **环境**：ENV_ID=`cloud1-3grb87gwaba26b64`（单环境）  
 **包含**：

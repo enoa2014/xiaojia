@@ -1,0 +1,31 @@
+name: Update Source Tree
+
+on:
+  push:
+    branches: [ main ]
+    paths-ignore:
+      - '.github/workflows/update-source-tree.yml'
+  workflow_dispatch:
+
+jobs:
+  generate:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+        with:
+          persist-credentials: true
+      - name: Generate docs/source-tree.md
+        run: |
+          bash ./scripts/gen-source-tree.sh || true
+      - name: Commit changes
+        run: |
+          if [[ -n $(git status --porcelain) ]]; then
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git add docs/source-tree.md
+            git commit -m "chore(docs): auto-update source-tree snapshot [skip ci]"
+            git push
+          else
+            echo "No changes to commit."
+          fi
