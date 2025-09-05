@@ -52,6 +52,8 @@
     - Owner: 架构/PO；Reviewer: 后端/前端；频率: 权限/安全策略变更
   - docs/data/init-from-b-reg.md：入住登记表导入方案
     - Owner: 后端；Reviewer: 架构/PO/QA；频率: 导入流程调整
+  - docs/data/migration-quality-plan.md：数据迁移与质量保障（流程/门禁/回滚/AQL）
+    - Owner: 后端；Reviewer: QA/架构/PO；频率: 每次迁移前复核
 
 - Specs
   - docs/specs/validation-rules.md：表单与业务校验规则
