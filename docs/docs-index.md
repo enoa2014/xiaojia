@@ -49,6 +49,8 @@
     - Owner: 后端；Reviewer: 前端/QA；频率: 新增/调整时
   - docs/api/quick-reference.md：API 快速参考（调用封装、分页/过滤/排序、退避重试）
     - Owner: 前端/后端；Reviewer: QA/PO；频率: 接入层更新
+  - docs/api/mocks/postman_collection.json：API Mock 集合（原型与样例）
+    - Owner: 前端/后端；Reviewer: QA/PO；频率: Mock/原型更新
 
 - Data
   - docs/data/data-dictionary.md：数据字典（集合/字段/索引）

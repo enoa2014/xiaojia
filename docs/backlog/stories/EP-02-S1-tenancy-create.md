@@ -90,3 +90,19 @@
 
 ## DoD
 - [ ] AC 全通过；测试通过；文档更新；A11y 通过
+
+---
+
+## 自检清单（Story Draft Checklist）
+- [ ] Story: As / I want / So that 明确
+- [ ] Scope: In/Out 明确
+- [ ] Acceptance Criteria: 覆盖成功/错误/边界
+- [ ] UI/UX: 页面/字段/交互/文案/A11y/红线链接
+- [ ] API: 动作/入参出参/错误码/重试幂等/契约链接
+- [ ] Data: 字段/索引/状态机/可见性
+- [ ] 校验与安全: 字段/业务/权限/审计
+- [ ] Analytics: 事件/属性/KPI/校验
+- [ ] NFR: 性能/退避/草稿/降级
+- [ ] Tasks: FE/BE/QA 可执行
+- [ ] Dependencies & Risks: 完整
+- [ ] DoR/DoD: 勾选就绪与完成条件

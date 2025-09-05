@@ -1,0 +1,60 @@
+{
+  "info": {
+    "name": "Miniapp Cloud Functions (Mock Prototype)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+    "description": "Requests mirror wx.cloud.callFunction payloads. Use with mock gateway or adapt to your env."
+  },
+  "item": [
+    {"name": "patients.list", "request": {"method": "POST", "header": [],
+      "url": {"raw": "https://mock.local/functions/patients", "protocol": "https", "host": ["mock","local"], "path":["functions","patients"]},
+      "body": {"mode":"raw", "raw": "{\n  \"action\": \"list\",\n  \"payload\": { \"page\": 1, \"pageSize\": 20 }\n}"}}},
+
+    {"name": "patients.create", "request": {"method": "POST", "header": [],
+      "url": {"raw": "https://mock.local/functions/patients", "protocol": "https", "host": ["mock","local"], "path":["functions","patients"]},
+      "body": {"mode":"raw", "raw": "{\n  \"action\": \"create\",\n  \"payload\": {\n    \"patient\": { \"name\": \"张三\", \"id_card\": \"1101...1234\", \"phone\": \"13800000000\" },\n    \"clientToken\": \"pt-16939-001\"\n  }\n}"}}},
+
+    {"name": "tenancies.create", "request": {"method": "POST", "header": [],
+      "url": {"raw": "https://mock.local/functions/tenancies", "protocol": "https", "host": ["mock","local"], "path":["functions","tenancies"]},
+      "body": {"mode":"raw", "raw": "{\n  \"action\": \"create\",\n  \"payload\": {\n    \"tenancy\": { \"patientId\": \"p1\", \"checkInDate\": \"2025-09-05\" },\n    \"clientToken\": \"tn-16939-001\"\n  }\n}"}}},
+
+    {"name": "services.create", "request": {"method": "POST", "header": [],
+      "url": {"raw": "https://mock.local/functions/services", "protocol": "https", "host": ["mock","local"], "path":["functions","services"]},
+      "body": {"mode":"raw", "raw": "{\n  \"action\": \"create\",\n  \"payload\": {\n    \"service\": { \"patientId\": \"p1\", \"type\": \"visit\", \"date\": \"2025-09-05\", \"desc\": \"随访\" },\n    \"clientToken\": \"sv-16939-001\"\n  }\n}"}}},
+
+    {"name": "services.review", "request": {"method": "POST", "header": [],
+      "url": {"raw": "https://mock.local/functions/services", "protocol": "https", "host": ["mock","local"], "path":["functions","services"]},
+      "body": {"mode":"raw", "raw": "{ \n  \"action\": \"review\", \n  \"payload\": { \"id\": \"s1\", \"decision\": \"approved\" }\n}"}}},
+
+    {"name": "activities.create", "request": {"method": "POST", "header": [],
+      "url": {"raw": "https://mock.local/functions/activities", "protocol": "https", "host": ["mock","local"], "path":["functions","activities"]},
+      "body": {"mode":"raw", "raw": "{ \n  \"action\": \"create\", \n  \"payload\": { \"activity\": { \"title\": \"亲子手工\", \"date\": \"2025-09-09\", \"capacity\": 20, \"status\": \"open\" } }\n}"}}},
+
+    {"name": "registrations.register", "request": {"method": "POST", "header": [],
+      "url": {"raw": "https://mock.local/functions/registrations", "protocol": "https", "host": ["mock","local"], "path":["functions","registrations"]},
+      "body": {"mode":"raw", "raw": "{ \n  \"action\": \"register\", \n  \"payload\": { \"activityId\": \"a1\" }\n}"}}},
+
+    {"name": "registrations.cancel", "request": {"method": "POST", "header": [],
+      "url": {"raw": "https://mock.local/functions/registrations", "protocol": "https", "host": ["mock","local"], "path":["functions","registrations"]},
+      "body": {"mode":"raw", "raw": "{ \n  \"action\": \"cancel\", \n  \"payload\": { \"activityId\": \"a1\" }\n}"}}},
+
+    {"name": "registrations.checkin", "request": {"method": "POST", "header": [],
+      "url": {"raw": "https://mock.local/functions/registrations", "protocol": "https", "host": ["mock","local"], "path":["functions","registrations"]},
+      "body": {"mode":"raw", "raw": "{ \n  \"action\": \"checkin\", \n  \"payload\": { \"activityId\": \"a1\", \"userId\": \"u1\" }\n}"}}},
+
+    {"name": "permissions.request.submit", "request": {"method": "POST", "header": [],
+      "url": {"raw": "https://mock.local/functions/permissions", "protocol": "https", "host": ["mock","local"], "path":["functions","permissions"]},
+      "body": {"mode":"raw", "raw": "{ \n  \"action\": \"request.submit\", \n  \"payload\": { \"fields\":[\"id_card\",\"phone\"], \"patientId\": \"p1\", \"reason\": \"跟进需要\" }\n}"}}},
+
+    {"name": "stats.monthly", "request": {"method": "POST", "header": [],
+      "url": {"raw": "https://mock.local/functions/stats", "protocol": "https", "host": ["mock","local"], "path":["functions","stats"]},
+      "body": {"mode":"raw", "raw": "{ \n  \"action\": \"monthly\", \n  \"payload\": { \"month\": \"2025-09\", \"scope\": \"services\" }\n}"}}},
+
+    {"name": "export.create", "request": {"method": "POST", "header": [],
+      "url": {"raw": "https://mock.local/functions/exports", "protocol": "https", "host": ["mock","local"], "path":["functions","exports"]},
+      "body": {"mode":"raw", "raw": "{ \n  \"action\": \"create\", \n  \"payload\": { \"type\": \"statsMonthly\", \"params\": { \"month\": \"2025-09\" }, \"clientToken\": \"ex-16939-001\" }\n}"}}},
+
+    {"name": "export.status", "request": {"method": "POST", "header": [],
+      "url": {"raw": "https://mock.local/functions/exports", "protocol": "https", "host": ["mock","local"], "path":["functions","exports"]},
+      "body": {"mode":"raw", "raw": "{ \n  \"action\": \"status\", \n  \"payload\": { \"taskId\": \"task-001\" }\n}"}}}
+  ]
+}
