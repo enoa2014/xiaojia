@@ -28,6 +28,10 @@
 - UI/UX（目录）
   - docs/uiux/*：页面设计/规范/分析
     - Owner: UX；Reviewer: PO/前端；频率: 迭代内设计变更
+  - 设计系统：docs/uiux/design-system/*（tokens、components、accessibility）
+    - Owner: UX/前端；Reviewer: 架构/QA；频率: 组件或视觉规范变更
+  - docs/uiux/page-specs/*.md：页面级实现细则（档案详情/服务表单/活动详情）
+    - Owner: 前端/UX；Reviewer: 架构/QA；频率: 页面实现或交互变更
 
 - Backlog
   - docs/backlog/user-stories.md：用户故事库（含验收标准）
@@ -80,3 +84,9 @@
 
 ## 维护日志
 - 2025-09-05 建立索引与所有权框架（初版）。
+
+
+- Additions
+  - docs/process/coding-standards.md：编码规范（前端/云函数）
+  - docs/data/data-model.md：数据模型蓝图（实体/关系/约束/索引）
+  - docs/api/prototype.md：API 原型样例（请求/响应/调用片段/Mock 建议）
