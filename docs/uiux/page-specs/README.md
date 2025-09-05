@@ -5,6 +5,9 @@
 - 档案详情（Patients Detail）：docs/uiux/page-specs/patient-detail.md
 - 服务记录表单（Service Record Form）：docs/uiux/page-specs/service-record-form.md
 - 活动详情（Activity Detail）：docs/uiux/page-specs/activity-detail.md
+- 档案列表/搜索页（Patients List & Search）：docs/uiux/page-specs/patients-list-search.md
+- 统计仪表盘（Stats Dashboard）：docs/uiux/page-specs/stats-dashboard.md
+- 活动报名管理（后台）：docs/uiux/page-specs/activity-registration-admin.md
 
 约定
 - 依据：PRD、Architecture 分片、API 契约与校验规则、字段脱敏矩阵
