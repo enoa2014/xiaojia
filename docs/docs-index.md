@@ -42,6 +42,8 @@
     - Owner: 架构/后端；Reviewer: 前端/QA/PO；频率: 任一接口变更即更新
   - docs/api/error-codes.md：错误码与前端处理
     - Owner: 后端；Reviewer: 前端/QA；频率: 新增/调整时
+  - docs/api/quick-reference.md：API 快速参考（调用封装、分页/过滤/排序、退避重试）
+    - Owner: 前端/后端；Reviewer: QA/PO；频率: 接入层更新
 
 - Data
   - docs/data/data-dictionary.md：数据字典（集合/字段/索引）
