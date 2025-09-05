@@ -32,6 +32,8 @@
     - Owner: UX/前端；Reviewer: 架构/QA；频率: 组件或视觉规范变更
   - docs/uiux/page-specs/*.md：页面级实现细则（档案详情/服务表单/活动详情）
     - Owner: 前端/UX；Reviewer: 架构/QA；频率: 页面实现或交互变更
+  - 红线标注交付：docs/uiux/handoff/redlines/*（按页面/组件拆分）
+    - Owner: UX；Reviewer: 前端/PO/QA；频率: 开发前必备与变更同步
 
 - Backlog
   - docs/backlog/user-stories.md：用户故事库（含验收标准）
@@ -51,6 +53,10 @@
     - Owner: 前端/后端；Reviewer: QA/PO；频率: 接入层更新
   - docs/api/mocks/postman_collection.json：API Mock 集合（原型与样例）
     - Owner: 前端/后端；Reviewer: QA/PO；频率: Mock/原型更新
+  - docs/api/mocks/thunder-collection.json：Thunder Client 集合（VS Code）
+    - Owner: 前端/后端；Reviewer: QA/PO；频率: Mock/原型更新
+  - docs/api/mocks/README.md：Mock 导入与使用说明
+    - Owner: 前端；Reviewer: QA；频率: 工具或网关变更
 
 - Data
   - docs/data/data-dictionary.md：数据字典（集合/字段/索引）

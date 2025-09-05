@@ -44,6 +44,7 @@ Status: Draft-Validated (缺少红线标注与床位冲突提示开关策略样�
   - `room?`、`bed?`、`subsidy?`（≥0，最多两位小数）
   - `extra.admitPersons?`（入住人，原样字符串）
 - 交互：日期选择器；金额输入限制；冲突仅提示；提交 Loading；错误定位
+- 红线标注：`docs/uiux/handoff/redlines/tenancies-form.md`
 
 ## API
 - `tenancies.create({ tenancy:{ patientId|id_card, checkInDate, checkOutDate?, room?, bed?, subsidy?, extra? }, clientToken })`

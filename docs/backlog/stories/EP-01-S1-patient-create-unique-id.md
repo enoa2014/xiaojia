@@ -22,6 +22,7 @@ Status: Draft-Validated (缺少红线标注链接/Mock 环境)
 - 字段：name(必)、id_card(必)、phone(可)、birthDate(可)，更多信息折叠
 - 文案：成功“创建成功”；冲突“身份证已存在，请搜索后编辑”；格式“身份证格式或校验位错误”
 - A11y：错误定位与焦点；触控≥88×88rpx；对比度≥4.5:1
+- 红线标注：`docs/uiux/handoff/redlines/patients-form.md`
 
 ## API
 - `patients.create({ patient, clientToken }) -> { ok:true, data:{ _id } } | { ok:false,error }`

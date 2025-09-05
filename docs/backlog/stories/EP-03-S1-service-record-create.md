@@ -23,6 +23,7 @@ Status: Draft-Validated (缺少红线标注与上传策略细节)
 - 字段：patientId、type(visit|psych|goods|referral|followup)、date(ISO)、desc≤500、images≤9（≤5MB/张）
 - 交互：图片预览/删除；提交 Loading；错误内联 + Toast
 - 文案：成功“提交成功，待审核”；超限“最多 9 张，每张≤5MB”
+- 红线标注：`docs/uiux/handoff/redlines/services-form.md`
 
 ## API
 - `services.create({ service:{ patientId,type,date,desc?,images? }, clientToken })`
