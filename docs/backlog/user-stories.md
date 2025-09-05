@@ -20,6 +20,7 @@
 ## 故事分组（按 Epic）
 
 ### EP-01 患者与家庭档案（Patients）
+- [文档] EP-01-S1 详细故事：docs/backlog/stories/EP-01-S1-patient-create-unique-id.md
 - [ ] EP-01-S1 身份证唯一去重与冲突提示（P0，M）
   - 作为：社工；我想要：创建患者档案时自动校验身份证唯一；以便：避免重复档案。
   - 验收（G/W/T）：
@@ -52,6 +53,7 @@
   - 接口：tenancies.update / list。
 
 ### EP-03 家庭服务记录（Services）
+- [文档] EP-03-S1 详细故事：docs/backlog/stories/EP-03-S1-service-record-create.md
 - [ ] EP-03-S1 志愿者提交服务记录（P0，M）
   - 作为：志愿者；我想要：提交探访/心理/物资等服务记录；以便：沉淀服务数据。
   - 验收：必填 `patientId,type,date`；图片可选；`clientToken` 幂等；成功返回 `_id`。

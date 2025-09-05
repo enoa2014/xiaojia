@@ -40,7 +40,8 @@
     - Owner: PO；Reviewer: QA；频率: 变更较少（按需）
   - docs/backlog/epics/README.md：Epic 索引与分片（EP-01..06）
     - Owner: PO；Reviewer: 架构/后端/前端/QA；频率: 迭代规划时
-
+  - docs/backlog/stories/*：详细故事（示例：EP-01-S1、EP-03-S1）
+    - Owner: PO；Reviewer: QA/前端/后端；频率: 每故事创建/变更
 - API
   - docs/api/contracts.md：云函数/API 契约（I/O/分页/错误码）
     - Owner: 架构/后端；Reviewer: 前端/QA/PO；频率: 任一接口变更即更新
