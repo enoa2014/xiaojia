@@ -33,15 +33,18 @@
 
 ### patients（已实现：list）
 - list：分页查询（当前）
+  - Sprint: 本 Sprint 交付项（增强：过滤/排序/meta）
   - in（payload）：`{ page?: number>=1, pageSize?: 1..100 }`（默认 1/10）
   - out：`{ ok: true, data: Patient[] }`
   - 备注：暂不支持 filter/sort 与 meta.total；MVP 将补充
   - 校验摘要：`page` 整数 ≥1；`pageSize` 整数 1..100；忽略未知字段。
 - get（MVP）：按 `_id` 查询详情
+  - Sprint: 本 Sprint 交付项
   - in：`{ id: string }`
   - out：`{ ok: true, data: Patient }`
   - 校验摘要：`id` 必填，字符串长度 1..64；按角色/审批过滤敏感字段（见字段脱敏矩阵）。
 - create（MVP，幂等）
+  - Sprint: 本 Sprint 交付项
   - in：`{ patient: { name, id_card, ... } , clientToken }`
   - out：`{ ok: true, data: { _id } }`
   - 规则：`id_card` 唯一；冲突 → `E_CONFLICT`
@@ -73,20 +76,27 @@ wx.cloud.callFunction({ name: 'patients', data: { action: 'list', payload: { pag
   - 校验摘要：`type ∈ visit|psych|goods|referral|followup`；`status ∈ review|approved|rejected`；其他分页同上。
 - get：`in { id }` → `out { ok:true, data: Service }`
 - create：`in { service:{ patientId, type, date, desc?, images? }, clientToken }` → `out { ok:true, data:{ _id } }`
+  - Sprint: 本 Sprint 交付项
 - review：`in { id, decision:'approved'|'rejected', reason? }` → `out { ok:true, data:{ updated } }`
+  - Sprint: 本 Sprint 交付项
   - 校验摘要：create 必填 `patientId,type,date`；`date` ISO；`desc≤500`；`images[]` 每张 ≤5MB、数量≤9；幂等 `clientToken`；review 仅允许 `review→approved|rejected`，被拒需 `reason`（20–200 字）；敏感操作写审计。
 
 ### activities（当前回显占位），registrations（当前回显占位）
 - activities.list/get/create/update（同上规范）
+  - Sprint: 本 Sprint 交付项（范围：create/list）
 - registrations.list：`in { activityId?, userId?, status? }` → `out { ok:true, data: Registration[] }`
 - registrations.register/cancel/checkin（幂等）
+  - Sprint: 本 Sprint 交付项
   - 校验摘要：activities.create 必填 `title(2–40),date,location(≤80),capacity≥0,status∈open|ongoing|done|closed`；
     registrations.register 需保证 `userId+activityId` 唯一，满员进入候补（waitlist）；cancel 释放名额；checkin 幂等（同一用户仅记录一次）。
 
 ### permissions（当前回显占位）
 - request.submit：`in { fields:string[], patientId?, reason }` → `out { ok:true, data:{ _id, expiresAt } }`
+  - Sprint: 本 Sprint 交付项
 - request.approve/reject：`in { id, expiresAt? | reason }` → `out { ok:true, data:{ updated } }`
+  - Sprint: 本 Sprint 交付项
 - request.list：按申请人/状态筛选
+  - Sprint: 本 Sprint 交付项
   - 校验摘要：`fields[]` 必须来自白名单（如 `id_card|phone|diagnosis`）；`reason≥20` 字；`expiresAt` 默认 30 天、最大 90 天；审批通过生成 TTL；任一明文读取与审批写审计。
 
 ### stats / exports（当前回显占位）

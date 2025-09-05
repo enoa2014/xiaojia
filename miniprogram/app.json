@@ -3,7 +3,8 @@
   "pages": [
     "pages/index/index",
     "pages/patients/form",
-    "pages/tenancies/form"
+    "pages/tenancies/form",
+    "pages/services/form"
   ],
   "window": {
     "navigationBarTitleText": "助医小家",

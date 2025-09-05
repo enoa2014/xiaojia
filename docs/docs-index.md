@@ -65,6 +65,8 @@
     - Owner: 架构/PO；Reviewer: 后端/前端；频率: 权限/安全策略变更
   - docs/data/init-from-b-reg.md：入住登记表导入方案
     - Owner: 后端；Reviewer: 架构/PO/QA；频率: 导入流程调整
+  - docs/data/import-runbook.md：原始数据导入运行手册（流程/规则/产物/索引/关联）
+    - Owner: 后端；Reviewer: 架构/PO/QA；频率: 每次导入/规则调整
   - docs/data/migration-quality-plan.md：数据迁移与质量保障（流程/门禁/回滚/AQL）
     - Owner: 后端；Reviewer: QA/架构/PO；频率: 每次迁移前复核
 
@@ -93,6 +95,8 @@
 
 ## 维护日志
 - 2025-09-05 建立索引与所有权框架（初版）。
+
+- 2025-09-05 新增导入运行手册；记录合并/剔除规则、JSONL 产物、索引与关联流程。
 
 
 - Additions

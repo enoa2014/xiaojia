@@ -3,7 +3,15 @@
   "Patients": {
     "indexes": [
       { "name": "idx_id_card", "unique": true, "keys": { "id_card": 1 } },
-      { "name": "idx_name_tail", "keys": { "name": 1, "id_card_tail": 1 } }
+      { "name": "idx_name_tail", "keys": { "name": 1, "id_card_tail": 1 } },
+      { "name": "idx_createdAt", "keys": { "createdAt": -1 } }
+    ]
+  },
+  "Tenancies": {
+    "indexes": [
+      { "name": "idx_idcard_checkin", "keys": { "id_card": 1, "checkInDate": -1 } },
+      { "name": "idx_patient_checkin", "keys": { "patientId": 1, "checkInDate": -1 } },
+      { "name": "idx_createdAt", "keys": { "createdAt": -1 } }
     ]
   },
   "Services": {
@@ -12,5 +20,30 @@
       { "name": "idx_patient_date",  "keys": { "patientId": 1, "date": -1 } }
     ]
   },
-  "Activities": { "indexes": [ { "name": "idx_status_date", "keys": { "status": 1, "date": 1 } } ] }
+  "Activities": { "indexes": [ { "name": "idx_status_date", "keys": { "status": 1, "date": 1 } } ] },
+  "Registrations": {
+    "indexes": [
+      { "name": "uniq_user_activity", "unique": true, "keys": { "userId": 1, "activityId": 1 } },
+      { "name": "idx_activity_status", "keys": { "activityId": 1, "status": 1 } }
+    ]
+  },
+  "PermissionRequests": {
+    "indexes": [
+      { "name": "idx_applicant_status", "keys": { "applicantId": 1, "status": 1 } },
+      { "name": "idx_expiresAt", "keys": { "expiresAt": 1 } }
+    ]
+  },
+  "ExportTasks": {
+    "indexes": [
+      { "name": "idx_status", "keys": { "status": 1 } },
+      { "name": "idx_type_createdAt", "keys": { "type": 1, "createdAt": -1 } }
+    ]
+  },
+  "AuditLogs": {
+    "indexes": [
+      { "name": "idx_timestamp", "keys": { "timestamp": -1 } },
+      { "name": "idx_actor_time", "keys": { "actorId": 1, "timestamp": -1 } },
+      { "name": "idx_action_time", "keys": { "action": 1, "timestamp": -1 } }
+    ]
+  }
 }
