@@ -24,16 +24,20 @@
   - in（payload）：`{ page?: number>=1, pageSize?: 1..100 }`（默认 1/10）
   - out：`{ ok: true, data: Patient[] }`
   - 备注：暂不支持 filter/sort 与 meta.total；MVP 将补充
+  - 校验摘要：`page` 整数 ≥1；`pageSize` 整数 1..100；忽略未知字段。
 - get（MVP）：按 `_id` 查询详情
   - in：`{ id: string }`
   - out：`{ ok: true, data: Patient }`
+  - 校验摘要：`id` 必填，字符串长度 1..64；按角色/审批过滤敏感字段（见字段脱敏矩阵）。
 - create（MVP，幂等）
   - in：`{ patient: { name, id_card, ... } , clientToken }`
   - out：`{ ok: true, data: { _id } }`
   - 规则：`id_card` 唯一；冲突 → `E_CONFLICT`
+  - 校验摘要：必填 `name,id_card`；`id_card` 18 位且校验位正确并全局唯一；`phone` 符合大陆手机号；`birthDate<=today`；可选文本字段长度限制（备注≤500）。`clientToken` 用于幂等去重。
 - update（MVP）
   - in：`{ id: string, patch: Partial<Patient> }`
   - out：`{ ok: true, data: { updated: number } }`
+  - 校验摘要：`id` 必填；`patch` 字段同 create 的字段级规则；`id_card` 默认不可变更（需管理员审批）；记录审计。
 
 示例（当前 patients.list）
 ```
@@ -45,35 +49,45 @@ wx.cloud.callFunction({ name: 'patients', data: { action: 'list', payload: { pag
 
 ### tenancies（回传占位，计划按下列契约实现）
 - list：`in { page?, pageSize?, filter:{ patientId?, id_card? }, sort? }` → `out { ok:true, data: Tenancy[] }`
+  - 校验摘要：分页参数同上；filter 中 `patientId|id_card` 字符串校验。
 - get：`in { id }` → `out { ok:true, data: Tenancy }`
 - create：`in { tenancy: { patientId|id_card, checkInDate, room?, bed?, subsidy?, extra? }, clientToken }` → `out { ok:true, data:{ _id } }`
 - update：`in { id, patch }` → `out { ok:true, data:{ updated } }`
 - 规则：同日同床位冲突 → `E_CONFLICT`
+  - 校验摘要：`checkInDate` 必填 ISO 日期；须提供 `patientId` 或 `id_card` 其一；`checkOutDate` 若填需 ≥ `checkInDate`；`subsidy≥0` 两位小数；`room|bed` 可空；冲突检测提示但可配置是否阻断。
 
 ### services（回传占位，计划按下列契约实现）
 - list：`in { page?, pageSize?, filter:{ patientId?, createdBy?, type?, status? }, sort? }` → `out { ok:true, data: Service[] }`
+  - 校验摘要：`type ∈ visit|psych|goods|referral|followup`；`status ∈ review|approved|rejected`；其他分页同上。
 - get：`in { id }` → `out { ok:true, data: Service }`
 - create：`in { service:{ patientId, type, date, desc?, images? }, clientToken }` → `out { ok:true, data:{ _id } }`
 - review：`in { id, decision:'approved'|'rejected', reason? }` → `out { ok:true, data:{ updated } }`
+  - 校验摘要：create 必填 `patientId,type,date`；`date` ISO；`desc≤500`；`images[]` 每张 ≤5MB、数量≤9；幂等 `clientToken`；review 仅允许 `review→approved|rejected`，被拒需 `reason`（20–200 字）；敏感操作写审计。
 
 ### activities（当前回显占位），registrations（当前回显占位）
 - activities.list/get/create/update（同上规范）
 - registrations.list：`in { activityId?, userId?, status? }` → `out { ok:true, data: Registration[] }`
 - registrations.register/cancel/checkin（幂等）
+  - 校验摘要：activities.create 必填 `title(2–40),date,location(≤80),capacity≥0,status∈open|ongoing|done|closed`；
+    registrations.register 需保证 `userId+activityId` 唯一，满员进入候补（waitlist）；cancel 释放名额；checkin 幂等（同一用户仅记录一次）。
 
 ### permissions（当前回显占位）
 - request.submit：`in { fields:string[], patientId?, reason }` → `out { ok:true, data:{ _id, expiresAt } }`
 - request.approve/reject：`in { id, expiresAt? | reason }` → `out { ok:true, data:{ updated } }`
 - request.list：按申请人/状态筛选
+  - 校验摘要：`fields[]` 必须来自白名单（如 `id_card|phone|diagnosis`）；`reason≥20` 字；`expiresAt` 默认 30 天、最大 90 天；审批通过生成 TTL；任一明文读取与审批写审计。
 
 ### stats / exports（当前回显占位）
 - stats.monthly / stats.yearly：`in { scope:'patients'|'services'|..., month|year }` → `out { ok:true, data:{ items, meta } }`
 - export.create：`in { type, params, clientToken }` → `out { ok:true, data:{ taskId } }`
 - export.status：`in { taskId }` → `out { ok:true, data:{ status, downloadUrl?, expiresAt? } }`
+  - 校验摘要：stats.monthly 需 `month=YYYY-MM`；stats.yearly 需 `year=YYYY`；
+    export.create 的 `type ∈ statsMonthly|statsAnnual` 且 `clientToken` 幂等；status 需 `taskId`（存在性校验）。下载链接有效期默认 30 分钟。
 
 ### users（当前回显占位）
 - me.get：返回当前用户资料与角色
 - profile.update：更新基础资料（受权限控制）
+  - 校验摘要：受 RBAC 控制，仅允许更新非敏感字段（如昵称、头像）；如涉及电话等敏感数据需按字段规则校验并走审批逻辑。
 
 ### init-db（已实现）
 - main：创建缺失集合
@@ -85,4 +99,5 @@ wx.cloud.callFunction({ name: 'patients', data: { action: 'list', payload: { pag
   - in：`{ action:'fromCos', payload:{ fileID: string } }`
   - out：`{ ok:true, data:{ importedPatients: number, importedTenancies: number, rows: number, sheet: string } }`
   - 错误：缺少 fileID → `E_ARG`；不支持的 action → `E_ACTION`
-
+  - 校验摘要：`fileID` 必填且为合法 COS 路径；对行数据执行日期标准化、手机号/身份证提取、空值处理；
+    患者按 `id_card` 去重入库；入住记录允许缺失 `patientId`（后续回填）。
