@@ -5,13 +5,14 @@
     <text class="tool" bindtap="wip">🔔</text>
     <text class="tool" bindtap="wip">💬</text>
     <text class="tool" bindtap="wip">⚙️</text>
+    <text class="tool" bindtap="openRoleSwitcher">🧪</text>
   </view>
   
 </view>
 
 <view class="user-status">
   <view class="identity">
-    <view class="avatar">👩‍💼</view>
+    <view class="avatar">{{user.avatar || '👩‍💼'}}</view>
     <view class="meta">
       <view class="name">{{user.name}}（{{user.roleName}}）</view>
       <view class="perm">权限：<text class="ok">{{user.permText}}</text></view>

@@ -5,6 +5,7 @@ Page({
     user: {
       name: '李社工',
       roleName: '社工',
+      avatar: '🧑‍💼',
       permText: '正常 ✅',
       todayDone: 5,
       todayTotal: 12,
@@ -35,6 +36,13 @@ Page({
   onLoad(){
     this.setData({ loading: true })
     this.refreshData()
+    // 恢复调试身份
+    try {
+      const role = wx.getStorageSync('debug_role')
+      if (role && role.name) {
+        this.setData({ 'user.roleName': role.name, 'user.avatar': role.avatar })
+      }
+    } catch(_) {}
   },
   onShow() {
     const now = this.formatNow()
@@ -89,5 +97,24 @@ Page({
       wx.showToast({ icon: 'none', title: mapError(e.code) })
       console.error(e)
     }
+  }
+  ,
+  // 调试用：切换身份（管理员/社工/志愿者/家长）
+  openRoleSwitcher(){
+    const roles = [
+      { key:'admin', name:'管理员', avatar:'👩‍💼' },
+      { key:'social_worker', name:'社工', avatar:'🧑‍💼' },
+      { key:'volunteer', name:'志愿者', avatar:'🙋' },
+      { key:'parent', name:'家长', avatar:'👨‍👩‍👧' }
+    ]
+    const itemList = roles.map(r => r.name)
+    wx.showActionSheet({ itemList }).then(res => {
+      const idx = res.tapIndex
+      const r = roles[idx]
+      if (!r) return
+      this.setData({ 'user.roleName': r.name, 'user.avatar': r.avatar })
+      try { wx.setStorageSync('debug_role', r) } catch(_) {}
+      wx.showToast({ icon:'none', title: `已切换为${r.name}` })
+    }).catch(()=>{})
   }
 })
