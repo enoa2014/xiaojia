@@ -62,7 +62,7 @@ export const api = {
 }
 export const mapError = (code) => ({
   E_AUTH: '请先登录后再试',
-  E_PERM: '权限不足',
+  E_PERM: '无权限操作',
   E_VALIDATE: '填写有误',
   E_NOT_FOUND: '数据不存在',
   E_CONFLICT: '数据冲突',

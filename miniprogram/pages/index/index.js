@@ -5,18 +5,14 @@ Page({
     user: {
       name: '李社工',
       roleName: '社工',
+      roleKey: null,
       avatar: '🧑‍💼',
       permText: '正常 ✅',
       todayDone: 5,
       todayTotal: 12,
       now: ''
     },
-    actions: [
-      { key: 'patient-search', icon: '🔍', title: '档案速查', subtitle: '快速定位' },
-      { key: 'service-quick', icon: '❤️', title: '快速记录', subtitle: '服务登记' },
-      { key: 'activity-today', icon: '📅', title: '今日活动', subtitle: '进行中' },
-      { key: 'contact-emergency', icon: '🚨', title: '紧急联系', subtitle: '医院/家属' }
-    ],
+    actions: [],
     stats: [
       { key: 'services', label: '本月服务', value: '127', trend: '+15%' },
       { key: 'patients', label: '管理档案', value: '69', trend: '+4' },
@@ -40,7 +36,8 @@ Page({
     try {
       const role = wx.getStorageSync('debug_role')
       if (role && role.name) {
-        this.setData({ 'user.roleName': role.name, 'user.avatar': role.avatar })
+        this.setData({ 'user.roleName': role.name, 'user.avatar': role.avatar, 'user.roleKey': role.key })
+        this.setData({ actions: this.computeActions(role.key) })
       }
     } catch(_) {}
     // 以云端为准同步身份
@@ -63,6 +60,36 @@ Page({
       if (stopPullDown) wx.stopPullDownRefresh()
     }
   },
+  computeActions(roleKey){
+    // 对齐 docs/uiux/xiaojia_homepage.tsx 的角色快速入口
+    const map = {
+      admin: [
+        { key: 'global-search', icon: '🔎', title: '全局搜索', subtitle: '跨域查询' },
+        { key: 'perm-approval', icon: '🛡️', title: '权限审批', subtitle: '待处理' },
+        { key: 'system-stats', icon: '📊', title: '系统统计', subtitle: '实时监控' },
+        { key: 'settings', icon: '⚙️', title: '系统设置', subtitle: '配置管理' }
+      ],
+      social_worker: [
+        { key: 'patient-files', icon: '📁', title: '档案管理', subtitle: '新建/编辑' },
+        { key: 'service-review', icon: '✅', title: '服务审核', subtitle: '待审核' },
+        { key: 'activity-manage', icon: '📅', title: '活动组织', subtitle: '创建/管理' },
+        { key: 'family-contact', icon: '📞', title: '家属联系', subtitle: '紧急联系人' }
+      ],
+      volunteer: [
+        { key: 'service-record', icon: '❤️', title: '服务记录', subtitle: '快速填写' },
+        { key: 'patient-view', icon: '🧑‍🤝‍🧑', title: '档案查看', subtitle: '脱敏显示' },
+        { key: 'my-activities', icon: '📅', title: '我的活动', subtitle: '已报名' },
+        { key: 'service-guide', icon: '📘', title: '服务指南', subtitle: '操作手册' }
+      ],
+      parent: [
+        { key: 'my-child', icon: '🧒', title: '我的孩子', subtitle: '' },
+        { key: 'service-progress', icon: '📄', title: '服务记录', subtitle: '查看进展' },
+        { key: 'family-activities', icon: '🧩', title: '亲子活动', subtitle: '可参与' },
+        { key: 'community', icon: '💬', title: '互助社区', subtitle: '经验分享' }
+      ]
+    }
+    return map[roleKey] || []
+  },
   formatNow() {
     const d = new Date();
     const hh = String(d.getHours()).padStart(2,'0')
@@ -75,18 +102,53 @@ Page({
   async onAction(e) {
     const key = e.currentTarget.dataset.key
     switch (key) {
-      case 'patient-search':
+      // 管理员入口
+      case 'global-search':
         wx.navigateTo({ url: '/pages/patients/index' })
         break
-      case 'service-quick':
+      case 'perm-approval':
+        wx.navigateTo({ url: '/pages/permissions/apply' }) // 审批页后续补齐，暂指向申请页
+        break
+      case 'system-stats':
+        wx.navigateTo({ url: '/pages/stats/index' })
+        break
+      case 'settings':
+        this.wip(); break
+      // 社工入口
+      case 'patient-files':
+        wx.navigateTo({ url: '/pages/patients/index' })
+        break
+      case 'service-review':
+        wx.navigateTo({ url: '/pages/services/index' })
+        break
+      case 'activity-manage':
+        wx.navigateTo({ url: '/pages/activities/index' })
+        break
+      case 'family-contact':
+        this.wip(); break
+      // 志愿者入口
+      case 'service-record':
         wx.navigateTo({ url: '/pages/services/form' })
         break
-      case 'activity-today':
-        this.wip()
+      case 'patient-view':
+        wx.navigateTo({ url: '/pages/patients/index' })
         break
-      case 'contact-emergency':
-        this.wip()
+      case 'my-activities':
+        wx.navigateTo({ url: '/pages/activities/index' })
         break
+      case 'service-guide':
+        this.wip(); break
+      // 家长入口
+      case 'my-child':
+        this.wip(); break
+      case 'service-progress':
+        wx.navigateTo({ url: '/pages/services/index' })
+        break
+      case 'family-activities':
+        wx.navigateTo({ url: '/pages/activities/index' })
+        break
+      case 'community':
+        this.wip(); break
       default:
         this.wip()
     }
@@ -114,7 +176,9 @@ Page({
       const idx = res.tapIndex
       const r = roles[idx]
       if (!r) return
-      this.setData({ 'user.roleName': r.name, 'user.avatar': r.avatar })
+      this.setData({ 'user.roleName': r.name, 'user.avatar': r.avatar, 'user.roleKey': r.key })
+      try { require('../../components/utils/auth').setUserRoles([r.key]) } catch(_) {}
+      this.setData({ actions: this.computeActions(r.key) })
       try { wx.setStorageSync('debug_role', r) } catch(_) {}
       // 同步到云端 Users 集合（用于后端 RBAC）
       wx.cloud.callFunction({ name: 'users', data: { action: 'setRole', payload: { role: r.key } } })
@@ -133,7 +197,9 @@ Page({
       }
       const m = map[prof.role]
       if (m) {
-        this.setData({ 'user.roleName': m.name, 'user.avatar': m.avatar })
+        this.setData({ 'user.roleName': m.name, 'user.avatar': m.avatar, 'user.roleKey': prof.role })
+        this.setData({ actions: this.computeActions(prof.role) })
+        try { require('../../components/utils/auth').setUserRoles(prof.roles && Array.isArray(prof.roles) ? prof.roles : (prof.role ? [prof.role] : [])) } catch(_) {}
         try { wx.setStorageSync('debug_role', { key: prof.role, ...m }) } catch(_) {}
       }
     } catch(_) {}

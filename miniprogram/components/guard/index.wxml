@@ -1,0 +1,8 @@
+<block wx:if="{{mode==='hide'}}">
+  <block wx:if="{{allowed}}"><slot /></block>
+</block>
+<block wx:elif="{{mode==='disable'}}">
+  <view class="guard-wrap {{allowed?'':'guard-disabled'}}" catchtap="{{allowed?'': 'onBlockedTap'}}">
+    <slot />
+  </view>
+</block>
