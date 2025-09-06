@@ -2,6 +2,7 @@
 import cloud from 'wx-server-sdk'
 import { z } from 'zod'
 import { isRole } from '../packages/core-rbac'
+import { mapZodIssues } from '../packages/core-utils/validation'
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 
@@ -31,7 +32,10 @@ export const main = async (event:any): Promise<Resp<any>> => {
     switch (action) {
       case 'request.submit': {
         const parsed = SubmitSchema.safeParse(payload || {})
-        if (!parsed.success) return { ok:false, error:{ code:'E_VALIDATE', msg:'请完善申请信息（字段/理由/有效期）', details: parsed.error.issues } }
+        if (!parsed.success) {
+          const m = mapZodIssues(parsed.error.issues)
+          return { ok:false, error:{ code:'E_VALIDATE', msg: m.msg, details: parsed.error.issues } }
+        }
         const p = parsed.data
         const { OPENID } = cloud.getWXContext?.() || ({} as any)
         if (!OPENID) return { ok:false, error:{ code:'E_AUTH', msg:'请先登录' } }
@@ -52,7 +56,10 @@ export const main = async (event:any): Promise<Resp<any>> => {
       }
       case 'request.approve': {
         const parsed = ApproveSchema.safeParse(payload || {})
-        if (!parsed.success) return { ok:false, error:{ code:'E_VALIDATE', msg:'参数不合法', details: parsed.error.issues } }
+        if (!parsed.success) {
+          const m = mapZodIssues(parsed.error.issues)
+          return { ok:false, error:{ code:'E_VALIDATE', msg: m.msg, details: parsed.error.issues } }
+        }
         const { id, expiresAt } = parsed.data
         // 角色校验：需要管理员权限
         if (!(await isAdmin())) return { ok:false, error:{ code:'E_PERM', msg:'需要管理员权限' } }
@@ -66,7 +73,10 @@ export const main = async (event:any): Promise<Resp<any>> => {
       }
       case 'request.reject': {
         const parsed = RejectSchema.safeParse(payload || {})
-        if (!parsed.success) return { ok:false, error:{ code:'E_VALIDATE', msg:'参数不合法', details: parsed.error.issues } }
+        if (!parsed.success) {
+          const m = mapZodIssues(parsed.error.issues)
+          return { ok:false, error:{ code:'E_VALIDATE', msg: m.msg, details: parsed.error.issues } }
+        }
         const { id, reason } = parsed.data
         // 角色校验：需要管理员权限
         if (!(await isAdmin())) return { ok:false, error:{ code:'E_PERM', msg:'需要管理员权限' } }
@@ -79,7 +89,10 @@ export const main = async (event:any): Promise<Resp<any>> => {
       }
       case 'request.list': {
         const qp = ListSchema.safeParse(payload || {})
-        if (!qp.success) return { ok:false, error:{ code:'E_VALIDATE', msg:'参数不合法', details: qp.error.issues } }
+        if (!qp.success) {
+          const m = mapZodIssues(qp.error.issues)
+          return { ok:false, error:{ code:'E_VALIDATE', msg: m.msg, details: qp.error.issues } }
+        }
         const q = qp.data
         let where: any = {}
         if (q.filter) {
