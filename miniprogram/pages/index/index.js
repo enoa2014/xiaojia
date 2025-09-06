@@ -32,9 +32,26 @@ Page({
       { id: 'u3', time: '13:20', text: '新患者“赵小朋友”建档完成' }
     ]
   },
+  onLoad(){
+    this.setData({ loading: true })
+    this.refreshData()
+  },
   onShow() {
     const now = this.formatNow()
     this.setData({ 'user.now': now })
+  },
+  onPullDownRefresh(){
+    this.refreshData(true)
+  },
+  async refreshData(stopPullDown){
+    try {
+      // 模拟数据聚合加载延迟
+      await new Promise(r => setTimeout(r, 200))
+      // TODO: 可接入真实聚合接口，填充 actions/stats/tasks/updates
+    } finally {
+      this.setData({ loading: false })
+      if (stopPullDown) wx.stopPullDownRefresh()
+    }
   },
   formatNow() {
     const d = new Date();
@@ -49,7 +66,7 @@ Page({
     const key = e.currentTarget.dataset.key
     switch (key) {
       case 'patient-search':
-        this.wip()
+        wx.navigateTo({ url: '/pages/patients/index' })
         break
       case 'service-quick':
         wx.navigateTo({ url: '/pages/services/form' })

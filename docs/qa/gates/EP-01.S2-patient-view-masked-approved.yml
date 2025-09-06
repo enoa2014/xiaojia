@@ -1,0 +1,14 @@
+schema: 1
+story: "EP-01.S2"
+story_title: "档案查看（脱敏/审批窗口内明文）"
+gate: "PASS"
+status_reason: "回归通过：id_card/phone/diagnosis 默认脱敏与批准窗口内明文返回均符合；到期回收与审计生效；错误处理与 A11y 达标。"
+reviewer: "Quinn (Test Architect)"
+updated: "2025-09-06T02:25:00Z"
+waiver: { active: false }
+top_issues: []
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 0, low: 0 }
+  recommendations:
+    must_fix: []
+    monitor: []

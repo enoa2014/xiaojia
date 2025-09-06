@@ -1,0 +1,7 @@
+.form { padding: 20rpx; }
+.field { margin-bottom: 20rpx; }
+.label { color:#374151; font-size: 26rpx; margin-bottom: 8rpx; }
+input { background:#fff; border-radius: 8rpx; padding: 16rpx; border: 1rpx solid #E5E7EB; }
+.picker { background:#fff; border-radius: 8rpx; padding: 16rpx; border: 1rpx solid #E5E7EB; color:#111827; }
+.primary { margin-top: 24rpx; background:#22C55E; color:white; border:none; }
+

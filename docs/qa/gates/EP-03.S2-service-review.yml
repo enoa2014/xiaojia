@@ -1,0 +1,14 @@
+schema: 1
+story: "EP-03.S2"
+story_title: "服务记录审核（通过/驳回）"
+gate: "PASS"
+status_reason: "审核通过/驳回流转、参数/权限校验、并发一致性与审计均符合；前端审核操作可用，错误映射一致。"
+reviewer: "Quinn (Test Architect)"
+updated: "2025-09-06T03:25:00Z"
+waiver: { active: false }
+top_issues: []
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 0, low: 0 }
+  recommendations:
+    must_fix: []
+    monitor: []

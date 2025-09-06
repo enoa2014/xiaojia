@@ -1,0 +1,18 @@
+schema: 1
+story: "EP-04.S2"
+story_title: "报名/取消/签到（Registrations）"
+gate: "PASS"
+status_reason: "自测走查通过：报名/候补、重复报名冲突、取消→自动补位、签到幂等与权限、列表过滤均符合 AC；并发极端场景列为监控项。"
+reviewer: "Quinn (Test Architect)"
+updated: "2025-09-06T12:00:00Z"
+waiver: { active: false }
+top_issues:
+  - id: "EP04S2-CONC-01"
+    severity: medium
+    finding: "容量统计基于事务 count；需并发压测验证极端同时报名场景"
+    suggested_action: "补并发测试与日志采样，必要时引入占用计数字段"
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 0, low: 1 }
+  recommendations:
+    must_fix: []
+    monitor: ["并发报名一致性","取消后自动补位正确性"]

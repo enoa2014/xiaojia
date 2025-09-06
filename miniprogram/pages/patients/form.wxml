@@ -1,23 +1,63 @@
 <view class="page">
-  <view class="section">
+  <!-- 基本信息 -->
+  <view class="section" id="field-name">
     <text class="label">姓名</text>
-    <input class="input" placeholder="请输入姓名" value="{{name}}" bindinput="onName" />
+    <input class="input {{errors.name?'error-border':''}}" placeholder="请输入姓名" value="{{name}}" data-key="name" bindinput="onInput" />
+    <text class="error" wx:if="{{errors.name}}">{{errors.name}}</text>
   </view>
-  <view class="section">
+  <view class="section" id="field-id_card">
     <text class="label">身份证</text>
-    <input class="input" placeholder="请输入身份证号码" value="{{id_card}}" bindinput="onIdCard" />
+    <input class="input {{errors.id_card?'error-border':''}}" placeholder="请输入身份证号码" value="{{id_card}}" data-key="id_card" bindinput="onInput" />
     <text class="error" wx:if="{{errors.id_card}}">{{errors.id_card}}</text>
   </view>
-  <view class="section">
+  <view class="section" id="field-phone">
     <text class="label">手机号（可选）</text>
-    <input class="input" type="number" placeholder="11位手机号" value="{{phone}}" bindinput="onPhone" />
+    <input class="input {{errors.phone?'error-border':''}}" type="number" placeholder="11位手机号" value="{{phone}}" data-key="phone" bindinput="onInput" />
     <text class="error" wx:if="{{errors.phone}}">{{errors.phone}}</text>
   </view>
-  <view class="section">
+  <view class="section" id="field-birthDate">
     <text class="label">出生日期（可选）</text>
-    <picker mode="date" value="{{birthDate}}" bindchange="onBirthDate">
-      <view class="picker">{{birthDate || '选择日期'}} </view>
+    <picker mode="date" value="{{birthDate}}" bindchange="onPickBirth">
+      <view class="picker {{errors.birthDate?'error-border':''}}">{{birthDate || '选择日期'}}</view>
     </picker>
+    <text class="error" wx:if="{{errors.birthDate}}">{{errors.birthDate}}</text>
   </view>
+
+  <!-- 更多信息（折叠） -->
+  <view class="more-toggle" bindtap="toggleMore">
+    <text class="more-text">更多信息</text>
+    <text class="more-arrow">{{moreOpen? '▲' : '▼'}}</text>
+  </view>
+  <view wx:if="{{moreOpen}}">
+    <view class="section">
+      <text class="label">性别（可选）</text>
+      <radio-group class="seg" bindchange="onInput" data-key="gender">
+        <label class="seg-item"><radio value="male" checked="{{gender==='male'}}"/>男</label>
+        <label class="seg-item"><radio value="female" checked="{{gender==='female'}}"/>女</label>
+      </radio-group>
+    </view>
+    <view class="section"><text class="label">籍贯（可选）</text><input class="input" placeholder="如：河北 石家庄" value="{{nativePlace}}" data-key="nativePlace" bindinput="onInput" /></view>
+    <view class="section"><text class="label">民族（可选）</text><input class="input" placeholder="如：汉族" value="{{ethnicity}}" data-key="ethnicity" bindinput="onInput" /></view>
+    <view class="section"><text class="label">就诊医院（可选）</text><input class="input" placeholder="医院名称" value="{{hospital}}" data-key="hospital" bindinput="onInput" /></view>
+    <view class="section"><text class="label">医院诊断（可选）</text><input class="input" placeholder="诊断摘要" value="{{hospitalDiagnosis}}" data-key="hospitalDiagnosis" bindinput="onInput" /></view>
+    <view class="section"><text class="label">主治医生（可选）</text><input class="input" placeholder="医生姓名" value="{{doctorName}}" data-key="doctorName" bindinput="onInput" /></view>
+    <view class="section"><text class="label">症状详情（可选）</text><textarea class="textarea" maxlength="500" placeholder="≤500 字" value="{{symptoms}}" data-key="symptoms" bindinput="onInput" /></view>
+    <view class="section"><text class="label">医疗过程（可选）</text><textarea class="textarea" maxlength="500" placeholder="≤500 字" value="{{medicalCourse}}" data-key="medicalCourse" bindinput="onInput" /></view>
+    <view class="section"><text class="label">后续治疗安排（可选）</text><textarea class="textarea" maxlength="500" placeholder="≤500 字" value="{{followupPlan}}" data-key="followupPlan" bindinput="onInput" /></view>
+    <view class="section" id="field-motherPhone">
+      <text class="label">母亲电话（可选）</text>
+      <input class="input {{errors.motherPhone?'error-border':''}}" type="number" placeholder="11位手机号" value="{{motherPhone}}" data-key="motherPhone" bindinput="onInput" />
+      <text class="error" wx:if="{{errors.motherPhone}}">{{errors.motherPhone}}</text>
+    </view>
+    <view class="section" id="field-motherIdCard">
+      <text class="label">母亲身份证（可选）</text>
+      <input class="input {{errors.motherIdCard?'error-border':''}}" placeholder="18位身份证" value="{{motherIdCard}}" data-key="motherIdCard" bindinput="onInput" />
+      <text class="error" wx:if="{{errors.motherIdCard}}">{{errors.motherIdCard}}</text>
+    </view>
+    <view class="section"><text class="label">母亲姓名（可选）</text><input class="input" placeholder="姓名" value="{{motherName}}" data-key="motherName" bindinput="onInput" /></view>
+    <view class="section"><text class="label">其他监护人（可选）</text><input class="input" placeholder="姓名/关系" value="{{otherGuardians}}" data-key="otherGuardians" bindinput="onInput" /></view>
+    <view class="section"><text class="label">家庭经济（可选）</text><input class="input" placeholder="如：困难/一般/良好" value="{{familyEconomy}}" data-key="familyEconomy" bindinput="onInput" /></view>
+  </view>
+
   <button class="submit" loading="{{submitting}}" bindtap="onSubmit">提交</button>
 </view>

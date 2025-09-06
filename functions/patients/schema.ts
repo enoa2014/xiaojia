@@ -2,7 +2,14 @@ import { z } from 'zod'
 
 export const PatientsListSchema = z.object({
   page: z.number().int().min(1).default(1),
-  pageSize: z.number().int().min(1).max(100).default(10)
+  pageSize: z.number().int().min(1).max(100).default(10),
+  filter: z.object({
+    name: z.string().min(1).max(30).optional(), // 前缀匹配（不区分大小写）
+    id_card_tail: z.string().min(2).max(4).optional(), // 尾 2-4 位精确
+    createdFrom: z.number().optional(),
+    createdTo: z.number().optional()
+  }).partial().optional(),
+  sort: z.record(z.string(), z.union([z.literal(1), z.literal(-1)])).optional()
 })
 
 export const PatientCreateSchema = z.object({
@@ -30,4 +37,3 @@ export const PatientUpdateSchema = z.object({
   id: z.string(),
   patch: PatientCreateSchema.partial()
 })
-

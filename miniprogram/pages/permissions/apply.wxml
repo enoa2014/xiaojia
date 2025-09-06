@@ -1,0 +1,27 @@
+<view class="page">
+  <view class="section">
+    <text class="label">申请字段</text>
+    <view class="chips">
+      <text class="chip {{fields.id_card?'active':''}}" data-key="id_card" bindtap="toggleField">身份证</text>
+      <text class="chip {{fields.phone?'active':''}}" data-key="phone" bindtap="toggleField">手机号</text>
+      <text class="chip {{fields.diagnosis?'active':''}}" data-key="diagnosis" bindtap="toggleField">诊断</text>
+    </view>
+    <text class="error" wx:if="{{errors.fields}}">{{errors.fields}}</text>
+  </view>
+
+  <view class="section">
+    <text class="label">有效期</text>
+    <picker mode="selector" range="{{expiresOptions}}" value="{{expiresIndex}}" bindchange="onExpires">
+      <view class="picker">{{expiresOptions[expiresIndex]}} 天</view>
+    </picker>
+  </view>
+
+  <view class="section">
+    <text class="label">申请理由（≥20字）</text>
+    <textarea class="textarea" maxlength="300" placeholder="请填写申请理由" value="{{reason}}" bindinput="onReason" />
+    <text class="error" wx:if="{{errors.reason}}">{{errors.reason}}</text>
+  </view>
+
+  <button class="submit" loading="{{submitting}}" bindtap="onSubmit">提交申请</button>
+</view>
+

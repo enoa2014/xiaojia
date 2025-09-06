@@ -1,11 +1,27 @@
 <view class="page">
-  <view class="section">
+  <view class="upload-bar" wx:if="{{uploading}}">
+    <view class="bar">
+      <view class="progress" style="width: {{uploadProgress}}%"></view>
+    </view>
+    <text class="pct">{{uploadDone}}/{{uploadTotal}}（{{uploadProgress}}%）</text>
+  </view>
+  <view class="mode">
+    <text class="label">模式</text>
+    <view class="mode-row">
+      <text class="mode-chip {{quickMode?'active':''}}" bindtap="onToggleMode">快速记录</text>
+      <text class="mode-chip {{!quickMode?'active':''}}" bindtap="onToggleMode">详细记录</text>
+      <view class="spacer"></view>
+      <button class="mini" size="mini" bindtap="saveDraft">保存草稿</button>
+      <button class="mini" size="mini" bindtap="clearDraft">清除</button>
+    </view>
+  </view>
+  <view class="section" id="field-patientId">
     <text class="label">患者ID</text>
     <input class="input" placeholder="填写 patientId" value="{{patientId}}" bindinput="e=>setData({patientId:e.detail.value})" />
     <text class="error" wx:if="{{errors.patientId}}">{{errors.patientId}}</text>
   </view>
 
-  <view class="section">
+  <view class="section" id="field-type">
     <text class="label">服务类型</text>
     <radio-group class="seg" bindchange="onType">
       <label class="seg-item"><radio value="visit" checked="{{type==='visit'}}"/>探访</label>
@@ -17,7 +33,7 @@
     <text class="error" wx:if="{{errors.type}}">{{errors.type}}</text>
   </view>
 
-  <view class="section">
+  <view class="section" id="field-date">
     <text class="label">日期</text>
     <picker mode="date" value="{{date}}" bindchange="onDate">
       <view class="picker">{{date || '选择日期'}}</view>
@@ -25,12 +41,12 @@
     <text class="error" wx:if="{{errors.date}}">{{errors.date}}</text>
   </view>
 
-  <view class="section">
+  <view class="section" wx:if="{{!quickMode}}">
     <text class="label">描述（≤500）</text>
     <textarea class="textarea" maxlength="500" placeholder="请输入描述" value="{{desc}}" bindinput="e=>setData({desc:e.detail.value})" />
   </view>
 
-  <view class="section">
+  <view class="section" wx:if="{{!quickMode}}" id="field-images">
     <text class="label">图片（≤9，单张≤5MB）</text>
     <view class="grid">
       <block wx:for="{{images}}" wx:key="index">

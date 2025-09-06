@@ -1,0 +1,28 @@
+<view class="form">
+  <view class="field">
+    <view class="label">标题</view>
+    <input placeholder="如：亲子康复训练" value="{{title}}" bindinput="onTitle" />
+  </view>
+  <view class="field">
+    <view class="label">日期</view>
+    <picker mode="date" value="{{date}}" bindchange="onDate">
+      <view class="picker">{{date || '请选择日期'}}</view>
+    </picker>
+  </view>
+  <view class="field">
+    <view class="label">地点</view>
+    <input placeholder="如：活动室 A" value="{{location}}" bindinput="onLocation" />
+  </view>
+  <view class="field">
+    <view class="label">容量</view>
+    <input type="number" placeholder="0 表示无限" value="{{capacity}}" bindinput="onCapacity" />
+  </view>
+  <view class="field">
+    <view class="label">状态</view>
+    <picker mode="selector" range="{{statusList}}" value="{{statusIndex}}" bindchange="onStatusChange">
+      <view class="picker">{{statusList[statusIndex]}}</view>
+    </picker>
+  </view>
+  <button class="primary" loading="{{submitting}}" bindtap="submit">提交</button>
+</view>
+

@@ -25,7 +25,7 @@
 - 索引：`createdBy+date(desc)`；`patientId+date(desc)`；`status`
 
 ## Activities
-- 字段：`title` `date` `location` `capacity` `status(open|closed|ongoing|done)`
+- 字段：`title` `date` `location` `capacity` `status(open|closed|ongoing|done)` `createdAt`
 - 索引：`date(desc)`；`status`
 
 ## Registrations
@@ -51,4 +51,3 @@
   1) 更新本数据字典
   2) 更新相关索引/迁移脚本
   3) 在测试计划中新增/调整用例
-

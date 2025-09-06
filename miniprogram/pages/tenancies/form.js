@@ -13,6 +13,9 @@ Page({
     submitting: false,
     errors: {}
   },
+  onLoad(opts){
+    if (opts && opts.pid) this.setData({ patientId: opts.pid })
+  },
   onPatientId(e){ this.setData({ patientId: e.detail.value, errors: { ...this.data.errors, identity: '' } }) },
   onIdCard(e){ this.setData({ id_card: e.detail.value, errors: { ...this.data.errors, identity: '' } }) },
   onCheckInDate(e){ this.setData({ checkInDate: e.detail.value, errors: { ...this.data.errors, checkInDate: '' } }) },
@@ -57,4 +60,3 @@ Page({
     }
   }
 })
-

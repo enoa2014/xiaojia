@@ -2,7 +2,14 @@ import { z } from 'zod'
 
 export const ServicesListSchema = z.object({
   page: z.number().int().min(1).default(1),
-  pageSize: z.number().int().min(1).max(100).default(10)
+  pageSize: z.number().int().min(1).max(100).default(10),
+  filter: z.object({
+    patientId: z.string().min(1).max(64).optional(),
+    createdBy: z.string().min(1).max(128).optional(),
+    type: z.enum(['visit','psych','goods','referral','followup']).optional(),
+    status: z.enum(['review','approved','rejected']).optional()
+  }).partial().optional(),
+  sort: z.record(z.string(), z.union([z.literal(1), z.literal(-1)])).optional()
 })
 
 export const ServiceCreateSchema = z.object({
@@ -18,4 +25,3 @@ export const ServiceReviewSchema = z.object({
   decision: z.enum(['approved','rejected']),
   reason: z.string().min(20).max(200).optional()
 })
-

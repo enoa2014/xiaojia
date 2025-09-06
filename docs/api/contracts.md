@@ -31,35 +31,33 @@
 
 ## 模块与函数（当前实现与MVP目标）
 
-### patients（已实现：list）
+### patients（已实现：list/get/create）
 - list：分页查询（当前）
   - Sprint: 本 Sprint 交付项（增强：过滤/排序/meta）
-  - in（payload）：`{ page?: number>=1, pageSize?: 1..100 }`（默认 1/10）
-  - out：`{ ok: true, data: Patient[] }`
-  - 备注：暂不支持 filter/sort 与 meta.total；MVP 将补充
-  - 校验摘要：`page` 整数 ≥1；`pageSize` 整数 1..100；忽略未知字段。
-- get（MVP）：按 `_id` 查询详情
-  - Sprint: 本 Sprint 交付项
+  - in（payload）：`{ page?: number>=1, pageSize?: 1..100, filter?: { name?: string, id_card_tail?: string, createdFrom?: 'YYYY-MM-DD', createdTo?: 'YYYY-MM-DD' }, sort?: { [field]: 1|-1 } }`
+  - out：`{ ok: true, data: { items: Patient[], meta: { total: number, hasMore: boolean } } }`
+  - 说明：`name` 前缀不区分大小写；默认按 `createdAt desc`；仅单字段排序生效。
+  - 校验摘要：`page` 整数 ≥1；`pageSize` 整数 1..100；过滤字段类型与格式校验；未知字段忽略。
+- get（已实现）：按 `_id` 查询详情（含字段脱敏/审批窗口）
   - in：`{ id: string }`
-  - out：`{ ok: true, data: Patient }`
-  - 校验摘要：`id` 必填，字符串长度 1..64；按角色/审批过滤敏感字段（见字段脱敏矩阵）。
-- create（MVP，幂等）
-  - Sprint: 本 Sprint 交付项
+  - out：`{ ok: true, data: Patient & { permission?: { fields: string[], expiresAt?: number, hasSensitive: boolean } } }`
+  - 行为：`id_card`、`phone` 默认脱敏；如存在有效期内审批（PermissionRequests）则返回明文并写入 `AuditLogs`（`patients.readSensitive`）。
+- create（已实现，幂等）
   - in：`{ patient: { name, id_card, ... } , clientToken }`
   - out：`{ ok: true, data: { _id } }`
   - 规则：`id_card` 唯一；冲突 → `E_CONFLICT`
-  - 校验摘要：必填 `name,id_card`；`id_card` 18 位且校验位正确并全局唯一；`phone` 符合大陆手机号；`birthDate<=today`；可选文本字段长度限制（备注≤500）。`clientToken` 用于幂等去重。
+  - 校验摘要：严格二代身份证校验（含校验位）；`birthDate<=today`；`phone` 符合大陆手机号；可选文本字段长度限制（备注≤500）；`clientToken` 用于幂等去重；写入 `id_card_tail` 与 `createdAt`。
 - update（MVP）
   - in：`{ id: string, patch: Partial<Patient> }`
   - out：`{ ok: true, data: { updated: number } }`
   - 校验摘要：`id` 必填；`patch` 字段同 create 的字段级规则；`id_card` 默认不可变更（需管理员审批）；记录审计。
 
-示例（当前 patients.list）
+示例（patients.list 带过滤/分页）
 ```
 // 请求
-wx.cloud.callFunction({ name: 'patients', data: { action: 'list', payload: { page: 1, pageSize: 20 } } })
+wx.cloud.callFunction({ name: 'patients', data: { action: 'list', payload: { page: 1, pageSize: 20, filter: { name: '张', id_card_tail: '1234' }, sort: { createdAt: -1 } } } })
 // 响应
-{ ok: true, data: [ /* Patient */ ] }
+{ ok: true, data: { items: [ /* Patient */ ], meta: { total: 42, hasMore: true } } }
 ```
 
 ### tenancies（回传占位，计划按下列契约实现）
@@ -71,32 +69,42 @@ wx.cloud.callFunction({ name: 'patients', data: { action: 'list', payload: { pag
 - 规则：同日同床位冲突 → `E_CONFLICT`
   - 校验摘要：`checkInDate` 必填 ISO 日期；须提供 `patientId` 或 `id_card` 其一；`checkOutDate` 若填需 ≥ `checkInDate`；`subsidy≥0` 两位小数；`room|bed` 可空；冲突检测提示但可配置是否阻断。
 
-### services（回传占位，计划按下列契约实现）
+### services（已实现：create/review）
 - list：`in { page?, pageSize?, filter:{ patientId?, createdBy?, type?, status? }, sort? }` → `out { ok:true, data: Service[] }`
   - 校验摘要：`type ∈ visit|psych|goods|referral|followup`；`status ∈ review|approved|rejected`；其他分页同上。
 - get：`in { id }` → `out { ok:true, data: Service }`
 - create：`in { service:{ patientId, type, date, desc?, images? }, clientToken }` → `out { ok:true, data:{ _id } }`
-  - Sprint: 本 Sprint 交付项
+  - 状态：已实现
 - review：`in { id, decision:'approved'|'rejected', reason? }` → `out { ok:true, data:{ updated } }`
-  - Sprint: 本 Sprint 交付项
+  - 状态：已实现
   - 校验摘要：create 必填 `patientId,type,date`；`date` ISO；`desc≤500`；`images[]` 每张 ≤5MB、数量≤9；幂等 `clientToken`；review 仅允许 `review→approved|rejected`，被拒需 `reason`（20–200 字）；敏感操作写审计。
 
-### activities（当前回显占位），registrations（当前回显占位）
-- activities.list/get/create/update（同上规范）
-  - Sprint: 本 Sprint 交付项（范围：create/list）
-- registrations.list：`in { activityId?, userId?, status? }` → `out { ok:true, data: Registration[] }`
-- registrations.register/cancel/checkin（幂等）
-  - Sprint: 本 Sprint 交付项
-  - 校验摘要：activities.create 必填 `title(2–40),date,location(≤80),capacity≥0,status∈open|ongoing|done|closed`；
-    registrations.register 需保证 `userId+activityId` 唯一，满员进入候补（waitlist）；cancel 释放名额；checkin 幂等（同一用户仅记录一次）。
+### activities（已实现：create/list）
+- list：`in { page?, pageSize?, filter:{ status?:'open'|'ongoing'|'done'|'closed', from?:'YYYY-MM-DD', to?:'YYYY-MM-DD' }, sort? }` → `out { ok:true, data: Activity[] | { items: Activity[], meta:{ total:number, hasMore:boolean } } }`
+  - 校验摘要：分页同上；`status` 枚举；`from/to` 为日期字符串，作为 `date` 的闭区间过滤；默认按 `date desc` 排序。
+- get：`in { id }` → `out { ok:true, data: Activity }`
+- create：`in { activity:{ title(2–40), date('YYYY-MM-DD'), location(≤80), capacity(≥0,int), status∈open|ongoing|done|closed, description? }, clientToken? }` → `out { ok:true, data:{ _id } }`
+  - 校验摘要：字段级校验如上；非法 → `E_VALIDATE`；成功写入 `createdAt`。
+  - RBAC：仅 `admin|social_worker` 允许创建；否则 `E_PERM`。
+  - 备注：`update` 暂未纳入本 Sprint 范围。
 
-### permissions（当前回显占位）
+### registrations（已实现：register/cancel/checkin）
+- list：`in { activityId?, userId?, status? }` → `out { ok:true, data: Registration[] }`
+  - 约定：`userId='me'` 表示当前用户；支持按 `activityId`、`status` 过滤；默认 `createdAt desc`
+- register：`in { activityId }` → `out { ok:true, data:{ status } } | { ok:false, error:{ code:'E_CONFLICT', msg } }`
+  - 规则：同一用户/活动唯一记录；容量 0 表示无限；有限容量满 → `waitlist`；已报名/候补再次报名 → `E_CONFLICT`
+- cancel：`in { activityId }` → `out { ok:true, data:{ updated } }`
+  - 规则：状态置为 `cancelled`；若有限额且存在候补，最早候补自动转 `registered`
+- checkin：`in { activityId, userId? }` → `out { ok:true, data:{ updated } } | { ok:false, error:{ code:'E_PERM'|'E_NOT_FOUND' } }`
+  - 规则：幂等（重复签到 `updated:0`）；仅管理员/社工可为他人签到；普通用户仅可为自己签到
+
+### permissions（已实现：request.submit/approve/reject/list）
 - request.submit：`in { fields:string[], patientId?, reason }` → `out { ok:true, data:{ _id, expiresAt } }`
-  - Sprint: 本 Sprint 交付项
+  - 状态：已实现
 - request.approve/reject：`in { id, expiresAt? | reason }` → `out { ok:true, data:{ updated } }`
-  - Sprint: 本 Sprint 交付项
+  - 状态：已实现
 - request.list：按申请人/状态筛选
-  - Sprint: 本 Sprint 交付项
+  - 状态：已实现
   - 校验摘要：`fields[]` 必须来自白名单（如 `id_card|phone|diagnosis`）；`reason≥20` 字；`expiresAt` 默认 30 天、最大 90 天；审批通过生成 TTL；任一明文读取与审批写审计。
 
 ### stats / exports（当前回显占位）

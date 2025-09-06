@@ -1,0 +1,12 @@
+.page { padding: 16rpx; }
+.search-bar { display:flex; gap: 12rpx; margin-bottom: 12rpx; }
+.search-input { flex:1; height: 80rpx; padding: 0 20rpx; border: 2rpx solid #D1D5DB; border-radius: 12rpx; }
+.search-btn { width: 160rpx; height: 80rpx; background:#22C55E; color:#fff; border-radius: 12rpx; }
+.modes { display:flex; gap: 16rpx; margin-bottom: 16rpx; color:#6B7280; }
+.mode { padding: 6rpx 12rpx; border: 2rpx solid #D1D5DB; border-radius: 8rpx; }
+.mode.active { color:#111827; border-color:#22C55E; }
+.item { display:flex; justify-content:space-between; align-items:center; padding: 16rpx 8rpx; border-bottom: 2rpx solid #F3F4F6; }
+.name { font-size: 22rpx; color:#111827; }
+.sub { display:block; margin-top: 4rpx; font-size: 18rpx; color:#6B7280; }
+.arrow { font-size: 28rpx; color:#9CA3AF; }
+.empty { text-align:center; color:#9CA3AF; padding: 40rpx 0; }

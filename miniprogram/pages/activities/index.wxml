@@ -1,0 +1,31 @@
+<view class="toolbar">
+  <view class="tabs">
+    <block wx:for="{{tabs}}" wx:key="key">
+      <view
+        class="tab {{item.key===active?'active':''}}"
+        data-key="{{item.key}}"
+        bindtap="switchTab"
+      >{{item.label}}</view>
+    </block>
+  </view>
+  <button class="primary" size="mini" bindtap="toCreate">发布活动</button>
+  <view class="spacer"></view>
+</view>
+
+<view wx:if="{{loading}}" class="loading">加载中...</view>
+<view wx:if="{{!loading && list.length===0}}" class="empty">暂无{{
+  tabs.find(t=>t.key===active).label
+}}的活动</view>
+<view wx:if="{{!!error}}" class="error">{{error}}</view>
+
+<view class="list">
+  <block wx:for="{{list}}" wx:key="_id">
+    <view class="card" bindtap="toDetail" data-id="{{item._id}}">
+      <view class="row">
+        <text class="title">{{item.title}}</text>
+        <text class="badge status-{{item.status}}">{{item.status}}</text>
+      </view>
+      <view class="meta">{{item.date}} · {{item.location}} · 容量 {{item.capacity}}</view>
+    </view>
+  </block>
+</view>

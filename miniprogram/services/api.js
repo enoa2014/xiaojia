@@ -43,6 +43,17 @@ export const api = {
     get: (id) => call('services','get', { id }),
     create: (service, clientToken) => callWithRetry('services','create', { service, clientToken }),
     review: (id, decision, reason) => call('services','review', { id, decision, reason })
+  },
+  activities: {
+    list: (q) => call('activities','list', q),
+    get: (id) => call('activities','get', { id }),
+    create: (activity, clientToken) => callWithRetry('activities','create', { activity, clientToken })
+  },
+  registrations: {
+    list: (q) => call('registrations', 'list', q),
+    register: (activityId) => call('registrations', 'register', { activityId }),
+    cancel: (activityId) => call('registrations', 'cancel', { activityId }),
+    checkin: (activityId, userId) => call('registrations', 'checkin', { activityId, userId })
   }
 }
 export const mapError = (code) => ({

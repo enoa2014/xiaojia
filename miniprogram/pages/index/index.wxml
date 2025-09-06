@@ -23,7 +23,7 @@
   </view>
 </view>
 
-<view class="quick-actions">
+<view class="quick-actions" wx:if="{{!loading}}">
   <block wx:for="{{actions}}" wx:key="key">
     <view class="action-card" bindtap="onAction" data-key="{{item.key}}">
       <view class="icon">{{item.icon}}</view>
@@ -33,7 +33,7 @@
   </block>
 </view>
 
-<view class="data-overview">
+<view class="data-overview" wx:if="{{!loading}}">
   <view class="section-title">本月概况</view>
   <scroll-view scroll-x class="stats-container">
     <block wx:for="{{stats}}" wx:key="key">
@@ -47,7 +47,7 @@
   
 </view>
 
-<view class="task-reminders">
+<view class="task-reminders" wx:if="{{!loading}}">
   <view class="task-header">
     <view>📋 待办事项 ({{tasks.length}})</view>
     <view class="link" bindtap="wip">查看全部 〉</view>
@@ -62,7 +62,7 @@
   </view>
 </view>
 
-<view class="recent-updates">
+<view class="recent-updates" wx:if="{{!loading}}">
   <view class="task-header">
     <view>🕐 最新动态</view>
     <view class="link" bindtap="wip">查看更多 〉</view>
@@ -74,5 +74,24 @@
         <view class="text">{{item.text}}</view>
       </view>
     </block>
+  </view>
+  </view>
+<!-- 骨架屏 -->
+<view wx:if="{{loading}}" class="skeleton">
+  <view class="sk-qa">
+    <view class="sk-card"></view>
+    <view class="sk-card"></view>
+    <view class="sk-card"></view>
+    <view class="sk-card"></view>
+  </view>
+  <view class="sk-stats">
+    <view class="sk-stat"></view>
+    <view class="sk-stat"></view>
+    <view class="sk-stat"></view>
+  </view>
+  <view class="sk-tasks">
+    <view class="sk-task"></view>
+    <view class="sk-task"></view>
+    <view class="sk-task"></view>
   </view>
 </view>

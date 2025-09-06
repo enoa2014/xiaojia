@@ -1,0 +1,14 @@
+schema: 1
+story: "EP-04.S1"
+story_title: "活动发布与列表"
+gate: "PASS"
+status_reason: "回归通过：字段校验/状态筛选/日期范围/排序/空错态/性能抽样与 RBAC（仅管理员/社工可创建）均符合 AC；后端返回 {items,meta}，前端兼容。"
+reviewer: "Quinn (Test Architect)"
+updated: "2025-09-06T10:30:00Z"
+waiver: { active: false }
+top_issues: []
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 0, low: 0 }
+  recommendations:
+    must_fix: []
+    monitor: []

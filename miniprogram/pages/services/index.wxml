@@ -1,0 +1,36 @@
+<view class="page">
+  <!-- 顶部筛选：状态 Tab -->
+  <view class="tabs">
+    <block wx:for="{{tabs}}" wx:key="key">
+      <text class="tab {{tabKey===item.key?'active':''}}" data-key="{{item.key}}" bindtap="setTab">{{item.text}}</text>
+    </block>
+    <switch class="mine" checked="{{mineOnly}}" bindchange="toggleMine"/> 
+    <text class="mine-text">只看我的</text>
+  </view>
+
+  <!-- 类型 chips -->
+  <scroll-view scroll-x class="chips">
+    <block wx:for="{{typeChips}}" wx:key="key">
+      <text class="chip {{typeKey===item.key?'active':''}}" data-key="{{item.key}}" bindtap="setType">{{item.text}}</text>
+    </block>
+  </scroll-view>
+
+  <!-- 列表 -->
+  <block wx:for="{{list}}" wx:key="_id">
+    <view class="item" bindtap="toDetail" data-id="{{item._id}}">
+      <view class="type">{{item.typeText}}</view>
+      <view class="content">
+        <view class="line1">{{item.desc || '（无描述）'}}</view>
+        <view class="meta">{{item.dateText}} · {{item.statusText}}</view>
+        <view class="review-actions" wx:if="{{item.status==='review'}}">
+          <button class="btn ok" size="mini" catchtap="onApprove" data-id="{{item._id}}">通过</button>
+          <button class="btn no" size="mini" catchtap="onReject" data-id="{{item._id}}">驳回</button>
+        </view>
+      </view>
+      <view class="status status-{{item.status}}">{{item.statusText}}</view>
+    </view>
+  </block>
+
+  <view class="empty" wx:if="{{!loading && list.length===0}}">暂无记录</view>
+  <view class="fab" bindtap="toCreate">＋</view>
+</view>

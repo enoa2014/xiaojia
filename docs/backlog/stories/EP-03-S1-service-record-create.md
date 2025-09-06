@@ -1,5 +1,5 @@
 # Story: EP-03-S1 服务记录提交（创建）
-Status: Ready for Development
+Status: Done
 
 ## Story
 - As: 志愿者
@@ -45,9 +45,28 @@ Status: Ready for Development
 - 草稿：本地存储，提交成功清理
 
 ## Tasks
-- FE：表单/图片/校验/提交与草稿/埋点
-- BE：校验与入库、默认 `status='review'`、记录 createdBy/createdAt
-- QA：成功/校验失败/超限/退避/草稿/幂等
+- [x] FE：表单/图片/校验/提交与草稿/埋点（新增 5MB 校验与上传进度；错误定位滚动；幂等 clientToken）
+- [x] BE：校验与入库、默认 `status='review'`、记录 createdBy/createdAt（幂等：clientToken 去重）
+- [x] QA：成功/校验失败/超限/退避/草稿/幂等
+
+---
+
+## Dev Agent Record
+- Agent Model Used: dev (James)
+- What Changed:
+  - FE：`pages/services/form` 增加图片大小≤5MB 校验；上传进度条（顺序上传累计进度）；校验失败滚动到首错；草稿保留。
+  - BE：`functions/services/index.ts` 在 `create` 动作上实现幂等（`clientToken` 存储与查重），返回已存在记录 `_id`；保持 `status='review'`、`createdBy/createdAt`。
+- Validations Executed:
+  - AC1 成功提交 → 返回 `_id` 并 Toast 提示；
+  - AC2 缺必填/非法 → 前端内联错误并滚动定位；
+  - AC3 图片>9 或 单张>5MB → 阻止提交并 Toast“最多 9 张，每张≤5MB”；
+  - AC4 幂等：相同 `clientToken` 重复提交仅创建 1 条并返回相同 `_id`；
+  - AC5 弱网草稿：失败不清空草稿；再次进入仍保留；
+  - AC6 A11y：进度/Loading、控件≥88rpx、颜色对比达标。
+
+## File List
+- Modified: `miniprogram/pages/services/form.{js,wxml,wxss}`
+- Modified: `functions/services/index.ts`
 
 ## Dependencies
 - 上传封装；`validation-rules.md`；`design-system/accessibility.md`
@@ -56,13 +75,13 @@ Status: Ready for Development
 - 大图多图时延：压缩与缩略图；提交前先上传
 
 ## DoR
-- [ ] 表单设计红线
-- [ ] 契约与错误码对齐
-- [ ] 上传限制确认
-- [ ] 用例评审
+- [x] 表单设计红线
+- [x] 契约与错误码对齐
+- [x] 上传限制确认
+- [x] 用例评审
 
 ## DoD
-- [ ] AC 全通过；测试通过；文档更新；A11y 通过
+- [x] AC 全通过；测试通过；文档更新；A11y 通过
 
 ---
 
@@ -79,3 +98,22 @@ Status: Ready for Development
 - [x] Tasks: FE/BE/QA 可执行
 - [x] Dependencies & Risks: 完整
 - [x] DoR/DoD: 勾选就绪与完成条件
+
+---
+
+## QA Results
+- Reviewer: Quinn（QA）
+- Gate Decision: PASS
+- Summary: 回归通过。`services.create` 已改用 `safeParse` 并在校验失败时返回 `E_VALIDATE`（含友好 `msg`）；AC1–AC6 全部满足。
+
+Retest by Acceptance Criteria
+- AC1 成功提交：PASS（合法必填 → 返回 `_id`，`status='review'`）
+- AC2 校验失败（type/date/patientId）→ E_VALIDATE：PASS（返回 `E_VALIDATE`，`msg` 分别为“请选择服务类型/日期/请先选择患者”）
+- AC3 图片限制：PASS（>9 或 单张>5MB 在前端阻止并提示）
+- AC4 幂等：PASS（相同 `clientToken` 二次提交返回同一 `_id`）
+- AC5 弱网草稿：PASS（失败不清空草稿；可手动保存/清理；重试封装生效）
+- AC6 A11y：PASS（进度条/Loading；控件≥88rpx；对比度合规）
+
+Notes
+- 后端：`functions/services/index.ts` create 分支 `safeParse` + E_VALIDATE，保留 `clientToken` 幂等、`createdBy/createdAt/status` 默认。
+- 前端：`pages/services/form` 图片大小校验、上传进度、错误滚动定位与草稿保存符合规范。

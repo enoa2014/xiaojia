@@ -59,9 +59,34 @@ export async function callWithRetry(name, action, payload={}, opts={}) {
 
 ## 示例
 ```js
-// patients.list（带退避重试）
+// patients.list：过滤/排序 + 分页（返回 { items, meta }）
 import { callWithRetry } from '../services/api'
-const items = await callWithRetry('patients', 'list', { page: 1, pageSize: 20 })
+const { items, meta } = await callWithRetry('patients', 'list', {
+  page: 1,
+  pageSize: 20,
+  filter: { name: '张', id_card_tail: '1234' },
+  sort: { createdAt: -1 }
+})
+
+// patients.get：含脱敏/审批窗口（permission 字段）
+const detail = await callWithRetry('patients', 'get', { id: 'PATIENT_ID' })
+// detail.permission = { fields: ['id_card','phone'], expiresAt: 1710000000000, hasSensitive: true }
+
+// services.review：仅允许 review→approved|rejected；被拒必须提供 reason 20–200 字
+try {
+  const res = await callWithRetry('services', 'review', { id: 'SERVICE_ID', decision: 'rejected', reason: '信息不完整，请补充服务内容详情' })
+  // res = { updated: 1 }
+} catch (e) {
+  if (e.code === 'E_PERM') wx.showToast({ title: '无权限操作', icon: 'none' })
+}
+
+// permissions.request.submit：申请查看敏感字段（如 id_card/phone/diagnosis）
+const req = await callWithRetry('permissions', 'request.submit', {
+  fields: ['id_card','phone'],
+  patientId: 'PATIENT_ID',
+  reason: '跟进个案，需要核验证件与联系电话用于回访'
+})
+// 通过后再次 get 将在有效期内返回明文字段，并写入审计日志
 ```
 
 更多详情：

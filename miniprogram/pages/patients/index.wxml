@@ -1,0 +1,53 @@
+<view class="page">
+  <!-- 统计概览 -->
+  <view class="stats">
+    <view class="stat-card">
+      <text class="stat-num">{{stats.patients}}</text>
+      <text class="stat-label">档案总数</text>
+    </view>
+  </view>
+
+  <!-- 搜索栏与筛选 -->
+  <view class="search-bar">
+    <input class="search-input" placeholder="姓名前缀 或 证件尾4位" value="{{keyword}}" bindinput="onInput" confirm-type="search" bindconfirm="search"/>
+    <button class="search-btn" loading="{{loading}}" bindtap="search">搜索</button>
+  </view>
+  <view class="filters">
+    <picker mode="date" value="{{fromDate}}" bindchange="e=>setData({fromDate:e.detail.value});search(true)">
+      <view class="date">{{fromDate || '开始日期'}}</view>
+    </picker>
+    <picker mode="date" value="{{toDate}}" bindchange="e=>setData({toDate:e.detail.value});search(true)">
+      <view class="date">{{toDate || '结束日期'}}</view>
+    </picker>
+  </view>
+  <view class="filters">
+    <text data-key="all" bindtap="setFilter" class="chip {{filterKey==='all'?'active':''}}">全部</text>
+    <text data-key="withId" bindtap="setFilter" class="chip {{filterKey==='withId'?'active':''}}">有证</text>
+    <text data-key="noId" bindtap="setFilter" class="chip {{filterKey==='noId'?'active':''}}">无证</text>
+  </view>
+
+  <!-- 列表 -->
+  <block wx:for="{{list}}" wx:key="_id">
+    <view class="item" bindtap="toDetail" data-id="{{item._id}}">
+      <view class="avatar">{{item.initial}}</view>
+      <view class="content">
+        <text class="name">{{item.name || '未命名'}}</text>
+        <text class="meta">证件尾：{{item.id_card_tail || '--'}} · 创建：{{item.createdAtText}}</text>
+        <view class="tags">
+          <text class="tag {{item.id_card?'tag-green':'tag-yellow'}}">{{item.id_card?'有证':'无证'}}</text>
+        </view>
+        <view class="actions">
+          <button class="btn" catchtap="toDetail" data-id="{{item._id}}">详情</button>
+          <button class="btn" catchtap="toService" data-id="{{item._id}}">服务</button>
+          <button class="btn" catchtap="toTenancy" data-id="{{item._id}}">入住</button>
+        </view>
+      </view>
+      <text class="arrow">›</text>
+    </view>
+  </block>
+
+  <view class="empty" wx:if="{{!loading && list.length===0}}">暂无数据</view>
+
+  <!-- 浮动新建按钮 -->
+  <view class="fab" bindtap="toNew">＋</view>
+</view>

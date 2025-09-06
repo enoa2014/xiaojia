@@ -1,0 +1,14 @@
+schema: 1
+story: "EP-06.S1"
+story_title: "字段级权限申请与审批"
+gate: "PASS"
+status_reason: "回归通过：审批 RBAC 与 list 可见性限制已落实；submit/approve/reject/list 与 patients.get 联动正常；审计与错误码一致。"
+reviewer: "Quinn (Test Architect)"
+updated: "2025-09-06T03:05:00Z"
+waiver: { active: false }
+top_issues: []
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 0, low: 0 }
+  recommendations:
+    must_fix: []
+    monitor: []

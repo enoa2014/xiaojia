@@ -1,4 +1,13 @@
 .page { padding: 24rpx; }
+.upload-bar { display:flex; align-items:center; gap: 12rpx; margin-bottom: 12rpx; }
+.upload-bar .bar { flex:1; height: 16rpx; background:#E5E7EB; border-radius: 8rpx; overflow:hidden; }
+.upload-bar .progress { height: 100%; background:#22C55E; }
+.upload-bar .pct { color:#374151; font-size: 18rpx; }
+.mode { margin-bottom: 16rpx; }
+.mode-row { display:flex; align-items:center; gap: 12rpx; }
+.mode-chip { padding: 6rpx 12rpx; border:2rpx solid #D1D5DB; border-radius: 16rpx; color:#6B7280; }
+.mode-chip.active { border-color:#22C55E; color:#111827; }
+.spacer { flex:1; }
 .section { margin-bottom: 24rpx; }
 .label { display:block; font-size: 20rpx; color:#374151; margin-bottom: 8rpx; }
 .input, .picker { height: 88rpx; line-height: 88rpx; padding: 0 24rpx; border: 2rpx solid #D1D5DB; border-radius: 12rpx; }

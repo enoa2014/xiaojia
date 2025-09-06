@@ -1,0 +1,14 @@
+schema: 1
+story: "EP-01.S3"
+story_title: "档案搜索/筛选"
+gate: "PASS"
+status_reason: "回归通过：patients.list 改用 safeParse 并在非法参数时返回 E_VALIDATE；筛选/分页/元信息与错误处理符合 AC1–AC6。"
+reviewer: "Quinn (Test Architect)"
+updated: "2025-09-06T04:00:00Z"
+waiver: { active: false }
+top_issues: []
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 0, low: 0 }
+  recommendations:
+    must_fix: []
+    monitor: []

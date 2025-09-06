@@ -1,0 +1,14 @@
+schema: 1
+story: "EP-03.S1"
+story_title: "服务记录提交（创建）"
+gate: "PASS"
+status_reason: "回归通过：create 分支已用 safeParse 返回 E_VALIDATE；AC1–AC6 全部满足。"
+reviewer: "Quinn (Test Architect)"
+updated: "2025-09-06T01:45:00Z"
+waiver: { active: false }
+top_issues: []
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 0, low: 0 }
+  recommendations:
+    must_fix: []
+    monitor: []

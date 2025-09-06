@@ -2,10 +2,32 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/patients/index",
+    "pages/services/index",
+    "pages/activities/index",
+    "pages/activities/detail",
+    "pages/activities/form",
+    "pages/stats/index",
+    "pages/permissions/apply",
     "pages/patients/form",
+    "pages/patients/search",
+    "pages/patients/detail",
     "pages/tenancies/form",
     "pages/services/form"
   ],
+  "tabBar": {
+    "list": [
+      { "pagePath": "pages/index/index", "text": "工作台" },
+      { "pagePath": "pages/patients/index", "text": "档案" },
+      { "pagePath": "pages/services/index", "text": "服务" },
+      { "pagePath": "pages/activities/index", "text": "活动" },
+      { "pagePath": "pages/stats/index", "text": "统计" }
+    ],
+    "color": "#6B7280",
+    "selectedColor": "#22C55E",
+    "borderStyle": "black",
+    "backgroundColor": "#FFFFFF"
+  },
   "window": {
     "navigationBarTitleText": "助医小家",
     "navigationBarBackgroundColor": "#22C55E",

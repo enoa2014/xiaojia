@@ -1,0 +1,45 @@
+<block wx:if="{{loading}}">
+  <view class="empty">加载中...</view>
+  
+</block>
+<block wx:elif="{{patient}}">
+  <view class="page">
+    <view class="card">
+      <view class="row">
+        <text class="k">姓名</text>
+        <text class="v">{{patient.name || '—'}}</text>
+      </view>
+      <view class="row">
+        <text class="k">身份证</text>
+        <text class="v">{{patient.id_card || (patient.id_card_tail ? '************' + patient.id_card_tail : '—')}}</text>
+      </view>
+      <view class="row">
+        <text class="k">手机号</text>
+        <text class="v">{{patient.phone || '—'}}</text>
+      </view>
+      <view class="row">
+        <text class="k">出生日期</text>
+        <text class="v">{{patient.birthDate || '—'}}</text>
+      </view>
+      <view class="row">
+        <text class="k">就诊医院</text>
+        <text class="v">{{patient.hospital || '—'}}</text>
+      </view>
+      <view class="row">
+        <text class="k">诊断</text>
+        <text class="v">{{patient.hospitalDiagnosis || '—'}}</text>
+      </view>
+    </view>
+    <view class="perm" wx:if="{{patient.permission && !patient.permission.hasSensitive}}">
+      <text>部分信息已脱敏。如需查看明文，请申请权限。</text>
+      <button size="mini" bindtap="applyPermission">申请查看明文</button>
+    </view>
+    <view class="perm" wx:if="{{patient.permission && patient.permission.hasSensitive}}">
+      <text>敏感信息已授权</text>
+      <text wx:if="{{daysLeft}}"> · 剩余{{daysLeft}}天</text>
+    </view>
+  </view>
+</block>
+<block wx:else>
+  <view class="empty">未找到该档案</view>
+</block>
