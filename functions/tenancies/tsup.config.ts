@@ -3,9 +3,8 @@ export default defineConfig({
   entry: ['index.ts'],
   outDir: 'dist',
   format: ['cjs'],
-  target: 'node10',
+  target: 'node16',
   minify: false,
   sourcemap: true,
   clean: true
 })
-

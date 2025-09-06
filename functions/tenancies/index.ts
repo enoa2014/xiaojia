@@ -2,6 +2,8 @@ import cloud from 'wx-server-sdk'
 import { z } from 'zod'
 import { ok, err, errValidate } from '../packages/core-utils/errors'
 import { mapZodIssues } from '../packages/core-utils/validation'
+import { hasAnyRole } from '../packages/core-rbac'
+import { paginate } from '../packages/core-db'
 
 cloud.init({ env: (cloud as any).DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
@@ -39,8 +41,11 @@ const UpdateSchema = z.object({ id: z.string(), patch: z.object({ checkOutDate: 
 export const main = async (event: any) => {
   try {
     const action = event && event.action
+    const { OPENID } = cloud.getWXContext?.() || ({} as any)
+    const isManager = await hasAnyRole(db, OPENID, ['admin','social_worker'])
     switch (action) {
       case 'list': {
+        if (!isManager) return err('E_PERM','需要权限')
         const parsed = ListSchema.safeParse(event?.payload || {})
         if (!parsed.success) {
           const m = mapZodIssues(parsed.error.issues)
@@ -57,16 +62,11 @@ export const main = async (event: any) => {
         }
         let coll: any = db.collection('Tenancies')
         if (Object.keys(query).length) coll = coll.where(query)
-        // 默认按 checkInDate desc
-        try {
-          const res = await coll.orderBy('checkInDate','desc').skip((page-1)*pageSize).limit(pageSize).get()
-          return ok(res?.data || [])
-        } catch {
-          const res = await coll.skip((page-1)*pageSize).limit(pageSize).get()
-          return ok(res?.data || [])
-        }
+        const { items } = await paginate(coll, { page, pageSize, sort: undefined }, { fallbackSort: { checkInDate: -1 }, countQuery: (db.collection('Tenancies').where(query || {})) })
+        return ok(items)
       }
       case 'create': {
+        if (!isManager) return err('E_PERM','需要权限')
         const payload = event?.payload || {}
         const body = (payload.tenancy || payload) as any
         const parsed = TenancyCreateSchema.safeParse(body || {})
@@ -89,6 +89,7 @@ export const main = async (event: any) => {
         return ok({ _id: addRes._id })
       }
       case 'update': {
+        if (!isManager) return err('E_PERM','需要权限')
         const parsed = UpdateSchema.safeParse(event?.payload || {})
         if (!parsed.success) {
           const m = mapZodIssues(parsed.error.issues)
@@ -121,6 +122,14 @@ export const main = async (event: any) => {
         const updated = (upd && ((upd as any).updated || ((upd as any).stats && (upd as any).stats.updated))) || 0
         if (!updated) return err('E_CONFLICT','当前记录已退住')
         return ok({ updated })
+      }
+      case 'get': {
+        if (!isManager) return err('E_PERM','需要权限')
+        const id = String(event?.payload?.id || '')
+        if (!id) return err('E_VALIDATE','缺少 id')
+        const r = await db.collection('Tenancies').doc(id).get()
+        if (!r?.data) return err('E_NOT_FOUND','tenancy not found')
+        return ok(r.data)
       }
       case 'db.ping': {
         let alive = false

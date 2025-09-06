@@ -33,7 +33,7 @@ __export(activities_exports, {
   main: () => main
 });
 module.exports = __toCommonJS(activities_exports);
-var import_wx_server_sdk = __toESM(require("wx-server-sdk"));
+var import_wx_server_sdk2 = __toESM(require("wx-server-sdk"));
 var import_zod2 = require("zod");
 
 // ../packages/core-rbac/index.ts
@@ -55,6 +55,42 @@ var isRole = async (db2, openId, role) => {
   } catch {
   }
   return false;
+};
+var hasAnyRole = async (db2, openId, roles) => {
+  for (const r of roles) {
+    if (await isRole(db2, openId, r))
+      return true;
+  }
+  return false;
+};
+
+// ../packages/core-db/index.ts
+var import_wx_server_sdk = __toESM(require("wx-server-sdk"));
+var paginate = async (coll, pageQ, opts) => {
+  const { page, pageSize, sort } = pageQ;
+  let query = coll;
+  const applySort = (q) => {
+    const s = sort && Object.keys(sort).length ? sort : (opts == null ? void 0 : opts.fallbackSort) || {};
+    const entries = Object.entries(s);
+    if (!entries.length)
+      return q;
+    const [k, v] = entries[0];
+    return q.orderBy(k, v === -1 ? "desc" : "asc");
+  };
+  try {
+    query = applySort(query);
+  } catch {
+  }
+  let total = 0;
+  try {
+    const c = await ((opts == null ? void 0 : opts.countQuery) || coll).count();
+    total = (c.total ?? c.count) || 0;
+  } catch {
+  }
+  const res = await query.skip((page - 1) * pageSize).limit(pageSize).get();
+  const items = res && res.data || [];
+  const hasMore = page * pageSize < total;
+  return { items, meta: { total, hasMore } };
 };
 
 // ../packages/core-utils/validation.ts
@@ -127,15 +163,15 @@ var ActivityCreateSchema = import_zod.z.object({
 });
 
 // index.ts
-import_wx_server_sdk.default.init({ env: import_wx_server_sdk.default.DYNAMIC_CURRENT_ENV });
-var db = import_wx_server_sdk.default.database();
+import_wx_server_sdk2.default.init({ env: import_wx_server_sdk2.default.DYNAMIC_CURRENT_ENV });
+var db = import_wx_server_sdk2.default.database();
 var IdSchema = import_zod2.z.object({ id: import_zod2.z.string() });
 var main = async (event) => {
-  var _a, _b, _c;
+  var _a, _b;
   try {
     const { action, payload } = event || {};
-    const { OPENID } = ((_b = (_a = import_wx_server_sdk.default).getWXContext) == null ? void 0 : _b.call(_a)) || {};
-    const canCreate = async () => await isRole(db, OPENID, "admin") || await isRole(db, OPENID, "social_worker");
+    const { OPENID } = ((_b = (_a = import_wx_server_sdk2.default).getWXContext) == null ? void 0 : _b.call(_a)) || {};
+    const canCreate = async () => hasAnyRole(db, OPENID, ["admin", "social_worker"]);
     switch (action) {
       case "list": {
         const qp = ActivitiesListSchema.parse(payload || {});
@@ -154,23 +190,9 @@ var main = async (event) => {
             query.date = range;
           }
         }
-        let coll = db.collection("Activities").where(query);
-        if (qp.sort && Object.keys(qp.sort).length) {
-          const [k, v] = Object.entries(qp.sort)[0];
-          coll = coll.orderBy(k, v === -1 ? "desc" : "asc");
-        } else {
-          coll = coll.orderBy("date", "desc");
-        }
-        let total = 0;
-        try {
-          const c = await db.collection("Activities").where(query).count();
-          total = ((_c = c.total) != null ? _c : c.count) || 0;
-        } catch {
-        }
-        const res = await coll.skip((qp.page - 1) * qp.pageSize).limit(qp.pageSize).get();
-        const items = res.data;
-        const hasMore = qp.page * qp.pageSize < total;
-        return ok({ items, meta: { total, hasMore } });
+        const base = db.collection("Activities").where(query);
+        const { items, meta } = await paginate(base, { page: qp.page, pageSize: qp.pageSize, sort: qp.sort }, { fallbackSort: { date: -1 }, countQuery: db.collection("Activities").where(query) });
+        return ok({ items, meta });
       }
       case "get": {
         const { id } = IdSchema.parse(payload || {});

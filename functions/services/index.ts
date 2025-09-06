@@ -1,7 +1,7 @@
 
 import cloud from 'wx-server-sdk'
 import { z } from 'zod'
-import { isRole } from '../packages/core-rbac'
+import { hasAnyRole } from '../packages/core-rbac'
 import { mapZodIssues } from '../packages/core-utils/validation'
 import { ok, err, errValidate } from '../packages/core-utils/errors'
 import { ServicesListSchema, ServiceCreateSchema, ServiceReviewSchema } from './schema'
@@ -18,18 +18,27 @@ export const main = async (event:any): Promise<Resp<any>> => {
     const { action, payload } = event || {}
     const { OPENID } = cloud.getWXContext?.() || ({} as any)
 
-    const canReview = async (): Promise<boolean> => (await isRole(db, OPENID, 'admin')) || (await isRole(db, OPENID, 'social_worker'))
+    const canReview = async (): Promise<boolean> => hasAnyRole(db, OPENID, ['admin','social_worker'])
     switch (action) {
       case 'list': {
         const qp = ServicesListSchema.parse(payload || {})
         const { OPENID } = cloud.getWXContext?.() || ({} as any)
+        const isManager = await hasAnyRole(db, OPENID, ['admin','social_worker'])
         let query: any = {}
         if (qp.filter) {
           const f = qp.filter as any
           if (f.patientId) query.patientId = f.patientId
-          if (f.createdBy) query.createdBy = (f.createdBy === 'me' && OPENID) ? OPENID : f.createdBy
+          if (f.createdBy) {
+            // 非管理员不可越权查询他人，强制限定为本人
+            const val = (f.createdBy === 'me' && OPENID) ? OPENID : f.createdBy
+            query.createdBy = isManager ? val : (OPENID || null)
+          }
           if (f.type) query.type = f.type
           if (f.status) query.status = f.status
+        }
+        // 对志愿者等非管理角色，默认仅能查看本人记录
+        if (!isManager) {
+          query.createdBy = OPENID || null
         }
         let coll = db.collection('Services').where(query)
         if (qp.sort && Object.keys(qp.sort).length) {

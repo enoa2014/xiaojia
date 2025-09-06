@@ -56,6 +56,13 @@ var isRole = async (db2, openId, role) => {
   }
   return false;
 };
+var hasAnyRole = async (db2, openId, roles) => {
+  for (const r of roles) {
+    if (await isRole(db2, openId, r))
+      return true;
+  }
+  return false;
+};
 
 // ../packages/core-utils/validation.ts
 var mapZodIssues = (issues) => {
@@ -140,22 +147,28 @@ var main = async (event) => {
   try {
     const { action, payload } = event || {};
     const { OPENID } = ((_b = (_a = import_wx_server_sdk.default).getWXContext) == null ? void 0 : _b.call(_a)) || {};
-    const canReview = async () => await isRole(db, OPENID, "admin") || await isRole(db, OPENID, "social_worker");
+    const canReview = async () => hasAnyRole(db, OPENID, ["admin", "social_worker"]);
     switch (action) {
       case "list": {
         const qp = ServicesListSchema.parse(payload || {});
         const { OPENID: OPENID2 } = ((_d = (_c = import_wx_server_sdk.default).getWXContext) == null ? void 0 : _d.call(_c)) || {};
+        const isManager = await hasAnyRole(db, OPENID2, ["admin", "social_worker"]);
         let query = {};
         if (qp.filter) {
           const f = qp.filter;
           if (f.patientId)
             query.patientId = f.patientId;
-          if (f.createdBy)
-            query.createdBy = f.createdBy === "me" && OPENID2 ? OPENID2 : f.createdBy;
+          if (f.createdBy) {
+            const val = f.createdBy === "me" && OPENID2 ? OPENID2 : f.createdBy;
+            query.createdBy = isManager ? val : OPENID2 || null;
+          }
           if (f.type)
             query.type = f.type;
           if (f.status)
             query.status = f.status;
+        }
+        if (!isManager) {
+          query.createdBy = OPENID2 || null;
         }
         let coll = db.collection("Services").where(query);
         if (qp.sort && Object.keys(qp.sort).length) {

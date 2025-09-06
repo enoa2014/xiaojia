@@ -33,7 +33,7 @@ __export(patients_exports, {
   main: () => main
 });
 module.exports = __toCommonJS(patients_exports);
-var import_wx_server_sdk = __toESM(require("wx-server-sdk"));
+var import_wx_server_sdk2 = __toESM(require("wx-server-sdk"));
 var import_zod2 = require("zod");
 
 // schema.ts
@@ -124,9 +124,66 @@ var mapZodIssues = (issues) => {
   return { field: path || void 0, msg };
 };
 
+// ../packages/core-rbac/index.ts
+var isRole = async (db2, openId, role) => {
+  var _a, _b, _c;
+  if (!openId)
+    return false;
+  try {
+    const _2 = db2.command;
+    const byOpenId = await db2.collection("Users").where({ openId, role }).limit(1).get();
+    if ((_a = byOpenId == null ? void 0 : byOpenId.data) == null ? void 0 : _a.length)
+      return true;
+    const byId = await db2.collection("Users").where({ _id: openId, role }).limit(1).get();
+    if ((_b = byId == null ? void 0 : byId.data) == null ? void 0 : _b.length)
+      return true;
+    const byRoles = await db2.collection("Users").where({ openId, roles: _2.in([role]) }).limit(1).get();
+    if ((_c = byRoles == null ? void 0 : byRoles.data) == null ? void 0 : _c.length)
+      return true;
+  } catch {
+  }
+  return false;
+};
+var hasAnyRole = async (db2, openId, roles) => {
+  for (const r of roles) {
+    if (await isRole(db2, openId, r))
+      return true;
+  }
+  return false;
+};
+
+// ../packages/core-db/index.ts
+var import_wx_server_sdk = __toESM(require("wx-server-sdk"));
+var paginate = async (coll, pageQ, opts) => {
+  const { page, pageSize, sort } = pageQ;
+  let query = coll;
+  const applySort = (q) => {
+    const s = sort && Object.keys(sort).length ? sort : (opts == null ? void 0 : opts.fallbackSort) || {};
+    const entries = Object.entries(s);
+    if (!entries.length)
+      return q;
+    const [k, v] = entries[0];
+    return q.orderBy(k, v === -1 ? "desc" : "asc");
+  };
+  try {
+    query = applySort(query);
+  } catch {
+  }
+  let total = 0;
+  try {
+    const c = await ((opts == null ? void 0 : opts.countQuery) || coll).count();
+    total = (c.total ?? c.count) || 0;
+  } catch {
+  }
+  const res = await query.skip((page - 1) * pageSize).limit(pageSize).get();
+  const items = res && res.data || [];
+  const hasMore = page * pageSize < total;
+  return { items, meta: { total, hasMore } };
+};
+
 // index.ts
-import_wx_server_sdk.default.init({ env: import_wx_server_sdk.default.DYNAMIC_CURRENT_ENV });
-var db = import_wx_server_sdk.default.database();
+import_wx_server_sdk2.default.init({ env: import_wx_server_sdk2.default.DYNAMIC_CURRENT_ENV });
+var db = import_wx_server_sdk2.default.database();
 var _ = db.command;
 function isValidChineseId(id) {
   const s = (id || "").toUpperCase().trim();
@@ -153,9 +210,10 @@ function notAfterToday(iso) {
   return d.getTime() <= t;
 }
 var main = async (event) => {
-  var _a, _b, _c;
+  var _a, _b, _c, _d;
   try {
     const { action, payload } = event || {};
+    const { OPENID } = ((_b = (_a = import_wx_server_sdk2.default).getWXContext) == null ? void 0 : _b.call(_a)) || {};
     switch (action) {
       case "list": {
         const parsedList = PatientsListSchema.safeParse(payload || {});
@@ -182,23 +240,9 @@ var main = async (event) => {
             query.createdAt = range;
           }
         }
-        let coll = db.collection("Patients").where(query);
-        if (qp.sort && Object.keys(qp.sort).length) {
-          const [k, v] = Object.entries(qp.sort)[0];
-          coll = coll.orderBy(k, v === -1 ? "desc" : "asc");
-        } else {
-          coll = coll.orderBy("createdAt", "desc");
-        }
-        let total = 0;
-        try {
-          const c = await db.collection("Patients").where(query).count();
-          total = ((_a = c.total) != null ? _a : c.count) || 0;
-        } catch {
-        }
-        const res = await coll.skip((qp.page - 1) * qp.pageSize).limit(qp.pageSize).get();
-        const items = res.data;
-        const hasMore = qp.page * qp.pageSize < total;
-        return ok({ items, meta: { total, hasMore } });
+        const base = db.collection("Patients").where(query);
+        const { items, meta } = await paginate(base, { page: qp.page, pageSize: qp.pageSize, sort: qp.sort }, { fallbackSort: { createdAt: -1 }, countQuery: db.collection("Patients").where(query) });
+        return ok({ items, meta });
       }
       case "get": {
         const parsed = import_zod2.z.object({ id: import_zod2.z.string() }).safeParse(payload || {});
@@ -211,14 +255,14 @@ var main = async (event) => {
         if (!(r == null ? void 0 : r.data))
           return err("E_NOT_FOUND", "patient not found");
         const patient = r.data;
-        const { OPENID } = ((_c = (_b = import_wx_server_sdk.default).getWXContext) == null ? void 0 : _c.call(_b)) || {};
+        const { OPENID: OPENID2 } = ((_d = (_c = import_wx_server_sdk2.default).getWXContext) == null ? void 0 : _d.call(_c)) || {};
         const now = Date.now();
         let approvedFields = /* @__PURE__ */ new Set();
         let minExpires = null;
-        if (OPENID) {
+        if (OPENID2) {
           try {
             const _2 = db.command;
-            const apr = await db.collection("PermissionRequests").where({ requesterId: OPENID, patientId: id, status: "approved", expiresAt: _2.gt(now) }).get();
+            const apr = await db.collection("PermissionRequests").where({ requesterId: OPENID2, patientId: id, status: "approved", expiresAt: _2.gt(now) }).get();
             for (const pr of apr.data || []) {
               const fields = Array.isArray(pr.fields) ? pr.fields : [];
               fields.forEach((f) => approvedFields.add(f));
@@ -272,10 +316,10 @@ var main = async (event) => {
           expiresAt: minExpires,
           hasSensitive: approvedFields.size > 0
         };
-        if (OPENID && returnedFields.length) {
+        if (OPENID2 && returnedFields.length) {
           try {
             await db.collection("AuditLogs").add({ data: {
-              actorId: OPENID,
+              actorId: OPENID2,
               action: "patients.readSensitive",
               target: { patientId: id, fields: returnedFields },
               timestamp: now
@@ -286,6 +330,9 @@ var main = async (event) => {
         return ok(out);
       }
       case "create": {
+        const canCreate = await hasAnyRole(db, OPENID, ["admin", "social_worker"]);
+        if (!canCreate)
+          return err("E_PERM", "\u9700\u8981\u6743\u9650");
         const { patient, clientToken } = payload || {};
         const parsed = PatientCreateSchema.safeParse(patient || {});
         if (!parsed.success) {

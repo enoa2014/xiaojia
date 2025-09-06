@@ -2,6 +2,7 @@
 import cloud from 'wx-server-sdk'
 import { z } from 'zod'
 import { ok, err } from '../packages/core-utils/errors'
+import { hasAnyRole } from '../packages/core-rbac'
 import { isRole } from '../packages/core-rbac'
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
@@ -34,8 +35,19 @@ export const main = async (event:any): Promise<Resp<any>> => {
         const q = ListSchema.parse(payload || {})
         const _ = db.command
         const query: any = {}
-        if (q.activityId) query.activityId = q.activityId
-        if (q.userId) query.userId = q.userId === 'me' ? OPENID : q.userId
+        const isManager = await hasAnyRole(db, OPENID, ['admin','social_worker'])
+        if (q.activityId) {
+          if (!isManager) return err('E_PERM','需要权限')
+          query.activityId = q.activityId
+        }
+        if (q.userId) {
+          // 非管理角色仅允许 userId='me'
+          const val = q.userId === 'me' ? OPENID : q.userId
+          if (!isManager && val !== OPENID) return err('E_PERM','需要权限')
+          query.userId = val
+        }
+        // 无过滤时，非管理角色不允许枚举
+        if (!isManager && !q.activityId && !q.userId) return err('E_PERM','需要权限')
         if (q.status) query.status = q.status
         const res = await db.collection('Registrations').where(query).orderBy('createdAt','desc').get()
         return ok(res.data)

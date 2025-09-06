@@ -1,7 +1,8 @@
 
 import cloud from 'wx-server-sdk'
 import { z } from 'zod'
-import { isRole } from '../packages/core-rbac'
+import { hasAnyRole } from '../packages/core-rbac'
+import { paginate } from '../packages/core-db'
 import { mapZodIssues } from '../packages/core-utils/validation'
 import { ok, err, errValidate } from '../packages/core-utils/errors'
 import { ActivitiesListSchema, ActivityCreateSchema } from './schema'
@@ -18,7 +19,7 @@ export const main = async (event:any): Promise<Resp<any>> => {
     const { action, payload } = event || {}
     const { OPENID } = cloud.getWXContext?.() || ({} as any)
 
-    const canCreate = async (): Promise<boolean> => (await isRole(db, OPENID, 'admin')) || (await isRole(db, OPENID, 'social_worker'))
+    const canCreate = async (): Promise<boolean> => hasAnyRole(db, OPENID, ['admin', 'social_worker'])
     switch (action) {
       case 'list': {
         const qp = ActivitiesListSchema.parse(payload || {})
@@ -34,28 +35,9 @@ export const main = async (event:any): Promise<Resp<any>> => {
             query.date = range
           }
         }
-        let coll = db.collection('Activities').where(query)
-        if (qp.sort && Object.keys(qp.sort).length) {
-          const [k, v] = Object.entries(qp.sort)[0]
-          // @ts-ignore
-          coll = (coll as any).orderBy(k, v === -1 ? 'desc' : 'asc')
-        } else {
-          // 默认按 date desc
-          // @ts-ignore
-          coll = (coll as any).orderBy('date','desc')
-        }
-        let total = 0
-        try {
-          const c = await db.collection('Activities').where(query).count() as any
-          total = (c.total ?? c.count) || 0
-        } catch {}
-        const res = await (coll as any)
-          .skip((qp.page-1)*qp.pageSize)
-          .limit(qp.pageSize)
-          .get()
-        const items = res.data
-        const hasMore = (qp.page * qp.pageSize) < total
-        return ok({ items, meta: { total, hasMore } })
+        const base = db.collection('Activities').where(query)
+        const { items, meta } = await paginate(base, { page: qp.page, pageSize: qp.pageSize, sort: qp.sort }, { fallbackSort: { date: -1 }, countQuery: db.collection('Activities').where(query) })
+        return ok({ items, meta })
       }
       case 'get': {
         const { id } = IdSchema.parse(payload || {})

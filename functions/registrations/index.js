@@ -63,6 +63,13 @@ var isRole = async (db2, openId, role) => {
   }
   return false;
 };
+var hasAnyRole = async (db2, openId, roles) => {
+  for (const r of roles) {
+    if (await isRole(db2, openId, r))
+      return true;
+  }
+  return false;
+};
 
 // index.ts
 import_wx_server_sdk.default.init({ env: import_wx_server_sdk.default.DYNAMIC_CURRENT_ENV });
@@ -76,7 +83,7 @@ var RegisterSchema = import_zod.z.object({ activityId: import_zod.z.string() });
 var CancelSchema = import_zod.z.object({ activityId: import_zod.z.string() });
 var CheckinSchema = import_zod.z.object({ activityId: import_zod.z.string(), userId: import_zod.z.string().optional() });
 var main = async (event) => {
-  var _a, _b, _c, _d, _e, _f;
+  var _a, _b, _c, _d;
   try {
     const { action, payload } = event || {};
     const ctx = ((_b = (_a = import_wx_server_sdk.default).getWXContext) == null ? void 0 : _b.call(_a)) || {};
@@ -88,10 +95,20 @@ var main = async (event) => {
         const q = ListSchema.parse(payload || {});
         const _ = db.command;
         const query = {};
-        if (q.activityId)
+        const isManager = await hasAnyRole(db, OPENID, ["admin", "social_worker"]);
+        if (q.activityId) {
+          if (!isManager)
+            return err("E_PERM", "\u9700\u8981\u6743\u9650");
           query.activityId = q.activityId;
-        if (q.userId)
-          query.userId = q.userId === "me" ? OPENID : q.userId;
+        }
+        if (q.userId) {
+          const val = q.userId === "me" ? OPENID : q.userId;
+          if (!isManager && val !== OPENID)
+            return err("E_PERM", "\u9700\u8981\u6743\u9650");
+          query.userId = val;
+        }
+        if (!isManager && !q.activityId && !q.userId)
+          return err("E_PERM", "\u9700\u8981\u6743\u9650");
         if (q.status)
           query.status = q.status;
         const res = await db.collection("Registrations").where(query).orderBy("createdAt", "desc").get();
@@ -119,7 +136,7 @@ var main = async (event) => {
           let registeredCount = 0;
           try {
             const c = await trx.collection("Registrations").where({ activityId, status: "registered" }).count();
-            registeredCount = ((_c = c.total) != null ? _c : c.count) || 0;
+            registeredCount = (c.total ?? c.count) || 0;
           } catch {
           }
           const isUnlimited = capacity === 0;
@@ -138,7 +155,7 @@ var main = async (event) => {
           }
         } catch (e) {
           try {
-            await ((_d = db.runTransaction) == null ? void 0 : _d.call(db, () => Promise.resolve()));
+            await ((_c = db.runTransaction) == null ? void 0 : _c.call(db, () => Promise.resolve()));
           } catch {
           }
           return err(e.code || "E_INTERNAL", e.message);
@@ -169,7 +186,7 @@ var main = async (event) => {
             let registeredCount = 0;
             try {
               const c = await trx.collection("Registrations").where({ activityId, status: "registered" }).count();
-              registeredCount = ((_e = c.total) != null ? _e : c.count) || 0;
+              registeredCount = (c.total ?? c.count) || 0;
             } catch {
             }
             if (registeredCount < capacity) {
@@ -184,7 +201,7 @@ var main = async (event) => {
           return ok({ updated: 1 });
         } catch (e) {
           try {
-            await ((_f = db.runTransaction) == null ? void 0 : _f.call(db, () => Promise.resolve()));
+            await ((_d = db.runTransaction) == null ? void 0 : _d.call(db, () => Promise.resolve()));
           } catch {
           }
           return err(e.code || "E_INTERNAL", e.message);

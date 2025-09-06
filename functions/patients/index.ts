@@ -4,6 +4,8 @@ import { z } from 'zod'
 import { PatientsListSchema, PatientCreateSchema } from './schema'
 import { ok, err, errValidate } from '../packages/core-utils/errors'
 import { mapZodIssues } from '../packages/core-utils/validation'
+import { hasAnyRole } from '../packages/core-rbac'
+import { paginate } from '../packages/core-db'
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 const _ = db.command
@@ -33,6 +35,7 @@ function notAfterToday(iso?: string|null): boolean {
 export const main = async (event: any): Promise<Resp<any>> => {
   try {
     const { action, payload } = event || {}
+    const { OPENID } = cloud.getWXContext?.() || ({} as any)
     switch (action) {
       case 'list': {
         const parsedList = PatientsListSchema.safeParse(payload || {})
@@ -58,25 +61,9 @@ export const main = async (event: any): Promise<Resp<any>> => {
             query.createdAt = range
           }
         }
-        let coll = db.collection('Patients').where(query)
-        // sort 默认 createdAt desc
-        if (qp.sort && Object.keys(qp.sort).length) {
-          // 仅支持单字段排序（小程序端云数据库限制），取第一个
-          const [k, v] = Object.entries(qp.sort)[0]
-          coll = (coll as any).orderBy(k, v === -1 ? 'desc' : 'asc')
-        } else {
-          coll = (coll as any).orderBy('createdAt','desc')
-        }
-        // total for meta
-        let total = 0
-        try { const c = await db.collection('Patients').where(query).count() as any; total = (c.total ?? c.count) || 0 } catch {}
-        const res = await (coll as any)
-          .skip((qp.page-1)*qp.pageSize)
-          .limit(qp.pageSize)
-          .get()
-        const items = res.data
-        const hasMore = (qp.page * qp.pageSize) < total
-        return ok({ items, meta: { total, hasMore } })
+        const base = db.collection('Patients').where(query)
+        const { items, meta } = await paginate(base, { page: qp.page, pageSize: qp.pageSize, sort: qp.sort }, { fallbackSort: { createdAt: -1 }, countQuery: db.collection('Patients').where(query) })
+        return ok({ items, meta })
       }
       case 'get': {
         const parsed = z.object({ id: z.string() }).safeParse(payload || {})
@@ -177,6 +164,9 @@ export const main = async (event: any): Promise<Resp<any>> => {
         return ok(out)
       }
       case 'create': {
+        // RBAC: 仅 admin|social_worker 可创建
+        const canCreate = await hasAnyRole(db, OPENID, ['admin','social_worker'])
+        if (!canCreate) return err('E_PERM','需要权限')
         const { patient, clientToken } = (payload || {}) as any
         const parsed = PatientCreateSchema.safeParse(patient || {})
         if (!parsed.success) {

@@ -34,8 +34,52 @@ __export(exports_exports, {
 });
 module.exports = __toCommonJS(exports_exports);
 var import_wx_server_sdk = __toESM(require("wx-server-sdk"));
+
+// ../packages/core-utils/errors.ts
+var ok = (data) => ({ ok: true, data });
+var err = (code, msg, details) => ({
+  ok: false,
+  error: { code, msg, details }
+});
+
+// ../packages/core-rbac/index.ts
+var isRole = async (db, openId, role) => {
+  var _a, _b, _c;
+  if (!openId)
+    return false;
+  try {
+    const _ = db.command;
+    const byOpenId = await db.collection("Users").where({ openId, role }).limit(1).get();
+    if ((_a = byOpenId == null ? void 0 : byOpenId.data) == null ? void 0 : _a.length)
+      return true;
+    const byId = await db.collection("Users").where({ _id: openId, role }).limit(1).get();
+    if ((_b = byId == null ? void 0 : byId.data) == null ? void 0 : _b.length)
+      return true;
+    const byRoles = await db.collection("Users").where({ openId, roles: _.in([role]) }).limit(1).get();
+    if ((_c = byRoles == null ? void 0 : byRoles.data) == null ? void 0 : _c.length)
+      return true;
+  } catch {
+  }
+  return false;
+};
+var hasAnyRole = async (db, openId, roles) => {
+  for (const r of roles) {
+    if (await isRole(db, openId, r))
+      return true;
+  }
+  return false;
+};
+
+// index.ts
 import_wx_server_sdk.default.init({ env: import_wx_server_sdk.default.DYNAMIC_CURRENT_ENV });
-var main = async (event) => ({ ok: true, data: { ping: "exports", event } });
+var main = async (event) => {
+  var _a, _b;
+  const { OPENID } = ((_b = (_a = import_wx_server_sdk.default).getWXContext) == null ? void 0 : _b.call(_a)) || {};
+  const allowed = await hasAnyRole(import_wx_server_sdk.default.database(), OPENID, ["admin", "social_worker"]);
+  if (!allowed)
+    return err("E_PERM", "\u9700\u8981\u6743\u9650");
+  return ok({ ping: "exports", event });
+};
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {
   main

@@ -33,7 +33,7 @@ __export(tenancies_exports, {
   main: () => main
 });
 module.exports = __toCommonJS(tenancies_exports);
-var import_wx_server_sdk = __toESM(require("wx-server-sdk"));
+var import_wx_server_sdk2 = __toESM(require("wx-server-sdk"));
 var import_zod = require("zod");
 
 // ../packages/core-utils/errors.ts
@@ -84,9 +84,66 @@ var mapZodIssues = (issues) => {
   return { field: path || void 0, msg };
 };
 
+// ../packages/core-rbac/index.ts
+var isRole = async (db2, openId, role) => {
+  var _a, _b, _c;
+  if (!openId)
+    return false;
+  try {
+    const _2 = db2.command;
+    const byOpenId = await db2.collection("Users").where({ openId, role }).limit(1).get();
+    if ((_a = byOpenId == null ? void 0 : byOpenId.data) == null ? void 0 : _a.length)
+      return true;
+    const byId = await db2.collection("Users").where({ _id: openId, role }).limit(1).get();
+    if ((_b = byId == null ? void 0 : byId.data) == null ? void 0 : _b.length)
+      return true;
+    const byRoles = await db2.collection("Users").where({ openId, roles: _2.in([role]) }).limit(1).get();
+    if ((_c = byRoles == null ? void 0 : byRoles.data) == null ? void 0 : _c.length)
+      return true;
+  } catch {
+  }
+  return false;
+};
+var hasAnyRole = async (db2, openId, roles) => {
+  for (const r of roles) {
+    if (await isRole(db2, openId, r))
+      return true;
+  }
+  return false;
+};
+
+// ../packages/core-db/index.ts
+var import_wx_server_sdk = __toESM(require("wx-server-sdk"));
+var paginate = async (coll, pageQ, opts) => {
+  const { page, pageSize, sort } = pageQ;
+  let query = coll;
+  const applySort = (q) => {
+    const s = sort && Object.keys(sort).length ? sort : (opts == null ? void 0 : opts.fallbackSort) || {};
+    const entries = Object.entries(s);
+    if (!entries.length)
+      return q;
+    const [k, v] = entries[0];
+    return q.orderBy(k, v === -1 ? "desc" : "asc");
+  };
+  try {
+    query = applySort(query);
+  } catch {
+  }
+  let total = 0;
+  try {
+    const c = await ((opts == null ? void 0 : opts.countQuery) || coll).count();
+    total = (c.total ?? c.count) || 0;
+  } catch {
+  }
+  const res = await query.skip((page - 1) * pageSize).limit(pageSize).get();
+  const items = res && res.data || [];
+  const hasMore = page * pageSize < total;
+  return { items, meta: { total, hasMore } };
+};
+
 // index.ts
-import_wx_server_sdk.default.init({ env: import_wx_server_sdk.default.DYNAMIC_CURRENT_ENV });
-var db = import_wx_server_sdk.default.database();
+import_wx_server_sdk2.default.init({ env: import_wx_server_sdk2.default.DYNAMIC_CURRENT_ENV });
+var db = import_wx_server_sdk2.default.database();
 var _ = db.command;
 var PaginationSchema = import_zod.z.object({
   page: import_zod.z.number().int().min(1).default(1),
@@ -113,11 +170,15 @@ var TenancyCreateSchema = import_zod.z.object({
 }).refine((v) => !!(v.patientId || v.id_card), { message: "patientId \u6216 id_card \u5FC5\u586B" });
 var UpdateSchema = import_zod.z.object({ id: import_zod.z.string(), patch: import_zod.z.object({ checkOutDate: import_zod.z.string().regex(/^\d{4}-\d{2}-\d{2}$/) }) });
 var main = async (event) => {
-  var _a, _b;
+  var _a, _b, _c, _d, _e;
   try {
     const action = event && event.action;
+    const { OPENID } = ((_b = (_a = import_wx_server_sdk2.default).getWXContext) == null ? void 0 : _b.call(_a)) || {};
+    const isManager = await hasAnyRole(db, OPENID, ["admin", "social_worker"]);
     switch (action) {
       case "list": {
+        if (!isManager)
+          return err("E_PERM", "\u9700\u8981\u6743\u9650");
         const parsed = ListSchema.safeParse((event == null ? void 0 : event.payload) || {});
         if (!parsed.success) {
           const m = mapZodIssues(parsed.error.issues);
@@ -140,15 +201,12 @@ var main = async (event) => {
         let coll = db.collection("Tenancies");
         if (Object.keys(query).length)
           coll = coll.where(query);
-        try {
-          const res = await coll.orderBy("checkInDate", "desc").skip((page - 1) * pageSize).limit(pageSize).get();
-          return ok((res == null ? void 0 : res.data) || []);
-        } catch {
-          const res = await coll.skip((page - 1) * pageSize).limit(pageSize).get();
-          return ok((res == null ? void 0 : res.data) || []);
-        }
+        const { items } = await paginate(coll, { page, pageSize, sort: void 0 }, { fallbackSort: { checkInDate: -1 }, countQuery: db.collection("Tenancies").where(query || {}) });
+        return ok(items);
       }
       case "create": {
+        if (!isManager)
+          return err("E_PERM", "\u9700\u8981\u6743\u9650");
         const payload = (event == null ? void 0 : event.payload) || {};
         const body = payload.tenancy || payload;
         const parsed = TenancyCreateSchema.safeParse(body || {});
@@ -163,7 +221,7 @@ var main = async (event) => {
         const clientToken = payload && payload.clientToken || null;
         if (clientToken) {
           const existed = await db.collection("Tenancies").where({ clientToken }).limit(1).get();
-          if ((_a = existed == null ? void 0 : existed.data) == null ? void 0 : _a.length)
+          if ((_c = existed == null ? void 0 : existed.data) == null ? void 0 : _c.length)
             return ok({ _id: existed.data[0]._id });
         }
         const doc = { ...t, createdAt: Date.now(), ...clientToken ? { clientToken } : {} };
@@ -171,6 +229,8 @@ var main = async (event) => {
         return ok({ _id: addRes._id });
       }
       case "update": {
+        if (!isManager)
+          return err("E_PERM", "\u9700\u8981\u6743\u9650");
         const parsed = UpdateSchema.safeParse((event == null ? void 0 : event.payload) || {});
         if (!parsed.success) {
           const m = mapZodIssues(parsed.error.issues);
@@ -188,7 +248,7 @@ var main = async (event) => {
           return errValidate("\u9000\u4F4F\u65E5\u671F\u4E0D\u80FD\u65E9\u4E8E\u5165\u4F4F\u65E5\u671F");
         try {
           const latest = await db.collection("Tenancies").where({ ...cur.patientId ? { patientId: String(cur.patientId) } : cur.id_card ? { id_card: String(cur.id_card) } : {}, checkOutDate: _.eq(null) }).orderBy("checkInDate", "desc").limit(1).get();
-          const latestDoc = (_b = latest == null ? void 0 : latest.data) == null ? void 0 : _b[0];
+          const latestDoc = (_d = latest == null ? void 0 : latest.data) == null ? void 0 : _d[0];
           if (!latestDoc || String(latestDoc._id) !== String(id)) {
             return err("E_CONFLICT", "\u4EC5\u5141\u8BB8\u6700\u8FD1\u672A\u9000\u4F4F\u8BB0\u5F55\u9000\u4F4F");
           }
@@ -200,6 +260,17 @@ var main = async (event) => {
         if (!updated)
           return err("E_CONFLICT", "\u5F53\u524D\u8BB0\u5F55\u5DF2\u9000\u4F4F");
         return ok({ updated });
+      }
+      case "get": {
+        if (!isManager)
+          return err("E_PERM", "\u9700\u8981\u6743\u9650");
+        const id = String(((_e = event == null ? void 0 : event.payload) == null ? void 0 : _e.id) || "");
+        if (!id)
+          return err("E_VALIDATE", "\u7F3A\u5C11 id");
+        const r = await db.collection("Tenancies").doc(id).get();
+        if (!(r == null ? void 0 : r.data))
+          return err("E_NOT_FOUND", "tenancy not found");
+        return ok(r.data);
       }
       case "db.ping": {
         let alive = false;
