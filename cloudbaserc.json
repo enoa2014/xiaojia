@@ -5,6 +5,99 @@
     "name": "xiaojia",
     "plugins": [
       {
+        "name": "function",
+        "use": "@cloudbase/framework-plugin-function",
+        "inputs": {
+          "functionRootPath": "functions",
+          "functions": [
+            {
+              "name": "patients",
+              "timeout": 60,
+              "envVariables": {},
+              "runtime": "Nodejs12.16",
+              "installDependency": true
+            },
+            {
+              "name": "services", 
+              "timeout": 60,
+              "envVariables": {},
+              "runtime": "Nodejs12.16",
+              "installDependency": true
+            },
+            {
+              "name": "activities",
+              "timeout": 60,
+              "envVariables": {},
+              "runtime": "Nodejs12.16", 
+              "installDependency": true
+            },
+            {
+              "name": "permissions",
+              "timeout": 60,
+              "envVariables": {},
+              "runtime": "Nodejs12.16",
+              "installDependency": true
+            },
+            {
+              "name": "registrations",
+              "timeout": 60,
+              "envVariables": {},
+              "runtime": "Nodejs12.16",
+              "installDependency": true
+            },
+            {
+              "name": "tenancies",
+              "timeout": 60,
+              "envVariables": {},
+              "runtime": "Nodejs12.16",
+              "installDependency": true
+            },
+            {
+              "name": "users",
+              "timeout": 60,
+              "envVariables": {},
+              "runtime": "Nodejs12.16",
+              "installDependency": true
+            },
+            {
+              "name": "exports",
+              "timeout": 60,
+              "envVariables": {},
+              "runtime": "Nodejs12.16",
+              "installDependency": true
+            },
+            {
+              "name": "stats",
+              "timeout": 60,
+              "envVariables": {},
+              "runtime": "Nodejs12.16",
+              "installDependency": true
+            },
+            {
+              "name": "import-xlsx",
+              "timeout": 120,
+              "envVariables": {},
+              "runtime": "Nodejs12.16",
+              "installDependency": true
+            },
+            {
+              "name": "init-db",
+              "timeout": 120,
+              "envVariables": {},
+              "runtime": "Nodejs12.16",
+              "installDependency": true
+            },
+            {
+              "name": "relations",
+              "timeout": 60,
+              "envVariables": {},
+              "runtime": "Nodejs12.16",
+              "installDependency": true
+            }
+          ]
+        }
+      },
+      {
         "name": "database",
         "use": "@cloudbase/framework-plugin-database",
         "inputs": {

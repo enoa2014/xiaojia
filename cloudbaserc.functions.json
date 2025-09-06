@@ -1,0 +1,32 @@
+{
+  "version": "2.0",
+  "envId": "cloud1-3grb87gwaba26b64",
+  "functionRoot": "./functions",
+  "functions": [
+    { "name": "patients", "timeout": 60, "runtime": "Nodejs16.13", "installDependency": true, "handler": "index.main",
+      "ignore": ["node_modules/**/*", ".git/**/*", "*.ts", "tsconfig.json", "tsup.config.ts", "pnpm-lock.yaml", "package-lock.json"] },
+    { "name": "services", "timeout": 60, "runtime": "Nodejs16.13", "installDependency": true, "handler": "index.main",
+      "ignore": ["node_modules/**/*", ".git/**/*", "*.ts", "tsconfig.json", "tsup.config.ts", "pnpm-lock.yaml", "package-lock.json"] },
+    { "name": "activities", "timeout": 60, "runtime": "Nodejs16.13", "installDependency": true, "handler": "index.main",
+      "ignore": ["node_modules/**/*", ".git/**/*", "*.ts", "tsconfig.json", "tsup.config.ts", "pnpm-lock.yaml", "package-lock.json"] },
+    { "name": "permissions", "timeout": 60, "runtime": "Nodejs16.13", "installDependency": true, "handler": "index.main",
+      "ignore": ["node_modules/**/*", ".git/**/*", "*.ts", "tsconfig.json", "tsup.config.ts", "pnpm-lock.yaml", "package-lock.json"] },
+    { "name": "registrations", "timeout": 60, "runtime": "Nodejs16.13", "installDependency": true, "handler": "index.main",
+      "ignore": ["node_modules/**/*", ".git/**/*", "*.ts", "tsconfig.json", "tsup.config.ts", "pnpm-lock.yaml", "package-lock.json"] },
+    { "name": "tenancies", "timeout": 60, "runtime": "Nodejs16.13", "installDependency": true, "handler": "index.main",
+      "ignore": ["node_modules/**/*", ".git/**/*", "*.ts", "tsconfig.json", "tsup.config.ts", "pnpm-lock.yaml", "package-lock.json"] },
+    { "name": "users", "timeout": 60, "runtime": "Nodejs16.13", "installDependency": true, "handler": "index.main",
+      "ignore": ["node_modules/**/*", ".git/**/*", "*.ts", "tsconfig.json", "tsup.config.ts", "pnpm-lock.yaml", "package-lock.json"] },
+    { "name": "exports", "timeout": 60, "runtime": "Nodejs16.13", "installDependency": true, "handler": "index.main",
+      "ignore": ["node_modules/**/*", ".git/**/*", "*.ts", "tsconfig.json", "tsup.config.ts", "pnpm-lock.yaml", "package-lock.json"] },
+    { "name": "stats", "timeout": 60, "runtime": "Nodejs16.13", "installDependency": true, "handler": "index.main",
+      "ignore": ["node_modules/**/*", ".git/**/*", "*.ts", "tsconfig.json", "tsup.config.ts", "pnpm-lock.yaml", "package-lock.json"] },
+    { "name": "import-xlsx", "timeout": 120, "runtime": "Nodejs16.13", "installDependency": true, "handler": "index.main",
+      "ignore": ["node_modules/**/*", ".git/**/*", "*.ts", "tsconfig.json", "tsup.config.ts", "pnpm-lock.yaml", "package-lock.json"] },
+    { "name": "init-db", "timeout": 120, "runtime": "Nodejs16.13", "installDependency": true, "handler": "index.main",
+      "ignore": ["node_modules/**/*", ".git/**/*", "*.ts", "tsconfig.json", "tsup.config.ts", "pnpm-lock.yaml", "package-lock.json"] },
+    { "name": "relations", "timeout": 60, "runtime": "Nodejs16.13", "installDependency": true, "handler": "index.main",
+      "ignore": ["node_modules/**/*", ".git/**/*", "*.ts", "tsconfig.json", "tsup.config.ts", "pnpm-lock.yaml", "package-lock.json"] }
+  ]
+}
+

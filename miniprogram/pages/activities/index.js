@@ -9,12 +9,22 @@ Page({
       { key: 'closed', label: '已关闭' }
     ],
     active: 'open',
+    activeLabel: '开放',
     list: [],
     loading: false,
     error: ''
   },
   onShow() {
+    this.updateActiveLabel()
     this.load()
+  },
+  updateActiveLabel() {
+    try {
+      const tab = (this.data.tabs || []).find(t => t.key === this.data.active)
+      this.setData({ activeLabel: tab ? tab.label : '' })
+    } catch (_) {
+      this.setData({ activeLabel: '' })
+    }
   },
   async load() {
     try {
@@ -33,7 +43,7 @@ Page({
   switchTab(e){
     const key = e.currentTarget.dataset.key
     if (key === this.data.active) return
-    this.setData({ active: key }, () => this.load())
+    this.setData({ active: key }, () => { this.updateActiveLabel(); this.load() })
   },
   toCreate() { wx.navigateTo({ url: '/pages/activities/form' }) },
   toDetail(e) {

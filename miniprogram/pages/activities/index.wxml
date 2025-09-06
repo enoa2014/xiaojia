@@ -13,9 +13,7 @@
 </view>
 
 <view wx:if="{{loading}}" class="loading">加载中...</view>
-<view wx:if="{{!loading && list.length===0}}" class="empty">暂无{{
-  tabs.find(t=>t.key===active).label
-}}的活动</view>
+<view wx:if="{{!loading && list.length == 0}}" class="empty">暂无{{activeLabel}}的活动</view>
 <view wx:if="{{!!error}}" class="error">{{error}}</view>
 
 <view class="list">

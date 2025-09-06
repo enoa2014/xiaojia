@@ -1,1 +1,4 @@
-{ "navigationBarTitleText": "患者档案" }
+{
+  "navigationBarTitleText": "患者档案",
+  "enablePullDownRefresh": true
+}

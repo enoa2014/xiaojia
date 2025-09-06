@@ -1,4 +1,7 @@
 .page { padding: 12rpx 12rpx 100rpx; }
+.top-tabs { display:flex; gap: 12rpx; margin: 8rpx 0 12rpx; overflow-x:auto; }
+.top-tab { padding: 8rpx 16rpx; border:2rpx solid #D1D5DB; border-radius: 20rpx; color:#6B7280; white-space:nowrap; }
+.top-tab.active { color:#111827; border-color:#22C55E; background:#F0FDF4; }
 .stats { display:flex; gap: 12rpx; margin-bottom: 12rpx; }
 .stat-card { flex:1; background:#F0FDF4; border:2rpx solid #DCFCE7; border-radius: 12rpx; padding: 16rpx; text-align:center; }
 .stat-num { display:block; color:#16A34A; font-size: 28rpx; font-weight: 600; }
@@ -13,6 +16,7 @@
 .item { display:flex; align-items:flex-start; gap: 12rpx; padding: 16rpx 8rpx; border-bottom:2rpx solid #F3F4F6; }
 .avatar { width: 56rpx; height:56rpx; border-radius: 28rpx; background:#E5E7EB; display:flex; align-items:center; justify-content:center; color:#374151; font-weight:600; }
 .content { flex:1; }
+.right { display:flex; flex-direction: column; align-items:flex-end; gap: 8rpx; }
 .name { display:block; font-size: 22rpx; color:#111827; font-weight:600; }
 .meta { display:block; font-size: 18rpx; color:#6B7280; margin-top: 2rpx; }
 .tags { display:flex; gap: 8rpx; margin-top: 6rpx; }
@@ -20,7 +24,32 @@
 .tag-green { background:#DCFCE7; color:#065F46; }
 .tag-yellow { background:#FEF3C7; color:#92400E; }
 .actions { display:flex; gap: 8rpx; margin-top: 10rpx; }
-.btn { height: 60rpx; line-height:60rpx; padding: 0 16rpx; border:2rpx solid #D1D5DB; border-radius: 12rpx; background:#fff; color:#374151; font-size: 18rpx; }
+.btn { height: 52rpx; line-height:52rpx; padding: 0 12rpx; border:2rpx solid #D1D5DB; border-radius: 12rpx; background:#fff; color:#374151; font-size: 18rpx; }
+.icon-btn { height: 52rpx; line-height:52rpx; padding: 0 12rpx; border:2rpx solid #FCD34D; border-radius: 12rpx; background:#FFFBEB; color:#92400E; font-size: 22rpx; }
 .arrow { color:#9CA3AF; font-size: 28rpx; align-self:center; }
 .empty { text-align:center; color:#9CA3AF; padding: 40rpx 0; }
 .fab { position: fixed; right: 24rpx; bottom: 120rpx; width: 96rpx; height:96rpx; border-radius: 48rpx; background:#22C55E; color:#fff; display:flex; align-items:center; justify-content:center; font-size: 36rpx; box-shadow: 0 8rpx 24rpx rgba(34,197,94,.3); }
+/* ========== New styles from UI/UX doc ========== */
+.nav-header { height: 88rpx; display:flex; align-items:center; justify-content:space-between; padding: 0 16rpx; border-bottom:2rpx solid #E5E7EB; font-weight:600; }
+.nav-actions text { margin-left: 16rpx; }
+.search-section { padding: 12rpx 0; }
+.search-bar { display:flex; gap: 12rpx; margin-bottom: 12rpx; align-items:center; }
+.search-icon { font-size: 24rpx; }
+.filter-tabs { display:flex; gap: 12rpx; margin: 8rpx 0 12rpx; overflow-x:auto; }
+.filter-tab { padding: 8rpx 16rpx; border:2rpx solid #D1D5DB; border-radius: 20rpx; color:#6B7280; white-space:nowrap; }
+.filter-tab.active { color:#111827; border-color:#22C55E; background:#F0FDF4; }
+.patient-card { background:#FFF; border-radius: 16rpx; padding: 20rpx; margin: 12rpx 0; box-shadow: 0 2rpx 8rpx rgba(0,0,0,0.06); border-left: 4rpx solid #34C759; }
+.patient-card:active { transform: scale(0.98); box-shadow: 0 4rpx 12rpx rgba(34,197,94,0.1); }
+.patient-header { display:flex; align-items: center; gap: 16rpx; }
+.patient-avatar { width:56rpx; height:56rpx; border-radius:28rpx; background: linear-gradient(135deg, #FED7E2 0%, #FBB6CE 100%); display:flex; align-items:center; justify-content:center; font-size: 24rpx; }
+.patient-content { flex:1; }
+.patient-name { font-size: 24rpx; font-weight: 600; color:#1D1D1F; }
+.patient-meta { font-size: 18rpx; color:#6B7280; margin-top: 4rpx; }
+.patient-tags { display:flex; gap: 8rpx; margin-top: 6rpx; flex-wrap: wrap; }
+.patient-tag { background:#F5F5F5; color:#616161; padding: 4rpx 8rpx; border-radius: 12rpx; font-size: 18rpx; }
+.star-btn { height: 52rpx; line-height:52rpx; padding: 0 12rpx; border:2rpx solid #FCD34D; border-radius: 12rpx; background:#FFFBEB; color:#92400E; font-size: 22rpx; }
+.patient-actions { display:flex; gap: 12rpx; margin-top: 12rpx; }
+.action-btn { height: 60rpx; line-height:60rpx; padding: 0 16rpx; border:2rpx solid #D1D5DB; border-radius: 12rpx; background:#fff; color:#374151; font-size: 20rpx; }
+.action-btn.primary { background:#22C55E; color:#fff; border-color:#16A34A; }
+.group-banner { padding: 12rpx; font-weight:600; border-bottom: 2rpx solid #F59E0B; background:#FEF3E2; color:#92400E; }
+.floating-fab { position: fixed; right: 24rpx; bottom: 120rpx; width: 96rpx; height:96rpx; border-radius: 48rpx; background:#22C55E; color:#fff; display:flex; align-items:center; justify-content:center; font-size: 36rpx; box-shadow: 0 8rpx 24rpx rgba(34,197,94,.3); }

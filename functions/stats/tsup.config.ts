@@ -4,7 +4,7 @@ export default defineConfig({
   entry: ['index.ts'],
   outDir: 'dist',
   format: ['cjs'],
-  target: 'node10',
+  target: 'node16',
   noExternal: ['wx-server-sdk'],
   minify: false,
   sourcemap: true,

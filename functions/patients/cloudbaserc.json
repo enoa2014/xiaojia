@@ -1,0 +1,21 @@
+{
+  "version": "2.0",
+  "envId": "cloud1-3grb87gwaba26b64",
+  "functionRoot": ".",
+  "functions": [
+    {
+      "name": "patients",
+      "timeout": 60,
+      "envVariables": {},
+      "runtime": "Nodejs16.13",
+      "installDependency": true,
+      "ignore": [
+        "node_modules/**/*",
+        ".git/**/*",
+        "*.ts",
+        "tsconfig.json",
+        "tsup.config.ts"
+      ]
+    }
+  ]
+}

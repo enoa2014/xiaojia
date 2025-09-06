@@ -1,5 +1,14 @@
 <view class="page">
-  <!-- 统计概览 -->
+  <!-- 自定义导航头（参照文档） -->
+  <view class="nav-header">
+    <text>👥 患者档案</text>
+    <view class="nav-actions">
+      <text bindtap="search">🔍</text>
+      <text bindtap="toNew">➕</text>
+    </view>
+  </view>
+
+  <!-- 顶部统计（可选） -->
   <view class="stats">
     <view class="stat-card">
       <text class="stat-num">{{stats.patients}}</text>
@@ -7,47 +16,62 @@
     </view>
   </view>
 
-  <!-- 搜索栏与筛选 -->
-  <view class="search-bar">
-    <input class="search-input" placeholder="姓名前缀 或 证件尾4位" value="{{keyword}}" bindinput="onInput" confirm-type="search" bindconfirm="search"/>
-    <button class="search-btn" loading="{{loading}}" bindtap="search">搜索</button>
+  <!-- 搜索区域（文档 search-section） -->
+  <view class="search-section">
+    <view class="search-bar">
+      <text class="search-icon">🔍</text>
+      <input class="search-input" placeholder="搜索患者档案...（姓名/尾4位）" value="{{keyword}}" bindinput="onInput" confirm-type="search" bindconfirm="search"/>
+      <button class="search-btn" loading="{{loading}}" bindtap="search">搜索</button>
+    </view>
   </view>
+
+  <!-- 顶部筛选 tabs（文档 filter-tabs） -->
+  <view class="filter-tabs">
+    <block wx:for="{{tabs}}" wx:key="key">
+      <view class="filter-tab {{item.key===tabKey?'active':''}}" data-key="{{item.key}}" bindtap="setTab">{{item.text}}</view>
+    </block>
+  </view>
+
+  <!-- 日期与有证/无证筛选 -->
   <view class="filters">
-    <picker mode="date" value="{{fromDate}}" bindchange="e=>setData({fromDate:e.detail.value});search(true)">
+    <picker mode="date" value="{{fromDate}}" bindchange="setFromDate">
       <view class="date">{{fromDate || '开始日期'}}</view>
     </picker>
-    <picker mode="date" value="{{toDate}}" bindchange="e=>setData({toDate:e.detail.value});search(true)">
+    <picker mode="date" value="{{toDate}}" bindchange="setToDate">
       <view class="date">{{toDate || '结束日期'}}</view>
     </picker>
   </view>
-  <view class="filters">
-    <text data-key="all" bindtap="setFilter" class="chip {{filterKey==='all'?'active':''}}">全部</text>
-    <text data-key="withId" bindtap="setFilter" class="chip {{filterKey==='withId'?'active':''}}">有证</text>
-    <text data-key="noId" bindtap="setFilter" class="chip {{filterKey==='noId'?'active':''}}">无证</text>
-  </view>
+  <!-- 去掉 全部/有证/无证 筛选 -->
 
-  <!-- 列表 -->
+  <!-- 优先关注组（文档示例） -->
+  <block wx:if="{{Object.keys(starred).length > 0}}">
+    <view class="group-banner star">⭐ 优先关注 ({{Object.keys(starred).length}})</view>
+  </block>
+
+  <!-- 列表（文档 patient-card 结构） -->
   <block wx:for="{{list}}" wx:key="_id">
-    <view class="item" bindtap="toDetail" data-id="{{item._id}}">
-      <view class="avatar">{{item.initial}}</view>
-      <view class="content">
-        <text class="name">{{item.name || '未命名'}}</text>
-        <text class="meta">证件尾：{{item.id_card_tail || '--'}} · 创建：{{item.createdAtText}}</text>
-        <view class="tags">
-          <text class="tag {{item.id_card?'tag-green':'tag-yellow'}}">{{item.id_card?'有证':'无证'}}</text>
+    <view class="patient-card">
+      <view class="patient-header">
+        <view class="patient-avatar">{{item.initial}}</view>
+        <view class="patient-content" bindtap="toDetail" data-id="{{item._id}}">
+          <view class="patient-name">{{item.name || '未命名'}}<text wx:if="{{item.ageText}}"> · {{item.ageText}}</text></view>
+          <view class="patient-meta">籍贯：{{item.nativePlace || '—'}} · 最近入住：{{item.recentText}}</view>
+          <view class="patient-tags">
+            <text wx:for="{{item.tags}}" wx:key="*this" class="patient-tag">{{item}}</text>
+          </view>
         </view>
-        <view class="actions">
-          <button class="btn" catchtap="toDetail" data-id="{{item._id}}">详情</button>
-          <button class="btn" catchtap="toService" data-id="{{item._id}}">服务</button>
-          <button class="btn" catchtap="toTenancy" data-id="{{item._id}}">入住</button>
-        </view>
+        <button class="star-btn" catchtap="toggleStar" data-id="{{item._id}}">{{starred[item._id] ? '★' : '☆'}}</button>
       </view>
-      <text class="arrow">›</text>
+      <view class="patient-actions">
+        <button class="action-btn primary" catchtap="toTenancy" data-id="{{item._id}}">入住管理</button>
+        <button class="action-btn" catchtap="toService" data-id="{{item._id}}">服务记录</button>
+        <button class="action-btn" catchtap="toDetail" data-id="{{item._id}}">查看档案</button>
+      </view>
     </view>
   </block>
 
-  <view class="empty" wx:if="{{!loading && list.length===0}}">暂无数据</view>
+  <view class="empty" wx:if="{{!loading && list.length==0}}">暂无数据</view>
 
   <!-- 浮动新建按钮 -->
-  <view class="fab" bindtap="toNew">＋</view>
+  <view class="floating-fab" bindtap="toNew">➕</view>
 </view>
