@@ -2,6 +2,7 @@
 import cloud from 'wx-server-sdk'
 import { z } from 'zod'
 import { isRole } from '../packages/core-rbac'
+import { mapZodIssues } from '../packages/core-utils/validation'
 import { ActivitiesListSchema, ActivityCreateSchema } from './schema'
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
@@ -66,16 +67,8 @@ export const main = async (event:any): Promise<Resp<any>> => {
         if (!(await canCreate())) return { ok:false, error:{ code:'E_PERM', msg:'仅管理员/社工可发布活动' } }
         const parsed = ActivityCreateSchema.safeParse(payload?.activity || payload || {})
         if (!parsed.success) {
-          const issues = parsed.error.issues || []
-          const first = issues[0]
-          const path = (first && first.path && first.path.join('.')) || ''
-          let msg = '填写有误'
-          if (path.includes('title')) msg = '标题需 2–40 字'
-          else if (path.includes('date')) msg = '请选择日期'
-          else if (path.includes('location')) msg = '地点需 ≤80 字'
-          else if (path.includes('capacity')) msg = '容量需为 ≥0 的整数'
-          else if (path.includes('status')) msg = '状态不合法'
-          return { ok:false, error:{ code:'E_VALIDATE', msg, details: issues } }
+          const m = mapZodIssues(parsed.error.issues)
+          return { ok:false, error:{ code:'E_VALIDATE', msg: m.msg, details: parsed.error.issues } }
         }
         const a = parsed.data
         const doc = { ...a, createdAt: Date.now() }

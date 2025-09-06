@@ -21,5 +21,6 @@ export const mapZodIssues = (issues: ZodError['issues']): { field?: string; msg:
   else if (/title/.test(path)) msg = '标题需 2–40 字'
   else if (/location/.test(path)) msg = '地点需 ≤80 字'
   else if (/type/.test(path)) msg = '类型不合法'
+  else if (/images/.test(path)) msg = '图片数量或格式不合法'
   return { field: path || undefined, msg }
 }

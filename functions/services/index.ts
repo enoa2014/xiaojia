@@ -2,6 +2,7 @@
 import cloud from 'wx-server-sdk'
 import { z } from 'zod'
 import { isRole } from '../packages/core-rbac'
+import { mapZodIssues } from '../packages/core-utils/validation'
 import { ServicesListSchema, ServiceCreateSchema, ServiceReviewSchema } from './schema'
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
@@ -54,15 +55,8 @@ export const main = async (event:any): Promise<Resp<any>> => {
       case 'create': {
         const parsed = ServiceCreateSchema.safeParse(payload?.service || payload || {})
         if (!parsed.success) {
-          const issues = parsed.error.issues || []
-          const first = issues[0]
-          const path = (first && first.path && first.path.join('.')) || ''
-          let msg = '填写有误'
-          if (path.includes('patientId')) msg = '请先选择患者'
-          else if (path.includes('type')) msg = '请选择服务类型'
-          else if (path.includes('date')) msg = '请选择日期'
-          else if (path.includes('images')) msg = '图片数量或格式不合法'
-          return { ok:false, error:{ code:'E_VALIDATE', msg, details: issues } }
+          const m = mapZodIssues(parsed.error.issues)
+          return { ok:false, error:{ code:'E_VALIDATE', msg: m.msg, details: parsed.error.issues } }
         }
         const s = parsed.data
         const clientToken = (payload && (payload as any).clientToken) || null
