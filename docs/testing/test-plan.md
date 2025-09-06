@@ -136,6 +136,30 @@
 - **错误监控**：函数错误日志和错误码统计
 - **性能监控**：响应时间和资源使用监控
 
+## 埋点校验（Analytics）
+
+目标：确保关键用户路径产生预期埋点事件，属性完整可用，便于后续分析与告警。
+
+- Tenancy Create（EP-02-S1）
+  - 事件：`tenancy_create_submit`、`tenancy_create_result`
+  - 校验：每次提交各触发一次；`submit` 含 `hasPatientId/hasIdCard/hasRoom/hasBed`；`result` 含 `requestId`、`duration>0`、`code ∈ {'OK'|错误码}`。
+- Tenancy Checkout（EP-02-S2）
+  - 事件：`tenancy_checkout_submit`、`tenancy_checkout_result`
+  - 校验：同上；`tenancyId` 传递正确。
+- Service Create（EP-03-S1）
+  - 事件：`service_submit_click`、`service_submit_result`
+  - 校验：`submit` 含 `type`、`imagesCount`；`result` 含 `requestId`、`duration`、`code`。
+- Activities Create/List（EP-04-S1）
+  - 事件：`activity_create_submit`、`activity_create_result`；`activities_list_view`
+  - 校验：`create.*` 含 `status/capacity` 与结果属性；`list_view` 含 `statusTab`、`count`、`duration`。
+- Permission Request（EP-06-S1）
+  - 事件：`perm_request_submit`、`perm_request_result`
+  - 校验：`submit` 含 `fields`、`expiresDays`、`length`；`result` 含 `requestId`、`duration`、`code`。
+
+执行方法：
+- 微信开发者工具“性能/自定义上报”或控制台日志（降级）观察；或在 `wx.reportAnalytics` 配置后台查看事件采样。
+- 失败重试仅产生一次 `result` 事件；幂等成功同样只记录一次 `result:OK`。
+
 ## 风险缓解
 
 ### 高风险场景

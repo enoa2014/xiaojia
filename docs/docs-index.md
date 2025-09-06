@@ -82,6 +82,10 @@
   - docs/process/engineering-guidelines.md：工程规范与协作流程
     - Owner: 后端负责人；Reviewer: 架构/前端/QA；频率: 流程变更/季度回顾
 
+- Reports
+  - docs/reports/milestone-brief-2025-09-06.md：里程碑进展简报（阶段性进度/风险/建议）
+    - Owner: PO/PM；Reviewer: 架构/QA；频率: 每迭代/重要节点
+
 ## 变更流程
 - 提交流程：以 PR 形式提交，标注 `type:docs` 与对应域标签（如 `docs:api`）。
 - 同步要求：涉及多文档的变更需在同一 PR 中统一更新（PRD/契约/数据字典/校验）。
@@ -103,3 +107,13 @@
   - docs/process/coding-standards.md：编码规范（前端/云函数）
   - docs/data/data-model.md：数据模型蓝图（实体/关系/约束/索引）
   - docs/api/prototype.md：API 原型样例（请求/响应/调用片段/Mock 建议）
+
+- 2025-09-06 更新
+  - 实现 Tenancies 后端 API：list/get/create/update；支持 `filter.patientId|id_card|room|bed|checkInDate`、单字段排序、`clientToken` 幂等、补助金额两位小数校验；默认 `checkInDate desc`。
+  - 冲突策略：采用方案A（前端软提示），提交前以 `list` 预检并弹窗确认；后端不阻断（后续可配置为强校验）。
+  - 同步更新文档：
+    - contracts.md：Tenancies 标记为“已实现”，细化行为与规则。
+    - validation-rules.md：床位冲突为默认软提示（不阻断），支持后续升级为强校验。
+    - data-dictionary.md：Tenancies 增加 `createdAt`、可选 `id_card` 字段与索引建议。
+  - 新增：docs/reports/milestone-brief-2025-09-06.md（本次里程碑简报）。
+  - QA 同步：EP-02-S2 退住登记 Gate 由 CONCERNS → PASS；更新故事 `EP-02-S2-tenancy-checkout.md`（状态 Done + QA 结果）。

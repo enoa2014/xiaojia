@@ -1,0 +1,14 @@
+schema: 1
+story: "EP-02.S2"
+story_title: "退住登记与排序（Tenancy Checkout）"
+gate: "PASS"
+status_reason: "回归通过：日期关系校验、已退住阻断、仅允许最近未退住记录退住（最近记录保护）与列表/详情状态更新均符合；前端退住页与埋点（submit/result）已接入；错误码与文案一致。"
+reviewer: "Quinn (Test Architect)"
+updated: "2025-09-06T21:15:00Z"
+waiver: { active: false }
+top_issues: []
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 0, low: 1 }
+  recommendations:
+    must_fix: []
+    monitor: ["并发极端场景下的重复退住冲突率；必要时引入事务/唯一键加强"]
