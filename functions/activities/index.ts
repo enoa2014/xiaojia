@@ -3,6 +3,7 @@ import cloud from 'wx-server-sdk'
 import { z } from 'zod'
 import { isRole } from '../packages/core-rbac'
 import { mapZodIssues } from '../packages/core-utils/validation'
+import { ok, err, errValidate } from '../packages/core-utils/errors'
 import { ActivitiesListSchema, ActivityCreateSchema } from './schema'
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
@@ -54,31 +55,31 @@ export const main = async (event:any): Promise<Resp<any>> => {
           .get()
         const items = res.data
         const hasMore = (qp.page * qp.pageSize) < total
-        return { ok: true, data: { items, meta: { total, hasMore } } }
+        return ok({ items, meta: { total, hasMore } })
       }
       case 'get': {
         const { id } = IdSchema.parse(payload || {})
         const r = await db.collection('Activities').doc(id).get()
-        if (!r?.data) return { ok: false, error: { code: 'E_NOT_FOUND', msg: 'activity not found' } }
-        return { ok: true, data: r.data }
+        if (!r?.data) return err('E_NOT_FOUND','activity not found')
+        return ok(r.data)
       }
       case 'create': {
         // RBAC：仅管理员/社工可创建
-        if (!(await canCreate())) return { ok:false, error:{ code:'E_PERM', msg:'仅管理员/社工可发布活动' } }
+        if (!(await canCreate())) return err('E_PERM','仅管理员/社工可发布活动')
         const parsed = ActivityCreateSchema.safeParse(payload?.activity || payload || {})
         if (!parsed.success) {
           const m = mapZodIssues(parsed.error.issues)
-          return { ok:false, error:{ code:'E_VALIDATE', msg: m.msg, details: parsed.error.issues } }
+          return errValidate(m.msg, parsed.error.issues)
         }
         const a = parsed.data
         const doc = { ...a, createdAt: Date.now() }
         const { _id } = await db.collection('Activities').add({ data: doc as any })
-        return { ok: true, data: { _id } }
+        return ok({ _id })
       }
       default:
-        return { ok: false, error: { code: 'E_ACTION', msg: 'unknown action' } }
+        return err('E_ACTION','unknown action')
     }
   } catch (e:any) {
-    return { ok: false, error: { code: e.code || 'E_INTERNAL', msg: e.message, details: e.stack } }
+    return err(e.code || 'E_INTERNAL', e.message, e.stack)
   }
 }

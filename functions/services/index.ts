@@ -3,6 +3,7 @@ import cloud from 'wx-server-sdk'
 import { z } from 'zod'
 import { isRole } from '../packages/core-rbac'
 import { mapZodIssues } from '../packages/core-utils/validation'
+import { ok, err, errValidate } from '../packages/core-utils/errors'
 import { ServicesListSchema, ServiceCreateSchema, ServiceReviewSchema } from './schema'
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
@@ -44,19 +45,19 @@ export const main = async (event:any): Promise<Resp<any>> => {
           .skip((qp.page-1)*qp.pageSize)
           .limit(qp.pageSize)
           .get()
-        return { ok: true, data: res.data }
+        return ok(res.data)
       }
       case 'get': {
         const { id } = IdSchema.parse(payload || {})
         const r = await db.collection('Services').doc(id).get()
-        if (!r?.data) return { ok: false, error: { code: 'E_NOT_FOUND', msg: 'service not found' } }
-        return { ok: true, data: r.data }
+        if (!r?.data) return err('E_NOT_FOUND', 'service not found')
+        return ok(r.data)
       }
       case 'create': {
         const parsed = ServiceCreateSchema.safeParse(payload?.service || payload || {})
         if (!parsed.success) {
           const m = mapZodIssues(parsed.error.issues)
-          return { ok:false, error:{ code:'E_VALIDATE', msg: m.msg, details: parsed.error.issues } }
+          return errValidate(m.msg, parsed.error.issues)
         }
         const s = parsed.data
         const clientToken = (payload && (payload as any).clientToken) || null
@@ -65,33 +66,33 @@ export const main = async (event:any): Promise<Resp<any>> => {
         if (clientToken) {
           const existed = await db.collection('Services').where({ clientToken }).limit(1).get()
           if (existed.data && existed.data.length) {
-            return { ok: true, data: { _id: existed.data[0]._id } }
+            return ok({ _id: existed.data[0]._id })
           }
         }
         const doc = { ...s, status: 'review', createdBy: OPENID || null, createdAt: Date.now(), ...(clientToken ? { clientToken } : {}) }
         const { _id } = await db.collection('Services').add({ data: doc as any })
-        return { ok: true, data: { _id } }
+        return ok({ _id })
       }
       case 'review': {
         const { id, decision, reason } = ServiceReviewSchema.parse(payload || {})
         // RBAC: only admin or social_worker can review
-        if (!(await canReview())) return { ok:false, error:{ code:'E_PERM', msg:'需要审核权限' } }
-        if (decision === 'rejected' && !reason) return { ok:false, error:{ code:'E_VALIDATE', msg:'审核驳回需填写理由' } }
+        if (!(await canReview())) return err('E_PERM','需要审核权限')
+        if (decision === 'rejected' && !reason) return errValidate('审核驳回需填写理由')
         const r = await db.collection('Services').doc(id).get()
         const cur = r?.data
-        if (!cur) return { ok:false, error:{ code:'E_NOT_FOUND', msg:'service not found' } }
-        if (cur.status !== 'review') return { ok:false, error:{ code:'E_CONFLICT', msg:'当前状态不可审核' } }
+        if (!cur) return err('E_NOT_FOUND','service not found')
+        if (cur.status !== 'review') return err('E_CONFLICT','当前状态不可审核')
         await db.collection('Services').doc(id).update({ data: { status: decision, reviewReason: reason || null, reviewedAt: Date.now() } })
         // audit
         try {
           await db.collection('AuditLogs').add({ data: { actorId: OPENID || null, action: 'services.review', target: { id, decision }, createdAt: Date.now() } })
         } catch {}
-        return { ok: true, data: { updated: 1 } }
+        return ok({ updated: 1 })
       }
       default:
-        return { ok: false, error: { code: 'E_ACTION', msg: 'unknown action' } }
+        return err('E_ACTION','unknown action')
     }
   } catch (e:any) {
-    return { ok: false, error: { code: e.code || 'E_INTERNAL', msg: e.message, details: e.stack } }
+    return err(e.code || 'E_INTERNAL', e.message, e.stack)
   }
 }

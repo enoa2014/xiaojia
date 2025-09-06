@@ -3,6 +3,7 @@ import cloud from 'wx-server-sdk'
 import { z } from 'zod'
 import { isRole } from '../packages/core-rbac'
 import { mapZodIssues } from '../packages/core-utils/validation'
+import { ok, err, errValidate } from '../packages/core-utils/errors'
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 
@@ -52,7 +53,7 @@ export const main = async (event:any): Promise<Resp<any>> => {
           createdAt: now
         }
         const res = await db.collection('PermissionRequests').add({ data: doc as any })
-        return { ok:true, data: { _id: res._id, expiresAt: requestedExpiresAt } }
+        return ok({ _id: res._id, expiresAt: requestedExpiresAt })
       }
       case 'request.approve': {
         const parsed = ApproveSchema.safeParse(payload || {})
@@ -62,14 +63,14 @@ export const main = async (event:any): Promise<Resp<any>> => {
         }
         const { id, expiresAt } = parsed.data
         // 角色校验：需要管理员权限
-        if (!(await isAdmin())) return { ok:false, error:{ code:'E_PERM', msg:'需要管理员权限' } }
+        if (!(await isAdmin())) return err('E_PERM','需要管理员权限')
         const now = Date.now()
         const exp = expiresAt && expiresAt > now ? expiresAt : (now + 30*24*60*60*1000)
         await db.collection('PermissionRequests').doc(id).update({ data: { status: 'approved', expiresAt: exp, approvedAt: now, approvedBy: OPENID || null } })
         try {
           await db.collection('AuditLogs').add({ data: { actorId: OPENID || null, action: 'permissions.approve', target: { requestId: id }, createdAt: now } })
         } catch {}
-        return { ok:true, data: { updated: 1 } }
+        return ok({ updated: 1 })
       }
       case 'request.reject': {
         const parsed = RejectSchema.safeParse(payload || {})
@@ -79,19 +80,19 @@ export const main = async (event:any): Promise<Resp<any>> => {
         }
         const { id, reason } = parsed.data
         // 角色校验：需要管理员权限
-        if (!(await isAdmin())) return { ok:false, error:{ code:'E_PERM', msg:'需要管理员权限' } }
+        if (!(await isAdmin())) return err('E_PERM','需要管理员权限')
         const now = Date.now()
         await db.collection('PermissionRequests').doc(id).update({ data: { status: 'rejected', rejectedAt: now, rejectedBy: OPENID || null, rejectReason: reason } })
         try {
           await db.collection('AuditLogs').add({ data: { actorId: OPENID || null, action: 'permissions.reject', target: { requestId: id }, createdAt: now } })
         } catch {}
-        return { ok:true, data: { updated: 1 } }
+        return ok({ updated: 1 })
       }
       case 'request.list': {
         const qp = ListSchema.safeParse(payload || {})
         if (!qp.success) {
           const m = mapZodIssues(qp.error.issues)
-          return { ok:false, error:{ code:'E_VALIDATE', msg: m.msg, details: qp.error.issues } }
+          return errValidate(m.msg, qp.error.issues)
         }
         const q = qp.data
         let where: any = {}
@@ -106,12 +107,12 @@ export const main = async (event:any): Promise<Resp<any>> => {
           where.requesterId = OPENID
         }
         const res = await db.collection('PermissionRequests').where(where).orderBy('createdAt','desc').skip((q.page-1)*q.pageSize).limit(q.pageSize).get()
-        return { ok:true, data: res.data }
+        return ok(res.data)
       }
       default:
-        return { ok:false, error:{ code:'E_ACTION', msg:'unsupported action' } }
+        return err('E_ACTION','unsupported action')
     }
   } catch (e:any) {
-    return { ok:false, error:{ code: e.code || 'E_INTERNAL', msg: e.message, details: e.stack } }
+    return err(e.code || 'E_INTERNAL', e.message, e.stack)
   }
 }
