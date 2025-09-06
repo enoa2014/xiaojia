@@ -1,4 +1,5 @@
 import { api, mapError } from '../../services/api'
+import { track } from '../../services/analytics'
 
 Page({
   data: {
@@ -27,19 +28,28 @@ Page({
     if (typeof capacity !== 'number' || capacity < 0) return wx.showToast({ icon:'none', title: '容量需 ≥0' })
     const status = statusList[statusIndex]
     try {
+      const requestId = `act-${Date.now()}-${Math.floor(Math.random()*1e6)}`
+      const startAt = Date.now()
       this.setData({ submitting: true })
+      // 提交前埋点
+      track('activity_create_submit', { requestId, hasLocation: !!location, capacity, status })
       const clientToken = 'act_' + Date.now() + '_' + Math.random().toString(36).slice(2)
       await api.activities.create({ title, date, location, capacity, status }, clientToken)
+      // 成功埋点
+      track('activity_create_result', { requestId, duration: Date.now() - startAt, code: 'OK' })
       wx.showToast({ icon: 'success', title: '创建成功' })
       setTimeout(() => {
         wx.navigateBack({})
       }, 300)
     } catch (e) {
+      const code = (e && e.code) || 'E_INTERNAL'
       if (e && e.code === 'E_PERM') {
         wx.showToast({ icon:'none', title: '仅管理员/社工可发布' })
       } else {
-        wx.showToast({ icon:'none', title: mapError(e.code) })
+        wx.showToast({ icon:'none', title: mapError(code) })
       }
+      // 失败埋点（含权限错误）
+      try { track('activity_create_result', { requestId, duration: Date.now() - startAt, code }) } catch(_){ }
     } finally {
       this.setData({ submitting: false })
     }

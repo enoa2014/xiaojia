@@ -1,4 +1,5 @@
 import { api, mapError } from '../../services/api'
+import { track } from '../../services/analytics'
 
 Page({
   data: {
@@ -27,6 +28,7 @@ Page({
     }
   },
   async load() {
+    const startAt = Date.now()
     try {
       this.setData({ loading: true, error: '' })
       const res = await api.activities.list({ page: 1, pageSize: 20, filter: { status: this.data.active } })
@@ -37,6 +39,8 @@ Page({
     } finally {
       this.setData({ loading: false })
       wx.stopPullDownRefresh()
+      // 列表埋点（按状态 Tab）
+      try { track('activities_list_view', { statusTab: this.data.active, count: (this.data.list || []).length, duration: Date.now() - startAt }) } catch(_){ }
     }
   },
   onPullDownRefresh(){ this.load() },

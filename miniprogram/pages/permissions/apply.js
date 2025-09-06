@@ -1,4 +1,5 @@
 import { api, mapError } from '../../services/api'
+import { track } from '../../services/analytics'
 
 Page({
   data: {
@@ -28,23 +29,30 @@ Page({
   },
   async onSubmit(){
     if (!this.validate()) return
+    const requestId = `perm-${Date.now()}-${Math.floor(Math.random()*1e6)}`
+    const startAt = Date.now()
     this.setData({ submitting: true })
     try {
       const fields = Object.keys(this.data.fields).filter(k => this.data.fields[k])
       const expiresDays = this.data.expiresOptions[this.data.expiresIndex]
       const payload = { fields, patientId: this.data.patientId, reason: this.data.reason, expiresDays: String(expiresDays) }
+      // 提交埋点
+      track('perm_request_submit', { requestId, fields: fields.join(','), expiresDays, length: (this.data.reason || '').length })
       const r = await wx.cloud.callFunction({ name: 'permissions', data: { action: 'request.submit', payload } })
       const res = r && r.result
       if (!res || res.ok !== true) throw (res && res.error) || { code:'E_INTERNAL', msg:'申请失败' }
+      // 成功埋点
+      track('perm_request_result', { requestId, duration: Date.now() - startAt, code: 'OK' })
       wx.showToast({ title:'已提交申请' })
       setTimeout(()=> wx.navigateBack({ delta:1 }), 600)
     } catch (e) {
       const code = e.code || 'E_INTERNAL'
       const msg = (code === 'E_VALIDATE' && e.msg) ? e.msg : mapError(code)
       wx.showToast({ icon:'none', title: msg })
+      // 失败埋点
+      try { track('perm_request_result', { requestId, duration: Date.now() - startAt, code }) } catch(_){ }
     } finally {
       this.setData({ submitting: false })
     }
   }
 })
-

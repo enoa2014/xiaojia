@@ -1,4 +1,5 @@
 import { api, mapError } from '../../services/api'
+import { track } from '../../services/analytics'
 import { uploadImage } from '../../services/upload'
 
 Page({
@@ -107,8 +108,17 @@ Page({
   },
   async onSubmit(){
     if (!this.validate()) return
+    const requestId = `svc-${Date.now()}-${Math.floor(Math.random()*1e6)}`
+    const startAt = Date.now()
     this.setData({ submitting: true })
     try {
+      // 提交前埋点
+      track('service_submit_click', {
+        requestId,
+        hasImages: this.data.images && this.data.images.length > 0,
+        imagesCount: (this.data.images || []).length,
+        type: this.data.type || ''
+      })
       await this.ensureUploads()
       const clientToken = `sv-${Date.now()}`
       const service = {
@@ -119,6 +129,8 @@ Page({
         images: this.data.images.map(x=>x.fileID)
       }
       await api.services.create(service, clientToken)
+      // 成功埋点
+      track('service_submit_result', { requestId, duration: Date.now() - startAt, code: 'OK' })
       wx.showToast({ title: '提交成功' })
       // 清除草稿
       wx.removeStorageSync('svc_draft')
@@ -127,6 +139,8 @@ Page({
       const code = e.code || 'E_INTERNAL'
       const msg = code === 'E_VALIDATE' && e && e.message ? e.message : mapError(code)
       wx.showToast({ icon:'none', title: msg })
+      // 失败埋点
+      track('service_submit_result', { requestId, duration: Date.now() - startAt, code })
     } finally {
       this.setData({ submitting: false })
     }
