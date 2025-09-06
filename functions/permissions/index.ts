@@ -1,6 +1,7 @@
 
 import cloud from 'wx-server-sdk'
 import { z } from 'zod'
+import { isRole } from '../packages/core-rbac'
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 
@@ -26,21 +27,7 @@ export const main = async (event:any): Promise<Resp<any>> => {
     const { action, payload } = event || {}
     const { OPENID } = cloud.getWXContext?.() || ({} as any)
 
-    // Helper: admin RBAC check (best-effort; supports different Users shapes)
-    const isAdmin = async (): Promise<boolean> => {
-      try {
-        if (!OPENID) return false
-        // common shapes: { openId, role }, { _id, role }, { openId, roles:[...] }
-        const _ = db.command
-        const byOpenId = await db.collection('Users').where({ openId: OPENID, role: 'admin' }).limit(1).get()
-        if (byOpenId.data && byOpenId.data.length) return true
-        const byId = await db.collection('Users').where({ _id: OPENID, role: 'admin' } as any).limit(1).get()
-        if (byId.data && byId.data.length) return true
-        const byRoles = await db.collection('Users').where({ openId: OPENID, roles: _.in(['admin']) } as any).limit(1).get()
-        if (byRoles.data && byRoles.data.length) return true
-      } catch {}
-      return false
-    }
+    const isAdmin = async (): Promise<boolean> => isRole(db, OPENID, 'admin')
     switch (action) {
       case 'request.submit': {
         const parsed = SubmitSchema.safeParse(payload || {})
