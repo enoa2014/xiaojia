@@ -1,6 +1,7 @@
 
 import cloud from 'wx-server-sdk'
 import { z } from 'zod'
+import { isRole } from '../packages/core-rbac'
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
@@ -25,30 +26,7 @@ export const main = async (event:any): Promise<Resp<any>> => {
     const now = Date.now()
 
     // RBAC helpers（用于 checkin 任意用户）
-    const isRole = async (role: 'admin'|'social_worker'): Promise<boolean> => {
-      try {
-        if (!OPENID) return false
-        const _ = db.command
-        if (role === 'admin') {
-          const byOpenId = await db.collection('Users').where({ openId: OPENID, role: 'admin' } as any).limit(1).get()
-          if (byOpenId.data?.length) return true
-          const byId = await db.collection('Users').where({ _id: OPENID, role: 'admin' } as any).limit(1).get()
-          if (byId.data?.length) return true
-          const byRoles = await db.collection('Users').where({ openId: OPENID, roles: _.in(['admin']) } as any).limit(1).get()
-          if (byRoles.data?.length) return true
-          return false
-        }
-        if (role === 'social_worker') {
-          const byOpenId = await db.collection('Users').where({ openId: OPENID, role: 'social_worker' } as any).limit(1).get()
-          if (byOpenId.data?.length) return true
-          const byRoles = await db.collection('Users').where({ openId: OPENID, roles: _.in(['social_worker']) } as any).limit(1).get()
-          if (byRoles.data?.length) return true
-          return false
-        }
-      } catch {}
-      return false
-    }
-    const canManage = async (): Promise<boolean> => (await isRole('admin')) || (await isRole('social_worker'))
+    const canManage = async (): Promise<boolean> => (await isRole(db, OPENID, 'admin')) || (await isRole(db, OPENID, 'social_worker'))
 
     switch (action) {
       case 'list': {
