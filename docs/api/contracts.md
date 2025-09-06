@@ -60,14 +60,14 @@ wx.cloud.callFunction({ name: 'patients', data: { action: 'list', payload: { pag
 { ok: true, data: { items: [ /* Patient */ ], meta: { total: 42, hasMore: true } } }
 ```
 
-### tenancies（回传占位，计划按下列契约实现）
+### tenancies（已实现：list/get/create/update）
 - list：`in { page?, pageSize?, filter:{ patientId?, id_card? }, sort? }` → `out { ok:true, data: Tenancy[] }`
-  - 校验摘要：分页参数同上；filter 中 `patientId|id_card` 字符串校验。
+  - 校验/行为：分页参数同上；`filter.patientId|id_card` 字符串校验；默认按 `checkInDate desc` 排序；支持单字段排序；前端软提示支持的过滤还包括 `room|bed|checkInDate`。
 - get：`in { id }` → `out { ok:true, data: Tenancy }`
-- create：`in { tenancy: { patientId|id_card, checkInDate, room?, bed?, subsidy?, extra? }, clientToken }` → `out { ok:true, data:{ _id } }`
+- create：`in { tenancy: { patientId|id_card, checkInDate, checkOutDate?, room?, bed?, subsidy?, extra? }, clientToken }` → `out { ok:true, data:{ _id } }`
+  - 校验/行为：`checkInDate` 必填（ISO 日期 `YYYY-MM-DD`）；须提供 `patientId` 或 `id_card` 其一；`checkOutDate` 若填需 ≥ `checkInDate`；`subsidy≥0` 且最多两位小数；写入 `createdAt`；幂等：同一 `clientToken` 重复提交返回相同 `_id`。
 - update：`in { id, patch }` → `out { ok:true, data:{ updated } }`
-- 规则：同日同床位冲突 → `E_CONFLICT`
-  - 校验摘要：`checkInDate` 必填 ISO 日期；须提供 `patientId` 或 `id_card` 其一；`checkOutDate` 若填需 ≥ `checkInDate`；`subsidy≥0` 两位小数；`room|bed` 可空；冲突检测提示但可配置是否阻断。
+- 规则：同日同床位冲突（`room+bed+checkInDate`）→ 默认仅提示（不阻断），前端在提交前以 list 预检并弹窗确认；后续可按配置升级为强校验（`E_CONFLICT`）。
 
 ### services（已实现：create/review）
 - list：`in { page?, pageSize?, filter:{ patientId?, createdBy?, type?, status? }, sort? }` → `out { ok:true, data: Service[] }`

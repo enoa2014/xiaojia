@@ -43,7 +43,7 @@
   - `subsidy`：数值 ≥ 0，最多两位小数。
 - 跨字段规则：
   - 若仅提供 `id_card`，创建时尝试查询 Patients，命中则回填 `patientId`；未命中也允许写入，后续回填。
-  - 保留“同日同床位冲突检测”入口：`room+bed+checkInDate` 组合冲突判定，冲突提示但不阻塞创建（后续可配置为强校验）。
+  - 同日同床位冲突检测：`room+bed+checkInDate` 组合冲突；当前默认仅提示（软提示，不阻断），由前端在提交前给出确认；后续可按配置升级为强校验（返回 `E_CONFLICT`）。
 - 错误文案：
   - `入住日期不能为空`（E_VALIDATE）
   - `退住日期不能早于入住日期`（E_VALIDATE）
@@ -102,4 +102,3 @@
 - 后端：各函数以 zod 定义入参 schema，错误统一抛出 `{ ok:false, error:{ code,msg,details? } }`。
 - 前端：提交前做同等校验，内联高亮错误字段；对业务错误码进行 Toast/引导操作（如跳转权限申请页）。
 - 日志：对 `E_CONFLICT/E_VALIDATE/E_INTERNAL` 统一上报埋点 `api_error`，含 `name/code/duration/requestId`。
-

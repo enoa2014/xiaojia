@@ -43,6 +43,8 @@ Page({
         this.setData({ 'user.roleName': role.name, 'user.avatar': role.avatar })
       }
     } catch(_) {}
+    // 以云端为准同步身份
+    this.syncRoleFromServer()
   },
   onShow() {
     const now = this.formatNow()
@@ -114,7 +116,26 @@ Page({
       if (!r) return
       this.setData({ 'user.roleName': r.name, 'user.avatar': r.avatar })
       try { wx.setStorageSync('debug_role', r) } catch(_) {}
-      wx.showToast({ icon:'none', title: `已切换为${r.name}` })
+      // 同步到云端 Users 集合（用于后端 RBAC）
+      wx.cloud.callFunction({ name: 'users', data: { action: 'setRole', payload: { role: r.key } } })
+        .then(() => wx.showToast({ icon:'none', title: `已切换为${r.name}` }))
+        .catch(err => wx.showToast({ icon:'none', title: (err && err.code) ? err.code : '网络异常' }))
     }).catch(()=>{})
+  },
+  async syncRoleFromServer(){
+    try {
+      const prof = await require('../../services/api').api.users.getProfile()
+      const map = {
+        admin: { name:'管理员', avatar:'👩‍💼' },
+        social_worker: { name:'社工', avatar:'🧑‍💼' },
+        volunteer: { name:'志愿者', avatar:'🙋' },
+        parent: { name:'家长', avatar:'👨‍👩‍👧' }
+      }
+      const m = map[prof.role]
+      if (m) {
+        this.setData({ 'user.roleName': m.name, 'user.avatar': m.avatar })
+        try { wx.setStorageSync('debug_role', { key: prof.role, ...m }) } catch(_) {}
+      }
+    } catch(_) {}
   }
 })

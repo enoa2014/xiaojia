@@ -44,3 +44,5 @@
 
 ## 变更记录
 - v0.1 初始化。
+- v0.2 实现后端 API：tenancies.list/get/create/update；默认按 `checkInDate desc` 排序；创建支持 `clientToken` 幂等；补助金额两位小数校验；同日同床位冲突（默认软提示，前端预检）。
+- v0.3 完成 EP-02-S1：新增入住记录（AC1–AC6 达成，Gate=PASS）。

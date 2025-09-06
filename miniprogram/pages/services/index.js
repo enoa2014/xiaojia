@@ -23,7 +23,8 @@ Page({
     list: [],
     page: 1,
     hasMore: true,
-    loading: false
+    loading: false,
+    canReview: false
   },
   onShow(){
     // 首次进入或返回刷新
@@ -31,6 +32,7 @@ Page({
       this._inited = true
       this.refresh(true)
     }
+    this.syncRole()
   },
   onPullDownRefresh(){ this.refresh(true) },
   onReachBottom(){ this.refresh(false) },
@@ -75,6 +77,13 @@ Page({
   toDetail(e){
     const id = e.currentTarget.dataset.id
     wx.showToast({ icon:'none', title:'详情页占位' })
+  },
+  async syncRole(){
+    try {
+      const prof = await require('../../services/api').api.users.getProfile()
+      const can = prof && (prof.role === 'admin' || prof.role === 'social_worker')
+      this.setData({ canReview: !!can })
+    } catch(_) { this.setData({ canReview: false }) }
   },
   async onApprove(e){
     const id = e.currentTarget.dataset.id

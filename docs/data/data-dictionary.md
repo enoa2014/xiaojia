@@ -17,8 +17,8 @@
   - 排序：`createdAt` 倒序
 
 ## Tenancies
-- 字段：`patientId` `checkInDate` `checkOutDate?` `room` `bed` `subsidy` `extra?`
-- 索引：`patientId+checkInDate(desc)`；`room+bed+checkInDate`（冲突检测，后续启用）
+- 字段：`patientId` `id_card?` `checkInDate` `checkOutDate?` `room?` `bed?` `subsidy?` `extra?` `createdAt`
+- 索引：`patientId+checkInDate(desc)`；`id_card+checkInDate(desc)`（可选）；`room+bed+checkInDate`（冲突检测，可按需启用）
 
 ## Services
 - 字段：`patientId` `type(visit|psych|goods|referral|followup)` `date` `desc?` `images[]?` `status(review|rejected|approved)` `createdBy`

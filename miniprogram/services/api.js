@@ -32,6 +32,10 @@ export const api = {
     get: (id) => call('patients', 'get', { id }),
     create: (patient, clientToken) => callWithRetry('patients', 'create', { patient, clientToken })
   },
+  users: {
+    getProfile: () => call('users', 'getProfile'),
+    setRole: (role) => call('users', 'setRole', { role })
+  },
   tenancies: {
     list: (q) => call('tenancies','list', q),
     get: (id) => call('tenancies','get', { id }),

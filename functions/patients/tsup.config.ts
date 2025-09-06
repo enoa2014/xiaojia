@@ -5,7 +5,7 @@ export default defineConfig({
   outDir: 'dist',
   format: ['cjs'],
   // 统一到 Node 16 运行时
-  target: 'node16',
+  target: 'node10',
   minify: false,
   sourcemap: true,
   clean: true

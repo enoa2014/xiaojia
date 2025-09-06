@@ -13,6 +13,7 @@
     "pages/patients/search",
     "pages/patients/detail",
     "pages/tenancies/form",
+    "pages/tenancies/checkout",
     "pages/services/form"
   ],
   "tabBar": {

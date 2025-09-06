@@ -10,6 +10,12 @@
         <text class="v">{{patient.name || '—'}}</text>
       </view>
       <view class="row">
+        <text class="k">入住状态</text>
+        <text class="v">{{inResidence ? '在住' : '—'}}
+          <button wx:if="{{inResidence}}" size="mini" bindtap="toCheckout" style="margin-left:12rpx;">退住登记</button>
+        </text>
+      </view>
+      <view class="row">
         <text class="k">身份证</text>
         <text class="v">{{patient.id_card || (patient.id_card_tail ? '************' + patient.id_card_tail : '—')}}</text>
       </view>

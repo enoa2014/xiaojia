@@ -1,0 +1,10 @@
+<view class="page">
+  <view class="section">
+    <text class="label">退住日期</text>
+    <picker mode="date" value="{{checkOutDate}}" bindchange="onCheckOutDate">
+      <view class="picker">{{checkOutDate || '选择退住日期'}} </view>
+    </picker>
+    <text class="error" wx:if="{{errors.checkOutDate}}">{{errors.checkOutDate}}</text>
+  </view>
+  <button class="submit" loading="{{submitting}}" bindtap="onSubmit">提交退住</button>
+</view>

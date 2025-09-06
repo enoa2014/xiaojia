@@ -35,6 +35,14 @@ Page({
         if (diff > 0) daysLeft = Math.ceil(diff / (24*60*60*1000))
       }
       this.setData({ patient: p, daysLeft })
+      // 加载“在住”状态：取最近一条入住记录，未退住则显示在住
+      try {
+        const items = await api.tenancies.list({ page: 1, pageSize: 1, filter: { patientId: this.data.id }, sort: { checkInDate: -1 } })
+        const arr = Array.isArray(items) ? items : []
+        const last = arr[0]
+        const inResidence = !!(last && !last.checkOutDate)
+        this.setData({ inResidence, lastCheckInDate: last && last.checkInDate, lastTenancyId: last && last._id })
+      } catch {}
     } catch (e) {
       wx.showToast({ icon:'none', title: mapError(e.code || 'E_INTERNAL') })
     } finally {
@@ -76,6 +84,10 @@ Page({
     return id.slice(0,6) + '********' + id.slice(-4)
   },
   toCreateService(){ wx.navigateTo({ url: `/pages/services/form?pid=${this.data.id}` }) },
+  toCheckout(){
+    if (!this.data.inResidence || !this.data.lastTenancyId) return
+    wx.navigateTo({ url: `/pages/tenancies/checkout?tid=${this.data.lastTenancyId}` })
+  },
   toCreateTenancy(){ wx.navigateTo({ url: `/pages/tenancies/form?pid=${this.data.id}` }) },
   // mappings
   mapType(t){ return { visit:'探访', psych:'心理', goods:'物资', referral:'转介', followup:'随访' }[t] || t },

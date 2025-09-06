@@ -1,11 +1,11 @@
-
 import { defineConfig } from 'tsup'
 export default defineConfig({
   entry: ['index.ts'],
   outDir: 'dist',
   format: ['cjs'],
-  target: 'node16',
+  target: 'node10',
   minify: false,
   sourcemap: true,
   clean: true
 })
+

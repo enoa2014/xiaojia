@@ -101,6 +101,32 @@
 - 事件：页面曝光、按钮点击、表单提交、接口错误（含 code、duration、requestId）
 - 指标：转化率（新建档案/提交记录/报名）、错误率、P95 接口时延
 
+### 15.1 事件模型与实现
+- 封装：`miniprogram/services/analytics.js` 暴露 `track(event, props)`；优先 `wx.reportAnalytics(event, props)`，未配置时降级 console。
+- 事件命名：`<domain>_<action>[_<stage>]`，一律小写下划线。
+- 公共字段：`requestId`（本地生成 `req-<ts>-<rand>`）、`duration`（ms，从发起到结束）、`code`（OK | 错误码）。
+
+### 15.2 Tenancies（入住）事件
+1) 提交发起：`tenancy_create_submit`
+   - 字段：
+     - `requestId: string`
+     - `hasPatientId: boolean`
+     - `hasIdCard: boolean`
+     - `hasRoom: boolean`
+     - `hasBed: boolean`
+2) 提交结果：`tenancy_create_result`
+   - 字段：
+     - `requestId: string`（与 submit 一致）
+     - `duration: number`（ms）
+     - `code: 'OK' | 'E_VALIDATE' | 'E_CONFLICT' | 'E_INTERNAL' | ...`
+
+实现参考：`pages/tenancies/form.js` 中 `onSubmit` 已接入上述事件。
+
+### 15.3 配置与校验
+- 后台配置：需在小程序管理后台 → 统计 → 自定义分析 中创建对应事件和字段映射。
+- 本地联调：若未配置，`track` 自动降级为 `console.info('[analytics]', event, props)`。
+- 数据一致性：`requestId` 在 submit/result 间保持一致；`duration` 合理（通常 < 2s）。
+
 ## 16. 验收清单（前端）
 - 角色差异：首页模块/权限提示符合角色
 - 脱敏：无权限默认脱敏；审批通过窗口内明文展示

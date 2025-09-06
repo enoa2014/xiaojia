@@ -1,0 +1,28 @@
+schema: 1
+story: "EP-02.S1"
+story_title: "新增入住记录（Tenancy Create）"
+gate: "PASS"
+status_reason: "AC1–AC6 均达成：已实现 AC4（id_card 回填 patientId）与 AC5（详情页“在住”状态）；方案A软提示有效。"
+reviewer: "Quinn (Test Architect)"
+updated: "2025-09-06T17:55:00Z"
+waiver: { active: false }
+top_issues:
+  - id: "EP02S1-ANL-01"
+    severity: low
+    finding: "埋点（tenancy_create_submit/result）未接入（非阻断）"
+    suggested_action: "接入埋点并记录 requestId/duration/code"
+  - id: "EP02S1-CONC-01"
+    severity: low
+    finding: "床位冲突仅前端软提示，缺后端并发保护"
+    suggested_action: "监控并发重复率；必要时增加后端强校验或占位唯一键配置"
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 0, low: 2 }
+  recommendations:
+    must_fix: []
+    monitor: ["EP02S1-CONC-01","EP02S1-ANL-01"]
+
+test_design:
+  scenarios_total: 16
+  by_level: { unit: 2, integration: 7, e2e: 7 }
+  by_priority: { p0: 4, p1: 10, p2: 2 }
+  coverage_gaps: []

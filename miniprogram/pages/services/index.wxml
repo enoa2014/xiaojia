@@ -22,7 +22,7 @@
       <view class="content">
         <view class="line1">{{item.desc || '（无描述）'}}</view>
         <view class="meta">{{item.dateText}} · {{item.statusText}}</view>
-        <view class="review-actions" wx:if="{{item.status==='review'}}">
+        <view class="review-actions" wx:if="{{item.status==='review' && canReview}}">
           <button class="btn ok" size="mini" catchtap="onApprove" data-id="{{item._id}}">通过</button>
           <button class="btn no" size="mini" catchtap="onReject" data-id="{{item._id}}">驳回</button>
         </view>

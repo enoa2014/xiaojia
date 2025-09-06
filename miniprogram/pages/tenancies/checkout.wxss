@@ -1,0 +1,6 @@
+.page { padding: 24rpx; }
+.section { margin-bottom: 24rpx; }
+.label { display:block; font-size: 20rpx; color: #374151; margin-bottom: 8rpx; }
+.picker { height: 88rpx; line-height: 88rpx; padding: 0 24rpx; border: 2rpx solid #D1D5DB; border-radius: 12rpx; }
+.error { margin-top: 8rpx; color: #EF4444; font-size: 18rpx; }
+.submit { height: 80rpx; background: #22C55E; color: #fff; border-radius: 16rpx; }
