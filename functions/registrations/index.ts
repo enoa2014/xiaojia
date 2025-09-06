@@ -1,6 +1,7 @@
 
 import cloud from 'wx-server-sdk'
 import { z } from 'zod'
+import { ok, err } from '../packages/core-utils/errors'
 import { isRole } from '../packages/core-rbac'
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
@@ -37,11 +38,11 @@ export const main = async (event:any): Promise<Resp<any>> => {
         if (q.userId) query.userId = q.userId === 'me' ? OPENID : q.userId
         if (q.status) query.status = q.status
         const res = await db.collection('Registrations').where(query).orderBy('createdAt','desc').get()
-        return { ok: true, data: res.data }
+        return ok(res.data)
       }
       case 'register': {
         const { activityId } = RegisterSchema.parse(payload || {})
-        if (!OPENID) return { ok:false, error:{ code:'E_AUTH', msg:'请先登录' } }
+        if (!OPENID) return err('E_AUTH','请先登录')
         const trx = await db.startTransaction()
         try {
           // 获取活动
@@ -54,7 +55,7 @@ export const main = async (event:any): Promise<Resp<any>> => {
           const exist = (existRes.data && existRes.data[0]) || null
           if (exist && (exist.status === 'registered' || exist.status === 'waitlist')) {
             await trx.commit()
-            return { ok:false, error:{ code:'E_CONFLICT', msg: exist.status === 'registered' ? '已报名' : '已在候补' } }
+            return err('E_CONFLICT', exist.status === 'registered' ? '已报名' : '已在候补')
           }
           // 统计当前已报名人数（registered）
           let registeredCount = 0
@@ -65,29 +66,29 @@ export const main = async (event:any): Promise<Resp<any>> => {
             // 从 cancelled 重新加入
             await trx.collection('Registrations').doc(exist._id).update({ data: { status: canRegister ? 'registered' : 'waitlist', registeredAt: canRegister ? now : null, createdAt: exist.createdAt || now } })
             await trx.commit()
-            return { ok:true, data: { status: canRegister ? 'registered' : 'waitlist' } }
+            return ok({ status: canRegister ? 'registered' : 'waitlist' })
           } else {
             // 新建报名记录
             const doc: any = { activityId, userId: OPENID, status: canRegister ? 'registered' : 'waitlist', createdAt: now }
             if (canRegister) doc.registeredAt = now
             const addRes = await trx.collection('Registrations').add({ data: doc })
             await trx.commit()
-            return { ok:true, data: { _id: addRes._id, status: doc.status } }
+            return ok({ _id: addRes._id, status: doc.status })
           }
         } catch (e:any) {
           try { await (db as any).runTransaction?.(() => Promise.resolve()) } catch {}
-          return { ok:false, error:{ code: e.code || 'E_INTERNAL', msg: e.message } }
+          return err(e.code || 'E_INTERNAL', e.message)
         }
       }
       case 'cancel': {
         const { activityId } = CancelSchema.parse(payload || {})
-        if (!OPENID) return { ok:false, error:{ code:'E_AUTH', msg:'请先登录' } }
+        if (!OPENID) return err('E_AUTH','请先登录')
         const trx = await db.startTransaction()
         try {
           const regRes = await trx.collection('Registrations').where({ activityId, userId: OPENID }).limit(1).get()
           const reg = (regRes.data && regRes.data[0]) || null
-          if (!reg) { await trx.rollback(); return { ok:false, error:{ code:'E_NOT_FOUND', msg:'未报名' } } }
-          if (reg.status === 'cancelled') { await trx.commit(); return { ok:true, data: { updated: 0 } } }
+          if (!reg) { await trx.rollback(); return err('E_NOT_FOUND','未报名') }
+          if (reg.status === 'cancelled') { await trx.commit(); return ok({ updated: 0 }) }
           await trx.collection('Registrations').doc(reg._id).update({ data: { status: 'cancelled', cancelledAt: now } })
           // 自动补位：若活动有限额，尝试将最早候补转为 registered
           const actRes = await trx.collection('Activities').doc(activityId).get()
@@ -108,29 +109,29 @@ export const main = async (event:any): Promise<Resp<any>> => {
             }
           }
           await trx.commit()
-          return { ok:true, data: { updated: 1 } }
+          return ok({ updated: 1 })
         } catch (e:any) {
           try { await (db as any).runTransaction?.(() => Promise.resolve()) } catch {}
-          return { ok:false, error:{ code: e.code || 'E_INTERNAL', msg: e.message } }
+          return err(e.code || 'E_INTERNAL', e.message)
         }
       }
       case 'checkin': {
         const { activityId, userId } = CheckinSchema.parse(payload || {})
         const targetUserId = userId || OPENID
-        if (!targetUserId) return { ok:false, error:{ code:'E_AUTH', msg:'请先登录' } }
+        if (!targetUserId) return err('E_AUTH','请先登录')
         // 非管理角色仅允许为自己签到
-        if (userId && !(await canManage())) return { ok:false, error:{ code:'E_PERM', msg:'仅管理员/社工可为他人签到' } }
+        if (userId && !(await canManage())) return err('E_PERM','仅管理员/社工可为他人签到')
         const regRes = await db.collection('Registrations').where({ activityId, userId: targetUserId }).limit(1).get()
         const reg = (regRes.data && regRes.data[0]) || null
-        if (!reg) return { ok:false, error:{ code:'E_NOT_FOUND', msg:'未报名' } }
-        if (reg.checkedInAt) return { ok:true, data: { updated: 0 } }
+        if (!reg) return err('E_NOT_FOUND','未报名')
+        if (reg.checkedInAt) return ok({ updated: 0 })
         await db.collection('Registrations').doc(reg._id).update({ data: { checkedInAt: now } })
-        return { ok:true, data: { updated: 1 } }
+        return ok({ updated: 1 })
       }
       default:
-        return { ok:false, error:{ code:'E_ACTION', msg:'unknown action' } }
+        return err('E_ACTION','unknown action')
     }
   } catch (e:any) {
-    return { ok:false, error:{ code: e.code || 'E_INTERNAL', msg: e.message, details: e.stack } }
+    return err(e.code || 'E_INTERNAL', e.message, e.stack)
   }
 }

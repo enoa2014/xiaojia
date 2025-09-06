@@ -2,6 +2,8 @@
 import cloud from 'wx-server-sdk'
 import { z } from 'zod'
 import { PatientsListSchema, PatientCreateSchema } from './schema'
+import { ok, err, errValidate } from '../packages/core-utils/errors'
+import { mapZodIssues } from '../packages/core-utils/validation'
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 const _ = db.command
@@ -35,7 +37,8 @@ export const main = async (event: any): Promise<Resp<any>> => {
       case 'list': {
         const parsedList = PatientsListSchema.safeParse(payload || {})
         if (!parsedList.success) {
-          return { ok:false, error:{ code:'E_VALIDATE', msg:'参数不合法', details: parsedList.error.issues } }
+          const m = mapZodIssues(parsedList.error.issues)
+          return errValidate(m.msg, parsedList.error.issues)
         }
         const qp = parsedList.data
         let query: any = {}
@@ -73,16 +76,17 @@ export const main = async (event: any): Promise<Resp<any>> => {
           .get()
         const items = res.data
         const hasMore = (qp.page * qp.pageSize) < total
-        return { ok: true, data: { items, meta: { total, hasMore } } }
+        return ok({ items, meta: { total, hasMore } })
       }
       case 'get': {
         const parsed = z.object({ id: z.string() }).safeParse(payload || {})
         if (!parsed.success) {
-          return { ok:false, error:{ code:'E_VALIDATE', msg:'参数不合法', details: parsed.error.issues } }
+          const m = mapZodIssues(parsed.error.issues)
+          return errValidate(m.msg, parsed.error.issues)
         }
         const { id } = parsed.data
         const r = await db.collection('Patients').doc(id).get()
-        if (!r?.data) return { ok:false, error:{ code:'E_NOT_FOUND', msg:'patient not found' } }
+        if (!r?.data) return err('E_NOT_FOUND','patient not found')
 
         const patient = r.data as any
         const { OPENID } = cloud.getWXContext?.() || ({} as any)
@@ -170,36 +174,29 @@ export const main = async (event: any): Promise<Resp<any>> => {
           } catch {}
         }
 
-        return { ok:true, data: out }
+        return ok(out)
       }
       case 'create': {
         const { patient, clientToken } = (payload || {}) as any
         const parsed = PatientCreateSchema.safeParse(patient || {})
         if (!parsed.success) {
-          // 提取字段级提示，优先返回更可读的文案
-          const issues = parsed.error.issues || []
-          const first = issues[0]
-          const path = (first && first.path && first.path.join('.')) || ''
-          let msg = '填写有误'
-          if (path.includes('id_card')) msg = '身份证格式或校验位错误'
-          else if (path.includes('phone')) msg = '手机号格式错误'
-          else if (path.includes('birthDate')) msg = '出生日期格式错误'
-          return { ok:false, error:{ code:'E_VALIDATE', msg, details: issues } }
+          const m = mapZodIssues(parsed.error.issues)
+          return errValidate(m.msg, parsed.error.issues)
         }
         const p = parsed.data
         // 身份证严格校验（含校验位）
         if (!isValidChineseId(p.id_card)) {
-          return { ok:false, error:{ code:'E_VALIDATE', msg:'身份证格式或校验位错误' } }
+          return errValidate('身份证格式或校验位错误')
         }
         // 出生日期不得晚于今日
         if (p.birthDate && !notAfterToday(p.birthDate)) {
-          return { ok:false, error:{ code:'E_VALIDATE', msg:'出生日期需早于或等于今日' } }
+          return errValidate('出生日期需早于或等于今日')
         }
         // uniqueness check by id_card
         if (p.id_card) {
           const existed = await db.collection('Patients').where({ id_card: p.id_card }).limit(1).get()
           if (existed.data && existed.data.length) {
-            return { ok:false, error:{ code:'E_CONFLICT', msg:'身份证已存在，请搜索后编辑' } }
+            return err('E_CONFLICT','身份证已存在，请搜索后编辑')
           }
         }
         const tail = (() => {
@@ -212,12 +209,12 @@ export const main = async (event: any): Promise<Resp<any>> => {
           createdAt: Date.now()
         }
         const addRes = await db.collection('Patients').add({ data: doc })
-        return { ok:true, data: { _id: addRes._id } }
+        return ok({ _id: addRes._id })
       }
       default:
-        return { ok: false, error: { code: 'E_ACTION', msg: 'unknown action' } }
+        return err('E_ACTION','unknown action')
     }
   } catch (e:any) {
-    return { ok: false, error: { code: e.code || 'E_INTERNAL', msg: e.message, details: e.stack } }
+    return err(e.code || 'E_INTERNAL', e.message, e.stack)
   }
 }
