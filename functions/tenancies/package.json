@@ -4,8 +4,9 @@
   "version": "0.1.0",
   "main": "dist/index.js",
   "scripts": {
-    "build": "tsup",
-    "prepublishOnly": "tsup"
+    "build": "tsc",
+    "postbuild": "cp dist/tenancies/index.js index.js",
+    "prepublishOnly": "tsc && cp dist/index.js index.js"
   },
   "dependencies": {
     "wx-server-sdk": "^2.7.2",

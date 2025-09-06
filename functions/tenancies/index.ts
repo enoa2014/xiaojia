@@ -3,7 +3,7 @@ import { z } from 'zod'
 import { ok, err, errValidate } from '../packages/core-utils/errors'
 import { mapZodIssues } from '../packages/core-utils/validation'
 
-cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
+cloud.init({ env: (cloud as any).DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 const _ = db.command
 
@@ -81,11 +81,11 @@ export const main = async (event: any) => {
         }
         const clientToken = (payload && payload.clientToken) || null
         if (clientToken) {
-          const existed = await db.collection('Tenancies').where({ clientToken }).limit(1).get()
+          const existed: any = await db.collection('Tenancies').where({ clientToken }).limit(1).get()
           if (existed?.data?.length) return ok({ _id: existed.data[0]._id })
         }
         const doc: any = { ...t, createdAt: Date.now(), ...(clientToken ? { clientToken } : {}) }
-        const addRes = await db.collection('Tenancies').add({ data: doc })
+        const addRes: any = await db.collection('Tenancies').add({ data: doc })
         return ok({ _id: addRes._id })
       }
       case 'update': {
@@ -103,7 +103,7 @@ export const main = async (event: any) => {
         if (inDate && patch.checkOutDate < inDate) return errValidate('退住日期不能早于入住日期')
         // 最近未退住记录保护
         try {
-          const latest = await db.collection('Tenancies')
+          const latest: any = await db.collection('Tenancies')
             .where({ ...(cur.patientId ? { patientId: String(cur.patientId) } : cur.id_card ? { id_card: String(cur.id_card) } : {}), checkOutDate: _.eq(null) })
             .orderBy('checkInDate','desc')
             .limit(1)
@@ -134,4 +134,3 @@ export const main = async (event: any) => {
     return err(e.code || 'E_INTERNAL', e.message)
   }
 }
-

@@ -1,7 +1,6 @@
-import { ZodError } from 'zod'
-
 // Map first Zod issue to a concise message based on path hints
-export const mapZodIssues = (issues: ZodError['issues']): { field?: string; msg: string } => {
+// Keep this file dependency-free to allow reuse across isolated function packages
+export const mapZodIssues = (issues: Array<{ path?: (string|number)[]; message?: string }>): { field?: string; msg: string } => {
   const first = issues && issues[0]
   const path = (first && (first.path || []).join('.')) || ''
   let msg = first?.message || '填写有误'
