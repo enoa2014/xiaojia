@@ -19,6 +19,12 @@
 
 ## 故事分组（按 Epic）
 
+### EP-00 平台与工程（Platform & DX）
+- [文档] EP-00-S1 详细故事：docs/backlog/stories/EP-00-S1-shared-packages-refactor.md
+- [x] EP-00-S1 共享包抽离与迁移（P0，M）  —  [Done]
+  - 作为：架构师/后端；我想要：抽离并统一共享包（RBAC/DB/工具）并以最小侵入迁移；以便：降低维护成本、提升一致性与质量。
+  - 验收：分页统一（`paginate()`）、RBAC 判定一致（`hasAnyRole`）、错误处理一致（`mapZodIssues`）、构建冒烟通过、文档更新。
+
 ### EP-01 患者与家庭档案（Patients）
 - [文档] EP-01-S1 详细故事：docs/backlog/stories/EP-01-S1-patient-create-unique-id.md
 - [文档] EP-01-S2 详细故事：docs/backlog/stories/EP-01-S2-patient-view-masked-approved.md
@@ -100,10 +106,16 @@
   - 验收：提交包含字段清单与理由；审批通过生成 TTL；到期自动回收。
   - 接口：permissions.request.submit / approve / reject；数据：PermissionRequests。
 
+- [文档] EP-06-S2 详细故事：docs/backlog/stories/EP-06-S2-audit-logs.md
 - [ ] EP-06-S2 审计日志（P0，S）
   - 作为：管理员；我想要：敏感读写/导出的审计留痕；以便：追责与合规。
   - 验收：记录 actorId、action、target、时间、requestId；可按时间筛选查询。
   - 数据：AuditLogs；依赖：各域统一写审计。
+
+- [文档] EP-06-S3 详细故事：docs/backlog/stories/EP-06-S3-rbac-enforcement-coverage.md
+- [ ] EP-06-S3 全模块 RBAC 接入与覆盖（P0，M）
+  - 作为：系统管理员/安全负责人；我想要：全域 action 接入 RBAC 并与前端一致；以便：最小权限与越权防护。
+  - 验收：未授权统一 `E_PERM`；services.list 志愿者仅看本人；stats/exports 受限；前端入口/操作权限接入；文档与测试覆盖齐全。
 
 ## 依赖与假设（示例）
 - 依赖：云函数 patients.list 已提供分页/排序/过滤
