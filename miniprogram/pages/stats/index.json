@@ -1,1 +1,1 @@
-{ "navigationBarTitleText": "统计" }
+{ "navigationBarTitleText": "统计", "enablePullDownRefresh": true }

@@ -55,6 +55,46 @@ export const main = async (event:any) => {
     }
     return ok({ items, meta: { total: days, hasMore: false } })
   }
+  if (action === 'yearly') {
+    const allowed = await hasAnyRole(db, OPENID, ['admin','social_worker'])
+    if (!allowed) return err('E_PERM','需要权限')
+    const payload = (evt && evt.payload) || {}
+    const scope = String(payload.scope || 'services')
+    const yearStr = String(payload.year || '')
+    if (!/^\d{4}$/.test(yearStr)) return err('E_VALIDATE','year 需为 YYYY')
+    const year = Number(yearStr)
+    const _ = db.command
+    const items: Array<{ date: string; value: number }> = []
+    const monthStart = (y:number,m:number) => new Date(y, m - 1, 1).getTime()
+    const monthEnd = (y:number,m:number) => new Date(y, m, 1).getTime()
+    for (let m = 1; m <= 12; m++) {
+      const ym = `${year}-${String(m).padStart(2,'0')}`
+      let value = 0
+      try {
+        if (scope === 'services') {
+          const r = await db.collection('Services').where({
+            // date: 'YYYY-MM-DD' 前缀匹配
+            date: db.RegExp({ regexp: `^${ym}` }) as any
+          } as any).count() as any
+          value = (r.total ?? r.count) || 0
+        } else if (scope === 'activities') {
+          const r = await db.collection('Activities').where({
+            date: db.RegExp({ regexp: `^${ym}` }) as any
+          } as any).count() as any
+          value = (r.total ?? r.count) || 0
+        } else if (scope === 'patients') {
+          const from = monthStart(year, m)
+          const to = monthEnd(year, m)
+          const r = await db.collection('Patients').where({ createdAt: _.gte(from).and(_.lt(to)) } as any).count() as any
+          value = (r.total ?? r.count) || 0
+        } else {
+          value = 0
+        }
+      } catch { value = 0 }
+      items.push({ date: ym, value })
+    }
+    return ok({ items, meta: { total: 12, hasMore: false } })
+  }
   if (action === 'counts') {
     const allowed = await hasAnyRole(db, OPENID, ['admin','social_worker'])
     if (!allowed) return err('E_PERM','需要权限')

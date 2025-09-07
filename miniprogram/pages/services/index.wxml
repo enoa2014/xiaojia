@@ -1,36 +1,223 @@
-<view class="page">
-  <!-- 顶部筛选：状态 Tab -->
-  <view class="tabs">
-    <block wx:for="{{tabs}}" wx:key="key">
-      <text class="tab {{tabKey===item.key?'active':''}}" data-key="{{item.key}}" bindtap="setTab">{{item.text}}</text>
-    </block>
-    <switch class="mine" checked="{{mineOnly}}" bindchange="toggleMine"/> 
-    <text class="mine-text">只看我的</text>
+<view class="service-page" wx:if="{{!loading}}">
+  <!-- 导航头部区 -->
+  <view class="nav-header {{theme.headerBg}}">
+    <view class="nav-title">服务记录</view>
+    <view class="nav-actions">
+      <view class="nav-tool" bindtap="showServiceStats">
+        <text class="nav-icon">📊</text>
+      </view>
+      <view class="nav-tool" bindtap="showSettings">
+        <text class="nav-icon">⚙️</text>
+      </view>
+    </view>
   </view>
 
-  <!-- 类型 chips -->
-  <scroll-view scroll-x class="chips">
-    <block wx:for="{{typeChips}}" wx:key="key">
-      <text class="chip {{typeKey===item.key?'active':''}}" data-key="{{item.key}}" bindtap="setType">{{item.text}}</text>
-    </block>
-  </scroll-view>
-
-  <!-- 列表 -->
-  <block wx:for="{{list}}" wx:key="_id">
-    <view class="item" bindtap="toDetail" data-id="{{item._id}}">
-      <view class="type">{{item.typeText}}</view>
-      <view class="content">
-        <view class="line1">{{item.desc || '（无描述）'}}</view>
-        <view class="meta">{{item.dateText}} · {{item.statusText}}</view>
-        <view class="review-actions" wx:if="{{canReview && item.status==='review'}}">
-          <button class="btn ok" size="mini" catchtap="onApprove" data-id="{{item._id}}">通过</button>
-          <button class="btn no" size="mini" catchtap="onReject" data-id="{{item._id}}">驳回</button>
+  <!-- 统计卡片区 -->
+  <view class="stats-section">
+    <view class="stats-card">
+      <view class="stats-header">
+        <text class="stats-title">本月概况</text>
+        <text class="stats-period">{{currentMonth}}</text>
+      </view>
+      <view class="stats-content">
+        <view class="stat-item">
+          <text class="stat-number">{{monthlyStats.total || 0}}</text>
+          <text class="stat-label">总服务</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-number">{{monthlyStats.pending || 0}}</text>
+          <text class="stat-label">待审核</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-number">{{monthlyStats.approved || 0}}</text>
+          <text class="stat-label">已通过</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-number">{{monthlyStats.efficiency || '0%'}}</text>
+          <text class="stat-label">通过率</text>
         </view>
       </view>
-      <view class="status status-{{item.status}}">{{item.statusText}}</view>
     </view>
-  </block>
+  </view>
 
-  <view class="empty" wx:if="{{!loading && list.length===0}}">暂无记录</view>
-  <view class="fab" bindtap="toCreate" wx:if="{{canCreate}}">＋</view>
+  <!-- 快速记录区 -->
+  <view class="quick-section">
+    <view class="section-header">
+      <text class="section-title">⚡ 快速记录</text>
+    </view>
+    <view class="quick-actions">
+      <view class="quick-btn" wx:for="{{serviceTypes}}" wx:key="key" 
+            data-type="{{item.key}}" bindtap="quickRecord">
+        <view class="quick-icon" style="background-color: {{item.color}};">{{item.icon}}</view>
+        <text class="quick-text">{{item.name}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 筛选控制区 -->
+  <view class="filter-section">
+    <view class="filter-tabs">
+      <block wx:for="{{statusTabs}}" wx:key="key">
+        <view class="filter-tab {{currentStatus === item.key ? 'active' : ''}}" 
+              data-status="{{item.key}}" bindtap="onStatusChange">
+          <text class="tab-text">{{item.name}}</text>
+          <text class="tab-count" wx:if="{{item.count > 0}}">{{item.count}}</text>
+        </view>
+      </block>
+    </view>
+    
+    <view class="filter-controls">
+      <scroll-view scroll-x class="type-chips">
+        <block wx:for="{{typeFilters}}" wx:key="key">
+          <view class="type-chip {{currentType === item.key ? 'active' : ''}}" 
+                data-type="{{item.key}}" bindtap="onTypeChange">
+            <text class="chip-icon">{{item.icon}}</text>
+            <text class="chip-text">{{item.name}}</text>
+          </view>
+        </block>
+      </scroll-view>
+      
+      <view class="toggle-section">
+        <switch class="mine-toggle" checked="{{showMyOnly}}" bindchange="toggleMyOnly"/>
+        <text class="toggle-text">只看我的</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 服务记录列表区 -->
+  <view class="records-section">
+    <view class="section-header" wx:if="{{filteredRecords.length > 0}}">
+      <text class="section-title">服务记录</text>
+      <text class="section-subtitle">共{{filteredRecords.length}}条</text>
+    </view>
+    
+    <view class="records-list">
+      <view class="record-item" wx:for="{{filteredRecords}}" wx:key="id" 
+            bindtap="onRecordTap" data-id="{{item.id}}">
+        <view class="record-header">
+          <view class="service-type-badge" style="background-color: {{item.typeColor}};">
+            <text class="type-icon">{{item.typeIcon}}</text>
+            <text class="type-name">{{item.typeName}}</text>
+          </view>
+          <view class="record-status status-{{item.status}}">
+            <text class="status-dot"></text>
+            <text class="status-text">{{item.statusText}}</text>
+          </view>
+        </view>
+        
+        <view class="record-content">
+          <view class="record-title">{{item.title || '服务记录'}}</view>
+          <view class="record-description">{{item.description || '暂无描述'}}</view>
+          
+          <view class="record-meta">
+            <view class="meta-item">
+              <text class="meta-icon">📅</text>
+              <text class="meta-text">{{item.dateText}}</text>
+            </view>
+            <view class="meta-item">
+              <text class="meta-icon">👤</text>
+              <text class="meta-text">{{item.volunteerName}}</text>
+            </view>
+            <view class="meta-item" wx:if="{{item.patientName}}">
+              <text class="meta-icon">🏥</text>
+              <text class="meta-text">{{item.patientName}}</text>
+            </view>
+          </view>
+          
+          <view class="record-tags" wx:if="{{item.tags && item.tags.length > 0}}">
+            <text class="record-tag" wx:for="{{item.tags}}" wx:key="*this">{{item}}</text>
+          </view>
+        </view>
+        
+        <!-- 快速审核操作区 -->
+        <view class="record-actions" wx:if="{{canReview && item.status === 'pending'}}">
+          <button class="action-btn approve-btn" 
+                  catchtap="onApprove" data-id="{{item.id}}">
+            <text class="btn-icon">✅</text>
+            <text class="btn-text">通过</text>
+          </button>
+          <button class="action-btn reject-btn" 
+                  catchtap="onReject" data-id="{{item.id}}">
+            <text class="btn-icon">❌</text>
+            <text class="btn-text">驳回</text>
+          </button>
+          <button class="action-btn detail-btn" 
+                  catchtap="onRecordDetail" data-id="{{item.id}}">
+            <text class="btn-icon">👁️</text>
+            <text class="btn-text">详情</text>
+          </button>
+        </view>
+      </view>
+    </view>
+    
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{hasMore}}" bindtap="loadMore">
+      <text class="load-text">{{loadingMore ? '加载中...' : '加载更多'}}</text>
+    </view>
+    
+    <!-- 空状态 -->
+    <view class="empty-state" wx:if="{{filteredRecords.length === 0 && !loading}}">
+      <view class="empty-icon">❤️</view>
+      <view class="empty-title">暂无服务记录</view>
+      <view class="empty-desc">{{emptyStateDesc}}</view>
+      <button class="empty-action" bindtap="quickRecord" data-type="visit" wx:if="{{canCreate}}">
+        <text class="btn-icon">✨</text>
+        <text>创建首个服务记录</text>
+      </button>
+    </view>
+  </view>
+
+  <!-- 浮动操作按钮 -->
+  <view class="fab" bindtap="toCreateService" wx:if="{{canCreate}}">
+    <text class="fab-icon">➕</text>
+  </view>
+</view>
+
+<!-- 加载状态 -->
+<view class="loading-container" wx:if="{{loading}}">
+  <view class="loading-header">
+    <view class="skeleton-nav"></view>
+    <view class="skeleton-stats">
+      <view class="skeleton-card">
+        <view class="skeleton-line long"></view>
+        <view class="skeleton-grid">
+          <view class="skeleton-stat" wx:for="{{[1,2,3,4]}}" wx:key="*this">
+            <view class="skeleton-line short"></view>
+            <view class="skeleton-line tiny"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+  <view class="loading-content">
+    <view class="skeleton-section">
+      <view class="skeleton-line medium"></view>
+      <view class="skeleton-actions">
+        <view class="skeleton-action" wx:for="{{[1,2,3,4,5]}}" wx:key="*this"></view>
+      </view>
+    </view>
+    <view class="skeleton-list">
+      <view class="skeleton-record" wx:for="{{[1,2,3]}}" wx:key="*this">
+        <view class="skeleton-record-header">
+          <view class="skeleton-line short"></view>
+          <view class="skeleton-line tiny"></view>
+        </view>
+        <view class="skeleton-record-content">
+          <view class="skeleton-line long"></view>
+          <view class="skeleton-line medium"></view>
+          <view class="skeleton-line short"></view>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 错误状态 -->
+<view class="error-container" wx:if="{{error && !loading}}">
+  <view class="error-content">
+    <text class="error-icon">😔</text>
+    <text class="error-title">加载失败</text>
+    <text class="error-message">{{error.message || '无法获取服务记录'}}</text>
+    <button class="error-retry" bindtap="retryLoad">重新加载</button>
+  </view>
 </view>

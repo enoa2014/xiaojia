@@ -1,4 +1,9 @@
 {
-  "navigationBarTitleText": "服务",
-  "enablePullDownRefresh": true
+  "navigationBarTitleText": "服务记录",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 100,
+  "navigationBarBackgroundColor": "#22C55E",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#f5f7fa",
+  "backgroundTextStyle": "light"
 }

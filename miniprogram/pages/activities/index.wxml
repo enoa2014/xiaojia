@@ -1,29 +1,270 @@
-<view class="toolbar">
-  <view class="tabs">
-    <block wx:for="{{tabs}}" wx:key="key">
-      <view
-        class="tab {{item.key===active?'active':''}}"
-        data-key="{{item.key}}"
-        bindtap="switchTab"
-      >{{item.label}}</view>
-    </block>
-  </view>
-  <button class="primary" size="mini" bindtap="toCreate">发布活动</button>
-  <view class="spacer"></view>
-</view>
-
-<view wx:if="{{loading}}" class="loading">加载中...</view>
-<view wx:if="{{!loading && list.length == 0}}" class="empty">暂无{{activeLabel}}的活动</view>
-<view wx:if="{{!!error}}" class="error">{{error}}</view>
-
-<view class="list">
-  <block wx:for="{{list}}" wx:key="_id">
-    <view class="card" bindtap="toDetail" data-id="{{item._id}}">
-      <view class="row">
-        <text class="title">{{item.title}}</text>
-        <text class="badge status-{{item.status}}">{{item.status}}</text>
-      </view>
-      <view class="meta">{{item.date}} · {{item.location}} · 容量 {{item.capacity}}</view>
+<scroll-view class="activities-page" scroll-y="true">
+  <!-- 顶部导航（对齐首页样式） -->
+  <view class="nav-header {{theme.headerBg}}">
+    <view class="brand">📅 活动中心</view>
+    <view class="nav-actions">
+      <button class="publish-btn" wx:if="{{canCreateActivity}}" bindtap="toCreate">
+        <text class="btn-icon">➕</text>
+        <text>发布活动</text>
+      </button>
     </view>
-  </block>
+  </view>
+
+  <!-- 活动类型快捷入口 -->
+  <view class="activity-types-section">
+    <view class="section-header">
+      <text class="section-title">活动类型</text>
+      <text class="section-subtitle">选择感兴趣的活动类型</text>
+    </view>
+    
+    <view class="types-grid">
+      <view class="type-card" 
+            wx:for="{{activityTypes}}" 
+            wx:key="key"
+            bindtap="filterByType"
+            data-type="{{item.key}}">
+        <view class="type-icon" style="background-color: {{item.color}};">
+          <text class="icon-text">{{item.icon}}</text>
+        </view>
+        <text class="type-name">{{item.name}}</text>
+        <text class="type-count">{{item.count}}个活动</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 筛选和搜索区域 -->
+  <view class="filter-section">
+    <view class="search-container">
+      <view class="search-bar {{searchKeyword ? 'active' : ''}}">
+        <text class="search-icon">🔍</text>
+        <input class="search-input" 
+               placeholder="搜索活动名称或关键词"
+               value="{{searchKeyword}}"
+               bindinput="onSearchInput"
+               bindconfirm="performSearch" />
+        <button class="clear-btn" wx:if="{{searchKeyword}}" catchtap="clearSearch">
+          <text class="clear-icon">✕</text>
+        </button>
+      </view>
+      <button class="filter-btn" bindtap="showFilterOptions">
+        <text class="filter-icon">🏷️</text>
+      </button>
+    </view>
+    
+    <view class="filter-tabs">
+      <view class="tabs-container">
+        <scroll-view class="tabs-scroll" scroll-x="true">
+          <view class="tabs-list">
+            <view class="tab {{item.key===activeFilter?'active':''}}"
+                  wx:for="{{filterTabs}}"
+                  wx:key="key"
+                  data-key="{{item.key}}"
+                  bindtap="switchFilter">
+              <text class="tab-text">{{item.label}}</text>
+              <text class="tab-count" wx:if="{{item.count}}">{{item.count}}</text>
+            </view>
+          </view>
+        </scroll-view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 活动列表 -->
+  <view class="activities-list">
+    <!-- 加载状态 -->
+    <view class="loading-container" wx:if="{{loading}}">
+      <view class="loading-content">
+        <view class="skeleton-card" wx:for="{{[1,2,3]}}" wx:key="*this">
+          <view class="skeleton-header"></view>
+          <view class="skeleton-line"></view>
+          <view class="skeleton-line short"></view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <view class="empty-container" wx:if="{{!loading && list.length === 0}}">
+      <view class="empty-content">
+        <text class="empty-icon">📅</text>
+        <text class="empty-title">暂无{{activeFilterLabel}}活动</text>
+        <text class="empty-subtitle">{{searchKeyword ? '尝试调整搜索条件' : '等待更多精彩活动发布'}}</text>
+        <button class="empty-action" bindtap="clearFilters" wx:if="{{searchKeyword}}">
+          清除搜索条件
+        </button>
+      </view>
+    </view>
+
+    <!-- 错误状态 -->
+    <view class="error-container" wx:if="{{error && !loading}}">
+      <view class="error-content">
+        <text class="error-icon">😔</text>
+        <text class="error-title">加载失败</text>
+        <text class="error-message">{{error}}</text>
+        <button class="error-retry" bindtap="retryLoad">重新加载</button>
+      </view>
+    </view>
+
+    <!-- 活动卡片列表 -->
+    <view class="activity-cards" wx:if="{{!loading && !error && list.length > 0}}">
+      <view class="activity-card" 
+            wx:for="{{list}}" 
+            wx:key="_id"
+            bindtap="toDetail" 
+            data-id="{{item._id}}">
+        
+        <!-- 活动头部信息 -->
+        <view class="card-header">
+          <view class="activity-type" style="background-color: {{item.typeColor}};">
+            <text class="type-icon">{{item.typeIcon}}</text>
+          </view>
+          <view class="header-content">
+            <text class="activity-title">{{item.title}}</text>
+            <view class="activity-meta">
+              <text class="meta-item">{{item.organizerName}}</text>
+              <text class="meta-divider">·</text>
+              <text class="meta-item">{{item.createdTimeText}}</text>
+            </view>
+          </view>
+          <view class="card-status status-{{item.status}}">
+            <text class="status-text">{{item.statusText}}</text>
+          </view>
+        </view>
+
+        <!-- 活动详细信息 -->
+        <view class="card-body">
+          <text class="activity-description">{{item.description}}</text>
+          
+          <view class="activity-details">
+            <view class="detail-item" wx:if="{{item.startTime}}">
+              <text class="detail-icon">🕒</text>
+              <text class="detail-text">{{item.startTimeText}}</text>
+            </view>
+            
+            <view class="detail-item" wx:if="{{item.location}}">
+              <text class="detail-icon">📍</text>
+              <text class="detail-text">{{item.location}}</text>
+            </view>
+            
+            <view class="detail-item" wx:if="{{item.capacity}}">
+              <text class="detail-icon">👥</text>
+              <text class="detail-text">容量 {{item.registeredCount || 0}}/{{item.capacity}}</text>
+            </view>
+            
+            <view class="detail-item" wx:if="{{item.fee !== null && item.fee !== undefined}}">
+              <text class="detail-icon">💰</text>
+              <text class="detail-text">{{item.fee === 0 ? '免费' : '¥' + item.fee}}</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 活动操作区域 -->
+        <view class="card-footer">
+          <view class="activity-tags">
+            <text class="activity-tag" wx:for="{{item.tags}}" wx:key="*this">{{item}}</text>
+          </view>
+          
+          <view class="card-actions">
+            <!-- 报名按钮 -->
+            <button class="action-btn register-btn" 
+                    wx:if="{{item.canRegister}}"
+                    bindtap="registerActivity"
+                    data-id="{{item._id}}"
+                    catchtap="true">
+              <text class="btn-icon">✋</text>
+              <text class="btn-text">报名</text>
+            </button>
+            
+            <!-- 已报名状态 -->
+            <view class="action-status registered" wx:elif="{{item.isRegistered}}">
+              <text class="status-icon">✅</text>
+              <text class="status-text">已报名</text>
+            </view>
+            
+            <!-- 查看详情按钮 -->
+            <button class="action-btn detail-btn" 
+                    bindtap="toDetail" 
+                    data-id="{{item._id}}"
+                    catchtap="true">
+              <text class="btn-text">查看详情</text>
+              <text class="btn-arrow">〉</text>
+            </button>
+          </view>
+        </view>
+
+        <!-- 数据脱敏遮罩（针对特定角色） -->
+        <view class="privacy-mask" wx:if="{{item.needPrivacyMask}}">
+          <text class="mask-text">部分信息已隐藏</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 加载更多 -->
+    <view class="load-more" wx:if="{{!loading && hasMore && list.length > 0}}">
+      <button class="load-more-btn" bindtap="loadMore" loading="{{loadingMore}}">
+        {{loadingMore ? '加载中...' : '加载更多'}}
+      </button>
+    </view>
+  </view>
+
+  <!-- 浮动操作按钮 -->
+  <view class="floating-fab" wx:if="{{canCreateActivity}}" bindtap="toCreate">
+    <text class="fab-icon">➕</text>
+  </view>
+</scroll-view>
+
+<!-- 筛选选项弹窗 -->
+<view class="filter-modal {{showFilterModal ? 'show' : ''}}" catchtap="hideFilterModal">
+  <view class="modal-content" catchtap="stopPropagation">
+    <view class="modal-header">
+      <text class="modal-title">筛选条件</text>
+      <button class="modal-close" bindtap="hideFilterModal">✕</button>
+    </view>
+    
+    <view class="modal-body">
+      <view class="filter-group">
+        <text class="group-title">活动类型</text>
+        <view class="filter-options">
+          <view class="filter-option {{filterOptions.type === item.key ? 'active' : ''}}"
+                wx:for="{{activityTypes}}"
+                wx:key="key"
+                data-type="{{item.key}}"
+                bindtap="selectFilterType">
+            <text class="option-icon">{{item.icon}}</text>
+            <text class="option-text">{{item.name}}</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="filter-group">
+        <text class="group-title">活动时间</text>
+        <view class="filter-options">
+          <view class="filter-option {{filterOptions.time === item.key ? 'active' : ''}}"
+                wx:for="{{timeFilters}}"
+                wx:key="key"
+                data-time="{{item.key}}"
+                bindtap="selectFilterTime">
+            <text class="option-text">{{item.label}}</text>
+          </view>
+        </view>
+      </view>
+      
+      <view class="filter-group">
+        <text class="group-title">活动状态</text>
+        <view class="filter-options">
+          <view class="filter-option {{filterOptions.status === item.key ? 'active' : ''}}"
+                wx:for="{{statusFilters}}"
+                wx:key="key"
+                data-status="{{item.key}}"
+                bindtap="selectFilterStatus">
+            <text class="option-text">{{item.label}}</text>
+          </view>
+        </view>
+      </view>
+    </view>
+    
+    <view class="modal-actions">
+      <button class="modal-btn secondary" bindtap="resetFilters">重置</button>
+      <button class="modal-btn primary" bindtap="applyFilters">应用筛选</button>
+    </view>
+  </view>
 </view>

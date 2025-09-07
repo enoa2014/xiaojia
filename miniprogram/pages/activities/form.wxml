@@ -1,28 +1,497 @@
-<view class="form">
-  <view class="field">
-    <view class="label">标题</view>
-    <input placeholder="如：亲子康复训练" value="{{title}}" bindinput="onTitle" />
+<view class="activity-publish-page" wx:if="{{!loading}}">
+  <!-- 顶部导航（对齐首页样式，移除返回箭头） -->
+  <view class="nav-header nav-header--blue">
+    <view class="brand">{{mode === 'edit' ? '编辑活动' : '发布活动'}}</view>
+    <view class="nav-actions">
+      <button class="draft-btn" bindtap="saveAsDraft" loading="{{autoSaving}}">草稿</button>
+    </view>
   </view>
-  <view class="field">
-    <view class="label">日期</view>
-    <picker mode="date" value="{{date}}" bindchange="onDate">
-      <view class="picker">{{date || '请选择日期'}}</view>
-    </picker>
+
+  <!-- 表单进度指示器 -->
+  <view class="form-progress">
+    <view class="progress-bar">
+      <view class="progress-fill" style="width: {{formProgress}}%"></view>
+    </view>
+    <text class="progress-text">{{formProgress}}% 完成</text>
   </view>
-  <view class="field">
-    <view class="label">地点</view>
-    <input placeholder="如：活动室 A" value="{{location}}" bindinput="onLocation" />
+
+  <!-- 大滚动框：将需要填写的表单区域整体包裹为可滚动的容器 -->
+  <view class="form-box">
+    <scroll-view class="form-scroll" scroll-y="true">
+    <!-- 基础信息区块 -->
+    <view class="form-section">
+      <view class="section-header">
+        <text class="section-icon">📝</text>
+        <text class="section-title">基础信息</text>
+        <text class="required-mark">*</text>
+      </view>
+      
+      <view class="section-content">
+        <!-- 活动标题 -->
+        <view class="{{ errors.title ? 'form-item error' : 'form-item' }}">
+          <view class="form-label required">活动标题</view>
+          <input class="form-input" 
+                  placeholder="如：亲子康复训练活动" 
+                  value="{{formData.title}}"
+                  data-field="title"
+                  bindinput="onFormFieldChange"
+                  maxlength="50" />
+          <view class="char-count">{{formData.title.length}}/50</view>
+          <text class="error-text" wx:if="{{errors.title}}">{{errors.title}}</text>
+        </view>
+
+        <!-- 活动分类 -->
+        <view class="{{ errors.category ? 'form-item error' : 'form-item' }}">
+          <view class="form-label required">活动分类</view>
+          <picker mode="selector" 
+                  range="{{categoryOptions}}" 
+                  range-key="label"
+                  bindchange="onCategoryChange">
+            <view class="{{ formData.category ? 'picker-display selected' : 'picker-display placeholder' }}">
+              <text wx:if="{{formData.category}}">{{selectedCategoryLabel}}</text>
+              <text wx:else>请选择活动分类</text>
+              <text class="picker-arrow">▼</text>
+            </view>
+          </picker>
+          <text class="error-text" wx:if="{{errors.category}}">{{errors.category}}</text>
+        </view>
+
+        <!-- 活动描述 -->
+        <view class="{{ errors.description ? 'form-item error' : 'form-item' }}">
+          <view class="form-label required">活动描述</view>
+          <textarea class="form-textarea" 
+                    placeholder="详细描述活动内容、目标和要求..."
+                    value="{{formData.description}}"
+                    data-field="description"
+                    bindinput="onFormFieldChange"
+                    maxlength="1000"
+                    auto-height />
+          <view class="char-count">{{formData.description.length}}/1000</view>
+          <text class="error-text" wx:if="{{errors.description}}">{{errors.description}}</text>
+        </view>
+
+        <!-- 活动封面 -->
+        <view class="form-item">
+          <view class="form-label">活动封面</view>
+          <view class="cover-upload">
+            <view class="cover-preview" wx:if="{{formData.coverImage}}">
+              <image src="{{formData.coverImage}}" mode="aspectFill"></image>
+              <view class="cover-remove" bindtap="removeCoverImage">
+                <text class="remove-icon">✕</text>
+              </view>
+            </view>
+            <view class="upload-placeholder" wx:else bindtap="uploadCoverImage">
+              <text class="upload-icon">📷</text>
+              <text class="upload-text">添加封面图片</text>
+            </view>
+          </view>
+        </view>
+      </view>
+      </view>
+
+    <!-- 时间地点区块 -->
+    <view class="form-section">
+      <view class="section-header">
+        <text class="section-icon">🕒</text>
+        <text class="section-title">时间地点</text>
+        <text class="required-mark">*</text>
+      </view>
+      
+      <view class="section-content">
+        <!-- 开始时间 -->
+        <view class="{{ (errors.startDate || errors.startTime) ? 'form-item error' : 'form-item' }}">
+          <view class="form-label required">开始时间</view>
+          <view class="datetime-picker">
+            <picker mode="date" 
+                    value="{{formData.startDate}}"
+                    data-field="startDate"
+                    bindchange="onFormFieldChange">
+              <view class="{{ formData.startDate ? 'date-input selected' : 'date-input placeholder' }}">
+                {{formData.startDate || '选择日期'}}
+              </view>
+            </picker>
+            <text class="datetime-separator">-</text>
+            <picker mode="time" 
+                    value="{{formData.startTime}}"
+                    data-field="startTime"
+                    bindchange="onFormFieldChange">
+              <view class="{{ formData.startTime ? 'time-input selected' : 'time-input placeholder' }}">
+                {{formData.startTime || '选择时间'}}
+              </view>
+            </picker>
+          </view>
+          <text class="error-text" wx:if="{{errors.startDate || errors.startTime}}">
+            {{errors.startDate || errors.startTime}}
+          </text>
+        </view>
+
+        <!-- 结束时间 -->
+        <view class="{{ (errors.endDate || errors.endTime) ? 'form-item error' : 'form-item' }}">
+          <view class="form-label">结束时间</view>
+          <view class="datetime-picker">
+            <picker mode="date" 
+                    value="{{formData.endDate}}"
+                    data-field="endDate"
+                    bindchange="onFormFieldChange">
+              <view class="{{ formData.endDate ? 'date-input selected' : 'date-input placeholder' }}">
+                {{formData.endDate || '选择日期'}}
+              </view>
+            </picker>
+            <text class="datetime-separator">-</text>
+            <picker mode="time" 
+                    value="{{formData.endTime}}"
+                    data-field="endTime"
+                    bindchange="onFormFieldChange">
+              <view class="{{ formData.endTime ? 'time-input selected' : 'time-input placeholder' }}">
+                {{formData.endTime || '选择时间'}}
+              </view>
+            </picker>
+          </view>
+          <text class="error-text" wx:if="{{errors.endDate || errors.endTime}}">
+            {{errors.endDate || errors.endTime}}
+          </text>
+        </view>
+
+        <!-- 活动地点 -->
+        <view class="{{ errors.location ? 'form-item error' : 'form-item' }}">
+          <view class="form-label required">活动地点</view>
+          <input class="form-input" 
+                 placeholder="如：康复训练室、活动大厅..." 
+                 value="{{formData.location}}"
+                 data-field="location"
+                 bindinput="onFormFieldChange"
+                 maxlength="100" />
+          <view class="char-count">{{formData.location.length}}/100</view>
+          <text class="error-text" wx:if="{{errors.location}}">{{errors.location}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 报名设置区块 -->
+    <view class="form-section">
+      <view class="section-header">
+        <text class="section-icon">👥</text>
+        <text class="section-title">报名设置</text>
+        <text class="required-mark">*</text>
+      </view>
+      
+      <view class="section-content">
+        <!-- 参与人数 -->
+        <view class="{{ errors.capacity ? 'form-item error' : 'form-item' }}">
+          <view class="form-label required">参与人数限制</view>
+          <input class="form-input" 
+                 type="number"
+                 placeholder="请输入人数上限" 
+                 value="{{formData.capacity}}"
+                 data-field="capacity"
+                 bindinput="onFormFieldChange" />
+          <view class="form-hint">设置为0表示不限制人数</view>
+          <text class="error-text" wx:if="{{errors.capacity}}">{{errors.capacity}}</text>
+        </view>
+
+        <!-- 报名方式 -->
+        <view class="form-item">
+          <view class="form-label">报名方式</view>
+          <view class="radio-group">
+            <view class="{{ formData.registrationMode === 'open' ? 'radio-item checked' : 'radio-item' }}"
+                  data-field="registrationMode"
+                  data-value="open"
+                  bindtap="onFormFieldChange">
+              <text class="radio-icon">{{formData.registrationMode === 'open' ? '●' : '○'}}</text>
+              <text class="radio-label">开放报名</text>
+              <text class="radio-desc">用户可直接报名参与</text>
+            </view>
+            <view class="{{ formData.registrationMode === 'approval' ? 'radio-item checked' : 'radio-item' }}"
+                  data-field="registrationMode"
+                  data-value="approval"
+                  bindtap="onFormFieldChange">
+              <text class="radio-icon">{{formData.registrationMode === 'approval' ? '●' : '○'}}</text>
+              <text class="radio-label">审核报名</text>
+              <text class="radio-desc">需要管理员审核通过</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 报名时间 -->
+        <view class="form-item">
+          <view class="form-label">报名时间</view>
+          <view class="registration-time">
+            <view class="time-row">
+              <text class="time-label">开始：</text>
+              <picker mode="date" 
+                      value="{{formData.registrationStartDate}}"
+                      data-field="registrationStartDate"
+                      bindchange="onFormFieldChange">
+                <view class="{{ formData.registrationStartDate ? 'date-input small selected' : 'date-input small placeholder' }}">
+                  {{formData.registrationStartDate || '开始日期'}}
+                </view>
+              </picker>
+              <picker mode="time" 
+                      value="{{formData.registrationStartTime}}"
+                      data-field="registrationStartTime"
+                      bindchange="onFormFieldChange">
+                <view class="{{ formData.registrationStartTime ? 'time-input small selected' : 'time-input small placeholder' }}">
+                  {{formData.registrationStartTime || '时间'}}
+                </view>
+              </picker>
+            </view>
+            <view class="time-row">
+              <text class="time-label">截止：</text>
+              <picker mode="date" 
+                      value="{{formData.registrationEndDate}}"
+                      data-field="registrationEndDate"
+                      bindchange="onFormFieldChange">
+                <view class="{{ formData.registrationEndDate ? 'date-input small selected' : 'date-input small placeholder' }}">
+                  {{formData.registrationEndDate || '截止日期'}}
+                </view>
+              </picker>
+              <picker mode="time" 
+                      value="{{formData.registrationEndTime}}"
+                      data-field="registrationEndTime"
+                      bindchange="onFormFieldChange">
+                <view class="{{ formData.registrationEndTime ? 'time-input small selected' : 'time-input small placeholder' }}">
+                  {{formData.registrationEndTime || '时间'}}
+                </view>
+              </picker>
+            </view>
+          </view>
+        </view>
+
+        <!-- 候补队列 -->
+        <view class="form-item">
+          <view class="form-label">候补队列</view>
+          <view class="switch-item">
+            <switch checked="{{formData.enableWaitingList}}" 
+                    data-field="enableWaitingList"
+                    bindchange="onSwitchChange" />
+            <text class="switch-label">当人数已满时，允许用户加入候补队列</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 活动标签 -->
+    <view class="form-section">
+      <view class="section-header">
+        <text class="section-icon">🏷️</text>
+        <text class="section-title">活动标签</text>
+      </view>
+      
+      <view class="section-content">
+        <view class="form-item">
+          <view class="form-label">选择标签</view>
+          <view class="tag-selector">
+            <view class="{{ formData.tags.includes(item) ? 'tag-option selected' : 'tag-option' }}"
+                  wx:for="{{tagOptions}}"
+                  wx:key="*this"
+                  data-tag="{{item}}"
+                  bindtap="onTagToggle">
+              {{item}}
+            </view>
+          </view>
+          <view class="form-hint">最多选择5个标签，帮助用户快速了解活动类型</view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 高级设置 -->
+    <view class="form-section advanced-section" wx:if="{{showAdvancedSettings || formData.registrationMode === 'approval'}}">
+      <view class="section-header" bindtap="toggleAdvancedSettings">
+        <text class="section-icon">⚙️</text>
+        <text class="section-title">高级设置</text>
+        <text class="{{ showAdvancedSettings ? 'toggle-icon expanded' : 'toggle-icon' }}">▼</text>
+      </view>
+      
+      <view class="section-content" wx:if="{{showAdvancedSettings}}">
+        <!-- 可见性 -->
+        <view class="form-item">
+          <view class="form-label">可见性</view>
+          <view class="radio-group">
+            <view class="{{ formData.visibility === 'public' ? 'radio-item checked' : 'radio-item' }}"
+                  data-field="visibility"
+                  data-value="public"
+                  bindtap="onFormFieldChange">
+              <text class="radio-icon">{{formData.visibility === 'public' ? '●' : '○'}}</text>
+              <text class="radio-label">公开活动</text>
+            </view>
+            <view class="{{ formData.visibility === 'internal' ? 'radio-item checked' : 'radio-item' }}"
+                  data-field="visibility"
+                  data-value="internal"
+                  bindtap="onFormFieldChange">
+              <text class="radio-icon">{{formData.visibility === 'internal' ? '●' : '○'}}</text>
+              <text class="radio-label">内部活动</text>
+            </view>
+          </view>
+        </view>
+
+        <!-- 联系信息 -->
+        <view class="form-item">
+          <view class="form-label">联系人</view>
+          <input class="form-input" 
+                 placeholder="联系人姓名" 
+                 value="{{formData.contactPerson}}"
+                 data-field="contactPerson"
+                 bindinput="onFormFieldChange" />
+        </view>
+
+        <view class="form-item">
+          <view class="form-label">联系电话</view>
+          <input class="form-input" 
+                 type="number"
+                 placeholder="联系电话" 
+                 value="{{formData.contactPhone}}"
+                 data-field="contactPhone"
+                 bindinput="onFormFieldChange" />
+        </view>
+
+        <!-- 通知设置 -->
+        <view class="form-item">
+          <view class="form-label">活动提醒</view>
+          <view class="switch-item">
+            <switch checked="{{formData.enableNotification}}" 
+                    data-field="enableNotification"
+                    bindchange="onSwitchChange" />
+            <text class="switch-label">活动开始前发送提醒通知</text>
+          </view>
+        </view>
+      </view>
+    </view>
+
+    <!-- 发布控制区块 -->
+    <view class="form-section publish-section">
+      <view class="section-header">
+        <text class="section-icon">📢</text>
+        <text class="section-title">发布设置</text>
+      </view>
+      
+      <view class="section-content">
+        <view class="publish-info">
+          <text class="publish-status">状态：{{formData.status === 'draft' ? '草稿' : '已发布'}}</text>
+          <text class="publish-hint">
+            {{canPublishImmediately ? '管理员可以立即发布活动' : '社工创建的活动需要管理员审核'}}
+          </text>
+        </view>
+      </view>
+    </view>
+    </scroll-view>
   </view>
-  <view class="field">
-    <view class="label">容量</view>
-    <input type="number" placeholder="0 表示无限" value="{{capacity}}" bindinput="onCapacity" />
+  
+  <!-- 底部操作栏 -->
+  <view class="bottom-actions">
+    <button class="action-btn secondary" bindtap="showPreview">
+      <text class="btn-icon">👁</text>
+      <text class="btn-text">预览</text>
+    </button>
+    
+    <button class="action-btn secondary" bindtap="saveAsDraft" loading="{{autoSaving}}">
+      <text class="btn-icon">💾</text>
+      <text class="btn-text">保存草稿</text>
+    </button>
+    
+    <button class="action-btn primary" 
+            bindtap="submitForm"
+            data-publish="{{false}}"
+            loading="{{submitting}}">
+      <text class="btn-icon">📝</text>
+      <text class="btn-text">{{mode === 'edit' ? '更新' : '保存'}}</text>
+    </button>
+    
+    <button class="action-btn primary publish" 
+            wx:if="{{canPublishImmediately}}"
+            bindtap="submitForm"
+            data-publish="{{true}}"
+            loading="{{submitting}}">
+      <text class="btn-icon">📢</text>
+      <text class="btn-text">发布</text>
+    </button>
   </view>
-  <view class="field">
-    <view class="label">状态</view>
-    <picker mode="selector" range="{{statusList}}" value="{{statusIndex}}" bindchange="onStatusChange">
-      <view class="picker">{{statusList[statusIndex]}}</view>
-    </picker>
-  </view>
-  <button class="primary" loading="{{submitting}}" bindtap="submit">提交</button>
 </view>
 
+<!-- 加载状态 -->
+<view class="loading-container" wx:if="{{loading}}">
+  <view class="loading-content">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+</view>
+
+<!-- 预览弹窗 -->
+<view class="{{ showPreview ? 'preview-modal show' : 'preview-modal' }}" catchtap="hidePreview">
+  <view class="modal-content" >
+    <view class="modal-header">
+      <text class="modal-title">活动预览</text>
+      <button class="modal-close" bindtap="hidePreview">✕</button>
+    </view>
+    
+    <scroll-view class="modal-body" scroll-y="true">
+      <view class="preview-content">
+        <!-- 封面图 -->
+        <image class="preview-cover" 
+               wx:if="{{formData.coverImage}}"
+               src="{{formData.coverImage}}" 
+               mode="aspectFill"></image>
+        
+        <!-- 活动信息 -->
+        <view class="preview-info">
+          <text class="preview-title">{{formData.title}}</text>
+          <text class="preview-category" wx:if="{{selectedCategoryLabel}}">{{selectedCategoryLabel}}</text>
+          
+          <view class="preview-details">
+            <view class="preview-item">
+              <text class="item-icon">🕒</text>
+              <text class="item-text">{{formData.startDate}} {{formData.startTime}}</text>
+            </view>
+            <view class="preview-item" wx:if="{{formData.location}}">
+              <text class="item-icon">📍</text>
+              <text class="item-text">{{formData.location}}</text>
+            </view>
+            <view class="preview-item">
+              <text class="item-icon">👥</text>
+              <text class="item-text">限{{formData.capacity}}人</text>
+            </view>
+          </view>
+          
+          <view class="preview-description">{{formData.description}}</view>
+          
+          <view class="preview-tags" wx:if="{{formData.tags.length > 0}}">
+            <text class="tag-item" wx:for="{{formData.tags}}" wx:key="*this">{{item}}</text>
+          </view>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</view>
+
+<!-- 帮助弹窗 -->
+<view class="{{ showHelpModal ? 'help-modal show' : 'help-modal' }}" catchtap="hideHelp">
+  <view class="modal-content" >
+    <view class="modal-header">
+      <text class="modal-title">填写帮助</text>
+      <button class="modal-close" bindtap="hideHelp">✕</button>
+    </view>
+    
+    <view class="modal-body">
+      <view class="help-content">
+        <view class="help-section">
+          <text class="help-title">📝 基础信息</text>
+          <text class="help-text">• 标题要简洁明了，突出活动特色</text>
+          <text class="help-text">• 描述要详细说明活动内容和目标</text>
+          <text class="help-text">• 选择合适的分类便于用户查找</text>
+        </view>
+        
+        <view class="help-section">
+          <text class="help-title">🕒 时间设置</text>
+          <text class="help-text">• 活动时间不能早于当前时间</text>
+          <text class="help-text">• 报名截止时间不能晚于活动开始</text>
+        </view>
+        
+        <view class="help-section">
+          <text class="help-title">👥 报名设置</text>
+          <text class="help-text">• 开放报名：用户直接报名</text>
+          <text class="help-text">• 审核报名：需要管理员审核</text>
+          <text class="help-text">• 候补队列：满员后用户可排队</text>
+        </view>
+      </view>
+    </view>
+  </view>
+</view>

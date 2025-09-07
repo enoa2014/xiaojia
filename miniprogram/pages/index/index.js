@@ -206,6 +206,21 @@ Page({
   wip() {
     wx.showToast({ icon: 'none', title: '施工中，敬请期待' })
   },
+  
+  showAllActions() {
+    const allActions = this.data.actions
+    if (allActions.length <= 4) return
+    
+    const itemList = allActions.map(action => action.title)
+    wx.showActionSheet({ 
+      itemList 
+    }).then(res => {
+      const selectedAction = allActions[res.tapIndex]
+      if (selectedAction) {
+        this.onAction({ currentTarget: { dataset: { key: selectedAction.key } } })
+      }
+    }).catch(() => {})
+  },
   async onAction(e) {
     const key = e.currentTarget.dataset.key
     this.setData({ selectedActionKey: key })

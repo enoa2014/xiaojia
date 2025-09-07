@@ -162,3 +162,13 @@ Recommendations
 Gate Decision
 - Status: CONCERNS
 - Rationale: 功能联通且 RBAC/空态达标，但趋势渲染与性能验证未落实；补齐后可 PASS。
+
+### Re-review 2025-09-07T03:37:16Z
+- Gate: CONCERNS（维持）
+- Reviewer: Quinn（QA/Test Architect）
+- Summary: 复核未见趋势图与埋点新增、性能验证证据缺失，结论维持 CONCERNS。
+- AC 覆盖：AC1/AC2/AC3=PASS；AC4=CONCERNS（需 10k+ 样本 P95 抽测）。
+- Next Steps：
+  - R1 UI：接入折线/柱状趋势或保留趋势摘要（max/min/avg）。
+  - R2 埋点：接入 `stats_view_monthly`（{ scope, month, duration }）并纳入测试采样校验。
+  - R3 性能：≥10k 样本抽测 P95≤500ms；必要时采用聚合/预聚合与索引优化。

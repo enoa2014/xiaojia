@@ -80,7 +80,8 @@ export const api = {
   },
   stats: {
     homeSummary: (payload = {}) => call('stats','homeSummary', payload),
-    monthly: (scope, month) => call('stats','monthly', { scope, month })
+    monthly: (scope, month) => call('stats','monthly', { scope, month }),
+    yearly: (scope, year) => call('stats','yearly', { scope, year })
   }
 }
 export const mapError = (code) => ({

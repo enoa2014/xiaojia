@@ -2,9 +2,9 @@ schema: 1
 story: "EP-05.S1"
 story_title: "月度统计展示（Stats Monthly）"
 gate: "CONCERNS"  # PASS|CONCERNS|FAIL|WAIVED
-status_reason: "功能联通且 RBAC/空态达标；趋势展示与埋点未接，性能验证未执行，建议补齐后再标记 PASS。"
+status_reason: "复核：结论维持 CONCERNS。功能联通且 RBAC/空态达标；趋势展示与埋点未接，性能验证未执行，建议补齐后再标记 PASS。"
 reviewer: "Quinn (Test Architect)"
-updated: "2025-09-07T10:00:00Z"
+updated: "2025-09-07T03:37:16Z"
 
 waiver:
   active: false

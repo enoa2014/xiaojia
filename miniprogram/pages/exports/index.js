@@ -9,6 +9,12 @@ Page({
     status: '',
     downloadUrl: ''
   },
+  onLoad(options){
+    try {
+      const m = options && (options.month || '')
+      if (m) this.setData({ month: m })
+    } catch(_) {}
+  },
   onMonth(e){ this.setData({ month: e.detail.value }) },
   async onCreate(){
     const month = this.data.month
@@ -45,4 +51,3 @@ Page({
     }
   }
 })
-

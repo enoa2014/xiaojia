@@ -1,21 +1,175 @@
 <view class="page">
-  <view class="header">
-    <text>统计月份：{{month}}</text>
-  </view>
-  <view wx:if="{{error}}" class="error">{{error}}</view>
-  <view wx:if="{{loading}}" class="loading">加载中…</view>
-  <block wx:if="{{!loading && !error}}">
-    <view wx:if="{{items.length===0}}" class="empty">暂无数据</view>
-    <view wx:if="{{items.length>0}}" class="summary">
-      <view class="sum-row"><text>总计</text><text class="v">{{total}}</text></view>
-      <view class="sum-row"><text>均值</text><text class="v">{{avg}}</text></view>
-      <view class="sum-row"><text>峰值</text><text class="v">{{maxValue}}（{{maxDate}}）</text></view>
-      <view class="sum-row"><text>低谷</text><text class="v">{{minValue}}（{{minDate}}）</text></view>
+  <!-- 导航头部 -->
+  <view class="nav-header">
+    <text class="nav-title">📊 数据统计</text>
+    <view class="nav-actions">
+      <text wx:if="{{notifications>0}}" class="nav-notif">{{notifications}}</text>
+      <text bindtap="onRefresh" class="nav-refresh">🔄</text>
+      <text wx:if="{{canView}}" bindtap="onExport" class="nav-export">📤</text>
     </view>
-    <block wx:for="{{items}}" wx:key="date">
-      <view class="row"><text class="date">{{item.date}}</text><text class="val">{{item.value}}</text></view>
-    </block>
-  </block>
-  <view class="hint">仅管理员/社工可见</view>
-  
+  </view>
+
+  <!-- 用户状态区 -->
+  <view class="user-status">
+    <view class="status-left">
+      <text class="role-badge role-{{dashRole}}">{{dashRole === 'admin' ? '👨‍💼 管理员' : dashRole === 'social_worker' ? '👩‍💼 社工' : '👤 用户'}}</text>
+      <text class="perm-status">{{permText || '权限正常 ✅'}}</text>
+    </view>
+    <view class="status-right">
+      <text class="time-info">{{currentTime}}</text>
+    </view>
+  </view>
+
+  <!-- 时间维度选择器 -->
+  <view class="time-selector">
+    <view class="time-tabs">
+      <text bindtap="onTapDim" data-index="0" class="time-tab {{dimIndex===0?'active':''}}">今天</text>
+      <text bindtap="onTapDim" data-index="1" class="time-tab {{dimIndex===1?'active':''}}">本周</text>
+      <text bindtap="onTapDim" data-index="2" class="time-tab {{dimIndex===2?'active':''}}">本月</text>
+      <text bindtap="onTapDim" data-index="3" class="time-tab {{dimIndex===3?'active':''}}">本年</text>
+    </view>
+    <picker wx:if="{{dimIndex>=2}}" mode="date" fields="{{dimIndex===2?'month':'year'}}" value="{{dimIndex===2?month:year}}" bindchange="{{dimIndex===2?'onMonthChange':'onYearChange'}}">
+      <view class="custom-date">{{dimIndex===2?month:year}} 〉</view>
+    </picker>
+  </view>
+
+  <view wx:if="{{!canView}}" class="no-perm">无权限查看统计（仅管理员/社工可见）。</view>
+
+  <!-- KPI 关键指标 -->
+  <view wx:if="{{canView}}" class="kpi-section">
+    <view class="section-title">🎯 关键指标概览</view>
+    <scroll-view class="kpi-scroll" scroll-x="true" enhanced="true" show-scrollbar="false">
+      <view class="kpi-container">
+        <block wx:for="{{dashItems}}" wx:key="label">
+          <view class="kpi-card gradient-{{index % 4}}">
+            <view class="kpi-header">
+              <text class="kpi-icon">{{item.icon}}</text>
+              <view class="kpi-trend {{item.trend}}">
+                <text class="trend-icon">{{item.trend === 'up' ? '↗' : item.trend === 'down' ? '↘' : '→'}}</text>
+                <text class="trend-text">{{item.change || '+0%'}}</text>
+              </view>
+            </view>
+            <view class="kpi-title">{{item.label}}</view>
+            <view class="kpi-value">{{item.value}}</view>
+            <view class="kpi-subtitle">{{item.subtitle || '较上期'}}</view>
+          </view>
+        </block>
+      </view>
+    </scroll-view>
+  </view>
+
+  <!-- 数据分析区域 -->
+  <view wx:if="{{canView && !loading}}" class="analysis-section">
+    <!-- 快速统计 -->
+    <view class="quick-stats">
+      <view class="section-title">📈 {{scopes[scopeIndex].label}}趋势分析</view>
+      <view class="stats-grid">
+        <view class="stat-item">
+          <text class="stat-label">总计</text>
+          <text class="stat-value">{{total}}</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-label">均值</text>
+          <text class="stat-value">{{avg}}</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-label">峰值</text>
+          <text class="stat-value">{{maxValue}}</text>
+          <text class="stat-date">{{maxDate}}</text>
+        </view>
+        <view class="stat-item">
+          <text class="stat-label">低谷</text>
+          <text class="stat-value">{{minValue}}</text>
+          <text class="stat-date">{{minDate}}</text>
+        </view>
+      </view>
+    </view>
+
+    <!-- 趋势图表 -->
+    <view wx:if="{{items.length>0}}" class="chart-container">
+      <view class="chart-header">
+        <text class="chart-title">数据趋势图</text>
+        <view class="chart-controls">
+          <block wx:for="{{scopes}}" wx:key="key">
+            <text bindtap="onTapScope" data-index="{{index}}" class="scope-tag {{scopeIndex===index?'active':''}}">{{item.label}}</text>
+          </block>
+        </view>
+      </view>
+      <view class="chart-body">
+        <block wx:for="{{items}}" wx:key="date">
+          <view class="chart-bar">
+            <view class="bar-label">{{item.date}}</view>
+            <view class="bar-track">
+              <view class="bar-fill" style="height: {{item.perc}}%">
+                <text class="bar-value">{{item.value}}</text>
+              </view>
+            </view>
+          </view>
+        </block>
+      </view>
+    </view>
+
+    <view wx:if="{{items.length===0}}" class="empty-chart">
+      <text class="empty-icon">📊</text>
+      <text class="empty-text">暂无{{scopes[scopeIndex].label}}数据</text>
+      <text class="empty-hint">选择其他时间范围试试</text>
+    </view>
+  </view>
+
+  <!-- 错误和加载状态 -->
+  <view wx:if="{{error}}" class="error-state">
+    <text class="error-icon">⚠️</text>
+    <text class="error-text">{{error}}</text>
+    <button class="error-retry" bindtap="onRefresh">重试</button>
+  </view>
+
+  <view wx:if="{{loading}}" class="loading-state">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">加载中...</text>
+  </view>
+
+  <!-- 专项分析入口 -->
+  <view wx:if="{{canView}}" class="action-section">
+    <view class="section-title">⚡ 专项分析</view>
+    <view class="action-grid">
+      <view class="action-card" bindtap="onGo" data-url="/pages/services/index">
+        <text class="action-icon">📈</text>
+        <text class="action-title">服务效果分析</text>
+        <text class="action-desc">服务质量评估与趋势</text>
+      </view>
+      <view class="action-card" bindtap="onGo" data-url="/pages/patients/index">
+        <text class="action-icon">🏠</text>
+        <text class="action-title">入住情况分析</text>
+        <text class="action-desc">床位使用率与周转</text>
+      </view>
+      <view class="action-card" bindtap="onGo" data-url="/pages/activities/index">
+        <text class="action-icon">🎯</text>
+        <text class="action-title">活动参与分析</text>
+        <text class="action-desc">活动效果与满意度</text>
+      </view>
+      <view class="action-card" bindtap="onGo" data-url="/pages/exports/index">
+        <text class="action-icon">📄</text>
+        <text class="action-title">报表导出</text>
+        <text class="action-desc">自定义报表生成</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 权限管理入口（仅管理员可见） -->
+  <view wx:if="{{canView && dashRole==='admin'}}" class="admin-section">
+    <view class="section-title">🛡️ 管理功能</view>
+    <view class="admin-grid">
+      <view class="admin-card" bindtap="onGo" data-url="/pages/permissions/apply">
+        <text class="admin-icon">🔐</text>
+        <text class="admin-title">权限审批</text>
+        <text wx:if="{{pendingPermissions>0}}" class="admin-badge">{{pendingPermissions}}</text>
+      </view>
+      <view class="admin-card" bindtap="onGo" data-url="/pages/audits/index">
+        <text class="admin-icon">🔍</text>
+        <text class="admin-title">审计日志</text>
+      </view>
+    </view>
+  </view>
+
+  <view class="footer-hint">仅管理员/社工可见统计数据</view>
 </view>

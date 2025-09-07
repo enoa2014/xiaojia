@@ -1,1 +1,9 @@
-{ "navigationBarTitleText": "活动" }
+{
+  "navigationBarTitleText": "活动中心",
+  "navigationBarBackgroundColor": "#007AFF",
+  "navigationBarTextStyle": "white",
+  "backgroundColor": "#F2F2F7",
+  "enablePullDownRefresh": true,
+  "onReachBottomDistance": 50,
+  "backgroundTextStyle": "dark"
+}

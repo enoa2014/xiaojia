@@ -69342,6 +69342,7 @@ module.exports = __toCommonJS(stats_exports);
 var import_wx_server_sdk = __toESM(require_wx_server_sdk());
 
 // ../packages/core-utils/errors.ts
+var ok = (data) => ({ ok: true, data });
 var err = (code, msg, details) => ({
   ok: false,
   error: { code, msg, details }
@@ -69383,10 +69384,103 @@ var main = async (event) => {
   const evt = event || {};
   const action = evt.action;
   const { OPENID } = ((_b = (_a = import_wx_server_sdk.default).getWXContext) == null ? void 0 : _b.call(_a)) || {};
-  const allowed = await hasAnyRole(db, OPENID, ["admin", "social_worker"]);
-  if (!allowed)
-    return err("E_PERM", "\u9700\u8981\u6743\u9650");
+  if (action === "monthly") {
+    const allowed = await hasAnyRole(db, OPENID, ["admin", "social_worker"]);
+    if (!allowed)
+      return err("E_PERM", "\u9700\u8981\u6743\u9650");
+    const payload = evt && evt.payload || {};
+    const scope = String(payload.scope || "services");
+    const month = String(payload.month || "");
+    if (!/^\d{4}-\d{2}$/.test(month))
+      return err("E_VALIDATE", "month \u9700\u4E3A YYYY-MM");
+    const year = Number(month.slice(0, 4));
+    const mon = Number(month.slice(5, 7));
+    const start = new Date(year, mon - 1, 1);
+    const end = new Date(year, mon, 1);
+    const days = new Date(year, mon, 0).getDate();
+    const _ = db.command;
+    const items = [];
+    const toDateStr = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    const dayStart = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime();
+    const dayEnd = (d) => new Date(d.getFullYear(), d.getMonth(), d.getDate() + 1).getTime();
+    const countForDay = async (dayStr, idx) => {
+      try {
+        if (scope === "services") {
+          const r = await db.collection("Services").where({ date: dayStr }).count();
+          return (r.total ?? r.count) || 0;
+        }
+        if (scope === "activities") {
+          const r = await db.collection("Activities").where({ date: dayStr }).count();
+          return (r.total ?? r.count) || 0;
+        }
+        if (scope === "patients") {
+          const ds = new Date(year, mon - 1, idx);
+          const from = dayStart(ds);
+          const to = dayEnd(ds);
+          const r = await db.collection("Patients").where({ createdAt: _.gte(from).and(_.lt(to)) }).count();
+          return (r.total ?? r.count) || 0;
+        }
+        return 0;
+      } catch {
+        return 0;
+      }
+    };
+    for (let i = 1; i <= days; i++) {
+      const d = new Date(year, mon - 1, i);
+      const ds = toDateStr(d);
+      const v = await countForDay(ds, i);
+      items.push({ date: ds, value: v });
+    }
+    return ok({ items, meta: { total: days, hasMore: false } });
+  }
+  if (action === "yearly") {
+    const allowed = await hasAnyRole(db, OPENID, ["admin", "social_worker"]);
+    if (!allowed)
+      return err("E_PERM", "\u9700\u8981\u6743\u9650");
+    const payload = evt && evt.payload || {};
+    const scope = String(payload.scope || "services");
+    const yearStr = String(payload.year || "");
+    if (!/^\d{4}$/.test(yearStr))
+      return err("E_VALIDATE", "year \u9700\u4E3A YYYY");
+    const year = Number(yearStr);
+    const _ = db.command;
+    const items = [];
+    const monthStart = (y, m) => new Date(y, m - 1, 1).getTime();
+    const monthEnd = (y, m) => new Date(y, m, 1).getTime();
+    for (let m = 1; m <= 12; m++) {
+      const ym = `${year}-${String(m).padStart(2, "0")}`;
+      let value = 0;
+      try {
+        if (scope === "services") {
+          const r = await db.collection("Services").where({
+            // date: 'YYYY-MM-DD' 前缀匹配
+            date: db.RegExp({ regexp: `^${ym}` })
+          }).count();
+          value = (r.total ?? r.count) || 0;
+        } else if (scope === "activities") {
+          const r = await db.collection("Activities").where({
+            date: db.RegExp({ regexp: `^${ym}` })
+          }).count();
+          value = (r.total ?? r.count) || 0;
+        } else if (scope === "patients") {
+          const from = monthStart(year, m);
+          const to = monthEnd(year, m);
+          const r = await db.collection("Patients").where({ createdAt: _.gte(from).and(_.lt(to)) }).count();
+          value = (r.total ?? r.count) || 0;
+        } else {
+          value = 0;
+        }
+      } catch {
+        value = 0;
+      }
+      items.push({ date: ym, value });
+    }
+    return ok({ items, meta: { total: 12, hasMore: false } });
+  }
   if (action === "counts") {
+    const allowed = await hasAnyRole(db, OPENID, ["admin", "social_worker"]);
+    if (!allowed)
+      return err("E_PERM", "\u9700\u8981\u6743\u9650");
     const cols = evt.collections || ["Patients", "Tenancies", "Activities", "Registrations"];
     const out = {};
     for (const name of cols) {
@@ -69397,9 +69491,105 @@ var main = async (event) => {
         out[name] = null;
       }
     }
-    return { ok: true, data: out };
+    return ok(out);
   }
-  return { ok: true, data: { ping: "stats" } };
+  if (action === "homeSummary") {
+    const role = await (async () => {
+      var _a2, _b2;
+      try {
+        const byOpen = await db.collection("Users").where({ openId: OPENID }).limit(1).get();
+        if ((_a2 = byOpen == null ? void 0 : byOpen.data) == null ? void 0 : _a2.length)
+          return byOpen.data[0].role || null;
+        try {
+          const byId = await db.collection("Users").doc(OPENID).get();
+          return ((_b2 = byId == null ? void 0 : byId.data) == null ? void 0 : _b2.role) || null;
+        } catch {
+        }
+      } catch {
+      }
+      return null;
+    })();
+    const now = /* @__PURE__ */ new Date();
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime();
+    const monthStr = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}`;
+    const _ = db.command;
+    const count = async (name, where) => {
+      try {
+        const r = await db.collection(name).where(where).count();
+        return (r.total ?? r.count) || 0;
+      } catch {
+        return 0;
+      }
+    };
+    const patientsMonthly = await count("Patients", { createdAt: _.gte(monthStart) });
+    let servicesWhere = { createdAt: _.gte(monthStart) };
+    const isManager = await hasAnyRole(db, OPENID, ["admin", "social_worker"]);
+    if (!isManager && OPENID)
+      servicesWhere.createdBy = OPENID;
+    const servicesMonthly = await count("Services", servicesWhere);
+    const activitiesMonthly = await count("Activities", {
+      status: _.in(["open", "ongoing"]),
+      date: db.RegExp({ regexp: `^${monthStr}` })
+    });
+    const pendingServiceReviews = await count("Services", { status: "review" });
+    const pendingPermApprovals = await count("PermissionRequests", { status: "pending" });
+    const notifications = (() => {
+      if (role === "admin")
+        return pendingServiceReviews + pendingPermApprovals;
+      if (role === "social_worker")
+        return pendingServiceReviews;
+      return 0;
+    })();
+    const permText = (() => {
+      if (role === "admin")
+        return "\u6743\u9650\u5BA1\u6279 \u2022 \u7CFB\u7EDF\u7EDF\u8BA1 \u2022 \u914D\u7F6E\u7BA1\u7406";
+      if (role === "social_worker")
+        return "\u6863\u6848\u7BA1\u7406 \u2022 \u670D\u52A1\u5BA1\u6838 \u2022 \u6D3B\u52A8\u7EC4\u7EC7";
+      if (role === "volunteer")
+        return "\u670D\u52A1\u8BB0\u5F55 \u2022 \u6863\u6848\u67E5\u770B \u2022 \u6211\u7684\u6D3B\u52A8";
+      if (role === "parent")
+        return "\u6211\u7684\u5B69\u5B50 \u2022 \u670D\u52A1\u8FDB\u5C55 \u2022 \u4EB2\u5B50\u6D3B\u52A8";
+      return "\u6B63\u5E38 \u2705";
+    })();
+    const items = (() => {
+      if (role === "admin")
+        return [
+          { label: "\u7CFB\u7EDF\u72B6\u6001", value: "\u6B63\u5E38", icon: "\u2705", change: "" },
+          { label: "\u5728\u7EBF\u7528\u6237", value: "0\u4EBA", icon: "\u{1F465}", change: "" },
+          { label: "\u5F85\u5904\u7406\u4E8B\u9879", value: String(pendingServiceReviews + pendingPermApprovals) + "\u4E2A", icon: "\u26A0\uFE0F", change: "" },
+          { label: "\u6570\u636E\u540C\u6B65", value: "\u521A\u521A", icon: "\u{1F504}", change: "" }
+        ];
+      if (role === "social_worker")
+        return [
+          { label: "\u4ECA\u65E5\u5DE5\u4F5C\u91CF", value: "\u2014", icon: "\u{1F4C8}", change: "" },
+          { label: "\u5F85\u5BA1\u6838", value: String(pendingServiceReviews) + "\u4E2A", icon: "\u23F3", change: "" },
+          { label: "\u672C\u6708\u6863\u6848", value: String(patientsMonthly) + "\u4E2A", icon: "\u{1F4C1}", change: "" },
+          { label: "\u6D3B\u52A8\u7EC4\u7EC7", value: String(activitiesMonthly) + "\u4E2A", icon: "\u{1F4C5}", change: "" }
+        ];
+      if (role === "volunteer")
+        return [
+          { label: "\u672C\u6708\u670D\u52A1", value: String(servicesMonthly) + "\u6B21", icon: "\u2764\uFE0F", change: "" },
+          { label: "\u4E0B\u6B21\u6D3B\u52A8", value: "\u2014", icon: "\u{1F4C5}", change: "" },
+          { label: "\u670D\u52A1\u65F6\u957F", value: "\u2014", icon: "\u23F1\uFE0F", change: "" },
+          { label: "\u5FD7\u613F\u8BC4\u5206", value: "\u2014", icon: "\u2B50", change: "" }
+        ];
+      if (role === "parent")
+        return [
+          { label: "\u5173\u6CE8\u60A3\u8005", value: "1\u4EBA", icon: "\u{1F9D2}", change: "" },
+          { label: "\u6700\u65B0\u670D\u52A1", value: "\u2014", icon: "\u23F0", change: "" },
+          { label: "\u53C2\u4E0E\u6D3B\u52A8", value: String(activitiesMonthly) + "\u6B21", icon: "\u{1F9E9}", change: "" },
+          { label: "\u793E\u533A\u79EF\u5206", value: "\u2014", icon: "\u{1F31F}", change: "" }
+        ];
+      return [
+        { label: "\u5F85\u5BA1\u6838", value: String(pendingServiceReviews) + "\u4E2A", icon: "\u23F3", change: "" },
+        { label: "\u672C\u6708\u6863\u6848", value: String(patientsMonthly) + "\u4E2A", icon: "\u{1F4C1}", change: "" },
+        { label: "\u672C\u6708\u670D\u52A1", value: String(servicesMonthly) + "\u6B21", icon: "\u2764\uFE0F", change: "" },
+        { label: "\u6D3B\u52A8\u7EC4\u7EC7", value: String(activitiesMonthly) + "\u4E2A", icon: "\u{1F4C5}", change: "" }
+      ];
+    })();
+    return ok({ role, items, notifications, permText });
+  }
+  return ok({ ping: "stats" });
 };
 // Annotate the CommonJS export names for ESM import in node:
 0 && (module.exports = {

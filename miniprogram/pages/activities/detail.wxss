@@ -10,9 +10,46 @@
 .status-done { background:#E5E7EB; color:#374151; }
 .status-closed { background:#FEE2E2; color:#991B1B; }
 .meta { color:#6B7280; font-size: 24rpx; margin-top: 8rpx; }
-.actions { display:flex; gap: 16rpx; align-items:center; padding: 8rpx 0; flex-wrap: wrap; }
+.actions { padding: 8rpx 0; }
+.user-actions { display:flex; gap: 16rpx; align-items:center; flex-wrap: wrap; margin-bottom: 16rpx; }
 .primary { background:#22C55E; color:white; border:none; }
 .warn { background:#FEE2E2; color:#991B1B; border:none; }
 .secondary { background:#DBEAFE; color:#1E40AF; border:none; }
 .hint { color:#6B7280; font-size: 24rpx; }
+
+/* Management actions */
+.management-actions { margin-top: 16rpx; }
+.divider { height: 2rpx; background: #E5E7EB; margin: 16rpx 0; }
+.management-title { 
+  font-size: 28rpx; 
+  font-weight: 600; 
+  color: #374151; 
+  margin-bottom: 12rpx;
+}
+.management-buttons { 
+  display: flex; 
+  gap: 12rpx; 
+  flex-wrap: wrap; 
+}
+.management-btn {
+  display: flex;
+  align-items: center;
+  gap: 8rpx;
+  padding: 12rpx 16rpx;
+  background: #F3F4F6;
+  color: #374151;
+  border: none;
+  border-radius: 8rpx;
+  font-size: 26rpx;
+  min-width: 140rpx;
+}
+.management-btn:hover {
+  background: #E5E7EB;
+}
+.btn-icon { 
+  font-size: 24rpx; 
+}
+.btn-text { 
+  font-weight: 500; 
+}
 

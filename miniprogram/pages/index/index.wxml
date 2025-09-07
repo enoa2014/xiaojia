@@ -1,90 +1,193 @@
 
+<!-- 导航头部区 -->
 <view class="nav-header {{theme.headerBg}}">
   <view class="brand">🏠 小家服务中心</view>
-  <view class="toolbar">
-    <view class="tool notif">
-      <text class="icon" bindtap="wip">🔔</text>
-      <view wx:if="{{notifications>0}}" class="badge">{{notifications}}</view>
+  <view class="nav-actions">
+    <view class="nav-tool nav-notif" wx:if="{{notifications>0}}" bindtap="wip">
+      <text class="nav-icon">🔔</text>
+      <view class="nav-badge">{{notifications}}</view>
     </view>
-    <text class="tool" bindtap="wip">💬</text>
-    <text class="tool" bindtap="refreshTap" wx:class="{{isRefreshing?'spin':''}}">🔄</text>
-    <text class="tool" bindtap="openRoleSwitcher">🧪</text>
+    <text class="nav-tool nav-icon" bindtap="wip">💬</text>
+    <text class="nav-tool nav-icon {{isRefreshing?'spin':''}}" bindtap="refreshTap">🔄</text>
+    <text class="nav-tool nav-icon" bindtap="openRoleSwitcher">⚙️</text>
+  </view>
+</view>
+
+<!-- 用户状态区 -->
+<view class="user-status {{theme.userBg}}">
+  <view class="user-profile">
+    <view class="user-avatar">{{user.avatar || '👩‍💼'}}</view>
+    <view class="user-info">
+      <view class="name-role-row">
+        <text class="user-name">{{user.name}}</text>
+        <view class="role-badge role-{{user.roleKey}}">{{user.roleName}}</view>
+      </view>
+      <view class="permissions-row">
+        <text class="perm-text">{{user.permText}}</text>
+        <view class="status-indicator active">
+          <icon type="success" color="#22C55E" size="14" />
+          <text>在线</text>
+        </view>
+      </view>
+    </view>
   </view>
   
-</view>
-
-<view class="user-status {{theme.userBg}} {{theme.userBorder}}">
-  <view class="identity">
-    <view class="avatar">{{user.avatar || '👩‍💼'}}</view>
-    <view class="meta">
-      <view class="name {{theme.text}}">{{user.name}}（{{user.roleName}}）</view>
-      <view class="perm">权限：<text class="ok">{{user.permText}}</text></view>
+  <view class="stats-summary">
+    <view class="stats-item">
+      <text class="stats-number">{{user.todayDone}}</text>
+      <text class="stats-label">今日完成</text>
+    </view>
+    <view class="stats-divider"></view>
+    <view class="stats-item">
+      <text class="stats-number">{{user.todayTotal}}</text>
+      <text class="stats-label">计划任务</text>
+    </view>
+    <view class="time-display">
+      <text class="current-time">{{user.now}}</text>
     </view>
   </view>
-  <view class="work">
-    <view class="today">今日：{{user.todayDone}}/{{user.todayTotal}}</view>
-    <view class="time">{{user.now}}</view>
+</view>
+
+<!-- 快速操作区 -->
+<view class="quick-actions-section" wx:if="{{!loading}}">
+  <view class="section-header">
+    <text class="section-title">📌 快速操作</text>
+    <view class="role-indicator">{{user.roleName}}</view>
   </view>
-</view>
-
-<view class="quick-actions" wx:if="{{!loading}}">
-  <block wx:for="{{actions}}" wx:key="key">
-    <view class="action-card {{selectedActionKey===item.key?'active':''}}" bindtap="onAction" data-key="{{item.key}}">
-      <view class="icon">{{item.icon}}</view>
-      <view class="title">{{item.title}}</view>
-      <view class="subtitle">{{item.subtitle}}</view>
-    </view>
-  </block>
-</view>
-
-<view class="data-overview" wx:if="{{!loading}}">
-  <view class="section-title">本月概况</view>
-  <view class="stats-grid">
-    <block wx:for="{{stats}}" wx:key="key">
-      <view class="stats-card">
-        <view class="stats-row">
-          <view class="stats-left">
-            <view class="label">{{item.label}}</view>
-            <view class="value">{{item.value}}</view>
+  
+  <view class="actions-grid">
+    <block wx:for="{{actions}}" wx:key="key" wx:for-index="index">
+      <view class="action-card {{selectedActionKey===item.key?'selected':''}}" 
+            bindtap="onAction" 
+            data-key="{{item.key}}"
+            wx:if="{{index < 4}}">
+        <view class="card-content">
+          <view class="action-icon">{{item.icon}}</view>
+          <view class="action-info">
+            <text class="action-title">{{item.title}}</text>
+            <text class="action-subtitle">{{item.subtitle}}</text>
           </view>
-          <view class="stats-icon">{{item.icon}}</view>
         </view>
-        <view wx:if="{{item.change}}" class="delta {{item.change.indexOf('+')===0?'delta--up':'delta--down'}}">{{item.change}}</view>
+        <view class="card-arrow">›</view>
       </view>
     </block>
+  </view>
+  
+  <view class="more-actions" wx:if="{{actions.length > 4}}" bindtap="showAllActions">
+    <text class="more-text">查看更多操作</text>
+    <text class="more-icon">⬇</text>
   </view>
 </view>
 
-<view class="task-reminders" wx:if="{{!loading}}">
-  <view class="task-header">
-    <view>📋 待办事项 ({{tasks.length}})</view>
-    <view class="link" bindtap="wip">查看全部 〉</view>
+<!-- 数据总览区 -->
+<view class="data-overview-section" wx:if="{{!loading}}">
+  <view class="section-header">
+    <text class="section-title">📊 本月概况</text>
+    <view class="overview-controls">
+      <text class="period-text">本月</text>
+      <text class="refresh-hint" bindtap="refreshTap">刷新</text>
+    </view>
   </view>
-  <view class="task-list">
-    <block wx:for="{{tasks}}" wx:key="id">
-      <view class="task-item" style="--priority-color: {{item.color}};">
-        <view class="task-title">{{item.title}}</view>
-        <view class="task-desc">{{item.desc}}</view>
-      </view>
-    </block>
+  
+  <scroll-view class="stats-scroll" 
+               scroll-x="true" 
+               enable-flex="true"
+               show-scrollbar="false">
+    <view class="stats-container">
+      <block wx:for="{{stats}}" wx:key="key" wx:for-index="index">
+        <view class="stat-card gradient-{{index % 4}}">
+          <view class="card-header">
+            <view class="stat-icon">{{item.icon}}</view>
+            <view class="trend-indicator {{item.change && item.change.indexOf('+')===0 ? 'up' : 'down'}}" wx:if="{{item.change}}">
+              <text class="trend-arrow">{{item.change && item.change.indexOf('+')===0 ? '↗' : '↘'}}</text>
+            </view>
+          </view>
+          <view class="card-body">
+            <text class="stat-label">{{item.label}}</text>
+            <text class="stat-value">{{item.value}}</text>
+            <text class="stat-change" wx:if="{{item.change}}">{{item.change}} 较上期</text>
+          </view>
+        </view>
+      </block>
+      
+      <!-- 占位卡片确保最后一个卡片有右边距 -->
+      <view class="spacer-card"></view>
+    </view>
+  </scroll-view>
+  
+  <view class="scroll-indicator">
+    <view class="indicator-dots">
+      <block wx:for="{{stats}}" wx:key="key" wx:for-index="index">
+        <view class="dot {{index < 3 ? 'active' : ''}}" wx:if="{{index < Math.min(stats.length, 6)}}"></view>
+      </block>
+    </view>
   </view>
 </view>
 
-<view class="recent-updates" wx:if="{{!loading}}">
-  <view class="task-header">
-    <view>🕐 最近动态</view>
-    <view class="link" bindtap="wip">查看全部 〉</view>
+<!-- 任务提醒区 -->
+<view class="tasks-section" wx:if="{{!loading}}">
+  <view class="section-header">
+    <text class="section-title">📋 待办事项</text>
+    <view class="task-counter">
+      <text class="counter-text">{{tasks.length}}</text>
+      <view class="view-all-btn" bindtap="wip">
+        <text>查看全部</text>
+        <text class="arrow">›</text>
+      </view>
+    </view>
   </view>
-  <view class="updates-list">
-    <block wx:for="{{updates}}" wx:key="id">
-      <view class="update-item">
-        <view class="u-icon">🔔</view>
-        <view class="u-body">
-          <view class="u-title">{{item.text}}</view>
-          <view class="u-time">{{item.time}}</view>
+  
+  <view class="tasks-list">
+    <block wx:for="{{tasks}}" wx:key="id" wx:for-index="index">
+      <view class="task-card priority-{{item.color === '#EF4444' ? 'high' : (item.color === '#F59E0B' ? 'medium' : 'normal')}}"
+            wx:if="{{index < 3}}">
+        <view class="task-main">
+          <view class="priority-dot" style="background-color: {{item.color}};"></view>
+          <view class="task-content">
+            <text class="task-title">{{item.title}}</text>
+            <text class="task-desc">{{item.desc}}</text>
+          </view>
+        </view>
+        <view class="task-action">
+          <text class="action-icon">›</text>
         </view>
       </view>
     </block>
+    
+    <view class="empty-tasks" wx:if="{{tasks.length === 0}}">
+      <text class="empty-icon">✅</text>
+      <text class="empty-text">暂无待办事项</text>
+    </view>
+  </view>
+</view>
+
+<!-- 最近动态区 -->
+<view class="updates-section" wx:if="{{!loading}}">
+  <view class="section-header">
+    <text class="section-title">🕐 最近动态</text>
+    <view class="view-all-btn" bindtap="wip">
+      <text>查看全部</text>
+      <text class="arrow">›</text>
+    </view>
+  </view>
+  
+  <view class="updates-timeline">
+    <block wx:for="{{updates}}" wx:key="id" wx:for-index="index">
+      <view class="update-entry" wx:if="{{index < 4}}">
+        <view class="timeline-dot">
+          <view class="dot-inner"></view>
+        </view>
+        <view class="update-content">
+          <text class="update-text">{{item.text}}</text>
+          <text class="update-time">{{item.time}}</text>
+        </view>
+      </view>
+    </block>
+    
+    <view class="empty-updates" wx:if="{{updates.length === 0}}">
+      <text class="empty-icon">📰</text>
+      <text class="empty-text">暂无动态</text>
+    </view>
   </view>
 </view>
 

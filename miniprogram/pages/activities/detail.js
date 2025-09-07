@@ -6,11 +6,26 @@ Page({
     activity: null,
     myReg: null,
     loading: true,
-    error: ''
+    error: '',
+    userRole: '',
+    canManage: false
   },
   onLoad(opts){
     const id = (opts && opts.id) || ''
-    this.setData({ id }, () => this.load())
+    this.setData({ id })
+    this.checkPermissions()
+    this.load()
+  },
+  
+  async checkPermissions(){
+    try {
+      const userInfo = wx.getStorageSync('userInfo') || {}
+      const userRole = userInfo.role || ''
+      const canManage = ['admin', 'social_worker'].includes(userRole)
+      this.setData({ userRole, canManage })
+    } catch (e) {
+      console.error('Failed to check permissions:', e)
+    }
   },
   async load(){
     try {
@@ -53,6 +68,18 @@ Page({
     } catch (e) {
       wx.showToast({ icon:'none', title: mapError(e.code) })
     }
+  },
+  
+  goToManagement(){
+    wx.navigateTo({
+      url: `/pages/activities/manage?id=${this.data.id}`
+    })
+  },
+  
+  goToRegistrations(){
+    wx.navigateTo({
+      url: `/pages/activities/registrations?id=${this.data.id}`
+    })
   }
 })
 

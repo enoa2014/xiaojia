@@ -1,64 +1,288 @@
-<view class="page">
-  <view class="upload-bar" wx:if="{{uploading}}">
-    <view class="bar">
-      <view class="progress" style="width: {{uploadProgress}}%"></view>
+<view class="service-form-page" wx:if="{{!loading}}">
+  <!-- 导航头部区 -->
+  <view class="nav-header {{theme.headerBg}}">
+    <view class="nav-left" bindtap="navigateBack">
+      <text class="nav-icon">←</text>
+      <text class="nav-title">{{isQuickMode ? '快速记录' : '服务记录'}}</text>
     </view>
-    <text class="pct">{{uploadDone}}/{{uploadTotal}}（{{uploadProgress}}%）</text>
-  </view>
-  <view class="mode">
-    <text class="label">模式</text>
-    <view class="mode-row">
-      <text class="mode-chip {{quickMode?'active':''}}" bindtap="onToggleMode">快速记录</text>
-      <text class="mode-chip {{!quickMode?'active':''}}" bindtap="onToggleMode">详细记录</text>
-      <view class="spacer"></view>
-      <button class="mini" size="mini" bindtap="saveDraft">保存草稿</button>
-      <button class="mini" size="mini" bindtap="clearDraft">清除</button>
+    <view class="nav-actions">
+      <view class="nav-tool" bindtap="showMyStats" wx:if="{{!isQuickMode}}">
+        <text class="nav-icon">📊</text>
+      </view>
+      <view class="nav-tool" bindtap="showHelp">
+        <text class="nav-icon">❓</text>
+      </view>
     </view>
   </view>
-  <view class="section" id="field-patientId">
-    <text class="label">患者ID</text>
-    <input class="input" placeholder="填写 patientId" value="{{patientId}}" bindinput="e=>setData({patientId:e.detail.value})" />
-    <text class="error" wx:if="{{errors.patientId}}">{{errors.patientId}}</text>
+
+  <!-- 上传进度条 -->
+  <view class="upload-progress" wx:if="{{uploading}}">
+    <view class="progress-bar">
+      <view class="progress-fill" style="width: {{uploadProgress}}%;"></view>
+    </view>
+    <view class="progress-text">
+      <text class="progress-label">上传中</text>
+      <text class="progress-value">{{uploadDone}}/{{uploadTotal}} ({{uploadProgress}}%)</text>
+    </view>
   </view>
 
-  <view class="section" id="field-type">
-    <text class="label">服务类型</text>
-    <radio-group class="seg" bindchange="onType">
-      <label class="seg-item"><radio value="visit" checked="{{type==='visit'}}"/>探访</label>
-      <label class="seg-item"><radio value="psych" checked="{{type==='psych'}}"/>心理</label>
-      <label class="seg-item"><radio value="goods" checked="{{type==='goods'}}"/>物资</label>
-      <label class="seg-item"><radio value="referral" checked="{{type==='referral'}}"/>转介</label>
-      <label class="seg-item"><radio value="followup" checked="{{type==='followup'}}"/>随访</label>
-    </radio-group>
-    <text class="error" wx:if="{{errors.type}}">{{errors.type}}</text>
-  </view>
-
-  <view class="section" id="field-date">
-    <text class="label">日期</text>
-    <picker mode="date" value="{{date}}" bindchange="onDate">
-      <view class="picker">{{date || '选择日期'}}</view>
-    </picker>
-    <text class="error" wx:if="{{errors.date}}">{{errors.date}}</text>
-  </view>
-
-  <view class="section" wx:if="{{!quickMode}}">
-    <text class="label">描述（≤500）</text>
-    <textarea class="textarea" maxlength="500" placeholder="请输入描述" value="{{desc}}" bindinput="e=>setData({desc:e.detail.value})" />
-  </view>
-
-  <view class="section" wx:if="{{!quickMode}}" id="field-images">
-    <text class="label">图片（≤9，单张≤5MB）</text>
-    <view class="grid">
-      <block wx:for="{{images}}" wx:key="index">
-        <view class="thumb" bindtap="preview" data-index="{{index}}">
-          <image mode="aspectFill" src="{{item.local || item.fileID}}"/>
-          <view class="del" bindtap="remove" data-index="{{index}}">×</view>
+  <!-- 模式切换区 -->
+  <view class="mode-section" wx:if="{{!isQuickMode}}">
+    <view class="mode-header">
+      <text class="mode-title">记录模式</text>
+      <view class="save-actions">
+        <button class="action-btn" size="mini" bindtap="saveDraft">
+          <text class="btn-icon">💾</text>
+          <text class="btn-text">保存草稿</text>
+        </button>
+        <button class="action-btn" size="mini" bindtap="clearDraft">
+          <text class="btn-icon">🗑️</text>
+          <text class="btn-text">清除</text>
+        </button>
+      </view>
+    </view>
+    <view class="mode-switcher">
+      <view class="mode-option {{quickMode ? 'active' : ''}}" bindtap="switchToQuickMode">
+        <text class="mode-icon">⚡</text>
+        <view class="mode-content">
+          <text class="mode-name">快速记录</text>
+          <text class="mode-desc">1-3分钟完成</text>
         </view>
-      </block>
-      <view class="thumb add" bindtap="choose">＋</view>
+      </view>
+      <view class="mode-option {{!quickMode ? 'active' : ''}}" bindtap="switchToDetailMode">
+        <text class="mode-icon">📝</text>
+        <view class="mode-content">
+          <text class="mode-name">详细记录</text>
+          <text class="mode-desc">完整信息录入</text>
+        </view>
+      </view>
     </view>
-    <text class="error" wx:if="{{errors.images}}">{{errors.images}}</text>
   </view>
 
-  <button class="submit" loading="{{submitting}}" bindtap="onSubmit">提交</button>
+  <!-- 快速模式顶部提示 -->
+  <view class="quick-mode-tip" wx:if="{{quickMode || isQuickMode}}">
+    <view class="tip-content">
+      <text class="tip-icon">⚡</text>
+      <view class="tip-text">
+        <text class="tip-title">快速记录模式</text>
+        <text class="tip-desc">只需填写必要信息，1-3分钟完成记录</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 服务类型选择区 -->
+  <view class="service-type-section">
+    <view class="section-header">
+      <text class="section-title">选择服务类型</text>
+      <text class="section-required">*</text>
+    </view>
+    <view class="service-types">
+      <view class="service-type {{serviceType === item.key ? 'selected' : ''}}" 
+            wx:for="{{serviceTypes}}" wx:key="key"
+            data-type="{{item.key}}" bindtap="onServiceTypeSelect">
+        <view class="type-icon" style="background-color: {{item.color}};">{{item.icon}}</view>
+        <text class="type-name">{{item.name}}</text>
+        <view class="type-check" wx:if="{{serviceType === item.key}}">✓</view>
+      </view>
+    </view>
+    <text class="field-error" wx:if="{{errors.serviceType}}">{{errors.serviceType}}</text>
+  </view>
+
+  <!-- 患者选择区 -->
+  <view class="patient-section">
+    <view class="section-header">
+      <text class="section-title">服务对象</text>
+      <text class="section-required">*</text>
+    </view>
+    <view class="patient-selector" bindtap="selectPatient">
+      <view class="selector-content" wx:if="{{selectedPatient}}">
+        <view class="patient-avatar">{{selectedPatient.initial}}</view>
+        <view class="patient-info">
+          <text class="patient-name">{{selectedPatient.displayName}}</text>
+          <text class="patient-meta">{{selectedPatient.ageText}} · {{selectedPatient.condition}}</text>
+        </view>
+      </view>
+      <view class="selector-placeholder" wx:else>
+        <text class="placeholder-icon">👤</text>
+        <text class="placeholder-text">点击选择服务对象</text>
+      </view>
+      <text class="selector-arrow">〉</text>
+    </view>
+    <text class="field-error" wx:if="{{errors.patientId}}">{{errors.patientId}}</text>
+  </view>
+
+  <!-- 服务时间区 -->
+  <view class="datetime-section">
+    <view class="section-header">
+      <text class="section-title">服务时间</text>
+      <text class="section-required">*</text>
+    </view>
+    <view class="datetime-picker">
+      <picker mode="date" value="{{serviceDate}}" bindchange="onDateChange">
+        <view class="picker-item">
+          <text class="picker-icon">📅</text>
+          <text class="picker-value">{{serviceDateText}}</text>
+        </view>
+      </picker>
+      <picker mode="time" value="{{serviceTime}}" bindchange="onTimeChange">
+        <view class="picker-item">
+          <text class="picker-icon">⏰</text>
+          <text class="picker-value">{{serviceTimeText}}</text>
+        </view>
+      </picker>
+    </view>
+    <text class="field-error" wx:if="{{errors.serviceDateTime}}">{{errors.serviceDateTime}}</text>
+  </view>
+
+  <!-- 服务内容区 -->
+  <view class="content-section" wx:if="{{!quickMode || showAdvancedContent}}">
+    <view class="section-header">
+      <text class="section-title">服务内容</text>
+      <text class="section-required" wx:if="{{!quickMode}}">*</text>
+      <button class="voice-btn" size="mini" bindtap="startVoiceInput">
+        <text class="btn-icon">🎤</text>
+        <text class="btn-text">语音输入</text>
+      </button>
+    </view>
+    <textarea class="content-textarea" 
+              placeholder="{{contentPlaceholder}}"
+              value="{{serviceContent}}"
+              bindinput="onContentInput"
+              maxlength="{{quickMode ? 200 : 500}}"
+              auto-height="{{true}}"></textarea>
+    <view class="textarea-footer">
+      <text class="char-count">{{serviceContent.length}}/{{quickMode ? 200 : 500}}</text>
+      <view class="content-templates" wx:if="{{contentTemplates.length > 0}}">
+        <text class="template-label">快速模板：</text>
+        <view class="template-chips">
+          <text class="template-chip" 
+                wx:for="{{contentTemplates}}" wx:key="*this"
+                bindtap="useTemplate" data-template="{{item}}">{{item}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 快速内容选择 -->
+  <view class="quick-content-section" wx:if="{{quickMode && !showAdvancedContent}}">
+    <view class="section-header">
+      <text class="section-title">服务内容</text>
+      <button class="expand-btn" bindtap="toggleAdvancedContent">
+        <text class="btn-text">详细填写</text>
+        <text class="btn-icon">📝</text>
+      </button>
+    </view>
+    <view class="quick-templates">
+      <view class="template-item {{quickTemplate === item ? 'selected' : ''}}"
+            wx:for="{{quickTemplates}}" wx:key="*this"
+            data-template="{{item}}" bindtap="selectQuickTemplate">
+        <text class="template-text">{{item}}</text>
+        <view class="template-check" wx:if="{{quickTemplate === item}}">✓</view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 服务地点区 (详细模式) -->
+  <view class="location-section" wx:if="{{!quickMode}}">
+    <view class="section-header">
+      <text class="section-title">服务地点</text>
+    </view>
+    <input class="location-input" 
+           placeholder="输入服务地点"
+           value="{{serviceLocation}}"
+           bindinput="onLocationInput" />
+    <view class="location-suggestions" wx:if="{{locationSuggestions.length > 0}}">
+      <text class="suggestion-item"
+            wx:for="{{locationSuggestions}}" wx:key="*this"
+            bindtap="selectLocation" data-location="{{item}}">{{item}}</text>
+    </view>
+  </view>
+
+  <!-- 附件上传区 (详细模式) -->
+  <view class="attachment-section" wx:if="{{!quickMode}}">
+    <view class="section-header">
+      <text class="section-title">附件上传</text>
+      <text class="section-subtitle">最多{{maxImages}}张图片，单张≤{{maxImageSize}}MB</text>
+    </view>
+    <view class="attachment-grid">
+      <view class="attachment-item" wx:for="{{attachments}}" wx:key="index">
+        <image class="attachment-image" 
+               mode="aspectFill" 
+               src="{{item.local || item.fileID}}"
+               bindtap="previewAttachment" data-index="{{index}}" />
+        <view class="attachment-delete" 
+              bindtap="removeAttachment" data-index="{{index}}">×</view>
+      </view>
+      <view class="attachment-add" bindtap="addAttachment" wx:if="{{attachments.length < maxImages}}">
+        <text class="add-icon">📷</text>
+        <text class="add-text">添加图片</text>
+      </view>
+    </view>
+    <text class="field-error" wx:if="{{errors.attachments}}">{{errors.attachments}}</text>
+  </view>
+
+  <!-- 自动保存提示 -->
+  <view class="auto-save-tip" wx:if="{{autoSaveStatus}}">
+    <text class="save-icon">💾</text>
+    <text class="save-text">{{autoSaveStatus}}</text>
+  </view>
+</view>
+
+<!-- 底部操作区 -->
+<view class="bottom-actions" wx:if="{{!loading}}">
+  <button class="action-btn secondary" bindtap="saveDraft" wx:if="{{!quickMode}}">
+    <text class="btn-icon">💾</text>
+    <text class="btn-text">保存草稿</text>
+  </button>
+  <button class="action-btn primary" 
+          loading="{{submitting}}" 
+          bindtap="onSubmit">
+    <text class="btn-icon">✅</text>
+    <text class="btn-text">{{quickMode || isQuickMode ? '快速提交' : '提交审核'}}</text>
+  </button>
+</view>
+
+<!-- 加载状态 -->
+<view class="loading-container" wx:if="{{loading}}">
+  <view class="loading-content">
+    <view class="loading-header">
+      <view class="skeleton-nav"></view>
+    </view>
+    <view class="loading-form">
+      <view class="skeleton-section" wx:for="{{[1,2,3,4]}}" wx:key="*this">
+        <view class="skeleton-title"></view>
+        <view class="skeleton-input"></view>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 患者选择弹窗 -->
+<view class="patient-modal {{showPatientModal ? 'show' : ''}}" catchtap="hidePatientModal">
+  <view class="modal-content" catchtap="stopPropagation">
+    <view class="modal-header">
+      <text class="modal-title">选择服务对象</text>
+      <button class="modal-close" bindtap="hidePatientModal">✕</button>
+    </view>
+    <view class="modal-body">
+      <view class="patient-search">
+        <input class="search-input" 
+               placeholder="搜索患者姓名或ID"
+               value="{{patientSearchText}}"
+               bindinput="onPatientSearch" />
+      </view>
+      <view class="patient-list">
+        <view class="patient-option {{item.id === (selectedPatient && selectedPatient.id) ? 'selected' : ''}}"
+              wx:for="{{filteredPatients}}" wx:key="id"
+              data-patient="{{item}}" bindtap="selectPatientOption">
+          <view class="patient-avatar">{{item.initial}}</view>
+          <view class="patient-info">
+            <text class="patient-name">{{item.displayName}}</text>
+            <text class="patient-meta">{{item.ageText}} · {{item.condition}}</text>
+          </view>
+          <view class="patient-check" wx:if="{{item.id === (selectedPatient && selectedPatient.id)}}">✓</view>
+        </view>
+      </view>
+    </view>
+  </view>
 </view>
