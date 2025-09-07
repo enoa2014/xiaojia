@@ -1,0 +1,4 @@
+.page { padding: 16rpx; }
+.section { margin: 12rpx 0; }
+.picker { padding: 16rpx; background: #f6f6f6; border-radius: 8rpx; }
+.link { color: #2563eb; word-break: break-all; }

@@ -29,6 +29,11 @@ Page({
     // 首次或返回时刷新头部统计，但不打断列表
     this.loadStats()
     this.loadStarred()
+    try { const tb = this.getTabBar && this.getTabBar(); if (tb && tb.setActiveByRoute) tb.setActiveByRoute('/pages/patients/index') } catch(_) {}
+    this.syncRoleToTabbar()
+  },
+  async syncRoleToTabbar(){
+    try { const prof = await require('../../services/api').api.users.getProfile(); const tb = this.getTabBar && this.getTabBar(); if (tb && tb.setRole) tb.setRole(prof.role || 'social_worker') } catch(_) {}
   },
   onLoad(){
     // 恢复缓存状态

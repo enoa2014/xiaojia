@@ -7,17 +7,20 @@ Page({
       roleName: '社工',
       roleKey: null,
       avatar: '🧑‍💼',
-      permText: '正常 ✅',
+      permText: '档案管理 • 服务审核',
       todayDone: 5,
       todayTotal: 12,
       now: ''
     },
+    // 角色主题（按设计稿：不同角色不同色系）
+    theme: { headerBg: 'nav-header--green', userBg: 'user-status--green', userBorder: 'user-status--green-border', text: 'theme-text--green' },
     actions: [],
-    stats: [
-      { key: 'services', label: '本月服务', value: '127', trend: '+15%' },
-      { key: 'patients', label: '管理档案', value: '69', trend: '+4' },
-      { key: 'activities', label: '活动参与', value: '23', trend: '+8' }
-    ],
+    stats: [],
+    // 顶部工具栏
+    notifications: 3,
+    isRefreshing: false,
+    // 快速操作选中高亮
+    selectedActionKey: null,
     tasks: [
       { id: 't1', title: '李小明档案权限待审批', desc: '申请时间: 09:15  剩余: 6小时', color: '#F59E0B' },
       { id: 't2', title: '王大伟入住申请待处理', desc: '提交时间: 昨天  优先级: 高', color: '#EF4444' },
@@ -37,7 +40,7 @@ Page({
       const role = wx.getStorageSync('debug_role')
       if (role && role.name) {
         this.setData({ 'user.roleName': role.name, 'user.avatar': role.avatar, 'user.roleKey': role.key })
-        this.setData({ actions: this.computeActions(role.key) })
+        this.applyRole(role.key)
       }
     } catch(_) {}
     // 以云端为准同步身份
@@ -46,6 +49,7 @@ Page({
   onShow() {
     const now = this.formatNow()
     this.setData({ 'user.now': now })
+    try { const tb = this.getTabBar && this.getTabBar(); if (tb && tb.setActiveByRoute) tb.setActiveByRoute('/pages/index/index') } catch(_) {}
   },
   onPullDownRefresh(){
     this.refreshData(true)
@@ -55,9 +59,21 @@ Page({
       // 模拟数据聚合加载延迟
       await new Promise(r => setTimeout(r, 200))
       // TODO: 可接入真实聚合接口，填充 actions/stats/tasks/updates
+      const roleKey = this.data && this.data.user && this.data.user.roleKey
+      if (roleKey) await this.loadHomeSummary(roleKey)
     } finally {
       this.setData({ loading: false })
       if (stopPullDown) wx.stopPullDownRefresh()
+    }
+  },
+  // 顶部刷新按钮
+  async refreshTap(){
+    if (this.data.isRefreshing) return
+    this.setData({ isRefreshing: true })
+    try {
+      await this.refreshData()
+    } finally {
+      this.setData({ isRefreshing: false })
     }
   },
   computeActions(roleKey){
@@ -90,6 +106,97 @@ Page({
     }
     return map[roleKey] || []
   },
+  computeStats(roleKey){
+    const map = {
+      admin: [
+        { key: 'sys', icon: '✅', label: '系统状态', value: '正常', change: '' },
+        { key: 'online', icon: '👥', label: '在线用户', value: '12人', change: '+2' },
+        { key: 'pending', icon: '⚠️', label: '待处理事项', value: '5个', change: '-1' },
+        { key: 'sync', icon: '🔄', label: '数据同步', value: '2分钟前', change: '' }
+      ],
+      social_worker: [
+        { key: 'work', icon: '📈', label: '今日工作量', value: '8/15', change: '' },
+        { key: 'review', icon: '⏳', label: '待审核', value: '2个', change: '-1' },
+        { key: 'patients', icon: '📁', label: '本月档案', value: '23个', change: '+8' },
+        { key: 'activities', icon: '📅', label: '活动组织', value: '3个', change: '+1' }
+      ],
+      volunteer: [
+        { key: 'svc', icon: '❤️', label: '本月服务', value: '12次', change: '+3' },
+        { key: 'next', icon: '📅', label: '下次活动', value: '周三', change: '' },
+        { key: 'hours', icon: '⏱️', label: '服务时长', value: '24小时', change: '+4h' },
+        { key: 'score', icon: '⭐', label: '志愿评分', value: '4.9', change: '+0.1' }
+      ],
+      parent: [
+        { key: 'child', icon: '🧒', label: '关注患者', value: '1人', change: '' },
+        { key: 'latest', icon: '⏰', label: '最新服务', value: '2小时前', change: '' },
+        { key: 'join', icon: '🧩', label: '参与活动', value: '5次', change: '+1' },
+        { key: 'points', icon: '🌟', label: '社区积分', value: '156', change: '+12' }
+      ]
+    }
+    return map[roleKey] || []
+  },
+  computePermText(roleKey){
+    const map = {
+      admin: '权限审批 • 系统统计 • 配置管理',
+      social_worker: '档案管理 • 服务审核 • 活动组织',
+      volunteer: '服务记录 • 档案查看 • 我的活动',
+      parent: '我的孩子 • 服务进展 • 亲子活动'
+    }
+    return map[roleKey] || '正常 ✅'
+  },
+  computeTheme(roleKey){
+    const map = {
+      admin:   { headerBg: 'nav-header--purple', userBg: 'user-status--purple', userBorder: 'user-status--purple-border', text: 'theme-text--purple' },
+      social_worker: { headerBg: 'nav-header--blue', userBg: 'user-status--blue', userBorder: 'user-status--blue-border', text: 'theme-text--blue' },
+      volunteer: { headerBg: 'nav-header--orange', userBg: 'user-status--orange', userBorder: 'user-status--orange-border', text: 'theme-text--orange' },
+      parent:  { headerBg: 'nav-header--pink', userBg: 'user-status--pink', userBorder: 'user-status--pink-border', text: 'theme-text--pink' }
+    }
+    return map[roleKey] || { headerBg: 'nav-header--green', userBg: 'user-status--green', userBorder: 'user-status--green-border', text: 'theme-text--green' }
+  },
+  applyRole(roleKey){
+    // Apply theme and actions immediately; stats/perm/notifications will refresh from server
+    this.setData({
+      actions: this.computeActions(roleKey),
+      theme: this.computeTheme(roleKey)
+    })
+    // Fallback text until server returns
+    this.setData({ 'user.permText': this.computePermText(roleKey) })
+    // Load real summary
+    this.loadHomeSummary(roleKey)
+    // Update native nav bar color
+    try {
+      const navColor = this.computeNavColor(roleKey)
+      wx.setNavigationBarColor({ frontColor: '#ffffff', backgroundColor: navColor })
+    } catch(_) {}
+    // Update custom tabbar items and active state
+    try {
+      const tb = this.getTabBar && this.getTabBar()
+      if (tb && tb.setRole) {
+        tb.setRole(roleKey)
+        tb.setActiveByRoute('/pages/index/index')
+      }
+    } catch(_) {}
+  },
+  computeNavColor(roleKey){
+    const map = {
+      admin: '#7C3AED',
+      social_worker: '#2563EB',
+      volunteer: '#F97316',
+      parent: '#EC4899'
+    }
+    return map[roleKey] || '#16A34A'
+  },
+  async loadHomeSummary(roleKey){
+    try {
+      const { homeSummary } = require('../../services/api').api.stats
+      const data = await homeSummary({ role: roleKey })
+      if (data && data.items) this.setData({ stats: data.items })
+      if (typeof data?.notifications === 'number') this.setData({ notifications: data.notifications })
+      if (data?.permText) this.setData({ 'user.permText': data.permText })
+    } catch (e) {
+      // swallow, keep fallback UI
+    }
+  },
   formatNow() {
     const d = new Date();
     const hh = String(d.getHours()).padStart(2,'0')
@@ -101,6 +208,7 @@ Page({
   },
   async onAction(e) {
     const key = e.currentTarget.dataset.key
+    this.setData({ selectedActionKey: key })
     switch (key) {
       // 管理员入口
       case 'global-search':
@@ -177,8 +285,8 @@ Page({
       const r = roles[idx]
       if (!r) return
       this.setData({ 'user.roleName': r.name, 'user.avatar': r.avatar, 'user.roleKey': r.key })
+      this.applyRole(r.key)
       try { require('../../components/utils/auth').setUserRoles([r.key]) } catch(_) {}
-      this.setData({ actions: this.computeActions(r.key) })
       try { wx.setStorageSync('debug_role', r) } catch(_) {}
       // 同步到云端 Users 集合（用于后端 RBAC）
       wx.cloud.callFunction({ name: 'users', data: { action: 'setRole', payload: { role: r.key } } })
@@ -198,7 +306,7 @@ Page({
       const m = map[prof.role]
       if (m) {
         this.setData({ 'user.roleName': m.name, 'user.avatar': m.avatar, 'user.roleKey': prof.role })
-        this.setData({ actions: this.computeActions(prof.role) })
+        this.applyRole(prof.role)
         try { require('../../components/utils/auth').setUserRoles(prof.roles && Array.isArray(prof.roles) ? prof.roles : (prof.role ? [prof.role] : [])) } catch(_) {}
         try { wx.setStorageSync('debug_role', { key: prof.role, ...m }) } catch(_) {}
       }

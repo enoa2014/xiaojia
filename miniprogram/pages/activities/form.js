@@ -1,4 +1,4 @@
-import { api, mapError } from '../../services/api'
+import { api, mapError, genRequestId } from '../../services/api'
 import { track } from '../../services/analytics'
 
 Page({
@@ -28,7 +28,7 @@ Page({
     if (typeof capacity !== 'number' || capacity < 0) return wx.showToast({ icon:'none', title: '容量需 ≥0' })
     const status = statusList[statusIndex]
     try {
-      const requestId = `act-${Date.now()}-${Math.floor(Math.random()*1e6)}`
+      const requestId = genRequestId('act')
       const startAt = Date.now()
       this.setData({ submitting: true })
       // 提交前埋点

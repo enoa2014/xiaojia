@@ -1,0 +1,13 @@
+{
+  "name": "audits",
+  "version": "1.0.0",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsup"
+  },
+  "devDependencies": {
+    "tsup": "^7.2.0",
+    "zod": "^3.23.8"
+  }
+}
+

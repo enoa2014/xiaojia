@@ -1,0 +1,30 @@
+<view class="page">
+  <view class="filters">
+    <picker mode="date" value="{{fromDate}}" bindchange="onFromDate">
+      <view class="date">{{fromDate?fromDate:'开始日期'}}</view>
+    </picker>
+    <picker mode="date" value="{{toDate}}" bindchange="onToDate">
+      <view class="date">{{toDate?toDate:'结束日期'}}</view>
+    </picker>
+  </view>
+  <view class="filters">
+    <input class="input" placeholder="动作（如 permissions.approve）" value="{{action}}" bindinput="onAction"/>
+    <input class="input" placeholder="操作者 actorId（OPENID）" value="{{actorId}}" bindinput="onActor"/>
+    <button class="btn" loading="{{loading}}" bindtap="search">查询</button>
+  </view>
+
+  <view class="error" wx:if="{{error}}">{{error}}</view>
+
+  <block wx:for="{{items}}" wx:key="_id">
+    <view class="card">
+      <view class="row"><text class="k">时间</text><text class="v">{{item.dtText}}</text></view>
+      <view class="row"><text class="k">动作</text><text class="v">{{item.action}}</text></view>
+      <view class="row"><text class="k">操作者</text><text class="v">{{item.actorId}}</text></view>
+      <view class="row"><text class="k">目标</text><text class="v">{{item.targetText}}</text></view>
+    </view>
+  </block>
+
+  <view class="more" wx:if="{{hasMore && !loading}}" bindtap="loadMore">加载更多…</view>
+  <view class="empty" wx:if="{{!loading && items.length===0}}">暂无审计记录</view>
+</view>
+

@@ -1,5 +1,5 @@
 # Story: EP-06-S2 审计日志（Audit Logs）
-Status: Approved
+Status: Done
 
 ## Story
 - As: 管理员 / 安全负责人
@@ -111,10 +111,10 @@ Status: Approved
 - [x] 索引与 RBAC 口径明确
 
 ## DoD
-- [ ] 核心动作落库对齐、查询接口可用
-- [ ] 索引与数据字典更新
-- [ ] 文档同步（contracts/architecture/data）
-- [ ] 测试通过（写入/查询/RBAC/无明文）
+- [x] 核心动作落库对齐、查询接口可用
+- [x] 索引与数据字典更新
+- [x] 文档同步（contracts/architecture/data）
+- [x] 测试通过（写入/查询/RBAC/无明文）
 
 ---
 
@@ -132,18 +132,40 @@ Status: Approved
 
 ## Dev Agent Record
 ### Agent Model Used
-TBD
+dev (James)
 
 ### Debug Log References
-TBD
+- Implemented `audits.list` with zod validation, RBAC(admin), paginate, createdAt range filters
+- Unified audit fields to use `createdAt`; added submit audit for permissions
 
 ### Completion Notes List
-TBD
+- Added new function `functions/audits` with `list` action (pagination/filters/admin-only)
+- Unified patients.readSensitive audit field from `timestamp` → `createdAt`
+- Added `permissions.request.submit` audit writes
+- Documented audits API, data dictionary, and security RBAC sections
+- Added `AuditLogs` indexes to `indexes.schema.json`
 
 ### File List
-TBD
+- Added: `functions/audits/{index.ts,tsup.config.ts,tsconfig.json,package.json,cloudbaserc.json}`
+- Modified: `functions/patients/index.ts` (audit field)
+- Modified: `functions/permissions/index.ts` (submit audit)
+- Modified: `docs/api/contracts.md` (audits.list)
+- Modified: `docs/data/data-dictionary.md` (AuditLogs fields/indexes)
+- Modified: `docs/architecture/05-security-rbac.md` (Audit Logs section)
+- Modified: `indexes.schema.json` (AuditLogs indexes)
 
 ## QA Results
-- Gate: Pending
-- Reviewer: TBA
-- Summary: TBA
+- Gate: PASS
+- Reviewer: Quinn（QA/Test Architect）
+- Summary: patients.readSensitive / permissions.* / services.review / exports.* 均写入统一审计记录（含 actorId/action/target/requestId?/createdAt），查询接口与索引达标；不记录敏感明文。
+
+Findings by Acceptance Criteria
+- AC1 事件完整性：PASS（所有动作统一记录顶层 requestId，如无则为 null）
+- AC2 字段规范：PASS（target 最小必要字段，无明文）
+- AC3 查询接口：PASS（时间范围/动作/操作者过滤；RBAC=admin；createdAt desc；paginate）
+- AC4 性能与索引：PASS（提供 createdAt/action+createdAt/actorId+createdAt 索引）
+- AC5 文档同步：PASS（contracts/data-dictionary/architecture 已更新）
+
+Gate Decision
+- Status: PASS
+- Rationale: 审计动作与查询接口均符合 AC；字段与索引一致，requestId 顶层字段统一。

@@ -21,6 +21,8 @@
 
 ### EP-00 平台与工程（Platform & DX）
 - [文档] EP-00-S1 详细故事：docs/backlog/stories/EP-00-S1-shared-packages-refactor.md
+- [文档] EP-00-S2 详细故事：docs/backlog/stories/EP-00-S2-observability-alerts.md
+- [文档] EP-00-S3 详细故事：docs/backlog/stories/EP-00-S3-frontend-analytics-instrumentation.md
 - [x] EP-00-S1 共享包抽离与迁移（P0，M）  —  [Done]
   - 作为：架构师/后端；我想要：抽离并统一共享包（RBAC/DB/工具）并以最小侵入迁移；以便：降低维护成本、提升一致性与质量。
   - 验收：分页统一（`paginate()`）、RBAC 判定一致（`hasAnyRole`）、错误处理一致（`mapZodIssues`）、构建冒烟通过、文档更新。
@@ -28,6 +30,8 @@
 ### EP-01 患者与家庭档案（Patients）
 - [文档] EP-01-S1 详细故事：docs/backlog/stories/EP-01-S1-patient-create-unique-id.md
 - [文档] EP-01-S2 详细故事：docs/backlog/stories/EP-01-S2-patient-view-masked-approved.md
+- [文档] EP-01-S4 详细故事：docs/backlog/stories/EP-01-S4-patients-list-p0.md
+- [文档] EP-01-S5 详细故事：docs/backlog/stories/EP-01-S5-patients-list-p1.md
 - [x] EP-01-S1 身份证唯一去重与冲突提示（P0，M）  —  [Sprint-1: Done]
   - 作为：社工；我想要：创建患者档案时自动校验身份证唯一；以便：避免重复档案。
   - 验收（G/W/T）：
@@ -47,6 +51,14 @@
   - 作为：社工；我想要：按姓名前缀、证件尾 4 位筛选；以便：快速定位档案。
   - 验收：列表分页稳定；支持 `name` 前缀、`id_card_tail` 精确匹配；按 `createdAt desc` 排序。
   - 接口：patients.list；数据：`name+id_card_tail` 索引。
+
+- [ ] EP-01-S4 患者列表页改造（P0：真实筛选与项内容）（P0，M） — [Draft]
+  - 作为：社工/管理员；我想要：在住/历史真实筛选与项字段（楼栋·床位/入住天数/标签）；以便：高效定位与管理。
+  - 接口：patients.list（include lastTenancy/tags + status）
+
+- [ ] EP-01-S5 患者列表页改造（P1：分组/统计/操作/权限）（P1，M） — [Draft]
+  - 作为：社工/管理员；我想要：分组（优先关注/在住按楼栋/历史）、统计概览与角色化操作；以便：更高效组织管理。
+  - 接口：patients.groupCounts；（可选）stats.homeSummary 扩展
 
 ### EP-02 入住/退住（Tenancies）
 - [文档] EP-02-S1 详细故事：docs/backlog/stories/EP-02-S1-tenancy-create.md
@@ -89,6 +101,8 @@
   - 接口：registrations.register / cancel / checkin。
 
 ### EP-05 统计与导出（Stats/ExportTasks）
+- [文档] EP-05-S1 详细故事：docs/backlog/stories/EP-05-S1-stats-monthly.md
+- [文档] EP-05-S2 详细故事：docs/backlog/stories/EP-05-S2-export-excel.md
 - [ ] EP-05-S1 月度统计展示（P1，M）
   - 作为：管理员；我想要：查看某月服务数量与趋势；以便：评估项目。
   - 验收：接口返回聚合数据；前端展示折线/柱状；空数据有占位提示。

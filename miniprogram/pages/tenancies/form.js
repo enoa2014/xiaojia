@@ -1,4 +1,4 @@
-import { api, callWithRetry, mapError } from '../../services/api'
+import { api, callWithRetry, mapError, genRequestId } from '../../services/api'
 import { track } from '../../services/analytics'
 
 Page({
@@ -33,7 +33,7 @@ Page({
   },
   async onSubmit(){
     if (!this.validate()) return
-    const requestId = `req-${Date.now()}-${Math.floor(Math.random()*1e6)}`
+    const requestId = genRequestId('req')
     const startAt = Date.now()
     this.setData({ submitting: true })
     try {

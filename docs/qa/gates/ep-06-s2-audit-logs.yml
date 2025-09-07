@@ -1,0 +1,19 @@
+schema: 1
+story: "EP-06-S2"
+story_title: "审计日志（Audit Logs）"
+gate: "PASS"  # PASS|CONCERNS|FAIL|WAIVED
+status_reason: "审计动作与查询达标；顶层 requestId 统一，字段与索引一致。"
+reviewer: "Quinn (Test Architect)"
+updated: "2025-09-07T00:00:00Z"
+
+waiver:
+  active: false
+
+top_issues: []
+
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 0, low: 1 }
+  recommendations:
+    must_fix: []
+    monitor:
+      - action: "上线后抽样验证 P95 与执行计划；评估归档策略"

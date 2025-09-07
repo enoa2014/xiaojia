@@ -1,0 +1,21 @@
+<view class="page">
+  <view class="section">
+    <picker mode="date" value="{{month}}" start="2020-01-01" end="2030-12-31" bindchange="onMonth">
+      <view class="picker">选择月份：{{month || '未选择'}}</view>
+    </picker>
+  </view>
+  <view class="section">
+    <button type="primary" loading="{{submitting}}" bindtap="onCreate">创建月度统计导出</button>
+  </view>
+  <view class="section" wx:if="{{taskId}}">
+    <text>任务ID：{{taskId}}</text>
+    <button size="mini" bindtap="onCheck" style="margin-left:12rpx">查询状态</button>
+  </view>
+  <view class="section" wx:if="{{status}}">
+    <text>状态：{{status}}</text>
+    <view wx:if="{{downloadUrl}}" style="margin-top:8rpx">
+      <text>下载链接：</text>
+      <text class="link" selectable="true">{{downloadUrl}}</text>
+    </view>
+  </view>
+</view>

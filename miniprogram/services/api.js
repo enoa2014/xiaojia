@@ -1,4 +1,7 @@
 
+// 生成简单 requestId（可用于审计与埋点串联）
+export const genRequestId = (prefix = 'req') => `${prefix}-${Date.now()}-${Math.floor(Math.random()*1e6)}`
+
 const call = async (name, action, payload = {}) => {
   const res = await wx.cloud.callFunction({ name, data: { action, payload } })
   const r = res && res.result
@@ -29,8 +32,17 @@ export const callWithRetry = async (name, action, payload = {}, opts = {}) => {
 export const api = {
   patients: {
     list: (q) => call('patients', 'list', q),
-    get: (id) => call('patients', 'get', { id }),
+    get: (id, requestId) => call('patients', 'get', { id, requestId }),
     create: (patient, clientToken) => callWithRetry('patients', 'create', { patient, clientToken })
+  },
+  permissions: {
+    submit: ({ fields, patientId, reason, expiresDays }, requestId) =>
+      call('permissions', 'request.submit', { fields, patientId, reason, expiresDays: String(expiresDays), requestId }),
+    approve: (id, expiresAt, requestId) =>
+      call('permissions', 'request.approve', { id, expiresAt, requestId }),
+    reject: (id, reason, requestId) =>
+      call('permissions', 'request.reject', { id, reason, requestId }),
+    list: (q) => call('permissions', 'request.list', q)
   },
   users: {
     getProfile: () => call('users', 'getProfile'),
@@ -46,7 +58,7 @@ export const api = {
     list: (q) => call('services','list', q),
     get: (id) => call('services','get', { id }),
     create: (service, clientToken) => callWithRetry('services','create', { service, clientToken }),
-    review: (id, decision, reason) => call('services','review', { id, decision, reason })
+    review: (id, decision, reason, requestId) => call('services','review', { id, decision, reason, requestId })
   },
   activities: {
     list: (q) => call('activities','list', q),
@@ -58,6 +70,17 @@ export const api = {
     register: (activityId) => call('registrations', 'register', { activityId }),
     cancel: (activityId) => call('registrations', 'cancel', { activityId }),
     checkin: (activityId, userId) => call('registrations', 'checkin', { activityId, userId })
+  },
+  audits: {
+    list: (q) => call('audits','list', q)
+  },
+  exports: {
+    create: (type, params = {}, clientToken, requestId) => call('exports','create', { type, params, clientToken, requestId }),
+    status: (taskId, requestId) => call('exports','status', { taskId, requestId })
+  },
+  stats: {
+    homeSummary: (payload = {}) => call('stats','homeSummary', payload),
+    monthly: (scope, month) => call('stats','monthly', { scope, month })
   }
 }
 export const mapError = (code) => ({

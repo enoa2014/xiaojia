@@ -18,6 +18,11 @@ Page({
   onShow() {
     this.updateActiveLabel()
     this.load()
+    try { const tb = this.getTabBar && this.getTabBar(); if (tb && tb.setActiveByRoute) tb.setActiveByRoute('/pages/activities/index') } catch(_) {}
+    this.syncRoleToTabbar()
+  },
+  async syncRoleToTabbar(){
+    try { const prof = await require('../../services/api').api.users.getProfile(); const tb = this.getTabBar && this.getTabBar(); if (tb && tb.setRole) tb.setRole(prof.role || 'social_worker') } catch(_) {}
   },
   updateActiveLabel() {
     try {

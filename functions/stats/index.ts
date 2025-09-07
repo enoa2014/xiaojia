@@ -1,6 +1,6 @@
 
 import cloud from 'wx-server-sdk'
-import { err } from '../packages/core-utils/errors'
+import { ok, err } from '../packages/core-utils/errors'
 import { hasAnyRole } from '../packages/core-rbac'
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
@@ -9,9 +9,55 @@ export const main = async (event:any) => {
   const evt = event || {}
   const action = evt.action
   const { OPENID } = cloud.getWXContext?.() || ({} as any)
-  const allowed = await hasAnyRole(db, OPENID, ['admin','social_worker'])
-  if (!allowed) return err('E_PERM','需要权限')
+  if (action === 'monthly') {
+    const allowed = await hasAnyRole(db, OPENID, ['admin','social_worker'])
+    if (!allowed) return err('E_PERM','需要权限')
+    const payload = (evt && evt.payload) || {}
+    const scope = String(payload.scope || 'services')
+    const month = String(payload.month || '')
+    if (!/^\d{4}-\d{2}$/.test(month)) return err('E_VALIDATE','month 需为 YYYY-MM')
+    const year = Number(month.slice(0,4))
+    const mon = Number(month.slice(5,7))
+    const start = new Date(year, mon - 1, 1)
+    const end = new Date(year, mon, 1)
+    const days = new Date(year, mon, 0).getDate()
+    const _ = db.command
+    const items: Array<{ date: string; value: number }> = []
+    const toDateStr = (d: Date) => `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`
+    const dayStart = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()).getTime()
+    const dayEnd = (d: Date) => new Date(d.getFullYear(), d.getMonth(), d.getDate()+1).getTime()
+    const countForDay = async (dayStr: string, idx: number): Promise<number> => {
+      try {
+        if (scope === 'services') {
+          const r = await db.collection('Services').where({ date: dayStr } as any).count() as any
+          return (r.total ?? r.count) || 0
+        }
+        if (scope === 'activities') {
+          const r = await db.collection('Activities').where({ date: dayStr } as any).count() as any
+          return (r.total ?? r.count) || 0
+        }
+        if (scope === 'patients') {
+          const ds = new Date(year, mon - 1, idx)
+          const from = dayStart(ds)
+          const to = dayEnd(ds)
+          const r = await db.collection('Patients').where({ createdAt: _.gte(from).and(_.lt(to)) } as any).count() as any
+          return (r.total ?? r.count) || 0
+        }
+        // 默认不支持的 scope
+        return 0
+      } catch { return 0 }
+    }
+    for (let i = 1; i <= days; i++) {
+      const d = new Date(year, mon - 1, i)
+      const ds = toDateStr(d)
+      const v = await countForDay(ds, i)
+      items.push({ date: ds, value: v })
+    }
+    return ok({ items, meta: { total: days, hasMore: false } })
+  }
   if (action === 'counts') {
+    const allowed = await hasAnyRole(db, OPENID, ['admin','social_worker'])
+    if (!allowed) return err('E_PERM','需要权限')
     const cols: string[] = evt.collections || ['Patients','Tenancies','Activities','Registrations']
     const out: Record<string, number|null> = {}
     for (const name of cols) {
@@ -23,7 +69,106 @@ export const main = async (event:any) => {
         out[name] = null
       }
     }
-    return { ok: true, data: out }
+    return ok(out)
   }
-  return ({ ok: true, data: { ping: 'stats' } })
+  if (action === 'homeSummary') {
+    // Determine role
+    const role = await (async () => {
+      try {
+        const byOpen = await db.collection('Users').where({ openId: OPENID } as any).limit(1).get()
+        if (byOpen?.data?.length) return byOpen.data[0].role || null
+        try {
+          const byId = await db.collection('Users').doc(OPENID).get()
+          return byId?.data?.role || null
+        } catch {}
+      } catch {}
+      return null
+    })()
+
+    // Time window: current month
+    const now = new Date()
+    const monthStart = new Date(now.getFullYear(), now.getMonth(), 1).getTime()
+    const monthStr = `${now.getFullYear()}-${String(now.getMonth()+1).padStart(2,'0')}`
+    const _ = db.command
+
+    // Helpers
+    const count = async (name: string, where: any): Promise<number> => {
+      try {
+        const r = await db.collection(name as any).where(where).count() as any
+        return (r.total ?? r.count) || 0
+      } catch { return 0 }
+    }
+
+    // Metrics
+    // Patients created this month
+    const patientsMonthly = await count('Patients', { createdAt: _.gte(monthStart) })
+    // Services created this month (manager: all; volunteer: self)
+    let servicesWhere: any = { createdAt: _.gte(monthStart) }
+    const isManager = await hasAnyRole(db, OPENID, ['admin','social_worker'])
+    if (!isManager && OPENID) servicesWhere.createdBy = OPENID
+    const servicesMonthly = await count('Services', servicesWhere)
+    // Activities scheduled this month (status open/ongoing and date in YYYY-MM-*)
+    const activitiesMonthly = await count('Activities', {
+      status: _.in(['open','ongoing']),
+      date: db.RegExp({ regexp: `^${monthStr}` }) as any
+    })
+    // Pending service reviews
+    const pendingServiceReviews = await count('Services', { status: 'review' })
+    // Pending permission approvals
+    const pendingPermApprovals = await count('PermissionRequests', { status: 'pending' })
+
+    // Notifications by role
+    const notifications = (() => {
+      if (role === 'admin') return pendingServiceReviews + pendingPermApprovals
+      if (role === 'social_worker') return pendingServiceReviews
+      return 0
+    })()
+
+    // Perm text by role
+    const permText = (() => {
+      if (role === 'admin') return '权限审批 • 系统统计 • 配置管理'
+      if (role === 'social_worker') return '档案管理 • 服务审核 • 活动组织'
+      if (role === 'volunteer') return '服务记录 • 档案查看 • 我的活动'
+      if (role === 'parent') return '我的孩子 • 服务进展 • 亲子活动'
+      return '正常 ✅'
+    })()
+
+    // Build 4 items per role aligning to homepage spec
+    const items = (() => {
+      if (role === 'admin') return [
+        { label: '系统状态', value: '正常', icon: '✅', change: '' },
+        { label: '在线用户', value: '0人', icon: '👥', change: '' },
+        { label: '待处理事项', value: String(pendingServiceReviews + pendingPermApprovals) + '个', icon: '⚠️', change: '' },
+        { label: '数据同步', value: '刚刚', icon: '🔄', change: '' }
+      ]
+      if (role === 'social_worker') return [
+        { label: '今日工作量', value: '—', icon: '📈', change: '' },
+        { label: '待审核', value: String(pendingServiceReviews) + '个', icon: '⏳', change: '' },
+        { label: '本月档案', value: String(patientsMonthly) + '个', icon: '📁', change: '' },
+        { label: '活动组织', value: String(activitiesMonthly) + '个', icon: '📅', change: '' }
+      ]
+      if (role === 'volunteer') return [
+        { label: '本月服务', value: String(servicesMonthly) + '次', icon: '❤️', change: '' },
+        { label: '下次活动', value: '—', icon: '📅', change: '' },
+        { label: '服务时长', value: '—', icon: '⏱️', change: '' },
+        { label: '志愿评分', value: '—', icon: '⭐', change: '' }
+      ]
+      if (role === 'parent') return [
+        { label: '关注患者', value: '1人', icon: '🧒', change: '' },
+        { label: '最新服务', value: '—', icon: '⏰', change: '' },
+        { label: '参与活动', value: String(activitiesMonthly) + '次', icon: '🧩', change: '' },
+        { label: '社区积分', value: '—', icon: '🌟', change: '' }
+      ]
+      // default (treat as social_worker)
+      return [
+        { label: '待审核', value: String(pendingServiceReviews) + '个', icon: '⏳', change: '' },
+        { label: '本月档案', value: String(patientsMonthly) + '个', icon: '📁', change: '' },
+        { label: '本月服务', value: String(servicesMonthly) + '次', icon: '❤️', change: '' },
+        { label: '活动组织', value: String(activitiesMonthly) + '个', icon: '📅', change: '' }
+      ]
+    })()
+
+    return ok({ role, items, notifications, permText })
+  }
+  return ok({ ping: 'stats' })
 }

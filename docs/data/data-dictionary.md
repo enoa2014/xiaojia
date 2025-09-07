@@ -39,7 +39,12 @@
 ## Stats / ExportTasks / AuditLogs（简要）
 - Stats：聚合月/年指标（按域拆分）
 - ExportTasks：`type` `params` `status(pending|running|done|failed)` `downloadUrl?` `expiresAt?`
-- AuditLogs：`actorId` `action` `target` `fields?` `createdAt` `ip?`
+- AuditLogs：
+  - 字段：`actorId: string`、`action: string`、`target: object`、`requestId?: string`、`createdAt: number`、`ip?: string`
+  - 索引建议：
+    - `createdAt(desc)`（时间范围）
+    - `action+createdAt(desc)`（动作查询）
+    - `actorId+createdAt(desc)`（操作者查询）
 
 ## 枚举与口径
 - 服务类型：`visit|psych|goods|referral|followup`

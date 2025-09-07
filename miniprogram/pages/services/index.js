@@ -1,4 +1,4 @@
-import { api, mapError } from '../../services/api'
+import { api, mapError, genRequestId } from '../../services/api'
 
 Page({
   data: {
@@ -24,7 +24,8 @@ Page({
     page: 1,
     hasMore: true,
     loading: false,
-    canReview: false
+    canReview: false,
+    canCreate: false
   },
   onShow(){
     // 首次进入或返回刷新
@@ -33,6 +34,7 @@ Page({
       this.refresh(true)
     }
     this.syncRole()
+    try { const tb = this.getTabBar && this.getTabBar(); if (tb && tb.setActiveByRoute) tb.setActiveByRoute('/pages/services/index') } catch(_) {}
   },
   onPullDownRefresh(){ this.refresh(true) },
   onReachBottom(){ this.refresh(false) },
@@ -81,14 +83,17 @@ Page({
   async syncRole(){
     try {
       const prof = await require('../../services/api').api.users.getProfile()
-      const can = prof && (prof.role === 'admin' || prof.role === 'social_worker')
-      this.setData({ canReview: !!can })
+      const canR = prof && (prof.role === 'admin' || prof.role === 'social_worker')
+      const canC = prof && (['admin','social_worker','volunteer'].includes(prof.role))
+      this.setData({ canReview: !!canR, canCreate: !!canC })
+      try { const tb = this.getTabBar && this.getTabBar(); if (tb && tb.setRole) tb.setRole(prof.role || 'social_worker') } catch(_) {}
     } catch(_) { this.setData({ canReview: false }) }
   },
   async onApprove(e){
     const id = e.currentTarget.dataset.id
     try {
-      await api.services.review(id, 'approved')
+      const requestId = genRequestId('srvrev')
+      await api.services.review(id, 'approved', undefined, requestId)
       wx.showToast({ title:'已通过' })
       this.setData({ page: 1, list: [], hasMore: true })
       this.refresh(false)
@@ -103,7 +108,8 @@ Page({
       if (!res.confirm) return
       const reason = (res.content || '').trim()
       if (!reason || reason.length < 20) { wx.showToast({ icon:'none', title:'理由需≥20字' }); return }
-      await api.services.review(id, 'rejected', reason)
+      const requestId = genRequestId('srvrev')
+      await api.services.review(id, 'rejected', reason, requestId)
       wx.showToast({ title:'已驳回' })
       this.setData({ page: 1, list: [], hasMore: true })
       this.refresh(false)

@@ -66,12 +66,12 @@ export const main = async (event: any): Promise<Resp<any>> => {
         return ok({ items, meta })
       }
       case 'get': {
-        const parsed = z.object({ id: z.string() }).safeParse(payload || {})
+        const parsed = z.object({ id: z.string(), requestId: z.string().optional() }).safeParse(payload || {})
         if (!parsed.success) {
           const m = mapZodIssues(parsed.error.issues)
           return errValidate(m.msg, parsed.error.issues)
         }
-        const { id } = parsed.data
+        const { id, requestId } = parsed.data
         const r = await db.collection('Patients').doc(id).get()
         if (!r?.data) return err('E_NOT_FOUND','patient not found')
 
@@ -149,14 +149,15 @@ export const main = async (event: any): Promise<Resp<any>> => {
           hasSensitive: approvedFields.size > 0
         }
 
-        // 审计：如果返回了任一明文字段
+        // 审计：如果返回了任一明文字段（字段规范：createdAt）
         if (OPENID && returnedFields.length) {
           try {
             await db.collection('AuditLogs').add({ data: {
               actorId: OPENID,
               action: 'patients.readSensitive',
               target: { patientId: id, fields: returnedFields },
-              timestamp: now
+              requestId: requestId || null,
+              createdAt: now
             }})
           } catch {}
         }

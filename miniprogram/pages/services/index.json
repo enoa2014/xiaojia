@@ -1,7 +1,4 @@
 {
   "navigationBarTitleText": "服务",
-  "enablePullDownRefresh": true,
-  "usingComponents": {
-    "guard": "/components/guard/index"
-  }
+  "enablePullDownRefresh": true
 }

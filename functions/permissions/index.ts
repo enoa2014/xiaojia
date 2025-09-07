@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { isRole } from '../packages/core-rbac'
 import { mapZodIssues } from '../packages/core-utils/validation'
 import { ok, err, errValidate } from '../packages/core-utils/errors'
+import { paginate } from '../packages/core-db'
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 
@@ -13,11 +14,12 @@ const SubmitSchema = z.object({
   fields: z.array(z.enum(['id_card','phone','diagnosis'])).nonempty(),
   patientId: z.string().min(1),
   reason: z.string().min(20),
-  expiresDays: z.enum(['30','60','90']).transform(Number).optional()
+  expiresDays: z.enum(['30','60','90']).transform(Number).optional(),
+  requestId: z.string().optional()
 })
 
-const ApproveSchema = z.object({ id: z.string(), expiresAt: z.number().optional() })
-const RejectSchema = z.object({ id: z.string(), reason: z.string().min(20).max(200) })
+const ApproveSchema = z.object({ id: z.string(), expiresAt: z.number().optional(), requestId: z.string().optional() })
+const RejectSchema = z.object({ id: z.string(), reason: z.string().min(20).max(200), requestId: z.string().optional() })
 const ListSchema = z.object({
   page: z.number().int().min(1).default(1),
   pageSize: z.number().int().min(1).max(100).default(20),
@@ -53,6 +55,9 @@ export const main = async (event:any): Promise<Resp<any>> => {
           createdAt: now
         }
         const res = await db.collection('PermissionRequests').add({ data: doc as any })
+        try {
+          await db.collection('AuditLogs').add({ data: { actorId: OPENID || null, action: 'permissions.request.submit', target: { requestId: res._id, patientId: p.patientId, fields: p.fields }, requestId: p.requestId || null, createdAt: now } })
+        } catch {}
         return ok({ _id: res._id, expiresAt: requestedExpiresAt })
       }
       case 'request.approve': {
@@ -68,7 +73,7 @@ export const main = async (event:any): Promise<Resp<any>> => {
         const exp = expiresAt && expiresAt > now ? expiresAt : (now + 30*24*60*60*1000)
         await db.collection('PermissionRequests').doc(id).update({ data: { status: 'approved', expiresAt: exp, approvedAt: now, approvedBy: OPENID || null } })
         try {
-          await db.collection('AuditLogs').add({ data: { actorId: OPENID || null, action: 'permissions.approve', target: { requestId: id }, createdAt: now } })
+          await db.collection('AuditLogs').add({ data: { actorId: OPENID || null, action: 'permissions.approve', target: { requestId: id }, requestId: (payload && (payload as any).requestId) || null, createdAt: now } })
         } catch {}
         return ok({ updated: 1 })
       }
@@ -84,7 +89,7 @@ export const main = async (event:any): Promise<Resp<any>> => {
         const now = Date.now()
         await db.collection('PermissionRequests').doc(id).update({ data: { status: 'rejected', rejectedAt: now, rejectedBy: OPENID || null, rejectReason: reason } })
         try {
-          await db.collection('AuditLogs').add({ data: { actorId: OPENID || null, action: 'permissions.reject', target: { requestId: id }, createdAt: now } })
+          await db.collection('AuditLogs').add({ data: { actorId: OPENID || null, action: 'permissions.reject', target: { requestId: id }, requestId: (payload && (payload as any).requestId) || null, createdAt: now } })
         } catch {}
         return ok({ updated: 1 })
       }
@@ -106,8 +111,10 @@ export const main = async (event:any): Promise<Resp<any>> => {
         if (!(await isAdmin())) {
           where.requesterId = OPENID
         }
-        const res = await db.collection('PermissionRequests').where(where).orderBy('createdAt','desc').skip((q.page-1)*q.pageSize).limit(q.pageSize).get()
-        return ok(res.data)
+        const base = db.collection('PermissionRequests').where(where)
+        const { items } = await paginate(base, { page: q.page, pageSize: q.pageSize, sort: { createdAt: -1 } }, { fallbackSort: { createdAt: -1 }, countQuery: db.collection('PermissionRequests').where(where) })
+        // 保持契约：返回数组
+        return ok(items)
       }
       default:
         return err('E_ACTION','unsupported action')

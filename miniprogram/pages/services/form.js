@@ -1,4 +1,4 @@
-import { api, mapError } from '../../services/api'
+import { api, mapError, genRequestId } from '../../services/api'
 import { track } from '../../services/analytics'
 import { uploadImage } from '../../services/upload'
 
@@ -108,7 +108,7 @@ Page({
   },
   async onSubmit(){
     if (!this.validate()) return
-    const requestId = `svc-${Date.now()}-${Math.floor(Math.random()*1e6)}`
+    const requestId = genRequestId('svc')
     const startAt = Date.now()
     this.setData({ submitting: true })
     try {

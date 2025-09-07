@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { ok, err } from '../packages/core-utils/errors'
 import { hasAnyRole } from '../packages/core-rbac'
 import { isRole } from '../packages/core-rbac'
+import { paginate } from '../packages/core-db'
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
@@ -13,7 +14,9 @@ type Resp<T> = { ok: true; data: T } | { ok: false; error: { code: string; msg: 
 const ListSchema = z.object({
   activityId: z.string().optional(),
   userId: z.string().optional(),
-  status: z.enum(['registered','waitlist','cancelled']).optional()
+  status: z.enum(['registered','waitlist','cancelled']).optional(),
+  page: z.number().int().min(1).optional(),
+  pageSize: z.number().int().min(1).max(100).optional()
 }).partial()
 
 const RegisterSchema = z.object({ activityId: z.string() })
@@ -49,8 +52,17 @@ export const main = async (event:any): Promise<Resp<any>> => {
         // 无过滤时，非管理角色不允许枚举
         if (!isManager && !q.activityId && !q.userId) return err('E_PERM','需要权限')
         if (q.status) query.status = q.status
-        const res = await db.collection('Registrations').where(query).orderBy('createdAt','desc').get()
-        return ok(res.data)
+
+        const base = db.collection('Registrations').where(query)
+        if (q.page && q.pageSize) {
+          // 新增分页（向后兼容：仅在提供 page/pageSize 时启用）
+          const { items } = await paginate(base, { page: q.page, pageSize: q.pageSize, sort: { createdAt: -1 } }, { fallbackSort: { createdAt: -1 }, countQuery: db.collection('Registrations').where(query) })
+          return ok(items)
+        } else {
+          // 兼容旧契约：未提供分页参数时返回全量（默认按 createdAt desc）
+          const res = await base.orderBy('createdAt','desc').get()
+          return ok(res.data)
+        }
       }
       case 'register': {
         const { activityId } = RegisterSchema.parse(payload || {})

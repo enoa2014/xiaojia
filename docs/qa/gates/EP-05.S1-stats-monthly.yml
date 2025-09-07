@@ -1,0 +1,31 @@
+schema: 1
+story: "EP-05.S1"
+story_title: "月度统计展示（Stats Monthly）"
+gate: "CONCERNS"  # PASS|CONCERNS|FAIL|WAIVED
+status_reason: "功能联通且 RBAC/空态达标；趋势展示与埋点未接，性能验证未执行，建议补齐后再标记 PASS。"
+reviewer: "Quinn (Test Architect)"
+updated: "2025-09-07T10:00:00Z"
+
+waiver:
+  active: false
+
+top_issues:
+  - id: "STATS-UI-001"
+    severity: low
+    finding: "缺少折线/柱状趋势渲染（仅列表占位）"
+    suggested_action: "接入轻量图表组件或提供趋势摘要"
+  - id: "STATS-PERF-002"
+    severity: medium
+    finding: "未执行 10k+ 样本的 P95 性能验证"
+    suggested_action: "抽样压测并记录 P95；必要时采用聚合/预聚合"
+  - id: "STATS-ANA-003"
+    severity: low
+    finding: "未接入 stats_view_monthly 埋点"
+    suggested_action: "接入并在测试计划中校验"
+
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 1, low: 2 }
+  recommendations:
+    must_fix: []
+    monitor:
+      - "10k+ 样本下 P95 性能；查询策略与索引生效性"

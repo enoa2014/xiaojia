@@ -322,7 +322,7 @@ var main = async (event) => {
               actorId: OPENID2,
               action: "patients.readSensitive",
               target: { patientId: id, fields: returnedFields },
-              timestamp: now
+              createdAt: now
             } });
           } catch {
           }

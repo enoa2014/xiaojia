@@ -27,6 +27,7 @@
 - users：基础资料/角色信息。
 - stats：月度/年度统计（预聚合/聚合接口）。
 - exports：导出任务创建与状态轮询（临时下载链接）。
+- audits：审计日志查询（仅管理员）。
 - init-db：一次性创建集合；import-xlsx：从 COS 导入 b.xlsx。
 
 ## 模块与函数（当前实现与MVP目标）
@@ -166,3 +167,8 @@ wx.cloud.callFunction({ name: 'patients', data: { action: 'list', payload: { pag
   - 列表失败展示空态与重试按钮；
   - 创建失败保留本地草稿（服务记录/表单）；
   - 关键路径提供“联系我们/反馈”入口并附上 `requestId`。
+### audits（新增：list）
+- list：`in { page>=1, pageSize<=100, filter?: { from?: ISO|number, to?: ISO|number, action?: string, actorId?: string } }` → `out { ok:true, data:{ items: AuditLog[], meta:{ total, hasMore } } }`
+  - RBAC：仅 `admin` 可用；否则 `E_PERM`
+  - 排序：默认 `createdAt desc`
+  - 审计记录结构：`{ actorId, action, target, requestId?, createdAt, ip? }`（不含敏感明文）

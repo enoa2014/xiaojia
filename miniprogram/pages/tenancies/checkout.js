@@ -1,39 +1,51 @@
-import { api, mapError } from '../../services/api'
+import { api, mapError, genRequestId } from '../../services/api'
 import { track } from '../../services/analytics'
+
+function todayISO(){
+  const d = new Date()
+  const m = String(d.getMonth()+1).padStart(2,'0')
+  const day = String(d.getDate()).padStart(2,'0')
+  return `${d.getFullYear()}-${m}-${day}`
+}
 
 Page({
   data: {
-    tenancyId: '',
-    checkOutDate: '',
+    id: '',
+    checkOutDate: todayISO(),
     submitting: false,
-    errors: {}
+    error: ''
   },
   onLoad(opts){
-    if (opts && opts.tid) this.setData({ tenancyId: opts.tid })
+    if (opts && opts.tid) this.setData({ id: opts.tid })
   },
-  onCheckOutDate(e){ this.setData({ checkOutDate: e.detail.value, errors: { ...this.data.errors, checkOutDate: '' } }) },
-  validate(){
-    const er = {}
-    if (!this.data.checkOutDate) er.checkOutDate = '请选择退住日期'
-    if (!this.data.tenancyId) er.checkOutDate = '参数缺失，请从详情页进入'
-    this.setData({ errors: er })
-    return Object.keys(er).length === 0
-  },
+  onDate(e){ this.setData({ checkOutDate: e.detail.value, error: '' }) },
   async onSubmit(){
-    if (!this.validate()) return
-    const requestId = `req-${Date.now()}-${Math.floor(Math.random()*1e6)}`
+    if (!this.data.id) { wx.showToast({ icon:'none', title:'缺少记录ID' }); return }
+    if (!this.data.checkOutDate) { this.setData({ error: '请选择退住日期' }); return }
+    const requestId = genRequestId('tnco')
     const startAt = Date.now()
-    this.setData({ submitting: true })
+    this.setData({ submitting: true, error: '' })
     try {
-      track('tenancy_checkout_submit', { requestId, tenancyId: this.data.tenancyId })
-      await api.tenancies.update(this.data.tenancyId, { checkOutDate: this.data.checkOutDate })
+      track('tenancy_checkout_submit', { requestId, tenancyId: this.data.id })
+      const { id, checkOutDate } = this.data
+      const res = await api.tenancies.update(id, { checkOutDate })
+      if (!res || (res.updated !== undefined && res.updated === 0)) {
+        throw { code:'E_CONFLICT', msg:'当前记录已退住' }
+      }
       track('tenancy_checkout_result', { requestId, duration: Date.now() - startAt, code: 'OK' })
-      wx.showToast({ title: '退住已登记' })
+      wx.showToast({ title:'退住已登记' })
+      // 尝试刷新上一页（如患者详情）
+      try {
+        const pages = getCurrentPages()
+        const prev = pages[pages.length - 2]
+        if (prev && typeof prev.load === 'function') prev.load()
+      } catch(_){}
       setTimeout(()=> wx.navigateBack({ delta: 1 }), 500)
     } catch(e){
       const code = e.code || 'E_INTERNAL'
-      wx.showToast({ icon:'none', title: mapError(code) })
-      track('tenancy_checkout_result', { requestId, duration: Date.now() - startAt, code })
+      const msg = code === 'E_VALIDATE' && e.msg ? e.msg : mapError(code)
+      this.setData({ error: msg })
+      try { track('tenancy_checkout_result', { requestId, duration: Date.now() - startAt, code }) } catch(_){ }
     } finally {
       this.setData({ submitting: false })
     }

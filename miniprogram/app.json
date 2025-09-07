@@ -14,7 +14,9 @@
     "pages/patients/detail",
     "pages/tenancies/form",
     "pages/tenancies/checkout",
-    "pages/services/form"
+    "pages/services/form",
+    "pages/audits/index",
+    "pages/exports/index"
   ],
   "tabBar": {
     "list": [

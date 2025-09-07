@@ -1,0 +1,15 @@
+schema: 1
+story: "EP-06.S3"
+story_title: "全模块 RBAC 接入与覆盖"
+gate: "PASS"
+status_reason: "后端按矩阵接入 RBAC 并统一 E_PERM；前端入口/按钮按角色可见性接入；services.list 视图隔离、stats/exports 受限符合 AC。"
+reviewer: "Quinn (Test Architect)"
+updated: "2025-09-07T09:30:00Z"
+waiver: { active: false }
+top_issues: []
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 0, low: 1 }
+  recommendations:
+    must_fix: []
+    monitor:
+      - "users.setRole 目前用于开发/演示，生产需改为仅 admin 或移除；上线前确认口径"

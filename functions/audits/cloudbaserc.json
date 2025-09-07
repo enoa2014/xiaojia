@@ -1,0 +1,16 @@
+{
+  "envId": "${ENV_ID}",
+  "functionRoot": ".",
+  "functions": [
+    {
+      "name": "audits",
+      "timeout": 60,
+      "runtime": "Nodejs16.13",
+      "installDependency": false,
+      "ignore": ["node_modules", ".*/**"],
+      "handler": "index.main",
+      "triggers": []
+    }
+  ]
+}
+

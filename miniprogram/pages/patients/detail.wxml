@@ -1,48 +1,82 @@
 <block wx:if="{{loading}}">
   <view class="empty">加载中...</view>
-  
 </block>
 <block wx:elif="{{patient}}">
-  <view class="page">
-    <view class="card">
-      <view class="row">
-        <text class="k">姓名</text>
-        <text class="v">{{patient.name || '—'}}</text>
+  <view class="detail-page">
+    <!-- 头部：渐变背景 + 基本信息摘要 -->
+    <view class="patient-header">
+      <view class="ph-row">
+        <view class="ph-avatar">{{initial}}</view>
+        <view class="ph-main">
+          <view class="ph-name">{{patient.name ? patient.name : '未命名'}}</view>
+          <view class="ph-meta">身份证：{{idDisplay}}</view>
+          <view class="ph-meta">{{residenceText}}</view>
+        </view>
       </view>
-      <view class="row">
-        <text class="k">入住状态</text>
-        <text class="v">{{inResidence ? '在住' : '—'}}
-          <button wx:if="{{inResidence}}" size="mini" bindtap="toCheckout" style="margin-left:12rpx;">退住登记</button>
-        </text>
-      </view>
-      <view class="row">
-        <text class="k">身份证</text>
-        <text class="v">{{patient.id_card || (patient.id_card_tail ? '************' + patient.id_card_tail : '—')}}</text>
-      </view>
-      <view class="row">
-        <text class="k">手机号</text>
-        <text class="v">{{patient.phone || '—'}}</text>
-      </view>
-      <view class="row">
-        <text class="k">出生日期</text>
-        <text class="v">{{patient.birthDate || '—'}}</text>
-      </view>
-      <view class="row">
-        <text class="k">就诊医院</text>
-        <text class="v">{{patient.hospital || '—'}}</text>
-      </view>
-      <view class="row">
-        <text class="k">诊断</text>
-        <text class="v">{{patient.hospitalDiagnosis || '—'}}</text>
+      <view class="ph-actions">
+        <button class="ph-btn" wx:if="{{canEdit}}" size="mini" bindtap="toEdit">编辑</button>
+        <button class="ph-btn" wx:if="{{canManage}}" size="mini" bindtap="toCreateTenancy">新增入住</button>
+        <button class="ph-btn" wx:if="{{inResidence && canManage}}" size="mini" bindtap="toCheckout">退住登记</button>
+        <button class="ph-btn" size="mini" bindtap="toCreateService">添加服务</button>
       </view>
     </view>
-    <view class="perm" wx:if="{{patient.permission && !patient.permission.hasSensitive}}">
-      <text>部分信息已脱敏。如需查看明文，请申请权限。</text>
-      <button size="mini" bindtap="applyPermission">申请查看明文</button>
+
+    <!-- 权限区：敏感信息窗口提示/申请入口 -->
+    <view class="permission-section" wx:if="{{patient.permission && !patient.permission.hasSensitive}}">
+      <view class="perm-text">部分信息已脱敏。如需查看明文，请申请权限。</view>
+      <button class="apply-btn" wx:if="{{canApply}}" bindtap="applyPermission">申请查看详情</button>
     </view>
-    <view class="perm" wx:if="{{patient.permission && patient.permission.hasSensitive}}">
-      <text>敏感信息已授权</text>
-      <text wx:if="{{daysLeft}}"> · 剩余{{daysLeft}}天</text>
+    <view class="permission-section ok" wx:if="{{patient.permission && patient.permission.hasSensitive}}">
+      <view>敏感信息已授权 <text wx:if="{{daysLeft}}">· 剩余 {{daysLeft}} 天</text></view>
+    </view>
+
+    <!-- Tabs 导航 -->
+    <view class="tabs">
+      <block wx:for="{{tabs}}" wx:key="key">
+        <text class="tab {{activeTab===item.key?'active':''}}" data-key="{{item.key}}" bindtap="switchTab">{{item.label}}</text>
+      </block>
+    </view>
+
+    <!-- 基础信息 -->
+    <view wx:if="{{activeTab==='base'}}" class="section">
+      <view class="card">
+        <view class="row"><text class="k">姓名</text><text class="v">{{patient.name ? patient.name : '—'}}</text></view>
+        <view class="row"><text class="k">性别</text><text class="v">{{patient.gender ? patient.gender : '—'}}</text></view>
+        <view class="row"><text class="k">出生日期</text><text class="v">{{patient.birthDate ? patient.birthDate : '—'}}</text></view>
+        <view class="row"><text class="k">联系电话</text><text class="v">{{patient.phone ? patient.phone : '—'}}</text></view>
+        <view class="row"><text class="k">家庭住址</text><text class="v">{{patient.address ? patient.address : '—'}}</text></view>
+      </view>
+    </view>
+
+    <!-- 医疗信息 -->
+    <view wx:if="{{activeTab==='medical'}}" class="section">
+      <view class="card">
+        <view class="row"><text class="k">就诊医院</text><text class="v">{{patient.hospital ? patient.hospital : '—'}}</text></view>
+        <view class="row"><text class="k">诊断</text><text class="v">{{patient.hospitalDiagnosis ? patient.hospitalDiagnosis : '—'}}</text></view>
+        <view class="row"><text class="k">诊断级别</text><text class="v">{{patient.diagnosisLevel ? patient.diagnosisLevel : '—'}}</text></view>
+      </view>
+    </view>
+
+    <!-- 入住记录 -->
+    <view wx:if="{{activeTab==='tenancies'}}" class="section">
+      <view class="card" wx:for="{{tenancies}}" wx:key="_id">
+        <view class="row"><text class="k">入住</text><text class="v">{{item.checkInText}}</text></view>
+        <view class="row"><text class="k">退住</text><text class="v">{{item.checkOutText}}</text></view>
+        <view class="row"><text class="k">床位</text><text class="v">{{item.roomText ? item.roomText : '—'}}</text></view>
+        <view class="row"><text class="k">状态</text><text class="v">{{item.statusText}}</text></view>
+      </view>
+      <view class="empty" wx:if="{{!tncLoading && tenancies.length===0}}">暂无入住记录</view>
+    </view>
+
+    <!-- 服务历史（时间倒序） -->
+    <view wx:if="{{activeTab==='services'}}" class="section">
+      <view class="card" wx:for="{{services}}" wx:key="_id">
+        <view class="row"><text class="k">时间</text><text class="v">{{item.dateText}}</text></view>
+        <view class="row"><text class="k">类型</text><text class="v">{{item.typeText}}</text></view>
+        <view class="row"><text class="k">状态</text><text class="v">{{item.statusText}}</text></view>
+        <view class="row"><text class="k">备注</text><text class="v">{{item.desc ? item.desc : '—'}}</text></view>
+      </view>
+      <view class="empty" wx:if="{{!svcLoading && services.length===0}}">暂无服务记录</view>
     </view>
   </view>
 </block>

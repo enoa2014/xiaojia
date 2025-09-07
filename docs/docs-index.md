@@ -117,3 +117,10 @@
     - data-dictionary.md：Tenancies 增加 `createdAt`、可选 `id_card` 字段与索引建议。
   - 新增：docs/reports/milestone-brief-2025-09-06.md（本次里程碑简报）。
   - QA 同步：EP-02-S2 退住登记 Gate 由 CONCERNS → PASS；更新故事 `EP-02-S2-tenancy-checkout.md`（状态 Done + QA 结果）。
+  - QA 同步：EP-06-S2 审计日志 Gate 标记为 PASS；统一审计字段与 `requestId` 顶层记录；更新 `EP-06-S2-audit-logs.md` 与 Gate 文档。
+  - QA 同步：EP-06-S3 全模块 RBAC 覆盖 Gate 标记为 PASS；补充 RBAC 矩阵到 `architecture/05-security-rbac.md`。
+  - Sprint 3：新增计划 `docs/backlog/sprint-3-plan.md`；拆分并创建故事：
+    - EP-05-S1 月度统计展示（Planned）
+    - EP-05-S2 导出 Excel（临时链接）（Planned）
+    - EP-00-S2 观测与告警（Planned）
+    - EP-00-S3 前端埋点接入与校验（Planned）

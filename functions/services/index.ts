@@ -4,6 +4,7 @@ import { z } from 'zod'
 import { hasAnyRole } from '../packages/core-rbac'
 import { mapZodIssues } from '../packages/core-utils/validation'
 import { ok, err, errValidate } from '../packages/core-utils/errors'
+import { paginate } from '../packages/core-db'
 import { ServicesListSchema, ServiceCreateSchema, ServiceReviewSchema } from './schema'
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
@@ -40,21 +41,10 @@ export const main = async (event:any): Promise<Resp<any>> => {
         if (!isManager) {
           query.createdBy = OPENID || null
         }
-        let coll = db.collection('Services').where(query)
-        if (qp.sort && Object.keys(qp.sort).length) {
-          const [k, v] = Object.entries(qp.sort)[0]
-          // @ts-ignore
-          coll = (coll as any).orderBy(k, v === -1 ? 'desc' : 'asc')
-        } else {
-          // 默认按 date desc
-          // @ts-ignore
-          coll = (coll as any).orderBy('date','desc')
-        }
-        const res = await (coll as any)
-          .skip((qp.page-1)*qp.pageSize)
-          .limit(qp.pageSize)
-          .get()
-        return ok(res.data)
+        const base = db.collection('Services').where(query)
+        const { items } = await paginate(base, { page: qp.page, pageSize: qp.pageSize, sort: qp.sort }, { fallbackSort: { date: -1 }, countQuery: db.collection('Services').where(query) })
+        // 保持契约：返回数组，不包含 meta
+        return ok(items)
       }
       case 'get': {
         const { id } = IdSchema.parse(payload || {})
@@ -83,7 +73,12 @@ export const main = async (event:any): Promise<Resp<any>> => {
         return ok({ _id })
       }
       case 'review': {
-        const { id, decision, reason } = ServiceReviewSchema.parse(payload || {})
+        const parsed = ServiceReviewSchema.safeParse(payload || {})
+        if (!parsed.success) {
+          const m = mapZodIssues(parsed.error.issues)
+          return errValidate(m.msg, parsed.error.issues)
+        }
+        const { id, decision, reason } = parsed.data
         // RBAC: only admin or social_worker can review
         if (!(await canReview())) return err('E_PERM','需要审核权限')
         if (decision === 'rejected' && !reason) return errValidate('审核驳回需填写理由')
@@ -94,7 +89,8 @@ export const main = async (event:any): Promise<Resp<any>> => {
         await db.collection('Services').doc(id).update({ data: { status: decision, reviewReason: reason || null, reviewedAt: Date.now() } })
         // audit
         try {
-          await db.collection('AuditLogs').add({ data: { actorId: OPENID || null, action: 'services.review', target: { id, decision }, createdAt: Date.now() } })
+          const reqId = (payload && (payload as any).requestId) || null
+          await db.collection('AuditLogs').add({ data: { actorId: OPENID || null, action: 'services.review', target: { id, decision }, requestId: reqId, createdAt: Date.now() } })
         } catch {}
         return ok({ updated: 1 })
       }

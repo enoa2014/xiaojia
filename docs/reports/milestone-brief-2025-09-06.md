@@ -22,8 +22,7 @@
 - API 封装：`miniprogram/services/api.js` + `callWithRetry`；空/错态与 A11y 落地。
 
 ## QA & 测试
-- Gate 结果：PASS（EP-01-S1/S2/S3、EP-03-S1/S2、EP-04-S1/S2、EP-06-S1、EP-02-S1）。
-- EP-02-S2：故事实现标记 Ready for Review；Gate 仍为草案，需更新并补回归记录。
+- Gate 结果：PASS（EP-01-S1/S2/S3、EP-03-S1/S2、EP-04-S1/S2、EP-06-S1/S2/S3、EP-02-S1/S2）。
 - 测试计划：`docs/testing/test-plan.md` 覆盖单元/集成/E2E/安全/性能与门槛。
 
 ## 数据与安全
@@ -32,22 +31,20 @@
 - 索引：按 `indexes.schema.json` 补齐组合索引并核验执行计划。
 
 ## 差距与风险
-- EP-02-S2 Gate 未同步最新实现与回归结果。
 - 埋点缺口：`tenancy_create_submit/result` 等未接；需纳入测试校验。
 - 床位冲突并发保护：当前仅前端软提示，缺后端强约束（视冲突率决策）。
 - 统计/导出：`stats/exports` MVP 与定时任务未联调；告警/观测待补。
-- 共享包：`core-rbac/core-db/core-utils` 尚未抽包，存在重复实现。
+- 共享包：已抽离并接入 `functions/packages`（`core-rbac/core-db/core-utils`）；仍需持续迁移剩余重复片段并统一用法。
 
 ## 下两周建议计划
-- Gate 同步：完成 EP-02-S2 回归并将 Gate 标记为 PASS/CONCERNS（附证据）。
+- Gate 维护：保持 Gate 与实现同步，新增/变更附回归证据（含 EP-02-S2 已 PASS 的维持）。
 - 埋点接入：补齐缺失事件并在测试计划中加入埋点校验。
 - 并发评估：采样监控床位/报名并发冲突，必要时启用后端强校验/唯一键。
 - 统计/导出：交付 `stats.monthly/yearly`、`exports.*` 与 CRON 配置；接入告警与观测。
 - 索引核验：关键查询采样查看执行计划，确保组合索引生效。
-- 复用抽包：提炼 RBAC/DB/校验为 `functions/packages/*`，降低重复实现与维护成本。
+- 共享包推进：在已抽离基础上，推进各域迁移与统一使用，降低重复实现与维护成本。
 
 ## 待决策/协作请求
 - 床位冲突策略：是否升级为强校验（`E_CONFLICT`）或加唯一索引占位？
 - 埋点优先级：确认 MVP 必须项清单与验收口径。
 - 统计/导出范围：确认首批统计维度与导出格式，便于接口落地与联调。
-

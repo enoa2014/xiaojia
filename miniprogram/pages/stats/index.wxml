@@ -1,2 +1,21 @@
-<view class="placeholder">统计模块（占位）</view>
-
+<view class="page">
+  <view class="header">
+    <text>统计月份：{{month}}</text>
+  </view>
+  <view wx:if="{{error}}" class="error">{{error}}</view>
+  <view wx:if="{{loading}}" class="loading">加载中…</view>
+  <block wx:if="{{!loading && !error}}">
+    <view wx:if="{{items.length===0}}" class="empty">暂无数据</view>
+    <view wx:if="{{items.length>0}}" class="summary">
+      <view class="sum-row"><text>总计</text><text class="v">{{total}}</text></view>
+      <view class="sum-row"><text>均值</text><text class="v">{{avg}}</text></view>
+      <view class="sum-row"><text>峰值</text><text class="v">{{maxValue}}（{{maxDate}}）</text></view>
+      <view class="sum-row"><text>低谷</text><text class="v">{{minValue}}（{{minDate}}）</text></view>
+    </view>
+    <block wx:for="{{items}}" wx:key="date">
+      <view class="row"><text class="date">{{item.date}}</text><text class="val">{{item.value}}</text></view>
+    </block>
+  </block>
+  <view class="hint">仅管理员/社工可见</view>
+  
+</view>

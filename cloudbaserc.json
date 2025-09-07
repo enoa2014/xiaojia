@@ -148,7 +148,7 @@
             {
               "collectionName": "PermissionRequests",
               "indexes": [
-                { "name": "idx_applicant_status", "keys": { "applicantId": 1, "status": 1 } },
+                { "name": "idx_requester_status", "keys": { "requesterId": 1, "status": 1 } },
                 { "name": "idx_expiresAt", "keys": { "expiresAt": 1 } }
               ]
             },
@@ -162,9 +162,9 @@
             {
               "collectionName": "AuditLogs",
               "indexes": [
-                { "name": "idx_timestamp", "keys": { "timestamp": -1 } },
-                { "name": "idx_actor_time", "keys": { "actorId": 1, "timestamp": -1 } },
-                { "name": "idx_action_time", "keys": { "action": 1, "timestamp": -1 } }
+                { "name": "idx_createdAt", "keys": { "createdAt": -1 } },
+                { "name": "idx_actor_createdAt", "keys": { "actorId": 1, "createdAt": -1 } },
+                { "name": "idx_action_createdAt", "keys": { "action": 1, "createdAt": -1 } }
               ]
             }
           ]
