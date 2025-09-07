@@ -1,0 +1,352 @@
+<view class="service-detail-page" wx:if="{{!loading}}">
+  <!-- 导航头部区 -->
+  <view class="nav-header {{theme.headerBg}}">
+    <view class="nav-left" bindtap="navigateBack">
+      <text class="nav-icon">←</text>
+      <view class="nav-title">🧰 服务记录详情</view>
+    </view>
+    <view class="nav-actions" wx:if="{{canEdit}}">
+      <view class="nav-tool" bindtap="editRecord">
+        <text class="nav-icon">✏️</text>
+      </view>
+      <view class="nav-tool" bindtap="showMoreActions">
+        <text class="nav-icon">⋯</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 服务记录状态条 -->
+  <view class="status-banner status-{{record.status}}">
+    <view class="status-content">
+      <text class="status-icon">{{statusConfig[record.status].icon}}</text>
+      <view class="status-text">
+        <text class="status-title">{{statusConfig[record.status].title}}</text>
+        <text class="status-desc">{{statusConfig[record.status].desc}}</text>
+      </view>
+      <view class="status-time" wx:if="{{record.statusTime}}">
+        <text class="time-text">{{record.statusTimeText}}</text>
+      </view>
+    </view>
+    
+    <!-- 审核操作按钮 -->
+    <view class="review-actions" wx:if="{{canReview && record.status === 'pending'}}">
+      <button class="review-btn approve-btn" bindtap="approveRecord" loading="{{reviewing}}">
+        <text class="btn-icon">✅</text>
+        <text class="btn-text">通过</text>
+      </button>
+      <button class="review-btn reject-btn" bindtap="rejectRecord" loading="{{reviewing}}">
+        <text class="btn-icon">❌</text>
+        <text class="btn-text">驳回</text>
+      </button>
+    </view>
+  </view>
+
+  <!-- 基础信息卡片 -->
+  <view class="info-card basic-info">
+    <view class="card-header">
+      <text class="card-title">基础信息</text>
+      <text class="card-id">ID: {{record.id}}</text>
+    </view>
+    
+    <view class="info-grid">
+      <view class="info-item">
+        <text class="info-label">服务类型</text>
+        <view class="info-value service-type">
+          <text class="type-icon" style="background-color: {{record.typeColor}};">{{record.typeIcon}}</text>
+          <text class="type-name">{{record.typeName}}</text>
+        </view>
+      </view>
+      
+      <view class="info-item">
+        <text class="info-label">服务对象</text>
+        <view class="info-value patient-info">
+          <text class="patient-name">{{record.patientName}}</text>
+          <text class="patient-meta">{{record.patientAge}}岁 · {{record.patientCondition}}</text>
+        </view>
+      </view>
+      
+      <view class="info-item">
+        <text class="info-label">服务时间</text>
+        <text class="info-value">{{record.serviceDateTimeText}}</text>
+      </view>
+      
+      <view class="info-item" wx:if="{{record.location}}">
+        <text class="info-label">服务地点</text>
+        <text class="info-value">{{record.location}}</text>
+      </view>
+      
+      <view class="info-item">
+        <text class="info-label">服务人员</text>
+        <view class="info-value volunteer-info">
+          <text class="volunteer-name">{{record.volunteerName}}</text>
+          <text class="volunteer-role">{{record.volunteerRole}}</text>
+        </view>
+      </view>
+      
+      <view class="info-item">
+        <text class="info-label">创建时间</text>
+        <text class="info-value">{{record.createdAtText}}</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 服务内容卡片 -->
+  <view class="info-card service-content">
+    <view class="card-header">
+      <text class="card-title">服务内容</text>
+    </view>
+    
+    <view class="content-body">
+      <text class="content-text">{{record.description}}</text>
+    </view>
+    
+    <!-- 服务目标 -->
+    <view class="content-section" wx:if="{{record.objectives}}">
+      <text class="section-title">服务目标</text>
+      <text class="section-content">{{record.objectives}}</text>
+    </view>
+    
+    <!-- 服务成果 -->
+    <view class="content-section" wx:if="{{record.outcomes}}">
+      <text class="section-title">服务成果</text>
+      <text class="section-content">{{record.outcomes}}</text>
+    </view>
+    
+    <!-- 后续计划 -->
+    <view class="content-section" wx:if="{{record.followUp}}">
+      <text class="section-title">后续计划</text>
+      <text class="section-content">{{record.followUp}}</text>
+    </view>
+  </view>
+
+  <!-- 附件卡片 -->
+  <view class="info-card attachments-card" wx:if="{{record.attachments && record.attachments.length > 0}}">
+    <view class="card-header">
+      <text class="card-title">相关附件</text>
+      <text class="card-subtitle">{{record.attachments.length}}个文件</text>
+    </view>
+    
+    <view class="attachments-grid">
+      <view class="attachment-item" wx:for="{{record.attachments}}" wx:key="index">
+        <!-- 图片附件 -->
+        <view class="attachment-image" wx:if="{{item.type === 'image'}}" bindtap="previewImage" data-index="{{index}}">
+          <image class="image-thumbnail" src="{{item.thumbnail || item.url}}" mode="aspectFill" />
+          <view class="image-overlay">
+            <text class="overlay-icon">🔍</text>
+          </view>
+        </view>
+        
+        <!-- 文档附件 -->
+        <view class="attachment-doc" wx:elif="{{item.type === 'document'}}" bindtap="openDocument" data-url="{{item.url}}">
+          <text class="doc-icon">📄</text>
+          <text class="doc-name">{{item.name}}</text>
+          <text class="doc-size">{{item.sizeText}}</text>
+        </view>
+        
+        <!-- 语音附件 -->
+        <view class="attachment-audio" wx:elif="{{item.type === 'audio'}}" bindtap="playAudio" data-url="{{item.url}}">
+          <text class="audio-icon">🎤</text>
+          <text class="audio-name">{{item.name}}</text>
+          <text class="audio-duration">{{item.duration}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 审核记录卡片 -->
+  <view class="info-card review-history" wx:if="{{record.reviewHistory && record.reviewHistory.length > 0}}">
+    <view class="card-header">
+      <text class="card-title">审核记录</text>
+    </view>
+    
+    <view class="review-timeline">
+      <view class="timeline-item" wx:for="{{record.reviewHistory}}" wx:key="index">
+        <view class="timeline-dot timeline-{{item.action}}"></view>
+        <view class="timeline-content">
+          <view class="timeline-header">
+            <text class="timeline-action">{{item.actionText}}</text>
+            <text class="timeline-time">{{item.timeText}}</text>
+          </view>
+          <text class="timeline-reviewer">{{item.reviewerName}} ({{item.reviewerRole}})</text>
+          <text class="timeline-reason" wx:if="{{item.reason}}">{{item.reason}}</text>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 相关记录卡片 -->
+  <view class="info-card related-records" wx:if="{{relatedRecords && relatedRecords.length > 0}}">
+    <view class="card-header">
+      <text class="card-title">相关记录</text>
+      <text class="card-subtitle">同一患者的其他服务记录</text>
+    </view>
+    
+    <view class="related-list">
+      <view class="related-item" wx:for="{{relatedRecords}}" wx:key="id" bindtap="viewRelatedRecord" data-id="{{item.id}}">
+        <view class="related-type" style="background-color: {{item.typeColor}};">{{item.typeIcon}}</view>
+        <view class="related-info">
+          <text class="related-title">{{item.typeName}}</text>
+          <text class="related-time">{{item.dateText}}</text>
+          <text class="related-volunteer">{{item.volunteerName}}</text>
+        </view>
+        <view class="related-status status-{{item.status}}">
+          <text class="status-text">{{item.statusText}}</text>
+        </view>
+        <text class="related-arrow">〉</text>
+      </view>
+    </view>
+  </view>
+
+  <!-- 操作统计卡片 -->
+  <view class="info-card operation-stats" wx:if="{{canViewStats}}">
+    <view class="card-header">
+      <text class="card-title">操作统计</text>
+    </view>
+    
+    <view class="stats-grid">
+      <view class="stat-item">
+        <text class="stat-number">{{record.viewCount || 0}}</text>
+        <text class="stat-label">查看次数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-number">{{record.editCount || 0}}</text>
+        <text class="stat-label">修改次数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-number">{{record.downloadCount || 0}}</text>
+        <text class="stat-label">下载次数</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-number">{{record.shareCount || 0}}</text>
+        <text class="stat-label">分享次数</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<!-- 加载状态 -->
+<view class="loading-container" wx:if="{{loading}}">
+  <view class="loading-content">
+    <view class="skeleton-header"></view>
+    <view class="skeleton-card" wx:for="{{[1,2,3]}}">
+      <view class="skeleton-title"></view>
+      <view class="skeleton-line"></view>
+      <view class="skeleton-line short"></view>
+    </view>
+  </view>
+</view>
+
+<!-- 错误状态 -->
+<view class="error-container" wx:if="{{error && !loading}}">
+  <view class="error-content">
+    <text class="error-icon">😔</text>
+    <text class="error-title">加载失败</text>
+    <text class="error-message">{{error.message || '无法获取服务记录详情'}}</text>
+    <button class="error-retry" bindtap="retryLoad">重新加载</button>
+  </view>
+</view>
+
+<!-- 底部操作区 -->
+<view class="bottom-actions" wx:if="{{!loading && !error}}">
+  <view class="action-group" wx:if="{{canEdit && record.status === 'draft'}}">
+    <button class="action-btn secondary" bindtap="deleteRecord">
+      <text class="btn-icon">🗑️</text>
+      <text class="btn-text">删除</text>
+    </button>
+    <button class="action-btn primary" bindtap="editRecord">
+      <text class="btn-icon">✏️</text>
+      <text class="btn-text">编辑</text>
+    </button>
+  </view>
+  
+  <view class="action-group" wx:if="{{canReview && record.status === 'pending'}}">
+    <button class="action-btn reject" bindtap="rejectRecord" loading="{{reviewing}}">
+      <text class="btn-icon">❌</text>
+      <text class="btn-text">驳回</text>
+    </button>
+    <button class="action-btn approve" bindtap="approveRecord" loading="{{reviewing}}">
+      <text class="btn-icon">✅</text>
+      <text class="btn-text">通过</text>
+    </button>
+  </view>
+  
+  <view class="action-group" wx:if="{{!canEdit && !canReview}}">
+    <button class="action-btn secondary" bindtap="shareRecord">
+      <text class="btn-icon">📤</text>
+      <text class="btn-text">分享</text>
+    </button>
+    <button class="action-btn primary" bindtap="createSimilar">
+      <text class="btn-icon">➕</text>
+      <text class="btn-text">创建类似记录</text>
+    </button>
+  </view>
+</view>
+
+<!-- 更多操作菜单 -->
+<view class="action-menu {{showActionMenu ? 'show' : ''}}" catchtap="hideActionMenu">
+  <view class="menu-content" catchtap="stopPropagation">
+    <view class="menu-header">
+      <text class="menu-title">更多操作</text>
+      <button class="menu-close" bindtap="hideActionMenu">✕</button>
+    </view>
+    <view class="menu-actions">
+      <button class="menu-action" bindtap="exportRecord" wx:if="{{canExport}}">
+        <text class="action-icon">📄</text>
+        <text class="action-text">导出记录</text>
+      </button>
+      <button class="menu-action" bindtap="printRecord" wx:if="{{canPrint}}">
+        <text class="action-icon">🖨️</text>
+        <text class="action-text">打印记录</text>
+      </button>
+      <button class="menu-action" bindtap="copyLink">
+        <text class="action-icon">🔗</text>
+        <text class="action-text">复制链接</text>
+      </button>
+      <button class="menu-action" bindtap="reportIssue">
+        <text class="action-icon">🚨</text>
+        <text class="action-text">举报问题</text>
+      </button>
+    </view>
+  </view>
+</view>
+
+<!-- 驳回原因弹窗 -->
+<view class="reject-modal {{showRejectModal ? 'show' : ''}}" catchtap="hideRejectModal">
+  <view class="modal-content" catchtap="stopPropagation">
+    <view class="modal-header">
+      <text class="modal-title">驳回记录</text>
+      <button class="modal-close" bindtap="hideRejectModal">✕</button>
+    </view>
+    <view class="modal-body">
+      <view class="form-field">
+        <text class="field-label">驳回原因 *</text>
+        <textarea class="reject-reason" 
+                  placeholder="请说明驳回的具体原因，帮助志愿者改进记录质量"
+                  value="{{rejectReason}}"
+                  bindinput="onRejectReasonInput"
+                  maxlength="200">
+        </textarea>
+        <text class="char-count">{{rejectReason.length}}/200</text>
+      </view>
+    </view>
+    <view class="modal-actions">
+      <button class="modal-btn secondary" bindtap="hideRejectModal">取消</button>
+      <button class="modal-btn primary" bindtap="confirmReject" loading="{{rejecting}}">确认驳回</button>
+    </view>
+  </view>
+</view>
+
+<!-- 图片预览遮罩 -->
+<view class="image-preview {{showImagePreview ? 'show' : ''}}" catchtap="hideImagePreview">
+  <view class="preview-content">
+    <swiper class="preview-swiper" current="{{currentImageIndex}}" bindchange="onImageIndexChange">
+      <swiper-item wx:for="{{imageAttachments}}" wx:key="index">
+        <image class="preview-image" src="{{item.url}}" mode="aspectFit" />
+      </swiper-item>
+    </swiper>
+    <view class="preview-indicators">
+      <text class="indicator-text">{{currentImageIndex + 1}}/{{imageAttachments.length}}</text>
+    </view>
+    <button class="preview-close" bindtap="hideImagePreview">✕</button>
+  </view>
+</view>

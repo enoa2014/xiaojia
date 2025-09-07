@@ -40,28 +40,14 @@ page {
 }
 .nav-header.primary-gradient { background: var(--primary-gradient); }
 .brand {
-  font-size: 32rpx;
-  font-weight: 700;
+  font-size: var(--font-2xl);
+  font-weight: var(--font-bold);
   letter-spacing: -0.5rpx;
   display: flex;
   align-items: center;
   gap: 8rpx;
 }
 .nav-actions { display:flex; align-items:center; gap: 12rpx; }
-.publish-btn {
-  background: #10B981;
-  color: #FFFFFF;
-  border: none;
-  border-radius: 24rpx;
-  padding: 12rpx 20rpx;
-  font-size: 26rpx;
-  display: flex;
-  align-items: center;
-  gap: 8rpx;
-  box-shadow: 0 2rpx 10rpx rgba(16,185,129,0.3);
-}
-.publish-btn:active { transform: scale(0.98); opacity: 0.95; }
-.btn-icon { font-size: 28rpx; }
 
 /* 页面基础样式 */
 .activities-page {

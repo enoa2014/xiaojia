@@ -3,7 +3,7 @@
   <view class="nav-header {{theme.headerBg}}">
     <view class="nav-left" bindtap="navigateBack">
       <text class="nav-icon">←</text>
-      <text class="nav-title">患者档案</text>
+      <view class="nav-title">📋 患者档案</view>
     </view>
     <view class="nav-actions">
       <view class="nav-tool" bindtap="toggleStar">
@@ -53,6 +53,10 @@
         <text class="btn-icon">❤️</text>
         <text class="btn-text">服务记录</text>
       </button>
+      <button class="quick-btn" wx:if="{{role==='parent'}}" bindtap="onUploadPatientPhoto">
+        <text class="btn-icon">🖼️</text>
+        <text class="btn-text">上传照片</text>
+      </button>
     </view>
   </view>
 
@@ -77,6 +81,7 @@
       <view class="card-header">
         <text class="card-title">📋 基础信息</text>
         <text class="card-subtitle">{{patientBasicStats}}</text>
+        <button class="header-btn" wx:if="{{role==='parent'}}" bindtap="toBasicEdit">编辑</button>
       </view>
       <view class="card-content">
         <view class="info-grid">

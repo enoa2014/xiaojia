@@ -3,7 +3,7 @@
   <view class="nav-header {{theme.headerBg}}">
     <view class="nav-left" bindtap="navigateBack">
       <text class="nav-icon">←</text>
-      <text class="nav-title">{{isQuickMode ? '快速记录' : '服务记录'}}</text>
+      <view class="nav-title">🧰 {{isQuickMode ? '快速记录' : '服务记录'}}</view>
     </view>
     <view class="nav-actions">
       <view class="nav-tool" bindtap="showMyStats" wx:if="{{!isQuickMode}}">

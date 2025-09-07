@@ -73,13 +73,21 @@ Page({
     this.loadStats()
     this.loadStarred()
     this.updateQuickFilterCounts()
-    try { const tb = this.getTabBar && this.getTabBar(); if (tb && tb.setActiveByRoute) tb.setActiveByRoute('/pages/patients/index') } catch(_) {}
-    this.syncRoleToTabbar()
+    // 使用统一的 TabBar 同步方法
+    try {
+      const { syncTabBar } = require('../../components/utils/tabbar-simple')
+      syncTabBar('/pages/patients/index')
+    } catch (error) {
+      console.warn('Failed to load tabbar utils:', error)
+      // 回退到简单的选中态设置
+      try { 
+        const tb = this.getTabBar && this.getTabBar()
+        if (tb && tb.setActiveByRoute) tb.setActiveByRoute('/pages/patients/index')
+      } catch(_) {}
+    }
   },
-  async syncRoleToTabbar(){
-    try { const prof = await require('../../services/api').api.users.getProfile(); const tb = this.getTabBar && this.getTabBar(); if (tb && tb.setRole) tb.setRole(prof.role || 'social_worker') } catch(_) {}
-  },
-  onLoad(){
+  async onLoad(){
+    try { const { guardByRoute } = require('../../components/utils/auth'); const ok = await guardByRoute(); if (!ok) return } catch(_) {}
     // 恢复缓存状态
     const cached = wx.getStorageSync('patients_list_state')
     if (cached && cached.starredList) {

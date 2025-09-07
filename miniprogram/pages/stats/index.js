@@ -44,9 +44,24 @@ Page({
     minValue: 0,
     minDate: ''
   },
-  onShow(){
-    try { const tb = this.getTabBar && this.getTabBar(); if (tb && tb.setActiveByRoute) tb.setActiveByRoute('/pages/stats/index') } catch(_) {}
-    this.syncRoleToTabbar()
+  async onShow(){
+    try { const { guardByRoute } = require('../../components/utils/auth'); const ok = await guardByRoute(); if (!ok) return } catch(_) {}
+    // 使用统一的 TabBar 同步方法
+    try {
+      const { syncTabBar } = require('../../components/utils/tabbar-simple')
+      syncTabBar('/pages/stats/index')
+    } catch (error) {
+      console.warn('Failed to load tabbar utils:', error)
+      // 回退到简单的选中态设置
+      try { 
+        const tb = this.getTabBar && this.getTabBar()
+        if (tb && tb.setActiveByRoute) tb.setActiveByRoute('/pages/stats/index')
+      } catch(_) {}
+    }
+    
+    // 检查用户权限并设置页面状态
+    this.checkUserPermissions()
+    
     this.initMonth()
     this.updateCurrentTime()
     this.loadHomeSummary()
@@ -69,15 +84,18 @@ Page({
     const minutes = String(now.getMinutes()).padStart(2, '0')
     this.setData({ currentTime: `${hours}:${minutes}` })
   },
-  async syncRoleToTabbar(){
+
+  // 检查用户权限
+  async checkUserPermissions() {
     try {
-      const prof = await require('../../services/api').api.users.getProfile();
-      const tb = this.getTabBar && this.getTabBar();
-      if (tb && tb.setRole) tb.setRole(prof.role || 'social_worker');
-      const role = prof.role || null
+      const profile = await require('../../services/api').api.users.getProfile()
+      const role = profile.role || 'parent'
       const canView = role === 'admin' || role === 'social_worker'
       this.setData({ role, canView })
-    } catch(_) {}
+    } catch (error) {
+      console.warn('Failed to check user permissions:', error)
+      this.setData({ role: 'parent', canView: false })
+    }
   },
   async loadHomeSummary(){
     try {

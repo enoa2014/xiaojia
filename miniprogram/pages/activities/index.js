@@ -114,7 +114,8 @@ Page({
     refreshThreshold: 5 * 60 * 1000, // 5分钟刷新阈值
   },
 
-  onLoad(options) {
+  async onLoad(options) {
+    try { const { guardByRoute } = require('../../components/utils/auth'); const ok = await guardByRoute(); if (!ok) return } catch(_) {}
     // 处理外部跳转参数
     if (options.type) {
       this.setData({ 
@@ -127,7 +128,19 @@ Page({
   },
 
   onShow() {
-    this.syncTabBarState()
+    // 使用统一的 TabBar 同步方法
+    try {
+      const { syncTabBar } = require('../../components/utils/tabbar-simple')
+      syncTabBar('/pages/activities/index')
+    } catch (error) {
+      console.warn('Failed to load tabbar utils:', error)
+      // 回退到简单的选中态设置
+      try { 
+        const tb = this.getTabBar && this.getTabBar()
+        if (tb && tb.setActiveByRoute) tb.setActiveByRoute('/pages/activities/index')
+      } catch(_) {}
+    }
+    
     this.checkUserPermissions()
     
     // 检查是否需要刷新数据
@@ -167,40 +180,32 @@ Page({
     }
   },
 
-  // 同步标签栏状态
-  async syncTabBarState() {
-    try {
-      const tabBar = this.getTabBar && this.getTabBar()
-      if (tabBar && tabBar.setActiveByRoute) {
-        tabBar.setActiveByRoute('/pages/activities/index')
-      }
-    } catch (error) {
-      console.error('同步标签栏状态失败:', error)
-    }
-  },
 
   // 检查用户权限
   async checkUserPermissions() {
     try {
+      // 先用本地身份快速渲染与刷新 TabBar
+      let userRole = ''
+      try { const dbg = wx.getStorageSync('debug_role'); if (dbg && dbg.key) userRole = dbg.key } catch(_) {}
+      if (!userRole) {
+        try { const auth = require('../../components/utils/auth'); const rs = auth.getUserRoles && auth.getUserRoles(); if (Array.isArray(rs) && rs[0]) userRole = rs[0] } catch(_) {}
+      }
+      if (!userRole) userRole = 'parent'
+      // 基于角色设置权限（本地优先）
+      const permissionsLocal = this.getRolePermissions(userRole)
+      this.setData({ userRole, canCreateActivity: permissionsLocal.canCreateActivity, canViewStats: permissionsLocal.canViewStats })
+      
+      // 从服务器获取最新角色信息并覆盖
       const profile = await api.users.getProfile()
-      const userRole = profile.role || 'parent'
+      const svrRole = profile.role || 'parent'
       const currentUserId = profile.userId || profile._id || ''
-      
-      // 基于角色设置权限
-      const permissions = this.getRolePermissions(userRole)
-      
+      const permissions = this.getRolePermissions(svrRole)
       this.setData({
-        userRole,
+        userRole: svrRole,
         currentUserId,
         canCreateActivity: permissions.canCreateActivity,
         canViewStats: permissions.canViewStats
       })
-      
-      // 同步角色到标签栏
-      const tabBar = this.getTabBar && this.getTabBar()
-      if (tabBar && tabBar.setRole) {
-        tabBar.setRole(userRole)
-      }
     } catch (error) {
       console.error('获取用户权限失败:', error)
       // 默认为家长权限

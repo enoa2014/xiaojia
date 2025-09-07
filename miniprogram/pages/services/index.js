@@ -68,12 +68,24 @@ Page({
   },
 
   async onLoad() {
+    try { const { guardByRoute } = require('../../components/utils/auth'); const ok = await guardByRoute(); if (!ok) return } catch(_) {}
     this.initCurrentMonth()
     await this.loadInitialData()
   },
 
   onShow() {
-    this.updateTabBar()
+    // 使用统一的 TabBar 同步方法
+    try {
+      const { syncTabBar } = require('../../components/utils/tabbar-simple')
+      syncTabBar('/pages/services/index')
+    } catch (error) {
+      console.warn('Failed to load tabbar utils:', error)
+      // 回退到简单的选中态设置
+      try { 
+        const tb = this.getTabBar && this.getTabBar()
+        if (tb && tb.setActiveByRoute) tb.setActiveByRoute('/pages/services/index')
+      } catch(_) {}
+    }
   },
 
   onPullDownRefresh() {
@@ -124,7 +136,8 @@ Page({
       this.updateEmptyStateDesc()
     } catch (error) {
       console.warn('Failed to load user profile:', error)
-      this.setData({ canCreate: false, canReview: false })
+      // 设置安全的回退角色，避免沿用上次存储的角色导致 TabBar 选项不符
+      this.setData({ userRole: 'parent', canCreate: false, canReview: false })
     }
   },
 
@@ -474,19 +487,6 @@ Page({
     this.setData({ emptyStateDesc: desc })
   },
 
-  updateTabBar() {
-    try {
-      const tabBar = this.getTabBar && this.getTabBar()
-      if (tabBar && tabBar.setActiveByRoute) {
-        tabBar.setActiveByRoute('/pages/services/index')
-      }
-      if (tabBar && tabBar.setRole && this.data.userRole) {
-        tabBar.setRole(this.data.userRole)
-      }
-    } catch (error) {
-      console.warn('Failed to update tab bar:', error)
-    }
-  },
 
   // 映射函数
   mapServiceType(type) {

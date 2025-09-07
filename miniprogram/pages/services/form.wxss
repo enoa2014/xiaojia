@@ -77,8 +77,9 @@ page {
 }
 
 .nav-title {
-  font-size: 36rpx;
-  font-weight: 600;
+  font-size: var(--font-2xl);
+  font-weight: var(--font-bold);
+  letter-spacing: -0.5rpx;
 }
 
 .nav-actions {

@@ -43,13 +43,22 @@ Page({
         this.applyRole(role.key)
       }
     } catch(_) {}
-    // 以云端为准同步身份
-    this.syncRoleFromServer()
   },
   onShow() {
     const now = this.formatNow()
     this.setData({ 'user.now': now })
-    try { const tb = this.getTabBar && this.getTabBar(); if (tb && tb.setActiveByRoute) tb.setActiveByRoute('/pages/index/index') } catch(_) {}
+    // 使用统一的 TabBar 同步方法
+    try {
+      const { syncTabBar } = require('../../components/utils/tabbar-simple')
+      syncTabBar('/pages/index/index')
+    } catch (error) {
+      console.warn('Failed to load tabbar utils:', error)
+      // 回退到简单的选中态设置
+      try { 
+        const tb = this.getTabBar && this.getTabBar()
+        if (tb && tb.setActiveByRoute) tb.setActiveByRoute('/pages/index/index')
+      } catch(_) {}
+    }
   },
   onPullDownRefresh(){
     this.refreshData(true)
@@ -212,14 +221,14 @@ Page({
     if (allActions.length <= 4) return
     
     const itemList = allActions.map(action => action.title)
-    wx.showActionSheet({ 
-      itemList 
-    }).then(res => {
+    const { showActionSheetSafe } = require('../../services/ui')
+    showActionSheetSafe({ itemList }).then(res => {
+      if (!res) return
       const selectedAction = allActions[res.tapIndex]
       if (selectedAction) {
         this.onAction({ currentTarget: { dataset: { key: selectedAction.key } } })
       }
-    }).catch(() => {})
+    })
   },
   async onAction(e) {
     const key = e.currentTarget.dataset.key
@@ -295,7 +304,9 @@ Page({
       { key:'parent', name:'家长', avatar:'👨‍👩‍👧' }
     ]
     const itemList = roles.map(r => r.name)
-    wx.showActionSheet({ itemList }).then(res => {
+    const { showActionSheetSafe } = require('../../services/ui')
+    showActionSheetSafe({ itemList }).then(res => {
+      if (!res) return
       const idx = res.tapIndex
       const r = roles[idx]
       if (!r) return
@@ -307,7 +318,7 @@ Page({
       wx.cloud.callFunction({ name: 'users', data: { action: 'setRole', payload: { role: r.key } } })
         .then(() => wx.showToast({ icon:'none', title: `已切换为${r.name}` }))
         .catch(err => wx.showToast({ icon:'none', title: (err && err.code) ? err.code : '网络异常' }))
-    }).catch(()=>{})
+    })
   },
   async syncRoleFromServer(){
     try {

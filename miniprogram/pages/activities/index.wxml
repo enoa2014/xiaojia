@@ -3,10 +3,7 @@
   <view class="nav-header {{theme.headerBg}}">
     <view class="brand">📅 活动中心</view>
     <view class="nav-actions">
-      <button class="publish-btn" wx:if="{{canCreateActivity}}" bindtap="toCreate">
-        <text class="btn-icon">➕</text>
-        <text>发布活动</text>
-      </button>
+      <!-- 导航操作按钮可在此添加，如搜索、筛选等 -->
     </view>
   </view>
 
@@ -211,6 +208,8 @@
     <text class="fab-icon">➕</text>
   </view>
 </scroll-view>
+
+
 
 <!-- 筛选选项弹窗 -->
 <view class="filter-modal {{showFilterModal ? 'show' : ''}}" catchtap="hideFilterModal">

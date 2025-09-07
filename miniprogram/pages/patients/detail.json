@@ -1,7 +1,7 @@
 {
   "navigationBarTitleText": "患者档案",
   "enablePullDownRefresh": true,
-  "navigationBarBackgroundColor": "#667eea",
+  "navigationBarBackgroundColor": "#22C55E",
   "navigationBarTextStyle": "white",
   "backgroundColor": "#f5f7fa"
 }

@@ -1,7 +1,7 @@
 <view class="service-page" wx:if="{{!loading}}">
   <!-- 导航头部区 -->
   <view class="nav-header {{theme.headerBg}}">
-    <view class="nav-title">服务记录</view>
+    <view class="brand">🧰 服务记录</view>
     <view class="nav-actions">
       <view class="nav-tool" bindtap="showServiceStats">
         <text class="nav-icon">📊</text>
@@ -172,6 +172,8 @@
     <text class="fab-icon">➕</text>
   </view>
 </view>
+
+
 
 <!-- 加载状态 -->
 <view class="loading-container" wx:if="{{loading}}">

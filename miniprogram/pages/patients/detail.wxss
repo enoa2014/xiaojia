@@ -36,8 +36,8 @@ page {
 }
 
 .nav-title {
-  font-size: 32rpx;
-  font-weight: 700;
+  font-size: var(--font-2xl);
+  font-weight: var(--font-bold);
   letter-spacing: -0.5rpx;
 }
 
