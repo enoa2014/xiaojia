@@ -1,0 +1,10 @@
+story: "7.5"
+title: "组件库 - StatCard"
+status: PASS
+status_reason: "Story draft 通过；KPI 卡替换方案明确。"
+issues:
+  - id: DOC-TOKENS-001
+    level: LOW
+    description: "字号/间距 tokens 未在 Dev Notes 中明确"
+    suggested_action: "补充主值/标签字号、内边距与阴影的 tokens 列表"
+

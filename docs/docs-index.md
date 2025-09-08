@@ -77,6 +77,10 @@
 - Testing
   - docs/testing/test-plan.md：测试计划（范围/策略/用例）
     - Owner: QA；Reviewer: PO/后端/前端；频率: 每迭代
+  - docs/qa/gates/*：质量门（Gate）结论与问题清单
+    - Owner: QA；Reviewer: PO/架构；频率: 每故事/模块复核
+  - docs/qa/reports/*：QA 评审与复检报告（按故事/主题归档）
+    - Owner: QA；Reviewer: PO/团队；频率: 每次评审/复检
 
 - Process
   - docs/process/engineering-guidelines.md：工程规范与协作流程

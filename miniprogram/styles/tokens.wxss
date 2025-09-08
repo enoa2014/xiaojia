@@ -1,29 +1,102 @@
-/* Minimal design tokens to satisfy imports and keep UI consistent */
+/* Design tokens to satisfy imports and keep UI consistent */
 page {
   /* Layout */
   --nav-height: 88rpx;
   --tabbar-height: 120rpx;
   --spacing-md: 24rpx;
-  --space-4: 16rpx;
   --size-lg: 48rpx;
-  --radius-md: 12rpx;
   --radius-xl: 20rpx;
 
-  /* Colors */
+  /* Brand Colors (Primary) */
+  --color-primary-600: #22C55E;
+  --color-primary-700: #16A34A;
+  --color-primary-400: #34D399;
+
+  /* Semantic Colors */
+  --color-success-600: #16A34A;
+  --color-warning-600: #F59E0B;
+  --color-danger-600: #EF4444;
+  --color-info-600: #3B82F6;
+
+  /* Gray Scale (50-900) */
+  --gray-50: #F9FAFB;
+  --gray-200: #E5E7EB;
+  --gray-300: #D1D5DB;
+  --gray-500: #6B7280;
+  --gray-700: #374151;
+  --gray-900: #111827;
+
+  /* Legacy gray tokens for backward compatibility */
   --color-gray-100: #F3F4F6;
   --color-gray-700: #374151;
   --color-gray-900: #111827;
+
+  /* Role Colors */
+  --role-admin: #7C3AED;
+  --role-social: #2563EB;
+  --role-volunteer: #F59E0B;
+  --role-parent: #EC4899;
+
+  /* Background & Text */
+  --bg-primary: #FFFFFF;
+  --bg-subtle: #F0FDF4;
+  --text-primary: #111827;
+  --text-secondary: #374151;
   --text-on-primary: #FFFFFF;
 
   /* Typography */
+  --font-h1: 28rpx;
+  --font-h2: 24rpx;
+  --font-h3: 20rpx;
+  --font-body: 20rpx;
+  --font-caption: 18rpx;
+  --lh-tight: 1.2;
+  --lh-normal: 1.5;
+  --lh-loose: 1.7;
+  --weight-regular: 400;
+  --weight-medium: 500;
+  --weight-bold: 600;
+
+  /* Legacy typography tokens for backward compatibility */
   --font-xl: 28rpx;
   --font-2xl: 32rpx;
   --font-bold: 700;
 
-  /* Effects */
-  --shadow-md: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
-  --shadow-lg: 0 8rpx 24rpx rgba(0, 0, 0, 0.12);
+  /* Spacing */
+  --space-1: 4rpx;
+  --space-2: 8rpx;
+  --space-3: 12rpx;
+  --space-4: 16rpx;
+  --space-6: 24rpx;
+  --space-8: 32rpx;
+
+  /* Radius */
+  --radius-sm: 8rpx;
+  --radius-md: 12rpx;
+  --radius-lg: 16rpx;
+
+  /* Shadows */
+  --shadow-sm: 0 2rpx 8rpx rgba(0,0,0,0.04);
+  --shadow-md: 0 4rpx 16rpx rgba(0,0,0,0.08);
+  --shadow-lg: 0 8rpx 24rpx rgba(0,0,0,0.12);
+
+  /* Motion */
+  --duration-fast: 150ms;
+  --duration-base: 250ms;
+  --duration-slow: 400ms;
+  --ease-standard: cubic-bezier(0.4, 0, 0.2, 1);
+
+  /* Legacy transition for backward compatibility */
   --transition-base: all 200ms ease-out;
+
+  /* Z-Index */
+  --z-nav: 100;
+  --z-drawer: 1000;
+  --z-toast: 2000;
+
+  /* Opacity */
+  --opacity-disabled: 0.5;
+  --opacity-overlay: 0.4;
 
   /* Backgrounds */
   --gradient-primary: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);

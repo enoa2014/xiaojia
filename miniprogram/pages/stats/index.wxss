@@ -1,7 +1,7 @@
 /* 全局样式 */
 .page { 
-  padding: 0 24rpx 120rpx;
-  background: linear-gradient(135deg, #f8fafc 0%, #e2e8f0 100%);
+  padding: 0 var(--space-6) 120rpx;
+  background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-200) 100%);
   min-height: 100vh;
 }
 
@@ -11,48 +11,48 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 24rpx;
+  padding: 0 var(--space-6);
   /* 让头部横向铺满，抵消 .page 的左右 24rpx 内边距 */
-  margin: 0 -24rpx 20rpx;
-  background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
-  color: white;
+  margin: 0 calc(-1 * var(--space-6)) 20rpx;
+  background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-700) 100%);
+  color: var(--text-on-primary);
   position: sticky;
   top: 0;
   z-index: 100;
-  box-shadow: 0 2rpx 16rpx rgba(0,0,0,0.1);
+  box-shadow: var(--shadow-md);
 }
 
 /* 角色主题渐变（与其它页面一致） */
-.nav-header--green { background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); }
-.nav-header--blue { background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); }
-.nav-header--purple { background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); }
-.nav-header--orange { background: linear-gradient(135deg, #FB923C 0%, #F97316 100%); }
-.nav-header--pink { background: linear-gradient(135deg, #F472B6 0%, #EC4899 100%); }
+.nav-header--green { background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-700) 100%); }
+.nav-header--blue { background: linear-gradient(135deg, var(--color-info-600) 0%, var(--role-social) 100%); }
+.nav-header--purple { background: linear-gradient(135deg, var(--role-admin) 0%, var(--role-admin) 100%); }
+.nav-header--orange { background: linear-gradient(135deg, var(--role-volunteer) 0%, var(--color-warning-600) 100%); }
+.nav-header--pink { background: linear-gradient(135deg, var(--role-parent) 0%, var(--role-parent) 100%); }
 
 .brand {
-  font-size: var(--font-2xl);
-  font-weight: var(--font-bold);
+  font-size: var(--font-h1);
+  font-weight: var(--weight-bold);
   letter-spacing: -0.5rpx;
 }
 
 .nav-actions {
   display: flex;
   align-items: center;
-  gap: 20rpx;
+  gap: var(--space-4);
 }
 
 .nav-notif {
   background: rgba(255,255,255,0.2);
-  color: white;
-  padding: 4rpx 12rpx;
+  color: var(--text-on-primary);
+  padding: var(--space-1) var(--space-3);
   border-radius: 999rpx;
-  font-size: 20rpx;
-  font-weight: 600;
+  font-size: var(--font-body);
+  font-weight: var(--weight-bold);
 }
 
 .nav-refresh, .nav-export {
-  font-size: 28rpx;
-  padding: 8rpx;
+  font-size: var(--font-h1);
+  padding: var(--space-2);
   opacity: 0.9;
 }
 
@@ -61,41 +61,41 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background: white;
-  border-radius: 16rpx;
-  padding: 24rpx;
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
   margin-bottom: 20rpx;
-  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.05);
+  box-shadow: var(--shadow-sm);
 }
 
 .role-badge {
-  background: linear-gradient(135deg, #3B82F6, #1D4ED8);
-  color: white;
+  background: linear-gradient(135deg, var(--color-info-600), var(--role-social));
+  color: var(--text-on-primary);
   padding: 8rpx 16rpx;
   border-radius: 20rpx;
   font-size: 24rpx;
   font-weight: 600;
 }
 
-.role-admin { background: linear-gradient(135deg, #EF4444, #DC2626); }
-.role-social_worker { background: linear-gradient(135deg, #22C55E, #16A34A); }
+.role-admin { background: linear-gradient(135deg, var(--color-danger-600), var(--color-danger-600)); }
+.role-social_worker { background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700)); }
 
 .perm-status {
-  color: #6B7280;
+  color: var(--gray-500);
   font-size: 20rpx;
   margin-top: 8rpx;
   display: block;
 }
 
 .time-info {
-  color: #9CA3AF;
+  color: var(--gray-500);
   font-size: 24rpx;
 }
 
 /* 时间选择器 */
 .time-selector {
-  background: white;
-  border-radius: 16rpx;
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
   padding: 20rpx;
   margin-bottom: 20rpx;
   box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.05);
@@ -103,7 +103,7 @@
 
 .time-tabs {
   display: flex;
-  background: #F1F5F9;
+  background: var(--gray-50);
   border-radius: 12rpx;
   padding: 6rpx;
   margin-bottom: 16rpx;
@@ -113,21 +113,21 @@
   flex: 1;
   text-align: center;
   padding: 12rpx 16rpx;
-  color: #64748B;
+  color: var(--gray-500);
   font-size: 24rpx;
   border-radius: 8rpx;
   transition: all 0.3s ease;
 }
 
 .time-tab.active {
-  background: linear-gradient(135deg, #22C55E, #16A34A);
-  color: white;
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700));
+  color: var(--text-on-primary);
   font-weight: 600;
   box-shadow: 0 2rpx 8rpx rgba(34, 197, 94, 0.3);
 }
 
 .custom-date {
-  color: #3B82F6;
+  color: var(--color-info-600);
   font-size: 28rpx;
   font-weight: 600;
   text-align: center;
@@ -136,10 +136,10 @@
 
 /* 权限提示 */
 .no-perm {
-  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
-  color: #92400E;
-  padding: 24rpx;
-  border-radius: 16rpx;
+  background: linear-gradient(135deg, var(--bg-subtle), var(--bg-subtle));
+  color: var(--color-warning-600);
+  padding: var(--space-6);
+  border-radius: var(--radius-lg);
   text-align: center;
   margin: 20rpx 0;
   font-weight: 500;
@@ -149,7 +149,7 @@
 .section-title {
   font-size: 28rpx;
   font-weight: 700;
-  color: #1F2937;
+  color: var(--text-primary);
   margin-bottom: 16rpx;
   display: flex;
   align-items: center;
@@ -158,7 +158,7 @@
 
 /* KPI指标卡片 */
 .kpi-section {
-  margin-bottom: 24rpx;
+  margin-bottom: var(--space-6);
 }
 
 .kpi-scroll {
@@ -167,25 +167,25 @@
 
 .kpi-container {
   display: flex;
-  gap: 16rpx;
+  gap: var(--space-4);
   padding-bottom: 8rpx;
 }
 
 .kpi-card {
   min-width: 280rpx;
-  background: white;
+  background: var(--bg-primary);
   border-radius: 20rpx;
-  padding: 24rpx;
+  padding: var(--space-6);
   box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.08);
   position: relative;
   overflow: hidden;
 }
 
 /* KPI卡片渐变背景 */
-.gradient-0 { background: linear-gradient(135deg, #22C55E 0%, #10B981 100%); color: white; }
-.gradient-1 { background: linear-gradient(135deg, #3B82F6 0%, #1D4ED8 100%); color: white; }
-.gradient-2 { background: linear-gradient(135deg, #F59E0B 0%, #D97706 100%); color: white; }
-.gradient-3 { background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); color: white; }
+.gradient-0 { background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-success-600) 100%); color: var(--text-on-primary); }
+.gradient-1 { background: linear-gradient(135deg, var(--color-info-600) 0%, var(--role-social) 100%); color: var(--text-on-primary); }
+.gradient-2 { background: linear-gradient(135deg, var(--color-warning-600) 0%, var(--role-volunteer) 100%); color: var(--text-on-primary); }
+.gradient-3 { background: linear-gradient(135deg, var(--role-admin) 0%, var(--role-admin) 100%); color: var(--text-on-primary); }
 
 .kpi-header {
   display: flex;
@@ -207,9 +207,9 @@
   opacity: 0.8;
 }
 
-.kpi-trend.up .trend-text { color: #10B981; }
-.kpi-trend.down .trend-text { color: #EF4444; }
-.kpi-trend.stable .trend-text { color: #6B7280; }
+.kpi-trend.up .trend-text { color: var(--color-success-600); }
+.kpi-trend.down .trend-text { color: var(--color-danger-600); }
+.kpi-trend.stable .trend-text { color: var(--gray-500); }
 
 .kpi-title {
   font-size: 24rpx;
@@ -231,13 +231,13 @@
 
 /* 分析区域 */
 .analysis-section {
-  margin-bottom: 24rpx;
+  margin-bottom: var(--space-6);
 }
 
 .quick-stats {
-  background: white;
-  border-radius: 16rpx;
-  padding: 24rpx;
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
   margin-bottom: 20rpx;
   box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.05);
 }
@@ -252,26 +252,26 @@
 .stat-item {
   text-align: center;
   padding: 16rpx;
-  background: #F8FAFC;
+  background: var(--gray-50);
   border-radius: 12rpx;
 }
 
 .stat-label {
-  color: #64748B;
+  color: var(--gray-500);
   font-size: 22rpx;
   display: block;
   margin-bottom: 8rpx;
 }
 
 .stat-value {
-  color: #1E293B;
+  color: var(--text-primary);
   font-size: 36rpx;
   font-weight: 700;
   display: block;
 }
 
 .stat-date {
-  color: #94A3B8;
+  color: var(--gray-500);
   font-size: 18rpx;
   display: block;
   margin-top: 4rpx;
@@ -279,9 +279,9 @@
 
 /* 图表容器 */
 .chart-container {
-  background: white;
-  border-radius: 16rpx;
-  padding: 24rpx;
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
   box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.05);
   margin-bottom: 20rpx;
 }
@@ -290,15 +290,15 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 24rpx;
+  margin-bottom: var(--space-6);
   flex-wrap: wrap;
-  gap: 16rpx;
+  gap: var(--space-4);
 }
 
 .chart-title {
   font-size: 28rpx;
   font-weight: 700;
-  color: #1F2937;
+  color: var(--text-primary);
 }
 
 .chart-controls {
@@ -309,16 +309,16 @@
 
 .scope-tag {
   padding: 6rpx 16rpx;
-  background: #F1F5F9;
-  color: #64748B;
+  background: var(--gray-50);
+  color: var(--gray-500);
   border-radius: 20rpx;
   font-size: 22rpx;
   transition: all 0.3s ease;
 }
 
 .scope-tag.active {
-  background: linear-gradient(135deg, #22C55E, #16A34A);
-  color: white;
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700));
+  color: var(--text-on-primary);
 }
 
 .chart-body {
@@ -339,7 +339,7 @@
 }
 
 .bar-label {
-  color: #64748B;
+  color: var(--gray-500);
   font-size: 20rpx;
   margin-bottom: 8rpx;
   white-space: nowrap;
@@ -353,8 +353,8 @@
 .bar-track {
   flex: 1;
   width: 32rpx;
-  background: #E2E8F0;
-  border-radius: 16rpx;
+  background: var(--gray-200);
+  border-radius: var(--radius-lg);
   position: relative;
   display: flex;
   align-items: flex-end;
@@ -363,8 +363,8 @@
 
 .bar-fill {
   width: 100%;
-  background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
-  border-radius: 16rpx;
+  background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-700) 100%);
+  border-radius: var(--radius-lg);
   min-height: 8rpx;
   position: relative;
   display: flex;
@@ -376,7 +376,7 @@
 .bar-value {
   position: absolute;
   top: -24rpx;
-  color: #1F2937;
+  color: var(--text-primary);
   font-size: 18rpx;
   font-weight: 600;
   white-space: nowrap;
@@ -386,7 +386,7 @@
 .empty-chart {
   text-align: center;
   padding: 80rpx 24rpx;
-  color: #64748B;
+  color: var(--gray-500);
 }
 
 .empty-icon {
@@ -411,8 +411,8 @@
 
 /* 错误和加载状态 */
 .error-state {
-  background: linear-gradient(135deg, #FEE2E2, #FECACA);
-  border-radius: 16rpx;
+  background: linear-gradient(135deg, var(--bg-subtle), var(--bg-subtle));
+  border-radius: var(--radius-lg);
   padding: 32rpx;
   text-align: center;
   margin: 20rpx 0;
@@ -425,7 +425,7 @@
 }
 
 .error-text {
-  color: #DC2626;
+  color: var(--color-danger-600);
   font-size: 24rpx;
   font-weight: 500;
   display: block;
@@ -433,8 +433,8 @@
 }
 
 .error-retry {
-  background: #DC2626;
-  color: white;
+  background: var(--color-danger-600);
+  color: var(--text-on-primary);
   border: none;
   border-radius: 24rpx;
   padding: 12rpx 24rpx;
@@ -444,14 +444,14 @@
 .loading-state {
   text-align: center;
   padding: 80rpx 24rpx;
-  color: #64748B;
+  color: var(--gray-500);
 }
 
 .loading-spinner {
   width: 48rpx;
   height: 48rpx;
-  border: 4rpx solid #E2E8F0;
-  border-top: 4rpx solid #22C55E;
+  border: 4rpx solid var(--gray-200);
+  border-top: 4rpx solid var(--color-primary-600);
   border-radius: 50%;
   animation: spin 1s linear infinite;
   margin: 0 auto 16rpx;
@@ -469,19 +469,19 @@
 
 /* 专项分析区域 */
 .action-section {
-  margin-bottom: 24rpx;
+  margin-bottom: var(--space-6);
 }
 
 .action-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 16rpx;
+  gap: var(--space-4);
 }
 
 .action-card {
-  background: white;
-  border-radius: 16rpx;
-  padding: 24rpx;
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
   box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.05);
   text-align: center;
   transition: all 0.3s ease;
@@ -496,7 +496,7 @@
   left: 0;
   right: 0;
   height: 4rpx;
-  background: linear-gradient(90deg, #22C55E, #3B82F6, #F59E0B, #8B5CF6);
+  background: linear-gradient(90deg, var(--color-primary-600), var(--color-info-600), var(--color-warning-600), var(--role-admin));
   opacity: 0;
   transition: opacity 0.3s ease;
 }
@@ -519,34 +519,34 @@
 .action-title {
   font-size: 26rpx;
   font-weight: 600;
-  color: #1F2937;
+  color: var(--text-primary);
   display: block;
   margin-bottom: 8rpx;
 }
 
 .action-desc {
   font-size: 20rpx;
-  color: #64748B;
+  color: var(--gray-500);
   display: block;
   line-height: 1.4;
 }
 
 /* 管理员功能区 */
 .admin-section {
-  margin-bottom: 24rpx;
+  margin-bottom: var(--space-6);
 }
 
 .admin-grid {
   display: flex;
-  gap: 16rpx;
+  gap: var(--space-4);
 }
 
 .admin-card {
   flex: 1;
-  background: linear-gradient(135deg, #FEF3C7, #FDE68A);
-  border: 2rpx solid #F59E0B;
-  border-radius: 16rpx;
-  padding: 24rpx;
+  background: linear-gradient(135deg, var(--bg-subtle), var(--bg-subtle));
+  border: 2rpx solid var(--color-warning-600);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
   text-align: center;
   position: relative;
   transition: all 0.3s ease;
@@ -566,7 +566,7 @@
 .admin-title {
   font-size: 24rpx;
   font-weight: 600;
-  color: #92400E;
+  color: var(--color-warning-600);
   display: block;
 }
 
@@ -574,8 +574,8 @@
   position: absolute;
   top: -8rpx;
   right: -8rpx;
-  background: #EF4444;
-  color: white;
+  background: var(--color-danger-600);
+  color: var(--text-on-primary);
   font-size: 18rpx;
   font-weight: 600;
   padding: 4rpx 8rpx;
@@ -587,7 +587,7 @@
 /* 页脚提示 */
 .footer-hint {
   text-align: center;
-  color: #9CA3AF;
+  color: var(--gray-500);
   font-size: 20rpx;
   margin-top: 32rpx;
   opacity: 0.8;

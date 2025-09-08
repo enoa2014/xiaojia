@@ -55,5 +55,45 @@
 ## 透明度（Opacity）
 - 禁用：`--opacity-disabled: 0.5`、遮罩：`--opacity-overlay: 0.4`
 
+## 工具类映射
+
+以下工具类已在 `miniprogram/app.wxss` 中定义，可在页面中直接使用：
+
+### 文本颜色
+- `.text-primary` → `var(--text-primary)`
+- `.text-secondary` → `var(--text-secondary)`
+- `.text-on-primary` → `var(--text-on-primary)`
+- `.text-success` → `var(--color-success-600)`
+- `.text-warning` → `var(--color-warning-600)`
+- `.text-danger` → `var(--color-danger-600)`
+- `.text-info` → `var(--color-info-600)`
+
+### 背景颜色
+- `.bg-primary` → `var(--bg-primary)`
+- `.bg-subtle` → `var(--bg-subtle)`
+- `.bg-primary-600` → `var(--color-primary-600)`
+- `.bg-primary-400` → `var(--color-primary-400)`
+- `.bg-gray-50` → `var(--gray-50)`
+- `.bg-gray-200` → `var(--gray-200)`
+
+### 阴影
+- `.shadow-sm` → `var(--shadow-sm)`
+- `.shadow-md` → `var(--shadow-md)`
+- `.shadow-lg` → `var(--shadow-lg)`
+
+### 圆角
+- `.rounded-sm` → `var(--radius-sm)`
+- `.rounded-md` → `var(--radius-md)`
+- `.rounded-lg` → `var(--radius-lg)`
+
+### 内边距（Padding）
+- `.p-1` → `var(--space-1)`、`.p-2` → `var(--space-2)`、`.p-3` → `var(--space-3)`、`.p-4` → `var(--space-4)`、`.p-6` → `var(--space-6)`、`.p-8` → `var(--space-8)`
+- `.px-1~8`、`.py-1~8` → 对应横向/纵向内边距
+
+### 外边距（Margin）
+- `.m-1` → `var(--space-1)`、`.m-2` → `var(--space-2)`、`.m-3` → `var(--space-3)`、`.m-4` → `var(--space-4)`、`.m-6` → `var(--space-6)`、`.m-8` → `var(--space-8)`
+- `.mx-1~8`、`.my-1~8` → 对应横向/纵向外边距
+
 使用建议
 - WXSS 不一定支持 CSS 变量；建议集中在 `app.wxss` 定义样式工具类（如 `.text-primary`, `.bg-primary`, `.shadow-sm`），或借助构建将 Token 注入样式。
+- 优先使用工具类而非直接引用 Token 变量，确保跨页面一致性。

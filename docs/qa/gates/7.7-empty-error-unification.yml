@@ -1,0 +1,10 @@
+story: "7.7"
+title: "列表页 Empty/Error 统一接入"
+status: PASS
+status_reason: "Story draft 通过；组件接入路径与文案映射清晰。"
+issues:
+  - id: DOC-ANCHOR-STATE
+    level: LOW
+    description: "状态组件文案规范缺少具体章节锚点"
+    suggested_action: "在 story 中补充 components.md#Toast-EmptyState-ErrorState-Skeleton 锚点"
+

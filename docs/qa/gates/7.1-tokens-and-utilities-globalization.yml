@@ -1,0 +1,14 @@
+story: "7.1"
+title: "Tokens 与工具类全局化"
+status: PASS
+status_reason: "Story draft 通过，具备实施所需上下文；仅有轻微文档优化项。"
+issues:
+  - id: DOC-ANCHOR-001
+    level: LOW
+    description: "引用未加具体章节锚点，检索成本略高"
+    suggested_action: "在 story/相关文档中补充 anchors（tokens.md#颜色 等）"
+  - id: DOC-MAP-001
+    level: LOW
+    description: "工具类与 token 映射清单未内置于文档"
+    suggested_action: "在 tokens.md 增补“工具类映射”章节表格"
+

@@ -18,3 +18,5 @@
 ### Epic 6: 权限与安全
 - 用户故事：角色区分，脱敏审批，权限申请。
 
+### Epic 7: 设计系统与 UI 一致性
+- 用户故事：Tokens/工具类全局化、组件库（Button/FormField/RoleBadge/StatCard/ActionCard 等）、主题联动、导航与内边距统一、状态（Empty/Error/Skeleton）与 A11y 覆盖、统计图表容器与活动日历视图、导出中心、审批/审计页面、构建期令牌注入。

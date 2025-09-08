@@ -1,0 +1,10 @@
+story: "7.6"
+title: "组件库 - ActionCard"
+status: PASS
+status_reason: "Story draft 通过；替换范围与交互清晰。"
+issues:
+  - id: DOC-FILES-003
+    level: LOW
+    description: "首页与服务/活动入口替换的文件名未枚举"
+    suggested_action: "在 Tasks 中列出对应 WXML/WXSS/JS 文件路径"
+

@@ -1,0 +1,10 @@
+story: "7.3"
+title: "全站接入 applyThemeByRole"
+status: PASS
+status_reason: "Story draft 通过；改造方式统一，命中范围明确。"
+issues:
+  - id: DOC-SCAN-001
+    level: LOW
+    description: "缺少未接入页面的明确列表"
+    suggested_action: "在 Tasks 加入基线扫描命令与缺口清单（rg applyThemeByRole）"
+

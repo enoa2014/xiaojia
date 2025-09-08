@@ -1,0 +1,10 @@
+story: "7.4"
+title: "组件库 - RoleBadge"
+status: PASS
+status_reason: "Story draft 通过；实现路径与替换范围清晰。"
+issues:
+  - id: DOC-FILES-002
+    level: LOW
+    description: "替换示例页面的具体文件名未枚举"
+    suggested_action: "在 Tasks 中列出 patients/detail.* 与首页工作台对应文件"
+

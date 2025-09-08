@@ -1,0 +1,23 @@
+story: "7.1"
+title: "Tokens 与工具类全局化 - 实施质量门"
+status: PASS
+status_reason: "AC 全部满足：activities/form 与 stats/index 已移除十六进制/渐变硬编码并改用 tokens/工具类；tokens.md 已新增“工具类映射”章节。"
+issues:
+  - id: AC3-PAGE-REPLACE
+    level: RESOLVED
+    description: "activities/form.* 与 stats/index.* 已替换为 tokens/工具类，无裸十六进制"
+    suggested_action: "后续页面沿用相同策略，保持一致性"
+  - id: AC4-DOC-MAP
+    level: RESOLVED
+    description: "tokens.md 已补充“工具类映射”章节"
+    suggested_action: "新增工具类时同步维护该章节"
+last_review: 2025-09-08
+evidence:
+  - path: miniprogram/app.wxss
+    note: "已引入 tokens 与多组 utilities"
+  - path: miniprogram/styles/tokens.wxss
+    note: "已覆盖品牌/语义/灰阶/角色/间距/圆角/阴影/动效/z-index/透明度"
+  - path: miniprogram/pages/activities/form.wxss
+    note: "存在多处 #RRGGBB 与 linear-gradient 直接硬编码"
+  - path: miniprogram/pages/stats/index.wxss
+    note: "存在多处 #RRGGBB 与 linear-gradient 直接硬编码"

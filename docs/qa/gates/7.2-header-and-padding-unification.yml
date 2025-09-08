@@ -1,0 +1,10 @@
+story: "7.2"
+title: "导航头与页面内边距统一"
+status: PASS
+status_reason: "Story draft 通过；统一策略清晰，实施风险低。"
+issues:
+  - id: DOC-FILES-001
+    level: LOW
+    description: "页面文件清单未具体到文件名"
+    suggested_action: "在 Tasks 中列出 patients/index.*、services/index.*、activities/index.*、stats/index.*"
+
