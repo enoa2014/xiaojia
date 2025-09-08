@@ -69,6 +69,7 @@ Page({
     emptyActionHandler: 'loadPatientData'
   },
   onShow(){
+    try { require('../../services/theme').applyThemeByRole(this) } catch(_) {}
     // 首次或返回时刷新头部统计，但不打断列表
     this.loadStats()
     this.loadStarred()

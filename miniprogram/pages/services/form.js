@@ -78,6 +78,7 @@ Page({
   },
 
   async onLoad(options) {
+    try { require('../../services/theme').applyThemeByRole(this) } catch(_) {}
     this.setData({ loading: true })
     
     try {

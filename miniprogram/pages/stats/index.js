@@ -16,6 +16,8 @@ const TIME_DIMENSIONS = [
 
 Page({
   data: {
+    // 主题配置
+    theme: { headerBg: 'nav-header--green' },
     ready: true,
     loading: false,
     month: '',
@@ -45,6 +47,7 @@ Page({
     minDate: ''
   },
   async onShow(){
+    try { require('../../services/theme').applyThemeByRole(this) } catch(_) {}
     try { const { guardByRoute } = require('../../components/utils/auth'); const ok = await guardByRoute(); if (!ok) return } catch(_) {}
     // 使用统一的 TabBar 同步方法
     try {

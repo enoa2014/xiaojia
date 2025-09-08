@@ -115,6 +115,7 @@ Page({
   },
 
   async onLoad(options) {
+    try { require('../../services/theme').applyThemeByRole(this) } catch(_) {}
     try { const { guardByRoute } = require('../../components/utils/auth'); const ok = await guardByRoute(); if (!ok) return } catch(_) {}
     // 处理外部跳转参数
     if (options.type) {
@@ -128,6 +129,7 @@ Page({
   },
 
   onShow() {
+    try { require('../../services/theme').applyThemeByRole(this) } catch(_) {}
     // 使用统一的 TabBar 同步方法
     try {
       const { syncTabBar } = require('../../components/utils/tabbar-simple')

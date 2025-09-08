@@ -164,6 +164,7 @@ Page({
   },
   applyRole(roleKey){
     // Apply theme and actions immediately; stats/perm/notifications will refresh from server
+    try { const app = getApp && getApp(); if (app) app.globalData = Object.assign({}, app.globalData, { roleKey }) } catch(_) {}
     this.setData({
       actions: this.computeActions(roleKey),
       theme: this.computeTheme(roleKey)

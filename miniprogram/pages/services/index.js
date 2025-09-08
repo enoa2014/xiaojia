@@ -74,6 +74,7 @@ Page({
   },
 
   onShow() {
+    try { require('../../services/theme').applyThemeByRole(this) } catch(_) {}
     // 使用统一的 TabBar 同步方法
     try {
       const { syncTabBar } = require('../../components/utils/tabbar-simple')

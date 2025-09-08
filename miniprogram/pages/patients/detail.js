@@ -94,6 +94,7 @@ Page({
   },
 
   async onLoad(opts) {
+    try { require('../../services/theme').applyThemeByRole(this) } catch(_) {}
     const id = opts && opts.id
     if (!id) {
       this.setData({ 
@@ -114,6 +115,7 @@ Page({
   },
 
   async onShow() {
+    try { require('../../services/theme').applyThemeByRole(this) } catch(_) {}
     // 页面显示时刷新权限状态
     if (this.data.id) {
       await this.checkPermissionStatus()

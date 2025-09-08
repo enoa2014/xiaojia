@@ -38,6 +38,13 @@ page {
   z-index: 100;
   box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.1);
 }
+
+/* 角色主题渐变（与首页/患者页保持一致） */
+.nav-header--green { background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); }
+.nav-header--blue { background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); }
+.nav-header--purple { background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); }
+.nav-header--orange { background: linear-gradient(135deg, #FB923C 0%, #F97316 100%); }
+.nav-header--pink { background: linear-gradient(135deg, #F472B6 0%, #EC4899 100%); }
 .nav-header.primary-gradient { background: var(--primary-gradient); }
 .brand {
   font-size: var(--font-2xl);
