@@ -1,4 +1,12 @@
 <view class="page">
+  <!-- 导航头部区 -->
+  <view class="nav-header {{theme.headerBg}} full-bleed">
+    <view class="brand">📋 审计日志</view>
+    <view class="nav-actions">
+      <!-- 可在此添加导航操作按钮 -->
+    </view>
+  </view>
+
   <view class="filters">
     <picker mode="date" value="{{fromDate}}" bindchange="onFromDate">
       <view class="date">{{fromDate?fromDate:'开始日期'}}</view>

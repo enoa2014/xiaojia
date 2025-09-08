@@ -1,8 +1,10 @@
 import { api, mapError, genRequestId } from '../../services/api'
 import { track } from '../../services/analytics'
+import { applyThemeByRole } from '../../services/theme'
 
 Page({
   data: {
+    theme: { headerBg: 'nav-header--green' },
     month: '',
     submitting: false,
     taskId: '',
@@ -10,10 +12,14 @@ Page({
     downloadUrl: ''
   },
   onLoad(options){
+    applyThemeByRole(this)
     try {
       const m = options && (options.month || '')
       if (m) this.setData({ month: m })
     } catch(_) {}
+  },
+  onShow(){
+    applyThemeByRole(this)
   },
   onMonth(e){ this.setData({ month: e.detail.value }) },
   async onCreate(){

@@ -1,7 +1,9 @@
 import { api, mapError } from '../../services/api'
+import { applyThemeByRole } from '../../services/theme'
 
 Page({
   data: {
+    theme: { headerBg: 'nav-header--green' },
     fromDate: '',
     toDate: '',
     action: '',
@@ -13,7 +15,13 @@ Page({
     loading: false,
     error: ''
   },
-  onLoad(){ this.search(true) },
+  onLoad(){
+    applyThemeByRole(this)
+    this.search(true)
+  },
+  onShow(){
+    applyThemeByRole(this)
+  },
   onPullDownRefresh(){ this.search(true) },
   onReachBottom(){ this.loadMore() },
   onFromDate(e){ this.setData({ fromDate: e.detail.value }) },

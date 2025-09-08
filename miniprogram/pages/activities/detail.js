@@ -15,7 +15,9 @@ Page({
     this.setData({ id })
     this.checkPermissions()
     this.load()
+    try { require('../../services/theme').applyThemeByRole(this) } catch(_) {}
   },
+  onShow(){ try { require('../../services/theme').applyThemeByRole(this) } catch(_) {} },
   
   async checkPermissions(){
     try {
@@ -82,4 +84,3 @@ Page({
     })
   }
 })
-

@@ -1,4 +1,12 @@
 <view class="page">
+  <!-- 导航头部区 -->
+  <view class="nav-header {{theme.headerBg}} full-bleed">
+    <view class="brand">📤 数据导出</view>
+    <view class="nav-actions">
+      <!-- 可在此添加导航操作按钮 -->
+    </view>
+  </view>
+
   <view class="section">
     <picker mode="date" value="{{month}}" start="2020-01-01" end="2030-12-31" bindchange="onMonth">
       <view class="picker">选择月份：{{month || '未选择'}}</view>

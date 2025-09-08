@@ -17,7 +17,9 @@ Page({
   },
   onLoad(opts){
     if (opts && opts.tid) this.setData({ id: opts.tid })
+    try { require('../../services/theme').applyThemeByRole(this) } catch(_) {}
   },
+  onShow(){ try { require('../../services/theme').applyThemeByRole(this) } catch(_) {} },
   onDate(e){ this.setData({ checkOutDate: e.detail.value, error: '' }) },
   async onSubmit(){
     if (!this.data.id) { wx.showToast({ icon:'none', title:'缺少记录ID' }); return }
@@ -51,4 +53,3 @@ Page({
     }
   }
 })
-

@@ -11,7 +11,11 @@ Page({
     submitting: false,
     errors: {}
   },
-  onLoad(opts){ if (opts && opts.pid) this.setData({ patientId: opts.pid }) },
+  onLoad(opts){ 
+    if (opts && opts.pid) this.setData({ patientId: opts.pid })
+    try { require('../../services/theme').applyThemeByRole(this) } catch(_) {}
+  },
+  onShow(){ try { require('../../services/theme').applyThemeByRole(this) } catch(_) {} },
   toggleField(e){
     const key = e.currentTarget.dataset.key
     this.setData({ [`fields.${key}`]: !this.data.fields[key] })

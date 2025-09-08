@@ -53,6 +53,8 @@ Page({
     errors: {},
     submitting: false,
   },
+  onLoad(){ try { require('../../services/theme').applyThemeByRole(this) } catch(_) {} },
+  onShow(){ try { require('../../services/theme').applyThemeByRole(this) } catch(_) {} },
   // 绑定
   onInput(e) {
     const key = e.currentTarget.dataset.key

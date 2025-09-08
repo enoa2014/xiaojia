@@ -16,7 +16,9 @@ Page({
       this.setData({ keyword: kw, mode })
       this.search(true)
     }
+    try { require('../../services/theme').applyThemeByRole(this) } catch(_) {}
   },
+  onShow(){ try { require('../../services/theme').applyThemeByRole(this) } catch(_) {} },
   onInput(e) { this.setData({ keyword: e.detail.value }) },
   onMode(e) { this.setData({ mode: e.currentTarget.dataset.mode }) },
   async search(reset=false) {

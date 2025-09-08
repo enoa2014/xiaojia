@@ -1,4 +1,8 @@
 <view class="page">
+  <view class="nav-header {{theme.headerBg}} full-bleed">
+    <view class="brand">🔐 权限申请</view>
+    <view class="nav-actions"></view>
+  </view>
   <view class="section">
     <text class="label">申请字段</text>
     <view class="chips">
@@ -24,4 +28,3 @@
 
   <button class="submit" loading="{{submitting}}" bindtap="onSubmit">提交申请</button>
 </view>
-

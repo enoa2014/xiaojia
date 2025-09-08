@@ -1,4 +1,8 @@
 <view class="page">
+  <view class="nav-header {{theme.headerBg}} full-bleed">
+    <view class="brand">📝 新建档案</view>
+    <view class="nav-actions"></view>
+  </view>
   <!-- 基本信息 -->
   <view class="section" id="field-name">
     <text class="label">姓名</text>

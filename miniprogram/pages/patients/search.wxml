@@ -1,4 +1,8 @@
 <view class="page">
+  <view class="nav-header {{theme.headerBg}} full-bleed">
+    <view class="brand">🔎 搜索档案</view>
+    <view class="nav-actions"></view>
+  </view>
   <view class="search-bar">
     <input class="search-input" placeholder="输入姓名前缀或证件尾4位" value="{{keyword}}" bindinput="onInput" confirm-type="search" bindconfirm="search" />
     <button class="search-btn" loading="{{loading}}" bindtap="search">搜索</button>
