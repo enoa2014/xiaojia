@@ -7,8 +7,6 @@
     "pages/activities/index",
     "pages/activities/detail",
     "pages/activities/form",
-    "pages/activities/manage",
-    "pages/activities/registrations",
     "pages/stats/index",
     "pages/permissions/apply",
     "pages/patients/form",

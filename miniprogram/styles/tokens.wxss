@@ -1,0 +1,32 @@
+/* Minimal design tokens to satisfy imports and keep UI consistent */
+page {
+  /* Layout */
+  --nav-height: 88rpx;
+  --tabbar-height: 120rpx;
+  --spacing-md: 24rpx;
+  --space-4: 16rpx;
+  --size-lg: 48rpx;
+  --radius-md: 12rpx;
+  --radius-xl: 20rpx;
+
+  /* Colors */
+  --color-gray-100: #F3F4F6;
+  --color-gray-700: #374151;
+  --color-gray-900: #111827;
+  --text-on-primary: #FFFFFF;
+
+  /* Typography */
+  --font-xl: 28rpx;
+  --font-2xl: 32rpx;
+  --font-bold: 700;
+
+  /* Effects */
+  --shadow-md: 0 4rpx 16rpx rgba(0, 0, 0, 0.08);
+  --shadow-lg: 0 8rpx 24rpx rgba(0, 0, 0, 0.12);
+  --transition-base: all 200ms ease-out;
+
+  /* Backgrounds */
+  --gradient-primary: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
+  --gradient-page: #F6F8FA;
+}
+
