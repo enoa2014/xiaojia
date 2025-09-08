@@ -3,6 +3,7 @@ import { track } from '../../services/analytics'
 
 Page({
   data: {
+    theme: { headerBg: 'nav-header--green' },
     patientId: '',
     id_card: '',
     checkInDate: '',
@@ -15,6 +16,7 @@ Page({
     errors: {}
   },
   onLoad(opts){
+    try { require('../../services/theme').applyThemeByRole(this) } catch(_) {}
     if (opts && opts.pid) this.setData({ patientId: opts.pid })
   },
   onPatientId(e){ this.setData({ patientId: e.detail.value, errors: { ...this.data.errors, identity: '' } }) },

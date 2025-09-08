@@ -94,6 +94,7 @@ Page({
   },
 
   onLoad(options) {
+    try { require('../../services/theme').applyThemeByRole(this) } catch(_) {}
     this.initializeUserInfo()
     
     // 判断是编辑还是创建
@@ -115,6 +116,10 @@ Page({
       mode: this.data.mode,
       activityId: options.id || null
     })
+  },
+
+  onShow(){
+    try { require('../../services/theme').applyThemeByRole(this) } catch(_) {}
   },
 
   onUnload() {

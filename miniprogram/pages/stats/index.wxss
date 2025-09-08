@@ -11,10 +11,15 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  padding: 0 8rpx;
+  padding: 0 24rpx;
+  /* 让头部横向铺满，抵消 .page 的左右 24rpx 内边距 */
   margin: 0 -24rpx 20rpx;
   background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
   color: white;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+  box-shadow: 0 2rpx 16rpx rgba(0,0,0,0.1);
 }
 
 /* 角色主题渐变（与其它页面一致） */

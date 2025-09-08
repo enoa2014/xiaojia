@@ -1,6 +1,6 @@
 <view class="activity-publish-page" wx:if="{{!loading}}">
   <!-- 顶部导航（对齐首页样式，移除返回箭头） -->
-  <view class="nav-header nav-header--blue">
+  <view class="nav-header {{theme && theme.headerBg || 'nav-header--blue'}}">
     <view class="brand">📅 {{mode === 'edit' ? '编辑活动' : '发布活动'}}</view>
     <view class="nav-actions">
       <button class="draft-btn" bindtap="saveAsDraft" loading="{{autoSaving}}">草稿</button>

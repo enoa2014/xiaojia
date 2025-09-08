@@ -1,4 +1,8 @@
 <view class="page">
+  <view class="nav-header {{theme && theme.headerBg || 'nav-header--green'}}">
+    <view class="brand">🏠 入住登记</view>
+    <view class="nav-actions"></view>
+  </view>
   <view class="section">
     <text class="label">患者ID（可选）</text>
     <input class="input" placeholder="patientId 或留空改填身份证" value="{{patientId}}" bindinput="onPatientId" />
