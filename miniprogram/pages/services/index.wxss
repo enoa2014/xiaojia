@@ -1,42 +1,12 @@
 /* 导入设计令牌 */
 @import "../../styles/tokens.wxss";
 
-/* 页面基础样式 */
-.service-page {
-  min-height: 100vh;
-  background: var(--gradient-page);
+/* 页面基础样式 - 移除重复的 .page 和 .nav-header 样式，现已统一到 app.wxss */
+.page {
   padding-bottom: var(--tabbar-height);
 }
 
-/* 导航头部 */
-.nav-header {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  height: var(--nav-height);
-  padding: 0 var(--spacing-md);
-  background: var(--gradient-primary);
-  color: var(--text-on-primary);
-  box-shadow: var(--shadow-md);
-}
-
-/* 角色主题渐变（与首页/患者页保持一致） */
-.nav-header--green { background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); }
-.nav-header--blue { background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); }
-.nav-header--purple { background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); }
-.nav-header--orange { background: linear-gradient(135deg, #FB923C 0%, #F97316 100%); }
-.nav-header--pink { background: linear-gradient(135deg, #F472B6 0%, #EC4899 100%); }
-
-.brand {
-  font-size: var(--font-2xl);
-  font-weight: var(--font-bold);
-  letter-spacing: -0.5rpx;
-}
-
-.nav-actions {
-  display: flex;
-  gap: var(--space-4);
-}
+/* 移除重复的导航头子元素样式，现已统一到 app.wxss */
 
 .nav-tool {
   width: var(--size-lg);

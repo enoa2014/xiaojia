@@ -1,4 +1,5 @@
 import { callWithRetry, mapError } from '../../services/api'
+import { applyThemeByRole } from '../../services/theme'
 
 Page({
   data: {
@@ -45,6 +46,7 @@ Page({
     } catch(_) {}
   },
   onShow() {
+    applyThemeByRole(this)
     const now = this.formatNow()
     this.setData({ 'user.now': now })
     // 使用统一的 TabBar 同步方法

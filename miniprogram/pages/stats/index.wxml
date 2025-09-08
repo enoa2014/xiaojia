@@ -1,6 +1,6 @@
 <view class="page">
   <!-- 导航头部 -->
-  <view class="nav-header {{theme.headerBg}}">
+  <view class="nav-header {{theme.headerBg}} full-bleed">
     <view class="brand">📊 数据统计</view>
     <view class="nav-actions">
       <text wx:if="{{notifications>0}}" class="nav-notif">{{notifications}}</text>

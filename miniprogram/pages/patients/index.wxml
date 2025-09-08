@@ -1,6 +1,6 @@
 <view class="page">
   <!-- 导航头部区 -->
-  <view class="nav-header {{theme.headerBg}}">
+  <view class="nav-header {{theme.headerBg}} full-bleed">
     <view class="brand">📋 患者档案</view>
     <view class="nav-actions">
       <view class="nav-tool nav-search" bindtap="focusSearch">

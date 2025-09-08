@@ -1,6 +1,6 @@
-<view class="service-page" wx:if="{{!loading}}">
+<view class="page" wx:if="{{!loading}}">
   <!-- 导航头部区 -->
-  <view class="nav-header {{theme.headerBg}}">
+  <view class="nav-header {{theme.headerBg}} full-bleed">
     <view class="brand">🧰 服务记录</view>
     <view class="nav-actions">
       <view class="nav-tool" bindtap="showServiceStats">

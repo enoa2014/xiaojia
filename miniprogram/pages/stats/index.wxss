@@ -1,45 +1,9 @@
-/* 全局样式 */
+/* 全局样式 - 移除重复的 .page 和 .nav-header 样式，现已统一到 app.wxss */
 .page { 
-  padding: 0 var(--space-6) 120rpx;
-  background: linear-gradient(135deg, var(--gray-50) 0%, var(--gray-200) 100%);
-  min-height: 100vh;
+  padding-bottom: 120rpx;
 }
 
-/* 导航头部 */
-.nav-header {
-  height: 88rpx;
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  padding: 0 var(--space-6);
-  /* 让头部横向铺满，抵消 .page 的左右 24rpx 内边距 */
-  margin: 0 calc(-1 * var(--space-6)) 20rpx;
-  background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-700) 100%);
-  color: var(--text-on-primary);
-  position: sticky;
-  top: 0;
-  z-index: 100;
-  box-shadow: var(--shadow-md);
-}
-
-/* 角色主题渐变（与其它页面一致） */
-.nav-header--green { background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-700) 100%); }
-.nav-header--blue { background: linear-gradient(135deg, var(--color-info-600) 0%, var(--role-social) 100%); }
-.nav-header--purple { background: linear-gradient(135deg, var(--role-admin) 0%, var(--role-admin) 100%); }
-.nav-header--orange { background: linear-gradient(135deg, var(--role-volunteer) 0%, var(--color-warning-600) 100%); }
-.nav-header--pink { background: linear-gradient(135deg, var(--role-parent) 0%, var(--role-parent) 100%); }
-
-.brand {
-  font-size: var(--font-h1);
-  font-weight: var(--weight-bold);
-  letter-spacing: -0.5rpx;
-}
-
-.nav-actions {
-  display: flex;
-  align-items: center;
-  gap: var(--space-4);
-}
+/* 移除重复的导航头子元素样式，现已统一到 app.wxss */
 
 .nav-notif {
   background: rgba(255,255,255,0.2);

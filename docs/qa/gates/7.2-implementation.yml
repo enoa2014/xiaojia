@@ -1,0 +1,27 @@
+story: "7.2"
+title: "导航头与页面内边距统一 - 实施质量门"
+status: PASS
+status_reason: "复检通过：导航头统一由 app.wxss 管理，四入口页使用 `nav-header {{theme.headerBg}} full-bleed`；活动页改为 view.page，使 full-bleed 正确抵消左右留边。"
+issues:
+  - id: NAV-HEADER-LOCAL
+    level: RESOLVED
+    description: "页面级 `.nav-header` 基础样式已清理，统一由 app.wxss 管理"
+    suggested_action: "新增页面坚持只绑定 `nav-header {{theme.headerBg}} full-bleed`"
+  - id: PAGE-PADDING-CHECK
+    level: INFO
+    description: "部分页面保留 `padding-bottom`，未覆盖横向 padding"
+    suggested_action: "后续页面如需自定义，仅追加纵向 padding，不改横向"
+  - id: NAV-FULLBLEED-ACT
+    level: RESOLVED
+    description: "活动页使用 `full-bleed` 且根容器改为 view.page，留边问题消除"
+    suggested_action: "保持该模式，避免根容器用 scroll-view 包裹整页"
+evidence:
+  - path: miniprogram/app.wxss
+    note: ".page/.full-bleed/.nav-header 已统一"
+  - path: miniprogram/pages/stats/index.wxss
+    note: "存在 `.nav-header{}` 定义"
+  - path: miniprogram/pages/services/index.wxss
+    note: "存在 `.nav-header{}` 定义"
+  - path: miniprogram/pages/activities/index.wxss
+    note: "存在 `.nav-header{}` 定义"
+last_review: 2025-09-08 (retest-pass)

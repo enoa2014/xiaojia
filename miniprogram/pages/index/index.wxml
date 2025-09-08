@@ -1,6 +1,7 @@
 
-<!-- 导航头部区 -->
-<view class="nav-header {{theme.headerBg}}">
+<view class="page">
+  <!-- 导航头部区 -->
+  <view class="nav-header {{theme.headerBg}} full-bleed">
   <view class="brand">🏠 小家服务中心</view>
   <view class="nav-actions">
     <view class="nav-tool nav-notif" wx:if="{{notifications>0}}" bindtap="wip">
@@ -11,7 +12,7 @@
     <text class="nav-tool nav-icon {{isRefreshing?'spin':''}}" bindtap="refreshTap">🔄</text>
     <text class="nav-tool nav-icon" bindtap="openRoleSwitcher">⚙️</text>
   </view>
-</view>
+  </view>
 
 <!-- 用户状态区 -->
 <view class="user-status {{theme.userBg}}">
@@ -46,7 +47,6 @@
       <text class="current-time">{{user.now}}</text>
     </view>
   </view>
-</view>
 
 <!-- 快速操作区 -->
 <view class="quick-actions-section" wx:if="{{!loading}}">
@@ -77,6 +77,7 @@
     <text class="more-text">查看更多操作</text>
     <text class="more-icon">⬇</text>
   </view>
+ </view>
 </view>
 
 <!-- 数据总览区 -->
@@ -209,5 +210,6 @@
     <view class="sk-task"></view>
     <view class="sk-task"></view>
     <view class="sk-task"></view>
+  </view>
   </view>
 </view>

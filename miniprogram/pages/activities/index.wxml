@@ -1,6 +1,6 @@
-<scroll-view class="activities-page" scroll-y="true">
+<view class="page">
   <!-- 顶部导航（对齐首页样式） -->
-  <view class="nav-header {{theme.headerBg}}">
+  <view class="nav-header {{theme.headerBg}} full-bleed">
     <view class="brand">📅 活动中心</view>
     <view class="nav-actions">
       <!-- 导航操作按钮可在此添加，如搜索、筛选等 -->
@@ -207,7 +207,7 @@
   <view class="floating-fab" wx:if="{{canCreateActivity}}" bindtap="toCreate">
     <text class="fab-icon">➕</text>
   </view>
-</scroll-view>
+</view>
 
 
 

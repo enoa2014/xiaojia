@@ -3,6 +3,64 @@
 
 page { background: var(--gradient-page); }
 
+/* ========== 统一页面容器样式 ========== */
+.page {
+  padding: 0 24rpx;
+  min-height: 100vh;
+  background: var(--gradient-page);
+}
+
+.full-bleed {
+  margin: 0 -24rpx;
+}
+
+/* ========== 统一导航头样式 ========== */
+.nav-header {
+  height: var(--nav-height);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 24rpx;
+  color: white;
+  position: sticky;
+  top: 0;
+  z-index: var(--z-nav);
+  box-shadow: var(--shadow-md);
+  margin: 0 -24rpx;
+}
+
+/* Role-based header themes */
+.nav-header--green { background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); }
+.nav-header--blue { background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); }
+.nav-header--purple { background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); }
+.nav-header--orange { background: linear-gradient(135deg, #FB923C 0%, #F97316 100%); }
+.nav-header--pink { background: linear-gradient(135deg, #F472B6 0%, #EC4899 100%); }
+
+/* 统一导航头子元素样式 */
+.nav-header .brand {
+  font-size: 32rpx;
+  font-weight: var(--weight-bold);
+  letter-spacing: -0.5rpx;
+}
+
+.nav-header .nav-actions {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.nav-header .nav-tool {
+  position: relative;
+  padding: var(--space-2);
+  border-radius: 50%;
+  transition: all 0.2s ease;
+}
+
+.nav-header .nav-tool:active {
+  background: rgba(255, 255, 255, 0.2);
+  transform: scale(0.95);
+}
+
 /* Legacy styles updated with tokens */
 .nav { background: var(--color-primary-600); color: var(--text-on-primary); padding: var(--space-3) var(--space-4); font-weight: var(--weight-bold); }
 .card { background: var(--bg-primary); border-radius: var(--radius-md); box-shadow: var(--shadow-sm); padding: var(--space-4); margin: var(--space-3); }
