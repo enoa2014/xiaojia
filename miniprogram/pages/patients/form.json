@@ -1,6 +1,7 @@
 { 
   "navigationBarTitleText": "新建档案",
   "usingComponents": {
-    "ui-button": "../../components/button/index"
+    "ui-button": "../../components/button/index",
+    "ui-form-field": "../../components/form-field/index"
   }
 }

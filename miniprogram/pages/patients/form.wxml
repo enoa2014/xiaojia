@@ -4,28 +4,57 @@
     <view class="nav-actions"></view>
   </view>
   <!-- 基本信息 -->
-  <view class="section" id="field-name">
-    <text class="label">姓名</text>
-    <input class="input {{errors.name?'error-border':''}}" placeholder="请输入姓名" value="{{name}}" data-key="name" bindinput="onInput" />
-    <text class="error" wx:if="{{errors.name}}">{{errors.name}}</text>
-  </view>
-  <view class="section" id="field-id_card">
-    <text class="label">身份证</text>
-    <input class="input {{errors.id_card?'error-border':''}}" placeholder="请输入身份证号码" value="{{id_card}}" data-key="id_card" bindinput="onInput" />
-    <text class="error" wx:if="{{errors.id_card}}">{{errors.id_card}}</text>
-  </view>
-  <view class="section" id="field-phone">
-    <text class="label">手机号（可选）</text>
-    <input class="input {{errors.phone?'error-border':''}}" type="number" placeholder="11位手机号" value="{{phone}}" data-key="phone" bindinput="onInput" />
-    <text class="error" wx:if="{{errors.phone}}">{{errors.phone}}</text>
-  </view>
-  <view class="section" id="field-birthDate">
-    <text class="label">出生日期（可选）</text>
-    <picker mode="date" value="{{birthDate}}" bindchange="onPickBirth">
-      <view class="picker {{errors.birthDate?'error-border':''}}">{{birthDate || '选择日期'}}</view>
+  <ui-form-field 
+    label="姓名"
+    fieldId="name"
+    required="{{true}}"
+    errorText="{{errors.name}}">
+    <input 
+      slot="control"
+      class="input" 
+      placeholder="请输入姓名" 
+      value="{{name}}" 
+      data-key="name" 
+      bindinput="onInput" />
+  </ui-form-field>
+  <ui-form-field 
+    label="身份证"
+    fieldId="id_card"
+    required="{{true}}"
+    errorText="{{errors.id_card}}">
+    <input 
+      slot="control"
+      class="input" 
+      placeholder="请输入身份证号码" 
+      value="{{id_card}}" 
+      data-key="id_card" 
+      bindinput="onInput" />
+  </ui-form-field>
+  <ui-form-field 
+    label="手机号（可选）"
+    fieldId="phone"
+    errorText="{{errors.phone}}">
+    <input 
+      slot="control"
+      class="input" 
+      type="number" 
+      placeholder="11位手机号" 
+      value="{{phone}}" 
+      data-key="phone" 
+      bindinput="onInput" />
+  </ui-form-field>
+  <ui-form-field 
+    label="出生日期（可选）"
+    fieldId="birthDate"
+    errorText="{{errors.birthDate}}">
+    <picker 
+      slot="control"
+      mode="date" 
+      value="{{birthDate}}" 
+      bindchange="onPickBirth">
+      <view class="picker">{{birthDate || '选择日期'}}</view>
     </picker>
-    <text class="error" wx:if="{{errors.birthDate}}">{{errors.birthDate}}</text>
-  </view>
+  </ui-form-field>
 
   <!-- 更多信息（折叠） -->
   <view class="more-toggle" bindtap="toggleMore">
@@ -48,16 +77,31 @@
     <view class="section"><text class="label">症状详情（可选）</text><textarea class="textarea" maxlength="500" placeholder="≤500 字" value="{{symptoms}}" data-key="symptoms" bindinput="onInput" /></view>
     <view class="section"><text class="label">医疗过程（可选）</text><textarea class="textarea" maxlength="500" placeholder="≤500 字" value="{{medicalCourse}}" data-key="medicalCourse" bindinput="onInput" /></view>
     <view class="section"><text class="label">后续治疗安排（可选）</text><textarea class="textarea" maxlength="500" placeholder="≤500 字" value="{{followupPlan}}" data-key="followupPlan" bindinput="onInput" /></view>
-    <view class="section" id="field-motherPhone">
-      <text class="label">母亲电话（可选）</text>
-      <input class="input {{errors.motherPhone?'error-border':''}}" type="number" placeholder="11位手机号" value="{{motherPhone}}" data-key="motherPhone" bindinput="onInput" />
-      <text class="error" wx:if="{{errors.motherPhone}}">{{errors.motherPhone}}</text>
-    </view>
-    <view class="section" id="field-motherIdCard">
-      <text class="label">母亲身份证（可选）</text>
-      <input class="input {{errors.motherIdCard?'error-border':''}}" placeholder="18位身份证" value="{{motherIdCard}}" data-key="motherIdCard" bindinput="onInput" />
-      <text class="error" wx:if="{{errors.motherIdCard}}">{{errors.motherIdCard}}</text>
-    </view>
+    <ui-form-field 
+      label="母亲电话（可选）"
+      fieldId="motherPhone"
+      errorText="{{errors.motherPhone}}">
+      <input 
+        slot="control"
+        class="input" 
+        type="number" 
+        placeholder="11位手机号" 
+        value="{{motherPhone}}" 
+        data-key="motherPhone" 
+        bindinput="onInput" />
+    </ui-form-field>
+    <ui-form-field 
+      label="母亲身份证（可选）"
+      fieldId="motherIdCard"
+      errorText="{{errors.motherIdCard}}">
+      <input 
+        slot="control"
+        class="input" 
+        placeholder="18位身份证" 
+        value="{{motherIdCard}}" 
+        data-key="motherIdCard" 
+        bindinput="onInput" />
+    </ui-form-field>
     <view class="section"><text class="label">母亲姓名（可选）</text><input class="input" placeholder="姓名" value="{{motherName}}" data-key="motherName" bindinput="onInput" /></view>
     <view class="section"><text class="label">其他监护人（可选）</text><input class="input" placeholder="姓名/关系" value="{{otherGuardians}}" data-key="otherGuardians" bindinput="onInput" /></view>
     <view class="section"><text class="label">家庭经济（可选）</text><input class="input" placeholder="如：困难/一般/良好" value="{{familyEconomy}}" data-key="familyEconomy" bindinput="onInput" /></view>

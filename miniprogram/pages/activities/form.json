@@ -5,6 +5,9 @@
   "backgroundColor": "#F2F2F7",
   "enablePullDownRefresh": false,
   "disableScroll": true,
-  "usingComponents": {}
+  "usingComponents": {
+    "ui-button": "../../components/button/index",
+    "ui-form-field": "../../components/form-field/index"
+  }
 }
 

@@ -227,7 +227,7 @@ Page({
     } catch (error) {
       console.error('加载活动数据失败:', error)
       wx.showToast({
-        title: mapError(error).message,
+        title: mapError(error.code || 'E_INTERNAL'),
         icon: 'none'
       })
     } finally {
@@ -693,7 +693,7 @@ Page({
     } catch (error) {
       console.error('提交表单失败:', error)
       wx.showToast({
-        title: mapError(error).message,
+        title: mapError(error.code || 'E_INTERNAL'),
         icon: 'none'
       })
     } finally {

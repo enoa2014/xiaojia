@@ -3,7 +3,13 @@
   <view class="nav-header {{theme && theme.headerBg || 'nav-header--blue'}}">
     <view class="brand">📅 {{mode === 'edit' ? '编辑活动' : '发布活动'}}</view>
     <view class="nav-actions">
-      <button class="draft-btn" bindtap="saveAsDraft" loading="{{autoSaving}}">草稿</button>
+      <ui-button 
+        text="草稿"
+        variant="ghost"
+        size="sm"
+        loading="{{autoSaving}}"
+        bindtap="saveAsDraft"
+        ext-class="draft-btn-component" />
     </view>
   </view>
 
@@ -378,32 +384,39 @@
   
   <!-- 底部操作栏 -->
   <view class="bottom-actions">
-    <button class="action-btn secondary" bindtap="showPreview">
-      <text class="btn-icon">👁</text>
-      <text class="btn-text">预览</text>
-    </button>
+    <ui-button 
+      text="👁 预览"
+      variant="secondary"
+      size="md"
+      bindtap="showPreview"
+      ext-class="action-btn-component" />
     
-    <button class="action-btn secondary" bindtap="saveAsDraft" loading="{{autoSaving}}">
-      <text class="btn-icon">💾</text>
-      <text class="btn-text">保存草稿</text>
-    </button>
+    <ui-button 
+      text="💾 保存草稿"
+      variant="secondary" 
+      size="md"
+      loading="{{autoSaving}}"
+      bindtap="saveAsDraft"
+      ext-class="action-btn-component" />
     
-    <button class="action-btn primary" 
-            bindtap="submitForm"
-            data-publish="{{false}}"
-            loading="{{submitting}}">
-      <text class="btn-icon">📝</text>
-      <text class="btn-text">{{mode === 'edit' ? '更新' : '保存'}}</text>
-    </button>
+    <ui-button 
+      text="📝 {{mode === 'edit' ? '更新' : '保存'}}"
+      variant="primary"
+      size="md" 
+      loading="{{submitting}}"
+      data-publish="{{false}}"
+      bindtap="submitForm"
+      ext-class="action-btn-component" />
     
-    <button class="action-btn primary publish" 
-            wx:if="{{canPublishImmediately}}"
-            bindtap="submitForm"
-            data-publish="{{true}}"
-            loading="{{submitting}}">
-      <text class="btn-icon">📢</text>
-      <text class="btn-text">发布</text>
-    </button>
+    <ui-button 
+      wx:if="{{canPublishImmediately}}"
+      text="📢 发布"
+      variant="primary"
+      size="md"
+      loading="{{submitting}}"
+      data-publish="{{true}}"
+      bindtap="submitForm"
+      ext-class="action-btn-component publish-btn" />
   </view>
 </view>
 
@@ -420,7 +433,13 @@
   <view class="modal-content" >
     <view class="modal-header">
       <text class="modal-title">活动预览</text>
-      <button class="modal-close" bindtap="hidePreview">✕</button>
+      <ui-button 
+        text="✕"
+        variant="ghost"
+        size="sm"
+        bindtap="hidePreview"
+        round="{{true}}"
+        ext-class="modal-close-btn" />
     </view>
     
     <scroll-view class="modal-body" scroll-y="true">
@@ -467,7 +486,13 @@
   <view class="modal-content" >
     <view class="modal-header">
       <text class="modal-title">填写帮助</text>
-      <button class="modal-close" bindtap="hideHelp">✕</button>
+      <ui-button 
+        text="✕"
+        variant="ghost"
+        size="sm"
+        bindtap="hideHelp"
+        round="{{true}}"
+        ext-class="modal-close-btn" />
     </view>
     
     <view class="modal-body">
