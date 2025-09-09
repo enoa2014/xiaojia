@@ -5,6 +5,7 @@
     "role-badge": "../../components/role-badge/index",
     "stat-card": "../../components/stat-card/index",
     "empty-state": "../../components/empty-state/index",
-    "error-view": "../../components/error-view/index"
+    "error-view": "../../components/error-view/index",
+    "chart-container": "../../components/chart-container/index"
   }
 }

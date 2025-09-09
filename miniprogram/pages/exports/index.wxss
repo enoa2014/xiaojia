@@ -1,4 +1,453 @@
-.page { padding: 16rpx; }
-.section { margin: 12rpx 0; }
-.picker { padding: 16rpx; background: #f6f6f6; border-radius: 8rpx; }
-.link { color: #2563eb; word-break: break-all; }
+/* 导出中心页面样式 */
+.page {
+  padding-bottom: 120rpx;
+}
+
+.nav-reset {
+  font-size: var(--font-h1);
+  padding: var(--space-2);
+  opacity: 0.9;
+}
+
+/* 权限提示 */
+.no-permission {
+  padding: var(--space-6);
+}
+
+/* 通用区域标题 */
+.section-title {
+  font-size: var(--font-h4);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+/* 模板选择区域 */
+.template-selection {
+  margin-bottom: var(--space-6);
+}
+
+.templates-grid {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.template-card {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  transition: all 0.3s ease;
+  border: 2rpx solid transparent;
+}
+
+.template-card:active {
+  transform: scale(0.98);
+  border-color: var(--color-primary-200);
+  box-shadow: var(--shadow-md);
+}
+
+.template-icon {
+  font-size: 48rpx;
+  width: 80rpx;
+  height: 80rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-lg);
+}
+
+.template-icon.large {
+  font-size: 56rpx;
+  width: 96rpx;
+  height: 96rpx;
+}
+
+.template-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.template-name {
+  font-size: var(--font-body);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+}
+
+.template-desc {
+  font-size: var(--font-caption);
+  color: var(--gray-500);
+  line-height: 1.4;
+}
+
+.template-arrow {
+  font-size: var(--font-h3);
+  color: var(--gray-400);
+}
+
+/* 导出配置区域 */
+.export-config {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-6);
+}
+
+.selected-template {
+  background: linear-gradient(135deg, var(--bg-subtle), var(--bg-subtle));
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  border: 2rpx solid var(--color-primary-200);
+}
+
+.template-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+}
+
+.template-details {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+/* 参数表单 */
+.params-form {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+}
+
+.form-field {
+  margin-bottom: var(--space-6);
+}
+
+.field-label {
+  display: block;
+  font-size: var(--font-body);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-3);
+}
+
+.picker-input {
+  background: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border: 2rpx solid var(--border-subtle);
+  transition: border-color 0.3s ease;
+}
+
+.picker-input:active {
+  border-color: var(--color-primary-300);
+}
+
+.picker-text {
+  font-size: var(--font-body);
+  color: var(--text-primary);
+}
+
+.picker-arrow {
+  font-size: var(--font-h4);
+  color: var(--gray-400);
+}
+
+/* 日期范围 */
+.date-range {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.date-picker {
+  flex: 1;
+  background: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  text-align: center;
+  border: 2rpx solid var(--border-subtle);
+}
+
+.date-text {
+  font-size: var(--font-body);
+  color: var(--text-primary);
+}
+
+.date-separator {
+  font-size: var(--font-body);
+  color: var(--gray-500);
+}
+
+/* 操作按钮 */
+.action-section {
+  padding: 0 var(--space-2);
+}
+
+.create-btn {
+  width: 100%;
+  height: 88rpx;
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700));
+  color: var(--text-on-primary);
+  border: none;
+  border-radius: var(--radius-lg);
+  font-size: var(--font-body);
+  font-weight: var(--weight-semibold);
+  box-shadow: 0 4rpx 12rpx rgba(34, 197, 94, 0.3);
+}
+
+.create-btn:disabled {
+  opacity: var(--opacity-disabled);
+  box-shadow: none;
+}
+
+/* 当前任务状态 */
+.current-task {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+}
+
+.task-card {
+  background: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  border-left: 4rpx solid var(--color-info-600);
+}
+
+.task-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: var(--space-4);
+}
+
+.task-id {
+  font-size: var(--font-caption);
+  color: var(--gray-500);
+  font-family: monospace;
+}
+
+.task-status {
+  padding: var(--space-1) var(--space-3);
+  border-radius: var(--radius-md);
+  font-size: var(--font-caption);
+  font-weight: var(--weight-semibold);
+}
+
+.task-status.pending {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--color-warning-600);
+}
+
+.task-status.running {
+  background: rgba(59, 130, 246, 0.1);
+  color: var(--color-info-600);
+}
+
+.task-status.done {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--color-success-600);
+}
+
+.task-status.failed {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger-600);
+}
+
+/* 进度条 */
+.progress-section {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-4);
+}
+
+.progress-bar {
+  flex: 1;
+  height: 8rpx;
+  background: var(--gray-200);
+  border-radius: 4rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-info-600), var(--color-info-500));
+  border-radius: 4rpx;
+  transition: width 0.3s ease;
+}
+
+.progress-text {
+  font-size: var(--font-caption);
+  font-weight: var(--weight-semibold);
+  color: var(--color-info-600);
+  min-width: 60rpx;
+  text-align: right;
+}
+
+/* 下载和操作区域 */
+.download-section {
+  margin-bottom: var(--space-3);
+}
+
+.task-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* 导出历史 */
+.export-history {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+}
+
+.history-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.history-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-4);
+  padding: var(--space-4);
+  background: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  transition: background-color 0.3s ease;
+}
+
+.history-item:active {
+  background: var(--gray-100);
+}
+
+.history-icon {
+  font-size: 40rpx;
+  width: 64rpx;
+  height: 64rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--gray-100);
+  border-radius: var(--radius-md);
+}
+
+.history-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.history-name {
+  font-size: var(--font-body);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+}
+
+.history-time {
+  font-size: var(--font-caption);
+  color: var(--gray-500);
+}
+
+.history-meta {
+  display: flex;
+  gap: var(--space-3);
+  align-items: center;
+}
+
+.history-creator {
+  font-size: var(--font-caption);
+  color: var(--gray-500);
+}
+
+.history-status {
+  font-size: var(--font-caption);
+  font-weight: var(--weight-semibold);
+  padding: 2rpx var(--space-2);
+  border-radius: var(--radius-sm);
+}
+
+.history-status.done {
+  background: rgba(34, 197, 94, 0.1);
+  color: var(--color-success-600);
+}
+
+.history-status.failed {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger-600);
+}
+
+.history-status.pending {
+  background: rgba(245, 158, 11, 0.1);
+  color: var(--color-warning-600);
+}
+
+.history-actions {
+  display: flex;
+  gap: var(--space-2);
+}
+
+/* 响应式适配 */
+@media screen and (max-width: 750rpx) {
+  .template-card {
+    padding: var(--space-4);
+  }
+  
+  .template-icon {
+    width: 64rpx;
+    height: 64rpx;
+    font-size: 40rpx;
+  }
+  
+  .template-icon.large {
+    width: 80rpx;
+    height: 80rpx;
+    font-size: 48rpx;
+  }
+  
+  .params-form,
+  .current-task,
+  .export-history {
+    padding: var(--space-4);
+  }
+  
+  .date-range {
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--space-2);
+  }
+  
+  .date-separator {
+    text-align: center;
+    font-size: var(--font-caption);
+  }
+  
+  .history-item {
+    padding: var(--space-3);
+  }
+  
+  .history-icon {
+    width: 56rpx;
+    height: 56rpx;
+    font-size: 32rpx;
+  }
+}

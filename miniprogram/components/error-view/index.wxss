@@ -96,7 +96,7 @@
   color: var(--text-on-primary);
 }
 
-.error-action.primary:not([disabled]):active {
+.error-action.primary:not(.disabled):active {
   background: #DC2626;
   transform: scale(0.98);
 }
@@ -107,7 +107,7 @@
   border: 2rpx solid var(--gray-300);
 }
 
-.error-action.secondary:not([disabled]):active {
+.error-action.secondary:not(.disabled):active {
   background: var(--gray-50);
   border-color: var(--gray-400);
   transform: scale(0.98);
@@ -127,7 +127,7 @@
   transform: scale(0.98);
 }
 
-.error-action[disabled] {
+.error-action.disabled {
   opacity: var(--opacity-disabled);
   cursor: not-allowed;
   transform: none !important;

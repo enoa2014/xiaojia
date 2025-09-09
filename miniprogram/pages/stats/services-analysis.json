@@ -1,0 +1,10 @@
+{
+  "navigationBarTitleText": "服务效果分析",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "stat-card": "../../components/stat-card/index",
+    "chart-container": "../../components/chart-container/index",
+    "empty-state": "../../components/empty-state/index",
+    "error-view": "../../components/error-view/index"
+  }
+}

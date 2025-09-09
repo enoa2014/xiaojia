@@ -97,15 +97,22 @@
     </view>
 
     <!-- 趋势图表 -->
-    <view wx:if="{{items.length>0}}" class="chart-container">
-      <view class="chart-header">
-        <text class="chart-title">数据趋势图</text>
-        <view class="chart-controls">
-          <block wx:for="{{scopes}}" wx:key="key">
-            <text bindtap="onTapScope" data-index="{{index}}" class="scope-tag {{scopeIndex===index?'active':''}}">{{item.label}}</text>
-          </block>
-        </view>
+    <chart-container 
+      title="数据趋势图"
+      loading="{{loading}}"
+      empty="{{items.length===0}}"
+      error="{{error}}"
+      height="400"
+      bindretry="onRefresh">
+      
+      <!-- 图表控制器插槽 -->
+      <view slot="header-extra" class="chart-controls">
+        <block wx:for="{{scopes}}" wx:key="key">
+          <text bindtap="onTapScope" data-index="{{index}}" class="scope-tag {{scopeIndex===index?'active':''}}">{{item.label}}</text>
+        </block>
       </view>
+
+      <!-- 图表主体内容 -->
       <view class="chart-body">
         <block wx:for="{{items}}" wx:key="date">
           <view class="chart-bar">
@@ -118,16 +125,7 @@
           </view>
         </block>
       </view>
-    </view>
-
-    <empty-state
-      wx:if="{{items.length===0}}"
-      show="{{true}}"
-      icon="📊"
-      title="暂无{{scopes[scopeIndex].label}}数据"
-      description="选择其他时间范围试试"
-      variant="compact">
-    </empty-state>
+    </chart-container>
   </view>
 
   <!-- 错误状态 -->
@@ -149,17 +147,17 @@
   <view wx:if="{{canView}}" class="action-section">
     <view class="section-title">⚡ 专项分析</view>
     <view class="action-grid">
-      <view class="action-card" bindtap="onGo" data-url="/pages/services/index">
+      <view class="action-card" bindtap="onGo" data-url="/pages/stats/services-analysis">
         <text class="action-icon">📈</text>
         <text class="action-title">服务效果分析</text>
         <text class="action-desc">服务质量评估与趋势</text>
       </view>
-      <view class="action-card" bindtap="onGo" data-url="/pages/patients/index">
+      <view class="action-card" bindtap="onGo" data-url="/pages/stats/tenancy-analysis">
         <text class="action-icon">🏠</text>
         <text class="action-title">入住情况分析</text>
         <text class="action-desc">床位使用率与周转</text>
       </view>
-      <view class="action-card" bindtap="onGo" data-url="/pages/activities/index">
+      <view class="action-card" bindtap="onGo" data-url="/pages/stats/activity-analysis">
         <text class="action-icon">🎯</text>
         <text class="action-title">活动参与分析</text>
         <text class="action-desc">活动效果与满意度</text>

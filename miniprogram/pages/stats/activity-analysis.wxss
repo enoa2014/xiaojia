@@ -1,0 +1,311 @@
+/* 活动参与分析页面样式 */
+.page {
+  padding-bottom: 120rpx;
+}
+
+/* 权限提示 */
+.no-permission {
+  padding: var(--space-6);
+}
+
+/* 时间选择器 */
+.time-selector {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+.time-tabs {
+  display: flex;
+  background: var(--gray-50);
+  border-radius: var(--radius-md);
+  padding: 6rpx;
+  margin-bottom: 16rpx;
+}
+
+.time-tab {
+  flex: 1;
+  text-align: center;
+  padding: 12rpx 16rpx;
+  color: var(--gray-500);
+  font-size: var(--font-caption);
+  border-radius: var(--radius-sm);
+  transition: all 0.3s ease;
+}
+
+.time-tab.active {
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700));
+  color: var(--text-on-primary);
+  font-weight: var(--weight-semibold);
+  box-shadow: 0 2rpx 8rpx rgba(34, 197, 94, 0.3);
+}
+
+.custom-date {
+  color: var(--color-primary-600);
+  font-size: var(--font-body);
+  font-weight: var(--weight-semibold);
+  text-align: center;
+  padding: var(--space-2);
+}
+
+/* 概览区域 */
+.summary-section {
+  margin-bottom: var(--space-6);
+}
+
+.section-title {
+  font-size: var(--font-h4);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.summary-card {
+  width: 100%;
+}
+
+/* 图表内容样式 */
+.chart-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 趋势线样式 */
+.trend-chart {
+  width: 100%;
+  height: 220rpx;
+}
+
+.trend-line-container {
+  width: 100%;
+  height: 100%;
+  position: relative;
+}
+
+.trend-line-body {
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+  padding-bottom: 50rpx;
+  position: relative;
+}
+
+.trend-point {
+  flex: 1;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.point-dot {
+  width: 16rpx;
+  height: 16rpx;
+  background: var(--color-warning-600);
+  border-radius: 50%;
+  border: 3rpx solid var(--bg-primary);
+  box-shadow: 0 2rpx 8rpx rgba(245, 158, 11, 0.3);
+  position: absolute;
+  bottom: 0;
+}
+
+.point-label {
+  position: absolute;
+  bottom: -45rpx;
+  font-size: var(--font-caption);
+  color: var(--gray-500);
+  white-space: nowrap;
+  transform: rotate(-30deg);
+  transform-origin: center;
+}
+
+.point-value {
+  position: absolute;
+  top: -35rpx;
+  font-size: var(--font-caption);
+  font-weight: var(--weight-semibold);
+  color: var(--color-warning-600);
+  white-space: nowrap;
+}
+
+/* 活动类型分布样式 */
+.type-distribution {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.type-item {
+  padding: var(--space-4);
+  background: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  border-left: 4rpx solid transparent;
+}
+
+.type-header {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+
+.type-icon {
+  width: 48rpx;
+  height: 48rpx;
+  border-radius: var(--radius-md);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: var(--font-h4);
+}
+
+.type-info {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.type-name {
+  font-size: var(--font-body);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+}
+
+.type-count {
+  font-size: var(--font-caption);
+  color: var(--gray-500);
+}
+
+.type-progress {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.progress-bar {
+  flex: 1;
+  height: 8rpx;
+  background: var(--gray-200);
+  border-radius: 4rpx;
+  overflow: hidden;
+}
+
+.progress-fill {
+  height: 100%;
+  border-radius: 4rpx;
+  transition: width 0.6s ease;
+}
+
+.progress-text {
+  font-size: var(--font-caption);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  min-width: 60rpx;
+  text-align: right;
+}
+
+/* 年龄分布样式 */
+.age-chart {
+  width: 100%;
+  height: 200rpx;
+}
+
+.age-bars {
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+  gap: var(--space-2);
+  padding-bottom: 40rpx;
+}
+
+.age-bar-item {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.age-bar {
+  width: 100%;
+  max-width: 40rpx;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+}
+
+.age-bar-fill {
+  width: 100%;
+  background: linear-gradient(180deg, var(--color-success-600) 0%, var(--color-success-700) 100%);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  min-height: 16rpx;
+  transition: height 0.6s ease;
+}
+
+.age-bar-value {
+  position: absolute;
+  top: -30rpx;
+  font-size: var(--font-caption);
+  font-weight: var(--weight-semibold);
+  color: var(--color-success-600);
+  white-space: nowrap;
+}
+
+.age-label {
+  margin-top: var(--space-2);
+  font-size: var(--font-caption);
+  color: var(--gray-500);
+  text-align: center;
+  white-space: nowrap;
+}
+
+/* 响应式适配 */
+@media screen and (max-width: 750rpx) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+  
+  .type-item {
+    padding: var(--space-3);
+  }
+  
+  .type-icon {
+    width: 40rpx;
+    height: 40rpx;
+    font-size: var(--font-body);
+  }
+  
+  .trend-line-body {
+    padding-bottom: 40rpx;
+  }
+  
+  .point-label {
+    font-size: 20rpx;
+    bottom: -35rpx;
+  }
+  
+  .age-bars {
+    padding-bottom: 35rpx;
+  }
+  
+  .age-label {
+    font-size: 20rpx;
+  }
+}

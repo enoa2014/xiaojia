@@ -1,0 +1,234 @@
+/* Chart Container 图表容器组件 */
+.chart-container {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  overflow: hidden;
+  transition: all 0.3s ease;
+  position: relative;
+}
+
+.chart-container--disabled {
+  opacity: var(--opacity-disabled);
+  pointer-events: none;
+}
+
+/* 头部区域 */
+.chart-container__header {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: var(--space-6) var(--space-6) var(--space-4);
+  border-bottom: 1px solid var(--border-subtle);
+}
+
+.chart-container__title {
+  font-size: var(--font-h4);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  line-height: 1.4;
+}
+
+/* 交互控制区域 */
+.chart-container__controls {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+/* 时间范围切换器 */
+.time-range-switcher {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.time-range-option {
+  padding: var(--space-2) var(--space-4);
+  border: 2rpx solid var(--gray-300);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  color: var(--text-secondary);
+  font-size: var(--font-caption);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+  white-space: nowrap;
+}
+
+.time-range-option:hover {
+  border-color: var(--color-primary-400);
+  background: var(--color-primary-50, rgba(34, 197, 94, 0.05));
+}
+
+.time-range-option.active {
+  border-color: var(--color-primary-600);
+  background: var(--color-primary-600);
+  color: var(--text-on-primary);
+}
+
+/* 筛选器组 */
+.chart-filters {
+  display: flex;
+  gap: var(--space-4);
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.filter-group {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.filter-label {
+  font-size: var(--font-caption);
+  color: var(--text-secondary);
+  font-weight: var(--weight-medium);
+  white-space: nowrap;
+}
+
+.filter-picker {
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+  padding: var(--space-2) var(--space-3);
+  border: 2rpx solid var(--gray-300);
+  border-radius: var(--radius-md);
+  background: var(--bg-primary);
+  min-width: 120rpx;
+  transition: border-color var(--duration-fast);
+}
+
+.filter-picker:active {
+  border-color: var(--color-primary-400);
+}
+
+.filter-text {
+  font-size: var(--font-caption);
+  color: var(--text-primary);
+  flex: 1;
+}
+
+.filter-arrow {
+  font-size: var(--font-caption);
+  color: var(--gray-400);
+}
+
+.filter-reset {
+  padding: var(--space-2) var(--space-3);
+  background: var(--gray-200);
+  color: var(--text-secondary);
+  border-radius: var(--radius-md);
+  font-size: var(--font-caption);
+  font-weight: var(--weight-medium);
+  cursor: pointer;
+  transition: all var(--duration-fast);
+}
+
+.filter-reset:active {
+  background: var(--gray-300);
+}
+
+/* 主体区域 */
+.chart-container__body {
+  position: relative;
+  padding: var(--space-6);
+  min-height: 200rpx;
+}
+
+.chart-container__content {
+  position: relative;
+  width: 100%;
+  height: 100%;
+}
+
+/* 加载状态 */
+.chart-container__loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100%;
+  min-height: 200rpx;
+}
+
+/* 底部区域 */
+.chart-container__footer {
+  padding: var(--space-4) var(--space-6) var(--space-6);
+  border-top: 1px solid var(--border-subtle);
+  background: var(--bg-subtle);
+}
+
+/* Mock 数据显示区域 */
+.mock-data-display {
+  padding: var(--space-4);
+  background: var(--bg-subtle);
+  border: 2rpx dashed var(--color-primary-300);
+  border-radius: var(--radius-md);
+  margin-bottom: var(--space-4);
+}
+
+.mock-data-info {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--space-3);
+}
+
+.mock-label {
+  font-size: var(--font-caption);
+  color: var(--color-primary-700);
+  font-weight: var(--weight-semibold);
+}
+
+.mock-refresh-btn {
+  background: var(--color-primary-50) !important;
+  color: var(--color-primary-700) !important;
+  border: 1rpx solid var(--color-primary-300) !important;
+  border-radius: var(--radius-sm) !important;
+  font-size: 24rpx !important;
+  padding: 8rpx 16rpx !important;
+  height: auto !important;
+  line-height: 1.2 !important;
+}
+
+.mock-refresh-btn::after {
+  border: none !important;
+}
+
+.mock-data-preview {
+  background: var(--bg-primary);
+  padding: var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1rpx solid var(--border-subtle);
+}
+
+.mock-data-text {
+  font-size: var(--font-caption);
+  color: var(--text-secondary);
+  line-height: 1.4;
+  font-family: monospace;
+}
+
+/* 响应式适配 */
+@media (max-width: 750px) {
+  .chart-container__header {
+    padding: var(--space-4) var(--space-4) var(--space-3);
+  }
+  
+  .chart-container__body {
+    padding: var(--space-4);
+  }
+  
+  .chart-container__footer {
+    padding: var(--space-3) var(--space-4) var(--space-4);
+  }
+  
+  .chart-container__title {
+    font-size: var(--font-body);
+  }
+
+  .mock-data-display {
+    margin-bottom: var(--space-3);
+  }
+}

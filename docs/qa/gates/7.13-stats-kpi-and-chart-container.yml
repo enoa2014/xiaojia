@@ -1,0 +1,29 @@
+story: "7.13"
+title: "统计页 KPI 卡与图表容器完善 - 实施质量门"
+status: PASS
+status_reason: "AC 达成：KPI 使用 stat-card 统一风格；新增 chart-container 并接入 stats/index；空/错/加载统一（与 7.7/7.11 兼容）。"
+issues:
+  - id: SKELETON-CHART-TYPE
+    level: RESOLVED
+    description: "loading-skeleton 已支持 type=chart，实现了完整的图表骨架模板"
+    suggested_action: "✅ 已实现：添加chart类型骨架，包含标题、控制器和柱状图样式"
+  - id: A11Y-REGION-LABEL
+    level: RESOLVED
+    description: "chart-container 已添加完整的无障碍访问支持"
+    suggested_action: "✅ 已实现：role=region + 动态aria-label（含状态描述）"
+  - id: RESPONSIVE-MIN-HEIGHT
+    level: WAIVED
+    description: "极窄屏/短高度下最小高度 200rpx 时图表标签可能挤压"
+    suggested_action: "根据产品目标设备留待后续微调（当前可接受）"
+last_review: 2025-09-09
+evidence:
+  - path: miniprogram/pages/stats/index.wxml
+    note: "KPI 与趋势图使用 stat-card + chart-container；error/empty/loading 状态连通"
+  - path: miniprogram/components/chart-container/index.wxml
+    note: "loading/empty/error 统一处理；header-extra/slot 嵌入控制条"
+  - path: docs/qa/test-plan-stat-card.md
+    note: "KPI 渠道测试计划"
+  - path: docs/qa/test-plan-empty-error.md
+    note: "空/错态统一测试计划"
+  - path: docs/qa/test-plan-loading-skeleton.md
+    note: "骨架屏时序与淡出测试计划"

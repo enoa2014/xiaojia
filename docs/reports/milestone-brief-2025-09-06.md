@@ -24,6 +24,10 @@
 - 表单页组件化（7.10）：已完成（activities/tenancies/patients 三页统一 `ui-button` + `ui-form-field`）。
 - Skeleton 统一（7.11）：已完成（`loading-skeleton` 组件上线；patients/{index,detail} 接入，时序≤300ms，A11y补强）。
 - 活动日历视图（7.12）：已完成（activities/index 集成 calendar-view；月/周切换、状态筛选、详情跳转、报名/签到；占位与骨架统一；A11y补强）。
+- 统计页 KPI 与图表容器（7.13）：已完成（KPI 统一使用 stat-card；新增 chart-container 并在 stats/index 接入；空/错/加载统一；Retry 联通；主题/暗色稳定）。
+- 统计专项分析与导出中心（7.14）：已完成（服务/入住/活动专项分析子页接入与 RBAC；导出中心支持模板/参数/任务轮询/历史；状态与 A11y 一致）。
+- Chart 容器交互增强（7.16）：已完成（时间范围切换/维度筛选修复与完善；空/错/加载占位统一；A11y 语义补充；mock 色板切换至 tokens）。
+- 审批/审计页面路由与守卫（7.15）：已完成（approvals/audits 页面接入并受 RBAC 守卫；非管理员 E_PERM 提示；空/错/加载统一；审计目标脱敏）。
 
 ## QA & 测试
 - Gate 结果：PASS（EP-01-S1/S2/S3、EP-03-S1/S2、EP-04-S1/S2、EP-06-S1/S2/S3、EP-02-S1/S2）。

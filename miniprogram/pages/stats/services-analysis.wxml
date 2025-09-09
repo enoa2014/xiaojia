@@ -1,0 +1,164 @@
+<view class="page">
+  <!-- 导航头部 -->
+  <view class="nav-header {{theme.headerBg}} full-bleed">
+    <view class="brand">📈 服务效果分析</view>
+    <view class="nav-actions">
+      <text bindtap="onRefresh" class="nav-refresh">🔄</text>
+    </view>
+  </view>
+
+  <!-- 权限检查 -->
+  <view wx:if="{{!canView}}" class="no-permission">
+    <empty-state
+      show="{{true}}"
+      icon="🔒"
+      title="权限不足"
+      description="服务效果分析仅管理员和社工可见"
+      variant="compact">
+    </empty-state>
+  </view>
+
+  <!-- 主要内容 -->
+  <view wx:else>
+    <!-- 时间选择器 -->
+    <view class="time-selector">
+      <view class="time-tabs">
+        <text bindtap="onTimeRangeChange" data-range="week" class="time-tab {{timeRange==='week'?'active':''}}">本周</text>
+        <text bindtap="onTimeRangeChange" data-range="month" class="time-tab {{timeRange==='month'?'active':''}}">本月</text>
+        <text bindtap="onTimeRangeChange" data-range="quarter" class="time-tab {{timeRange==='quarter'?'active':''}}">本季</text>
+      </view>
+      
+      <!-- 月份选择 -->
+      <picker wx:if="{{timeRange==='month'}}" mode="date" fields="month" value="{{selectedMonth}}" bindchange="onMonthChange">
+        <view class="custom-date">{{selectedMonth}} 〉</view>
+      </picker>
+      
+      <!-- 季度选择 -->
+      <picker wx:if="{{timeRange==='quarter'}}" mode="selector" value="{{selectedQuarter}}" bindchange="onQuarterChange">
+        <view class="custom-date">{{selectedQuarter}} 〉</view>
+      </picker>
+    </view>
+
+    <!-- 核心指标概览 -->
+    <view class="summary-section">
+      <view class="section-title">📊 核心指标</view>
+      <view class="summary-grid">
+        <stat-card 
+          value="{{summary.totalServices}}" 
+          label="总服务量" 
+          icon="📋"
+          variant="primary"
+          loading="{{loading}}"
+          class="summary-card">
+        </stat-card>
+        <stat-card 
+          value="{{summary.completedServices}}" 
+          label="完成服务量" 
+          icon="✅"
+          variant="success"
+          loading="{{loading}}"
+          class="summary-card">
+        </stat-card>
+        <stat-card 
+          value="{{summary.avgRating}}" 
+          label="平均评分" 
+          icon="⭐"
+          variant="warning"
+          loading="{{loading}}"
+          class="summary-card">
+        </stat-card>
+        <stat-card 
+          value="{{summary.mostPopularType}}" 
+          label="热门服务" 
+          icon="🔥"
+          variant="info"
+          loading="{{loading}}"
+          class="summary-card">
+        </stat-card>
+      </view>
+    </view>
+
+    <!-- 服务类型分布 -->
+    <chart-container 
+      title="服务类型分布"
+      loading="{{loading}}"
+      empty="{{servicesByType.length===0}}"
+      error="{{error}}"
+      height="320"
+      bindretry="onRefresh">
+      
+      <view class="chart-content">
+        <view wx:if="{{servicesByType.length > 0}}" class="pie-chart-container">
+          <block wx:for="{{servicesByType}}" wx:key="type">
+            <view class="pie-item">
+              <view class="pie-legend">
+                <view class="pie-color" style="background-color: {{item.color}}"></view>
+                <text class="pie-label">{{item.type}}</text>
+              </view>
+              <text class="pie-value">{{item.count}}</text>
+              <text class="pie-percent">{{item.percentage}}%</text>
+            </view>
+          </block>
+        </view>
+      </view>
+    </chart-container>
+
+    <!-- 工作人员效能 -->
+    <chart-container 
+      title="工作人员效能"
+      loading="{{loading}}"
+      empty="{{servicesByWorker.length===0}}"
+      error="{{error}}"
+      height="280"
+      bindretry="onRefresh">
+      
+      <view class="chart-content">
+        <view wx:if="{{servicesByWorker.length > 0}}" class="bar-chart-horizontal">
+          <block wx:for="{{servicesByWorker}}" wx:key="workerId">
+            <view class="bar-item">
+              <view class="bar-label">{{item.workerName}}</view>
+              <view class="bar-container">
+                <view class="bar-fill" style="width: {{item.percentage}}%; background: {{item.color}}"></view>
+                <text class="bar-value">{{item.count}}</text>
+              </view>
+            </view>
+          </block>
+        </view>
+      </view>
+    </chart-container>
+
+    <!-- 评分趋势 -->
+    <chart-container 
+      title="服务评分趋势"
+      loading="{{loading}}"
+      empty="{{ratingTrend.length===0}}"
+      error="{{error}}"
+      height="280"
+      bindretry="onRefresh">
+      
+      <view class="chart-content">
+        <view wx:if="{{ratingTrend.length > 0}}" class="line-chart">
+          <view class="line-chart-body">
+            <block wx:for="{{ratingTrend}}" wx:key="date">
+              <view class="line-point">
+                <view class="point-marker" style="bottom: {{item.percentage}}%"></view>
+                <view class="point-label">{{item.date}}</view>
+                <view class="point-value">{{item.rating}}</view>
+              </view>
+            </block>
+          </view>
+        </view>
+      </view>
+    </chart-container>
+
+    <!-- 错误状态 -->
+    <error-view
+      wx:if="{{error}}"
+      show="{{true}}"
+      error="{{error}}"
+      retry-text="重试"
+      variant="compact"
+      bindretry="onRefresh">
+    </error-view>
+  </view>
+</view>

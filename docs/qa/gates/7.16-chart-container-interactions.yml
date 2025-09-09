@@ -1,0 +1,21 @@
+story: "7.16"
+title: "Chart 容器交互增强（缩放/筛选/空数据）- 实施质量门"
+status: PASS
+status_reason: "维度筛选已修复（使用 e.detail.value 索引映射到 options.value 并更新 currentFilters）；loading-skeleton 已实现 chart 模板；时间范围与筛选区补充了 A11y 语义。"
+issues:
+  - id: A11Y-TIME-RANGE
+    level: IMPROVEMENT
+    description: "时间范围按钮已用 tablist/tab 与 aria-selected；筛选区已补 aria-label"
+    suggested_action: "保持实现并在后续联动 tokens 色板"
+  - id: TOKENS-COLORS
+    level: ADVISORY
+    description: "mock 数据配色已切换为 tokens 变量"
+    suggested_action: "后续统一到 design tokens 文档"
+last_review: 2025-09-09
+evidence:
+  - path: miniprogram/components/chart-container/index.wxml
+    note: "tablist/tab + aria-selected 已加入；筛选区与项增加 aria 标签；skeleton 支持 chart 类型"
+  - path: miniprogram/components/chart-container/index.js
+    note: "onFilterChange 读取 e.detail.value 索引并映射至 options.value；mock 颜色使用 tokens 变量"
+  - path: docs/stories/7.16.chart-container-interactions.md
+    note: "AC 与实现声明"

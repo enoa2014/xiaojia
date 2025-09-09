@@ -1,0 +1,161 @@
+<view class="page">
+  <!-- 导航头部 -->
+  <view class="nav-header {{theme.headerBg}} full-bleed">
+    <view class="brand">🏠 入住情况分析</view>
+    <view class="nav-actions">
+      <text bindtap="onRefresh" class="nav-refresh">🔄</text>
+    </view>
+  </view>
+
+  <!-- 权限检查 -->
+  <view wx:if="{{!canView}}" class="no-permission">
+    <empty-state
+      show="{{true}}"
+      icon="🔒"
+      title="权限不足"
+      description="入住情况分析仅管理员和社工可见"
+      variant="compact">
+    </empty-state>
+  </view>
+
+  <!-- 主要内容 -->
+  <view wx:else>
+    <!-- 时间选择器 -->
+    <view class="time-selector">
+      <view class="time-tabs">
+        <text bindtap="onTimeRangeChange" data-range="month" class="time-tab {{timeRange==='month'?'active':''}}">本月</text>
+        <text bindtap="onTimeRangeChange" data-range="year" class="time-tab {{timeRange==='year'?'active':''}}">本年</text>
+      </view>
+      
+      <!-- 月份选择 -->
+      <picker wx:if="{{timeRange==='month'}}" mode="date" fields="month" value="{{selectedMonth}}" bindchange="onMonthChange">
+        <view class="custom-date">{{selectedMonth}} 〉</view>
+      </picker>
+      
+      <!-- 年份选择 -->
+      <picker wx:if="{{timeRange==='year'}}" mode="date" fields="year" value="{{selectedYear}}" bindchange="onYearChange">
+        <view class="custom-date">{{selectedYear}} 〉</view>
+      </picker>
+    </view>
+
+    <!-- 核心指标概览 -->
+    <view class="summary-section">
+      <view class="section-title">🏨 入住概况</view>
+      <view class="summary-grid">
+        <stat-card 
+          value="{{summary.totalBeds}}" 
+          label="总床位数" 
+          icon="🛏️"
+          variant="primary"
+          loading="{{loading}}"
+          class="summary-card">
+        </stat-card>
+        <stat-card 
+          value="{{summary.occupiedBeds}}" 
+          label="已占用床位" 
+          icon="👤"
+          variant="success"
+          loading="{{loading}}"
+          class="summary-card">
+        </stat-card>
+        <stat-card 
+          value="{{summary.occupancyRate}}%" 
+          label="入住率" 
+          icon="📊"
+          variant="warning"
+          loading="{{loading}}"
+          class="summary-card">
+        </stat-card>
+        <stat-card 
+          value="{{summary.avgStayDuration}}天" 
+          label="平均入住时长" 
+          icon="⏰"
+          variant="info"
+          loading="{{loading}}"
+          class="summary-card">
+        </stat-card>
+      </view>
+    </view>
+
+    <!-- 入住率趋势 -->
+    <chart-container 
+      title="入住率趋势"
+      loading="{{loading}}"
+      empty="{{occupancyTrend.length===0}}"
+      error="{{error}}"
+      height="300"
+      bindretry="onRefresh">
+      
+      <view class="chart-content">
+        <view wx:if="{{occupancyTrend.length > 0}}" class="trend-chart">
+          <view class="trend-chart-body">
+            <block wx:for="{{occupancyTrend}}" wx:key="date">
+              <view class="trend-bar">
+                <view class="bar-fill" style="height: {{item.percentage}}%" data-value="{{item.rate}}%"></view>
+                <view class="bar-label">{{item.date}}</view>
+              </view>
+            </block>
+          </view>
+        </view>
+      </view>
+    </chart-container>
+
+    <!-- 房间利用率 -->
+    <chart-container 
+      title="房间利用率分布"
+      loading="{{loading}}"
+      empty="{{roomUtilization.length===0}}"
+      error="{{error}}"
+      height="320"
+      bindretry="onRefresh">
+      
+      <view class="chart-content">
+        <view wx:if="{{roomUtilization.length > 0}}" class="room-grid">
+          <block wx:for="{{roomUtilization}}" wx:key="roomId">
+            <view class="room-item {{item.status}}">
+              <view class="room-number">{{item.roomNumber}}</view>
+              <view class="room-status">
+                <text class="status-text">{{item.statusText}}</text>
+                <text class="utilization-rate">{{item.utilizationRate}}%</text>
+              </view>
+            </view>
+          </block>
+        </view>
+      </view>
+    </chart-container>
+
+    <!-- 入住时长分布 -->
+    <chart-container 
+      title="入住时长分布"
+      loading="{{loading}}"
+      empty="{{stayDurationDist.length===0}}"
+      error="{{error}}"
+      height="280"
+      bindretry="onRefresh">
+      
+      <view class="chart-content">
+        <view wx:if="{{stayDurationDist.length > 0}}" class="duration-chart">
+          <block wx:for="{{stayDurationDist}}" wx:key="range">
+            <view class="duration-item">
+              <view class="duration-range">{{item.range}}</view>
+              <view class="duration-bar">
+                <view class="duration-fill" style="width: {{item.percentage}}%"></view>
+                <text class="duration-count">{{item.count}}人</text>
+              </view>
+            </view>
+          </block>
+        </view>
+      </view>
+    </chart-container>
+
+    <!-- 错误状态 -->
+    <error-view
+      wx:if="{{error}}"
+      show="{{true}}"
+      error="{{error}}"
+      retry-text="重试"
+      variant="compact"
+      bindretry="onRefresh">
+    </error-view>
+  </view>
+</view>

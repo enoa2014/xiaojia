@@ -1,3 +1,9 @@
 {
-  "navigationBarTitleText": "导出任务"
+  "navigationBarTitleText": "导出中心",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "empty-state": "../../components/empty-state/index",
+    "error-view": "../../components/error-view/index",
+    "loading-skeleton": "../../components/loading-skeleton/index"
+  }
 }

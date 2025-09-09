@@ -1,0 +1,21 @@
+story: "7.12"
+title: "活动日历视图（月/周切换）- 实施质量门"
+status: PASS
+status_reason: "AC 全部满足：activities/index 集成 calendar-view，支持月/周切换+上一/下一+回到今天，点击日期/活动可达详情，报名/签到入口连通；空/错/骨架统一，弱网表现稳定。"
+issues:
+  - id: A11Y-ARIA-SELECTED
+    level: IMPROVEMENT
+    description: "选中日期单元缺少 aria-selected 明确标识"
+    suggested_action: "在选中态日期节点添加 aria-selected=true 及适当对比度样式"
+  - id: E2E-CROSS-MONTH-WEEK
+    level: IMPROVEMENT
+    description: "周视图跨月边界活动聚合用例未纳入自动化覆盖"
+    suggested_action: "在 E2E 场景中加入跨月周切换与活动计数校验"
+last_review: 2025-09-09
+evidence:
+  - path: miniprogram/components/calendar-view/index.wxml
+    note: "月/周切换、上一/下一、回到今天与 A11y（role=region/aria-label）"
+  - path: miniprogram/pages/activities/index.wxml
+    note: "集成日历组件与视图切换控件，空/错/骨架组件接入"
+  - path: docs/qa/test-plan-activities-calendar.md
+    note: "AC 对应用例、A11y、占位/加载验证步骤"

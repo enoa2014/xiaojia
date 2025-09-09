@@ -1,0 +1,168 @@
+/* pages/chart-container-demo/index.wxss */
+.container {
+  padding: var(--space-4);
+  background: var(--bg-secondary);
+  min-height: 100vh;
+}
+
+.demo-header {
+  text-align: center;
+  margin-bottom: var(--space-6);
+}
+
+.demo-title {
+  display: block;
+  font-size: var(--font-h3);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.demo-subtitle {
+  display: block;
+  font-size: var(--font-body);
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* 控制区域 */
+.demo-controls {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+.section-title {
+  display: block;
+  font-size: var(--font-h5);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-3);
+  border-left: 4rpx solid var(--color-primary-500);
+  padding-left: var(--space-3);
+}
+
+.control-buttons {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+  margin-bottom: var(--space-4);
+}
+
+.control-btn {
+  background: var(--bg-subtle) !important;
+  color: var(--text-primary) !important;
+  border: 1rpx solid var(--border-default) !important;
+  border-radius: var(--radius-md) !important;
+  font-size: var(--font-caption) !important;
+  padding: var(--space-2) var(--space-3) !important;
+  height: auto !important;
+  line-height: 1.2 !important;
+}
+
+.control-btn::after {
+  border: none !important;
+}
+
+.control-switches {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+}
+
+.switch-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: var(--space-2) 0;
+}
+
+.switch-item text {
+  font-size: var(--font-body);
+  color: var(--text-primary);
+}
+
+/* 图表演示区域 */
+.demo-chart-section {
+  margin-bottom: var(--space-4);
+}
+
+.mock-chart-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 200rpx;
+  padding: var(--space-6);
+  background: linear-gradient(135deg, var(--color-primary-50) 0%, var(--color-primary-100) 100%);
+  border-radius: var(--radius-md);
+  border: 2rpx dashed var(--color-primary-300);
+  text-align: center;
+}
+
+.chart-placeholder {
+  font-size: var(--font-h4);
+  color: var(--color-primary-700);
+  margin-bottom: var(--space-4);
+}
+
+.chart-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.chart-info text {
+  font-size: var(--font-caption);
+  color: var(--text-secondary);
+  background: var(--bg-primary);
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-sm);
+  border: 1rpx solid var(--border-subtle);
+}
+
+/* 说明区域 */
+.demo-instructions {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+.instruction-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+}
+
+.instruction-item {
+  font-size: var(--font-body);
+  color: var(--text-secondary);
+  line-height: 1.6;
+  padding: var(--space-2) 0;
+}
+
+/* 响应式适配 */
+@media (max-width: 750px) {
+  .container {
+    padding: var(--space-3);
+  }
+  
+  .demo-controls {
+    padding: var(--space-3);
+  }
+  
+  .control-buttons {
+    justify-content: center;
+  }
+  
+  .mock-chart-content {
+    padding: var(--space-4);
+  }
+  
+  .chart-placeholder {
+    font-size: var(--font-body);
+  }
+}

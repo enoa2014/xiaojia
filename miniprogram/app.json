@@ -14,6 +14,7 @@
     "pages/empty-error-demo/index",
     "pages/button-demo/index",
     "pages/form-field-demo/index",
+    "pages/chart-container-demo/index",
     "pages/permissions/apply",
     "pages/patients/form",
     "pages/patients/search",
@@ -22,7 +23,11 @@
     "pages/tenancies/checkout",
     "pages/services/form",
     "pages/audits/index",
-    "pages/exports/index"
+    "pages/approvals/index",
+    "pages/exports/index",
+    "pages/stats/services-analysis",
+    "pages/stats/tenancy-analysis",
+    "pages/stats/activity-analysis"
   ],
   "tabBar": {
     "list": [

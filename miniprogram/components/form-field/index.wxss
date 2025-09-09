@@ -27,14 +27,14 @@
 }
 
 .label-text {
-  font-size: var(--font-body);
+  font-size: var(--font-md);
   font-weight: var(--weight-medium);
   color: var(--gray-700);
   line-height: var(--lh-tight);
 }
 
 .label-required {
-  font-size: var(--font-body);
+  font-size: var(--font-md);
   color: var(--color-danger-600);
   line-height: var(--lh-tight);
 }
@@ -44,7 +44,7 @@
   position: relative;
   border-radius: var(--radius-md);
   transition: all var(--duration-base) var(--ease-standard);
-  overflow: hidden;
+  overflow: visible;
 }
 
 /* 状态变体 */
@@ -128,12 +128,12 @@
 /* 响应式调整 */
 @media screen and (max-width: 750rpx) {
   .label-text {
-    font-size: var(--font-caption);
+    font-size: var(--font-md); /* 保持标签字体为较大大小，提升可读性 */
   }
   
   .help-text,
   .error-text {
-    font-size: 16rpx;
+    font-size: var(--font-caption); /* 帮助文本和错误文本可以稍小 */
   }
 }
 

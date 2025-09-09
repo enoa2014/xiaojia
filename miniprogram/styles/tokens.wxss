@@ -48,6 +48,7 @@ page {
   --font-h1: 28rpx;
   --font-h2: 24rpx;
   --font-h3: 20rpx;
+  --font-md: 26rpx;
   --font-body: 20rpx;
   --font-caption: 18rpx;
   --lh-tight: 1.2;

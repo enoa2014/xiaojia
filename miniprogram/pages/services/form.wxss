@@ -50,6 +50,7 @@ page {
   position: sticky;
   top: 0;
   z-index: 1000;
+  margin: 0 -24rpx; /* 确保紧贴页面边缘 */
 }
 
 .nav-left {

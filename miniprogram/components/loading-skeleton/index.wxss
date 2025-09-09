@@ -161,6 +161,97 @@
   min-width: 0;
 }
 
+/* 图表型骨架 */
+.skeleton-chart {
+  width: 100%;
+  min-height: 300rpx;
+  padding: 24rpx;
+  display: flex;
+  flex-direction: column;
+}
+
+.skeleton-chart-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 32rpx;
+  padding-bottom: 16rpx;
+  border-bottom: 1px solid var(--skeleton-highlight, #e6e6e6);
+}
+
+.skeleton-line.chart-title {
+  height: 40rpx;
+  margin-bottom: 0;
+}
+
+.skeleton-chart-controls {
+  display: flex;
+  gap: 12rpx;
+  align-items: center;
+}
+
+.skeleton-chip {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e6e6e6 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  height: 32rpx;
+  border-radius: 16rpx;
+}
+
+.skeleton-chart-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 200rpx;
+}
+
+.skeleton-chart-bars {
+  flex: 1;
+  display: flex;
+  align-items: flex-end;
+  gap: 12rpx;
+  padding: 20rpx 0;
+  min-height: 160rpx;
+}
+
+.skeleton-chart-bar {
+  flex: 1;
+  background: linear-gradient(90deg, #f0f0f0 25%, #e6e6e6 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: 4rpx 4rpx 0 0;
+  min-width: 20rpx;
+  min-height: 20rpx;
+  transition: height 0.3s ease;
+}
+
+.skeleton-chart-axis {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-top: 12rpx;
+  border-top: 1px solid var(--skeleton-highlight, #e6e6e6);
+}
+
+.skeleton-axis-label {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e6e6e6 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  height: 24rpx;
+  width: 40rpx;
+  border-radius: 2rpx;
+}
+
+/* 动画扩展到图表骨架 */
+.loading-skeleton.shimmer .skeleton-chip,
+.loading-skeleton.shimmer .skeleton-chart-bar,
+.loading-skeleton.shimmer .skeleton-axis-label {
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.loading-skeleton.pulse .skeleton-chip,
+.loading-skeleton.pulse .skeleton-chart-bar,
+.loading-skeleton.pulse .skeleton-axis-label {
+  animation: pulse 2s ease-in-out infinite;
+}
+
 /* 自定义骨架 */
 .skeleton-custom {
   width: 100%;
@@ -182,7 +273,10 @@
   
   .skeleton-line,
   .skeleton-avatar,
-  .skeleton-divider {
+  .skeleton-divider,
+  .skeleton-chip,
+  .skeleton-chart-bar,
+  .skeleton-axis-label {
     background: linear-gradient(90deg, var(--skeleton-bg) 25%, var(--skeleton-highlight) 50%, var(--skeleton-bg) 75%);
     background-size: 200% 100%;
   }

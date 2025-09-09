@@ -1,0 +1,412 @@
+/* 权限审批页面样式 */
+.page {
+  padding-bottom: 120rpx;
+}
+
+/* 导航头部 */
+.nav-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: var(--space-4) var(--space-6);
+  background: var(--role-admin);
+}
+
+.brand {
+  font-size: var(--font-h2);
+  font-weight: var(--weight-bold);
+  color: var(--text-on-primary);
+}
+
+.nav-actions {
+  display: flex;
+  gap: var(--space-3);
+}
+
+.nav-filter {
+  color: var(--text-on-primary);
+  font-size: var(--font-body);
+  opacity: 0.9;
+  padding: var(--space-2) var(--space-3);
+  border-radius: var(--radius-md);
+  background: rgba(255, 255, 255, 0.1);
+}
+
+/* 权限不足提示 */
+.no-permission {
+  padding: var(--space-6);
+  min-height: 400rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 标签页 */
+.tab-bar {
+  display: flex;
+  background: var(--bg-primary);
+  border-bottom: 2rpx solid var(--gray-200);
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.tab-item {
+  flex: 1;
+  height: 72rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+  transition: all var(--duration-fast);
+}
+
+.tab-item.active {
+  background: rgba(124, 58, 237, 0.05);
+}
+
+.tab-item.active::after {
+  content: '';
+  position: absolute;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  height: 4rpx;
+  background: var(--role-admin);
+}
+
+.tab-text {
+  font-size: var(--font-body);
+  color: var(--text-secondary);
+  font-weight: var(--weight-regular);
+  transition: color var(--duration-fast);
+}
+
+.tab-item.active .tab-text {
+  color: var(--role-admin);
+  font-weight: var(--weight-medium);
+}
+
+.tab-badge {
+  position: absolute;
+  top: 8rpx;
+  right: 24rpx;
+  min-width: 32rpx;
+  height: 32rpx;
+  background: var(--color-danger-600);
+  color: var(--text-on-primary);
+  font-size: var(--font-caption);
+  font-weight: var(--weight-medium);
+  border-radius: 16rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0 var(--space-1);
+}
+
+/* 请求列表区域 */
+.requests-section {
+  background: var(--bg-primary);
+  margin-bottom: var(--space-6);
+}
+
+.section-title {
+  padding: var(--space-6) var(--space-6) var(--space-4);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 2rpx solid var(--gray-200);
+}
+
+.title-text {
+  font-size: var(--font-h3);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+}
+
+.count-badge {
+  background: var(--color-warning-600);
+  color: var(--text-on-primary);
+  font-size: var(--font-caption);
+  font-weight: var(--weight-medium);
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  min-width: 32rpx;
+  height: 32rpx;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* 请求列表 */
+.requests-list {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+  padding: 0 var(--space-6) var(--space-6);
+}
+
+/* 请求项 */
+.request-item {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6);
+  box-shadow: var(--shadow-sm);
+  border-left: 4rpx solid var(--gray-200);
+  transition: all var(--duration-base);
+}
+
+.request-item.pending {
+  border-left-color: var(--color-warning-600);
+  background: rgba(245, 158, 11, 0.02);
+}
+
+.request-item.approved {
+  border-left-color: var(--color-success-600);
+  background: rgba(22, 163, 74, 0.02);
+}
+
+.request-item.rejected {
+  border-left-color: var(--color-danger-600);
+  background: rgba(239, 68, 68, 0.02);
+}
+
+.request-item:active {
+  transform: scale(0.98);
+  box-shadow: var(--shadow-md);
+}
+
+/* 请求头部 */
+.request-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  margin-bottom: var(--space-4);
+}
+
+.user-info {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+  flex: 1;
+}
+
+.user-avatar {
+  width: 64rpx;
+  height: 64rpx;
+  border-radius: 32rpx;
+  background: var(--color-primary-400);
+  color: var(--text-on-primary);
+  font-size: var(--font-h3);
+  font-weight: var(--weight-bold);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.user-details {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.user-name {
+  font-size: var(--font-body);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+}
+
+.user-role {
+  font-size: var(--font-caption);
+  color: var(--text-secondary);
+}
+
+.request-time {
+  font-size: var(--font-caption);
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* 状态信息 */
+.status-info {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: var(--space-1);
+}
+
+.status-badge {
+  padding: var(--space-1) var(--space-2);
+  border-radius: var(--radius-sm);
+  font-size: var(--font-caption);
+  font-weight: var(--weight-medium);
+}
+
+.status-badge.approved {
+  background: rgba(22, 163, 74, 0.1);
+  color: var(--color-success-600);
+}
+
+.status-badge.rejected {
+  background: rgba(239, 68, 68, 0.1);
+  color: var(--color-danger-600);
+}
+
+.processed-time {
+  font-size: var(--font-caption);
+  color: var(--text-secondary);
+}
+
+/* 请求内容 */
+.request-content {
+  margin-bottom: var(--space-4);
+}
+
+.field-info {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  margin-bottom: var(--space-3);
+}
+
+.field-name {
+  font-size: var(--font-body);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+}
+
+.field-target {
+  font-size: var(--font-body);
+  color: var(--text-secondary);
+}
+
+.request-reason {
+  background: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  margin-top: var(--space-3);
+}
+
+.reason-label {
+  font-size: var(--font-caption);
+  color: var(--text-secondary);
+  font-weight: var(--weight-medium);
+}
+
+.reason-text {
+  font-size: var(--font-body);
+  color: var(--text-primary);
+  line-height: var(--lh-normal);
+  margin-top: var(--space-1);
+}
+
+.processor-info {
+  margin-top: var(--space-2);
+}
+
+.processor-text {
+  font-size: var(--font-caption);
+  color: var(--text-secondary);
+}
+
+/* 请求操作 */
+.request-actions {
+  display: flex;
+  gap: var(--space-2);
+  flex-wrap: wrap;
+}
+
+.action-btn {
+  min-width: 120rpx;
+  height: 64rpx;
+  border-radius: var(--radius-md);
+  font-size: var(--font-body);
+  font-weight: var(--weight-medium);
+  border: 2rpx solid transparent;
+  transition: all var(--duration-fast);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.action-btn.approve {
+  background: var(--color-success-600);
+  color: var(--text-on-primary);
+}
+
+.action-btn.approve:active {
+  background: var(--color-success-700, #15803d);
+  transform: scale(0.96);
+}
+
+.action-btn.reject {
+  background: var(--color-danger-600);
+  color: var(--text-on-primary);
+}
+
+.action-btn.reject:active {
+  background: var(--color-danger-700, #dc2626);
+  transform: scale(0.96);
+}
+
+.action-btn.detail {
+  background: var(--bg-primary);
+  color: var(--text-primary);
+  border-color: var(--gray-300);
+}
+
+.action-btn.detail:active {
+  background: var(--bg-subtle);
+  border-color: var(--gray-400);
+  transform: scale(0.96);
+}
+
+/* 加载更多 & 无更多 */
+.load-more,
+.no-more {
+  padding: var(--space-6);
+  text-align: center;
+}
+
+.load-more-text {
+  font-size: var(--font-body);
+  color: var(--text-secondary);
+}
+
+.no-more-text {
+  font-size: var(--font-caption);
+  color: var(--text-secondary);
+}
+
+/* 响应式适配 */
+@media screen and (max-width: 750rpx) {
+  .request-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--space-3);
+  }
+  
+  .status-info {
+    align-items: flex-start;
+  }
+  
+  .request-actions {
+    flex-direction: column;
+  }
+  
+  .action-btn {
+    min-width: 100%;
+    height: 72rpx;
+  }
+  
+  .user-avatar {
+    width: 48rpx;
+    height: 48rpx;
+    border-radius: 24rpx;
+    font-size: var(--font-body);
+  }
+  
+  .brand {
+    font-size: var(--font-h3);
+  }
+}

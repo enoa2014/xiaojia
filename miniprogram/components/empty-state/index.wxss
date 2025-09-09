@@ -81,7 +81,7 @@
   color: var(--text-on-primary);
 }
 
-.empty-action.primary:not([disabled]):active {
+.empty-action.primary:not(.disabled):active {
   background: var(--color-primary-700);
   transform: scale(0.98);
 }
@@ -92,13 +92,13 @@
   border: 2rpx solid var(--gray-300);
 }
 
-.empty-action.secondary:not([disabled]):active {
+.empty-action.secondary:not(.disabled):active {
   background: var(--gray-50);
   border-color: var(--gray-400);
   transform: scale(0.98);
 }
 
-.empty-action[disabled] {
+.empty-action.disabled {
   opacity: var(--opacity-disabled);
   cursor: not-allowed;
   transform: none !important;

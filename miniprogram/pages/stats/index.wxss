@@ -164,30 +164,7 @@
   width: 100%;
 }
 
-/* 图表容器 */
-.chart-container {
-  background: var(--bg-primary);
-  border-radius: var(--radius-lg);
-  padding: var(--space-6);
-  box-shadow: 0 4rpx 12rpx rgba(0,0,0,0.05);
-  margin-bottom: 20rpx;
-}
-
-.chart-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: var(--space-6);
-  flex-wrap: wrap;
-  gap: var(--space-4);
-}
-
-.chart-title {
-  font-size: 28rpx;
-  font-weight: 700;
-  color: var(--text-primary);
-}
-
+/* 图表控制器 - 适配 chart-container 组件 */
 .chart-controls {
   display: flex;
   gap: 8rpx;

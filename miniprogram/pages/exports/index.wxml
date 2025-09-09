@@ -1,29 +1,186 @@
 <view class="page">
-  <!-- 导航头部区 -->
+  <!-- 导航头部 -->
   <view class="nav-header {{theme.headerBg}} full-bleed">
-    <view class="brand">📤 数据导出</view>
+    <view class="brand">📤 导出中心</view>
     <view class="nav-actions">
-      <!-- 可在此添加导航操作按钮 -->
+      <text wx:if="{{selectedTemplate}}" bindtap="onResetSelection" class="nav-reset">↩️</text>
     </view>
   </view>
 
-  <view class="section">
-    <picker mode="date" value="{{month}}" start="2020-01-01" end="2030-12-31" bindchange="onMonth">
-      <view class="picker">选择月份：{{month || '未选择'}}</view>
-    </picker>
+  <!-- 权限检查 -->
+  <view wx:if="{{!canView}}" class="no-permission">
+    <empty-state
+      show="{{true}}"
+      icon="🔒"
+      title="权限不足"
+      description="导出功能仅管理员和社工可用"
+      variant="compact">
+    </empty-state>
   </view>
-  <view class="section">
-    <button type="primary" loading="{{submitting}}" bindtap="onCreate">创建月度统计导出</button>
-  </view>
-  <view class="section" wx:if="{{taskId}}">
-    <text>任务ID：{{taskId}}</text>
-    <button size="mini" bindtap="onCheck" style="margin-left:12rpx">查询状态</button>
-  </view>
-  <view class="section" wx:if="{{status}}">
-    <text>状态：{{status}}</text>
-    <view wx:if="{{downloadUrl}}" style="margin-top:8rpx">
-      <text>下载链接：</text>
-      <text class="link" selectable="true">{{downloadUrl}}</text>
+
+  <!-- 主要内容 -->
+  <view wx:else>
+    <!-- 模板选择阶段 -->
+    <view wx:if="{{!selectedTemplate}}" class="template-selection">
+      <view class="section-title">📋 选择导出模板</view>
+      <view class="templates-grid">
+        <block wx:for="{{templates}}" wx:key="id">
+          <view class="template-card" bindtap="onSelectTemplate" data-id="{{item.id}}">
+            <view class="template-icon">{{item.icon}}</view>
+            <view class="template-info">
+              <text class="template-name">{{item.name}}</text>
+              <text class="template-desc">{{item.description}}</text>
+            </view>
+            <view class="template-arrow">〉</view>
+          </view>
+        </block>
+      </view>
+    </view>
+
+    <!-- 参数配置阶段 -->
+    <view wx:if="{{selectedTemplate}}" class="export-config">
+      <!-- 选中模板信息 -->
+      <view class="selected-template">
+        <view class="template-header">
+          <view class="template-icon large">{{selectedTemplate.icon}}</view>
+          <view class="template-details">
+            <text class="template-name">{{selectedTemplate.name}}</text>
+            <text class="template-desc">{{selectedTemplate.description}}</text>
+          </view>
+        </view>
+      </view>
+
+      <!-- 参数表单 -->
+      <view class="params-form">
+        <view class="section-title">⚙️ 导出参数</view>
+        
+        <!-- 月份参数 -->
+        <view wx:if="{{selectedTemplate.params.indexOf('month') > -1}}" class="form-field">
+          <text class="field-label">选择月份</text>
+          <picker mode="date" fields="month" value="{{formData.month}}" bindchange="onMonthChange">
+            <view class="picker-input">
+              <text class="picker-text">{{formData.month || '请选择月份'}}</text>
+              <text class="picker-arrow">〉</text>
+            </view>
+          </picker>
+        </view>
+
+        <!-- 季度参数 -->
+        <view wx:if="{{selectedTemplate.params.indexOf('quarter') > -1}}" class="form-field">
+          <text class="field-label">选择季度</text>
+          <picker mode="selector" range="{{['2024-Q1', '2024-Q2', '2024-Q3', '2024-Q4', '2025-Q1', '2025-Q2', '2025-Q3', '2025-Q4']}}" value="0" bindchange="onQuarterChange">
+            <view class="picker-input">
+              <text class="picker-text">{{formData.quarter || '请选择季度'}}</text>
+              <text class="picker-arrow">〉</text>
+            </view>
+          </picker>
+        </view>
+
+        <!-- 日期范围参数 -->
+        <view wx:if="{{selectedTemplate.params.indexOf('dateRange') > -1}}" class="form-field">
+          <text class="field-label">日期范围</text>
+          <view class="date-range">
+            <picker mode="date" value="{{formData.dateRange.start}}" bindchange="onStartDateChange">
+              <view class="date-picker">
+                <text class="date-text">{{formData.dateRange.start || '开始日期'}}</text>
+              </view>
+            </picker>
+            <text class="date-separator">至</text>
+            <picker mode="date" value="{{formData.dateRange.end}}" bindchange="onEndDateChange">
+              <view class="date-picker">
+                <text class="date-text">{{formData.dateRange.end || '结束日期'}}</text>
+              </view>
+            </picker>
+          </view>
+        </view>
+      </view>
+
+      <!-- 创建按钮 -->
+      <view class="action-section">
+        <button class="create-btn" loading="{{loading}}" disabled="{{loading}}" bindtap="onCreateExport">
+          {{loading ? '创建中...' : '创建导出任务'}}
+        </button>
+      </view>
+
+      <!-- 当前任务状态 -->
+      <view wx:if="{{currentTask.id}}" class="current-task">
+        <view class="section-title">🔄 当前任务</view>
+        <view class="task-card">
+          <view class="task-info">
+            <text class="task-id">任务ID: {{currentTask.id}}</text>
+            <view class="task-status {{currentTask.status}}">
+              <text class="status-text">{{currentTask.status === 'pending' ? '等待处理' : currentTask.status === 'running' ? '正在处理' : currentTask.status === 'done' ? '已完成' : currentTask.status === 'failed' ? '失败' : currentTask.status}}</text>
+            </view>
+          </view>
+          
+          <!-- 进度条 -->
+          <view wx:if="{{currentTask.status === 'running'}}" class="progress-section">
+            <view class="progress-bar">
+              <view class="progress-fill" style="width: {{currentTask.progress}}%"></view>
+            </view>
+            <text class="progress-text">{{currentTask.progress}}%</text>
+          </view>
+          
+          <!-- 下载链接 -->
+          <view wx:if="{{currentTask.downloadUrl}}" class="download-section">
+            <button size="mini" type="primary" bindtap="onDownload" data-url="{{currentTask.downloadUrl}}">
+              复制下载链接
+            </button>
+          </view>
+          
+          <!-- 操作按钮 -->
+          <view class="task-actions">
+            <button size="mini" bindtap="onCheckTask">刷新状态</button>
+          </view>
+        </view>
+      </view>
+
+      <!-- 错误状态 -->
+      <error-view
+        wx:if="{{error}}"
+        show="{{true}}"
+        error="{{error}}"
+        retry-text="重试"
+        variant="compact"
+        bindretry="onCreateExport">
+      </error-view>
+    </view>
+
+    <!-- 导出历史 -->
+    <view class="export-history">
+      <view class="section-title">📜 导出历史</view>
+      
+      <loading-skeleton wx:if="{{loading && exportHistory.length === 0}}" type="list" count="3"></loading-skeleton>
+      
+      <view wx:elif="{{exportHistory.length > 0}}" class="history-list">
+        <block wx:for="{{exportHistory}}" wx:key="id">
+          <view class="history-item">
+            <view class="history-icon">{{item.templateIcon || '📄'}}</view>
+            <view class="history-info">
+              <text class="history-name">{{item.templateName}}</text>
+              <text class="history-time">{{item.createdAt}}</text>
+              <view class="history-meta">
+                <text class="history-creator">{{item.createdBy}}</text>
+                <text class="history-status {{item.status}}">{{item.statusText}}</text>
+              </view>
+            </view>
+            <view class="history-actions">
+              <button wx:if="{{item.downloadUrl}}" size="mini" type="default" bindtap="onDownload" data-url="{{item.downloadUrl}}">
+                下载
+              </button>
+            </view>
+          </view>
+        </block>
+      </view>
+      
+      <empty-state
+        wx:else
+        show="{{true}}"
+        icon="📜"
+        title="暂无导出记录"
+        description="还没有创建过导出任务"
+        variant="compact">
+      </empty-state>
     </view>
   </view>
 </view>

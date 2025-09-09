@@ -1,2 +1,10 @@
-{ "navigationBarTitleText": "审计查询", "enablePullDownRefresh": true }
+{
+  "navigationBarTitleText": "审计日志",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "empty-state": "../../components/empty-state/index",
+    "error-view": "../../components/error-view/index",
+    "loading-skeleton": "../../components/loading-skeleton/index"
+  }
+}
 

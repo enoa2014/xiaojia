@@ -1,0 +1,25 @@
+story: "7.15"
+title: "审批/审计页面路由与守卫 - 实施质量门"
+status: PASS
+status_reason: "AC 达成：approvals/audits 页面接入并受 RBAC 守卫；非管理员提示 E_PERM；空/错/加载统一；审计目标脱敏。"
+issues:
+  - id: A11Y-ARIA-LABELS
+    level: IMPROVEMENT
+    description: "审批按钮、筛选控件、日志列表项建议补充 aria-label/role=region"
+    suggested_action: "在 approvals/audits 根容器与关键控件上添加 A11y 属性"
+  - id: REJECT-REASON
+    level: IMPROVEMENT
+    description: "拒绝操作未采集原因"
+    suggested_action: "拒绝时支持输入原因并写入审计日志"
+  - id: TRACE-REQUESTID
+    level: ADVISORY
+    description: "前端已打点 requestId，建议后端在审计表中强制关联与过期策略"
+    suggested_action: "审计记录中索引 requestId 并与导出/审批流程串联"
+last_review: 2025-09-09
+evidence:
+  - path: miniprogram/pages/approvals/index.*
+    note: "RBAC 守卫、列表/操作/状态组件"
+  - path: miniprogram/pages/audits/index.*
+    note: "筛选/分页/脱敏/状态组件"
+  - path: docs/stories/7.15.approvals-and-audits-pages.md
+    note: "AC 与 QA Notes 对齐"

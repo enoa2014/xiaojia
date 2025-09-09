@@ -1,0 +1,8 @@
+{
+  "component": true,
+  "usingComponents": {
+    "loading-skeleton": "../loading-skeleton/index",
+    "empty-state": "../empty-state/index",
+    "error-view": "../error-view/index"
+  }
+}

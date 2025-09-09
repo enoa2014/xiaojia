@@ -57,10 +57,15 @@ Page({
   onShow(){ try { require('../../services/theme').applyThemeByRole(this) } catch(_) {} },
   // 绑定
   onInput(e) {
-    const key = e.currentTarget.dataset.key
-    this.setData({ [key]: e.detail.value, errors: { ...this.data.errors, [key]: '' } })
+    const key = e.currentTarget.dataset.key || e.target.dataset.key
+    const value = e.detail.value
+    if (key) {
+      this.setData({ [key]: value, errors: { ...this.data.errors, [key]: '' } })
+    }
   },
-  onPickBirth(e) { this.setData({ birthDate: e.detail.value, errors: { ...this.data.errors, birthDate: '' } }) },
+  onPickBirth(e) { 
+    this.setData({ birthDate: e.detail.value, errors: { ...this.data.errors, birthDate: '' } }) 
+  },
   toggleMore() { this.setData({ moreOpen: !this.data.moreOpen }) },
 
   // 校验并滚动到第一个错误字段

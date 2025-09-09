@@ -1,0 +1,174 @@
+<view class="page">
+  <!-- 导航头部 -->
+  <view class="nav-header {{theme.headerBg}} full-bleed">
+    <view class="brand">🎯 活动参与分析</view>
+    <view class="nav-actions">
+      <text bindtap="onRefresh" class="nav-refresh">🔄</text>
+    </view>
+  </view>
+
+  <!-- 权限检查 -->
+  <view wx:if="{{!canView}}" class="no-permission">
+    <empty-state
+      show="{{true}}"
+      icon="🔒"
+      title="权限不足"
+      description="活动参与分析仅管理员和社工可见"
+      variant="compact">
+    </empty-state>
+  </view>
+
+  <!-- 主要内容 -->
+  <view wx:else>
+    <!-- 时间选择器 -->
+    <view class="time-selector">
+      <view class="time-tabs">
+        <text bindtap="onTimeRangeChange" data-range="month" class="time-tab {{timeRange==='month'?'active':''}}">本月</text>
+        <text bindtap="onTimeRangeChange" data-range="quarter" class="time-tab {{timeRange==='quarter'?'active':''}}">本季</text>
+      </view>
+      
+      <!-- 月份选择 -->
+      <picker wx:if="{{timeRange==='month'}}" mode="date" fields="month" value="{{selectedMonth}}" bindchange="onMonthChange">
+        <view class="custom-date">{{selectedMonth}} 〉</view>
+      </picker>
+      
+      <!-- 季度选择 -->
+      <picker wx:if="{{timeRange==='quarter'}}" mode="selector" value="{{selectedQuarter}}" bindchange="onQuarterChange">
+        <view class="custom-date">{{selectedQuarter}} 〉</view>
+      </picker>
+    </view>
+
+    <!-- 核心指标概览 -->
+    <view class="summary-section">
+      <view class="section-title">🎪 活动概况</view>
+      <view class="summary-grid">
+        <stat-card 
+          value="{{summary.totalActivities}}" 
+          label="总活动数" 
+          icon="🎪"
+          variant="primary"
+          loading="{{loading}}"
+          class="summary-card">
+        </stat-card>
+        <stat-card 
+          value="{{summary.totalParticipants}}" 
+          label="总参与人次" 
+          icon="👥"
+          variant="success"
+          loading="{{loading}}"
+          class="summary-card">
+        </stat-card>
+        <stat-card 
+          value="{{summary.avgParticipationRate}}%" 
+          label="平均参与率" 
+          icon="📈"
+          variant="warning"
+          loading="{{loading}}"
+          class="summary-card">
+        </stat-card>
+        <stat-card 
+          value="{{summary.mostPopularActivity}}" 
+          label="热门活动" 
+          icon="🔥"
+          variant="info"
+          loading="{{loading}}"
+          class="summary-card">
+        </stat-card>
+      </view>
+    </view>
+
+    <!-- 参与趋势 -->
+    <chart-container 
+      title="参与人数趋势"
+      loading="{{loading}}"
+      empty="{{participationTrend.length===0}}"
+      error="{{error}}"
+      height="300"
+      bindretry="onRefresh">
+      
+      <view class="chart-content">
+        <view wx:if="{{participationTrend.length > 0}}" class="trend-chart">
+          <view class="trend-line-container">
+            <view class="trend-line-body">
+              <block wx:for="{{participationTrend}}" wx:key="date">
+                <view class="trend-point" style="bottom: {{item.percentage}}%">
+                  <view class="point-dot"></view>
+                  <view class="point-label">{{item.date}}</view>
+                  <view class="point-value">{{item.participants}}</view>
+                </view>
+              </block>
+            </view>
+          </view>
+        </view>
+      </view>
+    </chart-container>
+
+    <!-- 活动类型分布 -->
+    <chart-container 
+      title="活动类型分布"
+      loading="{{loading}}"
+      empty="{{activitiesByType.length===0}}"
+      error="{{error}}"
+      height="320"
+      bindretry="onRefresh">
+      
+      <view class="chart-content">
+        <view wx:if="{{activitiesByType.length > 0}}" class="type-distribution">
+          <block wx:for="{{activitiesByType}}" wx:key="type">
+            <view class="type-item">
+              <view class="type-header">
+                <view class="type-icon" style="background-color: {{item.color}}">{{item.icon}}</view>
+                <view class="type-info">
+                  <text class="type-name">{{item.type}}</text>
+                  <text class="type-count">{{item.count}} 次活动</text>
+                </view>
+              </view>
+              <view class="type-progress">
+                <view class="progress-bar">
+                  <view class="progress-fill" style="width: {{item.percentage}}%; background-color: {{item.color}}"></view>
+                </view>
+                <text class="progress-text">{{item.percentage}}%</text>
+              </view>
+            </view>
+          </block>
+        </view>
+      </view>
+    </chart-container>
+
+    <!-- 参与者年龄分布 -->
+    <chart-container 
+      title="参与者年龄分布"
+      loading="{{loading}}"
+      empty="{{participantsByAge.length===0}}"
+      error="{{error}}"
+      height="280"
+      bindretry="onRefresh">
+      
+      <view class="chart-content">
+        <view wx:if="{{participantsByAge.length > 0}}" class="age-chart">
+          <view class="age-bars">
+            <block wx:for="{{participantsByAge}}" wx:key="ageRange">
+              <view class="age-bar-item">
+                <view class="age-bar" style="height: {{item.percentage}}%">
+                  <view class="age-bar-fill"></view>
+                  <text class="age-bar-value">{{item.count}}</text>
+                </view>
+                <view class="age-label">{{item.ageRange}}</view>
+              </view>
+            </block>
+          </view>
+        </view>
+      </view>
+    </chart-container>
+
+    <!-- 错误状态 -->
+    <error-view
+      wx:if="{{error}}"
+      show="{{true}}"
+      error="{{error}}"
+      retry-text="重试"
+      variant="compact"
+      bindretry="onRefresh">
+    </error-view>
+  </view>
+</view>

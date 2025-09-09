@@ -1,4 +1,4 @@
-<view class="form-field {{state}} {{fullWidth ? 'full-width' : ''}} {{disabled ? 'disabled' : ''}}" aria-labelledby="{{labelId}}" aria-describedby="{{describedBy}}">
+<view class="form-field {{state}} {{fullWidth ? 'full-width' : ''}} {{disabled ? 'disabled' : ''}} ext-class" role="group" aria-labelledby="{{labelId}}" aria-describedby="{{describedBy}}">
   <!-- Label -->
   <view class="form-field-label" wx:if="{{label}}" id="{{labelId}}">
     <text class="label-text">{{label}}</text>
@@ -8,7 +8,6 @@
   <!-- Control Container -->
   <view class="form-field-control {{state}}" 
         id="{{controlId}}"
-        role="{{controlRole || 'textbox'}}"
         aria-invalid="{{state === 'error'}}"
         aria-required="{{required}}"
         aria-describedby="{{describedBy}}">

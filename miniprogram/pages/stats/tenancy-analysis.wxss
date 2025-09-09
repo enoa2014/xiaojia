@@ -1,0 +1,267 @@
+/* 入住情况分析页面样式 */
+.page {
+  padding-bottom: 120rpx;
+}
+
+/* 权限提示 */
+.no-permission {
+  padding: var(--space-6);
+}
+
+/* 时间选择器 */
+.time-selector {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: var(--space-4);
+  margin-bottom: var(--space-4);
+  box-shadow: var(--shadow-sm);
+}
+
+.time-tabs {
+  display: flex;
+  background: var(--gray-50);
+  border-radius: var(--radius-md);
+  padding: 6rpx;
+  margin-bottom: 16rpx;
+}
+
+.time-tab {
+  flex: 1;
+  text-align: center;
+  padding: 12rpx 16rpx;
+  color: var(--gray-500);
+  font-size: var(--font-caption);
+  border-radius: var(--radius-sm);
+  transition: all 0.3s ease;
+}
+
+.time-tab.active {
+  background: linear-gradient(135deg, var(--color-primary-600), var(--color-primary-700));
+  color: var(--text-on-primary);
+  font-weight: var(--weight-semibold);
+  box-shadow: 0 2rpx 8rpx rgba(34, 197, 94, 0.3);
+}
+
+.custom-date {
+  color: var(--color-primary-600);
+  font-size: var(--font-body);
+  font-weight: var(--weight-semibold);
+  text-align: center;
+  padding: var(--space-2);
+}
+
+/* 概览区域 */
+.summary-section {
+  margin-bottom: var(--space-6);
+}
+
+.section-title {
+  font-size: var(--font-h4);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-4);
+  display: flex;
+  align-items: center;
+  gap: var(--space-2);
+}
+
+.summary-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: var(--space-4);
+}
+
+.summary-card {
+  width: 100%;
+}
+
+/* 图表内容样式 */
+.chart-content {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+/* 趋势图样式 */
+.trend-chart {
+  width: 100%;
+  height: 220rpx;
+}
+
+.trend-chart-body {
+  display: flex;
+  align-items: flex-end;
+  height: 100%;
+  gap: var(--space-2);
+  padding-bottom: 40rpx;
+}
+
+.trend-bar {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.bar-fill {
+  width: 100%;
+  max-width: 36rpx;
+  background: linear-gradient(180deg, var(--color-info-600) 0%, var(--color-info-700) 100%);
+  border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+  min-height: 16rpx;
+  position: relative;
+  transition: height 0.6s ease;
+}
+
+.bar-fill::after {
+  content: attr(data-value);
+  position: absolute;
+  top: -30rpx;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: var(--font-caption);
+  font-weight: var(--weight-semibold);
+  color: var(--color-info-600);
+  white-space: nowrap;
+}
+
+.bar-label {
+  margin-top: var(--space-2);
+  font-size: var(--font-caption);
+  color: var(--gray-500);
+  transform: rotate(-45deg);
+  white-space: nowrap;
+}
+
+/* 房间网格样式 */
+.room-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(160rpx, 1fr));
+  gap: var(--space-3);
+}
+
+.room-item {
+  background: var(--bg-subtle);
+  border-radius: var(--radius-md);
+  padding: var(--space-4);
+  text-align: center;
+  border: 2rpx solid transparent;
+  transition: all 0.3s ease;
+}
+
+.room-item.occupied {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.1), rgba(248, 113, 113, 0.1));
+  border-color: var(--color-danger-200);
+}
+
+.room-item.available {
+  background: linear-gradient(135deg, rgba(34, 197, 94, 0.1), rgba(52, 211, 153, 0.1));
+  border-color: var(--color-success-200);
+}
+
+.room-item.maintenance {
+  background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(251, 191, 36, 0.1));
+  border-color: var(--color-warning-200);
+}
+
+.room-number {
+  font-size: var(--font-h4);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+  margin-bottom: var(--space-2);
+}
+
+.room-status {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-1);
+}
+
+.status-text {
+  font-size: var(--font-caption);
+  color: var(--gray-500);
+}
+
+.utilization-rate {
+  font-size: var(--font-body);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+}
+
+/* 入住时长分布样式 */
+.duration-chart {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-4);
+}
+
+.duration-item {
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.duration-range {
+  font-size: var(--font-body);
+  color: var(--text-primary);
+  min-width: 120rpx;
+  text-align: right;
+}
+
+.duration-bar {
+  flex: 1;
+  height: 32rpx;
+  background: var(--gray-100);
+  border-radius: var(--radius-md);
+  position: relative;
+  overflow: hidden;
+}
+
+.duration-fill {
+  height: 100%;
+  background: linear-gradient(90deg, var(--color-success-600), var(--color-success-500));
+  border-radius: var(--radius-md);
+  transition: width 0.6s ease;
+}
+
+.duration-count {
+  position: absolute;
+  right: var(--space-2);
+  top: 50%;
+  transform: translateY(-50%);
+  font-size: var(--font-caption);
+  font-weight: var(--weight-semibold);
+  color: var(--text-primary);
+}
+
+/* 响应式适配 */
+@media screen and (max-width: 750rpx) {
+  .summary-grid {
+    grid-template-columns: 1fr;
+    gap: var(--space-3);
+  }
+  
+  .room-grid {
+    grid-template-columns: repeat(auto-fill, minmax(140rpx, 1fr));
+    gap: var(--space-2);
+  }
+  
+  .room-item {
+    padding: var(--space-3);
+  }
+  
+  .duration-range {
+    min-width: 100rpx;
+    font-size: var(--font-caption);
+  }
+  
+  .trend-chart-body {
+    padding-bottom: 35rpx;
+  }
+  
+  .bar-label {
+    font-size: 20rpx;
+  }
+}

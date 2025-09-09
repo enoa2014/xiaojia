@@ -1,38 +1,145 @@
 <view class="page">
-  <!-- 导航头部区 -->
+  <!-- 导航头部 -->
   <view class="nav-header {{theme.headerBg}} full-bleed">
-    <view class="brand">📋 审计日志</view>
+    <view class="brand">🛡️ 审计日志</view>
     <view class="nav-actions">
-      <!-- 可在此添加导航操作按钮 -->
+      <text wx:if="{{canView}}" class="nav-info">最近7天</text>
     </view>
   </view>
 
-  <view class="filters">
-    <picker mode="date" value="{{fromDate}}" bindchange="onFromDate">
-      <view class="date">{{fromDate?fromDate:'开始日期'}}</view>
-    </picker>
-    <picker mode="date" value="{{toDate}}" bindchange="onToDate">
-      <view class="date">{{toDate?toDate:'结束日期'}}</view>
-    </picker>
-  </view>
-  <view class="filters">
-    <input class="input" placeholder="动作（如 permissions.approve）" value="{{action}}" bindinput="onAction"/>
-    <input class="input" placeholder="操作者 actorId（OPENID）" value="{{actorId}}" bindinput="onActor"/>
-    <button class="btn" loading="{{loading}}" bindtap="search">查询</button>
+  <!-- 权限检查 -->
+  <view wx:if="{{!canView}}" class="no-permission">
+    <empty-state
+      show="{{true}}"
+      icon="🔒"
+      title="权限不足"
+      description="审计日志查看功能仅管理员可用，请联系管理员获取访问权限"
+      variant="compact">
+    </empty-state>
   </view>
 
-  <view class="error" wx:if="{{error}}">{{error}}</view>
+  <!-- 主要内容 -->
+  <view wx:else>
+    <!-- 筛选条件 -->
+    <view class="filters-section">
+      <!-- 操作类型筛选 -->
+      <view class="filter-item">
+        <text class="filter-label">操作类型</text>
+        <picker mode="selector" 
+                range="{{actionOptions}}" 
+                range-key="label" 
+                value="0" 
+                bindchange="onActionFilterChange">
+          <view class="picker-input">
+            <text class="picker-text">{{actionOptions[0].label}}</text>
+            <text class="picker-arrow">〉</text>
+          </view>
+        </picker>
+      </view>
 
-  <block wx:for="{{items}}" wx:key="_id">
-    <view class="card">
-      <view class="row"><text class="k">时间</text><text class="v">{{item.dtText}}</text></view>
-      <view class="row"><text class="k">动作</text><text class="v">{{item.action}}</text></view>
-      <view class="row"><text class="k">操作者</text><text class="v">{{item.actorId}}</text></view>
-      <view class="row"><text class="k">目标</text><text class="v">{{item.targetText}}</text></view>
+      <!-- 日期范围 -->
+      <view class="filter-item">
+        <text class="filter-label">时间范围</text>
+        <view class="date-range">
+          <picker mode="date" 
+                  value="{{dateRange.start}}" 
+                  bindchange="onStartDateChange">
+            <view class="date-picker">
+              <text class="date-text">{{dateRange.start || '开始日期'}}</text>
+            </view>
+          </picker>
+          <text class="date-separator">至</text>
+          <picker mode="date" 
+                  value="{{dateRange.end}}" 
+                  bindchange="onEndDateChange">
+            <view class="date-picker">
+              <text class="date-text">{{dateRange.end || '结束日期'}}</text>
+            </view>
+          </picker>
+        </view>
+      </view>
+
+      <!-- 操作人筛选 -->
+      <view class="filter-item">
+        <text class="filter-label">操作人</text>
+        <input class="filter-input"
+               placeholder="输入用户ID或姓名"
+               value="{{actorFilter}}"
+               bindinput="onActorFilterInput" />
+      </view>
     </view>
-  </block>
 
-  <view class="more" wx:if="{{hasMore && !loading}}" bindtap="loadMore">加载更多…</view>
-  <view class="empty" wx:if="{{!loading && items.length===0}}">暂无审计记录</view>
+    <!-- 加载状态 -->
+    <loading-skeleton wx:if="{{loading && auditLogs.length === 0}}" 
+                     type="list" count="5"></loading-skeleton>
+
+    <!-- 错误状态 -->
+    <error-view wx:elif="{{error}}"
+                show="{{true}}"
+                error="{{error}}"
+                retry-text="重试"
+                variant="compact"
+                bindretry="onRetryLoad">
+    </error-view>
+
+    <!-- 审计日志列表 -->
+    <view wx:elif="{{auditLogs.length > 0}}" class="logs-section">
+      <view class="logs-list">
+        <block wx:for="{{auditLogs}}" wx:key="id">
+          <view class="log-item" bindtap="onViewLogDetail" data-log-id="{{item.id}}">
+            <view class="log-header">
+              <view class="action-info">
+                <view class="action-icon">{{getActionIcon(item.action)}}</view>
+                <view class="action-details">
+                  <text class="action-name">{{formatAction(item.action)}}</text>
+                  <text class="action-time">{{formatTime(item.createdAt)}}</text>
+                </view>
+              </view>
+              <view class="actor-info">
+                <text class="actor-name">{{item.actorName || item.actorId}}</text>
+              </view>
+            </view>
+            
+            <view class="log-content">
+              <view class="target-info">
+                <text class="target-label">操作目标：</text>
+                <text class="target-value">{{maskTargetInfo(item.target)}}</text>
+              </view>
+              <view wx:if="{{item.requestId}}" class="request-info">
+                <text class="request-label">请求ID：</text>
+                <text class="request-id">{{item.requestId}}</text>
+              </view>
+              <view wx:if="{{item.ip}}" class="ip-info">
+                <text class="ip-label">IP地址：</text>
+                <text class="ip-value">{{item.ip}}</text>
+              </view>
+            </view>
+            
+            <view class="log-footer">
+              <text class="detail-hint">点击查看详情</text>
+            </view>
+          </view>
+        </block>
+      </view>
+    </view>
+
+    <!-- 空状态 -->
+    <empty-state wx:elif="{{!loading}}"
+                 show="{{true}}"
+                 icon="📋"
+                 title="无审计记录"
+                 description="在选定的时间范围内没有找到审计日志"
+                 variant="compact">
+    </empty-state>
+
+    <!-- 加载更多 -->
+    <view wx:if="{{hasMore && !loading && auditLogs.length > 0}}" class="load-more">
+      <text class="load-more-text">上拉加载更多</text>
+    </view>
+    
+    <view wx:elif="{{!hasMore && auditLogs.length > 0}}" class="no-more">
+      <text class="no-more-text">已显示全部内容</text>
+    </view>
+  </view>
 </view>
 

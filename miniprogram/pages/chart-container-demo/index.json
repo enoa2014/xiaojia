@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "Chart Container 演示",
+  "usingComponents": {
+    "chart-container": "../../components/chart-container/index"
+  }
+}

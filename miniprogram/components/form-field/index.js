@@ -1,4 +1,9 @@
 Component({
+  externalClasses: ['ext-class'],
+  options: {
+    styleIsolation: 'apply-shared',
+    multipleSlots: true
+  },
   properties: {
     // 字段标签
     label: {
@@ -197,6 +202,15 @@ Component({
           })
         }
       }).exec()
+    },
+
+    // 焦点事件处理（仅用于样式状态更新）
+    onSlotFocus(e) {
+      this.setFocus()
+    },
+
+    onSlotBlur(e) {
+      this.setBlur()
     }
   }
 })

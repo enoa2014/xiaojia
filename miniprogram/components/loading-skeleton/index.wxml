@@ -64,6 +64,34 @@
     </view>
   </view>
 
+  <!-- 图表型骨架 -->
+  <view wx:elif="{{type === 'chart'}}" class="skeleton-chart" style="{{height ? 'height:' + height : ''}}">
+    <!-- 图表标题和控制器区域 -->
+    <view class="skeleton-chart-header">
+      <view class="skeleton-line chart-title" style="width: 40%"></view>
+      <view class="skeleton-chart-controls">
+        <view class="skeleton-chip" style="width: 60rpx"></view>
+        <view class="skeleton-chip" style="width: 80rpx"></view>
+        <view class="skeleton-chip" style="width: 70rpx"></view>
+      </view>
+    </view>
+    
+    <!-- 图表主体 -->
+    <view class="skeleton-chart-body">
+      <!-- 柱状图骨架 -->
+      <view class="skeleton-chart-bars">
+        <view wx:for="{{[20, 60, 40, 80, 30, 90, 50, 70, 35, 85]}}" wx:key="*this" 
+              class="skeleton-chart-bar" 
+              style="height: {{item}}%"></view>
+      </view>
+      
+      <!-- 底部坐标轴 -->
+      <view class="skeleton-chart-axis">
+        <view wx:for="{{[1,2,3,4,5,6,7,8,9,10]}}" wx:key="*this" class="skeleton-axis-label"></view>
+      </view>
+    </view>
+  </view>
+
   <!-- 自定义骨架 -->
   <view wx:elif="{{type === 'custom'}}" class="skeleton-custom" style="{{height ? 'height:' + height : ''}}">
     <slot name="skeleton"></slot>

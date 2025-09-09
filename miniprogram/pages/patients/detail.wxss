@@ -21,6 +21,7 @@ page {
   top: 0;
   z-index: 100;
   box-shadow: 0 2rpx 16rpx rgba(0, 0, 0, 0.1);
+  margin: 0 -24rpx; /* 确保紧贴页面边缘 */
 }
 
 .nav-header--green { background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); }

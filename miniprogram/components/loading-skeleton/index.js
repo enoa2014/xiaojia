@@ -3,7 +3,7 @@ Component({
     // 骨架屏类型
     type: {
       type: String,
-      value: 'list' // list | detail | custom
+      value: 'list' // list | detail | chart | custom
     },
     // 列表项数量（仅 type='list' 时有效）
     count: {

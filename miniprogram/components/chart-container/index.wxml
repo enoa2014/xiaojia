@@ -1,0 +1,113 @@
+<view class="chart-container {{disabled ? 'chart-container--disabled' : ''}}" 
+      style="height: {{height}}rpx;"
+      role="region"
+      aria-label="{{ariaDescription}}"
+      bindtap="onTap">
+  
+  <!-- 容器头部 -->
+  <view wx:if="{{title || enableTimeRange || enableFilters}}" class="chart-container__header">
+    <text wx:if="{{title}}" class="chart-container__title">{{title}}</text>
+    
+    <!-- 交互控制区域 -->
+    <view class="chart-container__controls">
+      <!-- 时间范围切换 -->
+      <view wx:if="{{enableTimeRange}}" class="time-range-switcher" 
+            role="tablist" 
+            aria-label="时间范围选择">
+        <block wx:for="{{timeRangeOptions}}" wx:key="value">
+          <view class="time-range-option {{currentTimeRange === item.value ? 'active' : ''}}"
+                role="tab"
+                aria-selected="{{currentTimeRange === item.value}}"
+                aria-label="选择{{item.label}}"
+                data-value="{{item.value}}"
+                bindtap="onTimeRangeChange">
+            {{item.label}}
+          </view>
+        </block>
+      </view>
+      
+      <!-- 筛选器 -->
+      <view wx:if="{{enableFilters && filterOptions.length > 0}}" 
+            class="chart-filters"
+            aria-label="数据筛选控制">
+        <block wx:for="{{filterOptions}}" wx:key="key" wx:for-item="filter">
+          <view class="filter-group" aria-label="{{filter.label}}筛选">
+            <text class="filter-label">{{filter.label}}</text>
+            <picker mode="selector" 
+                    range="{{filter.options}}" 
+                    range-key="label" 
+                    bindchange="onFilterChange"
+                    data-key="{{filter.key}}"
+                    aria-label="选择{{filter.label}}">
+              <view class="filter-picker">
+                <text class="filter-text">{{filter.currentLabel || filter.placeholder || '全部'}}</text>
+                <text class="filter-arrow">〉</text>
+              </view>
+            </picker>
+          </view>
+        </block>
+        
+        <!-- 重置筛选按钮 -->
+        <view wx:if="{{Object.keys(currentFilters).length > 0}}" 
+              class="filter-reset"
+              bindtap="onResetFilters">
+          重置
+        </view>
+      </view>
+      
+      <!-- 自定义头部额外内容 -->
+      <slot name="header-extra"></slot>
+    </view>
+  </view>
+
+  <!-- 图表内容区域 -->
+  <view class="chart-container__body">
+    
+    <!-- 加载状态 -->
+    <view wx:if="{{loading}}" class="chart-container__loading">
+      <loading-skeleton type="chart" height="{{height > 80 ? (height - 80) + 'rpx' : '200rpx'}}"></loading-skeleton>
+    </view>
+    
+    <!-- 错误状态（支持 mock 错误） -->
+    <error-view wx:elif="{{error || (enableMock && mockData.hasError)}}" 
+                show="{{true}}" 
+                error="{{error || 'E_INTERNAL'}}" 
+                retry-text="重新加载"
+                variant="compact"
+                bindretry="onRetry">
+    </error-view>
+    
+    <!-- 空状态（支持 mock 空状态） -->
+    <empty-state wx:elif="{{empty || (enableMock && mockData.isEmpty)}}" 
+                 show="{{true}}" 
+                 icon="📊" 
+                 title="暂无图表数据"
+                 description="{{enableMock && mockData.isEmpty ? '🧪 Mock 空状态演示' : '暂时没有数据可展示'}}"
+                 variant="compact">
+    </empty-state>
+    
+    <!-- 正常内容 -->
+    <view wx:else class="chart-container__content">
+      <!-- Mock 数据显示 -->
+      <view wx:if="{{enableMock && mockData.data}}" class="mock-data-display">
+        <view class="mock-data-info">
+          <text class="mock-label">🧪 Mock 数据 ({{mockData.data.type}})</text>
+          <button class="mock-refresh-btn" size="mini" bindtap="generateMockData">刷新</button>
+        </view>
+        <view class="mock-data-preview">
+          <text class="mock-data-text">
+            {{mockData.data.labels ? mockData.data.labels.join(', ') : 'Mock 图表数据已生成'}}
+          </text>
+        </view>
+      </view>
+      
+      <!-- 实际图表内容 -->
+      <slot></slot>
+    </view>
+  </view>
+
+  <!-- 容器底部 -->
+  <view wx:if="{{!loading && !error && !empty}}" class="chart-container__footer">
+    <slot name="footer"></slot>
+  </view>
+</view>

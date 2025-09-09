@@ -1,0 +1,185 @@
+<view class="page">
+  <!-- 导航头部 -->
+  <view class="nav-header {{theme.headerBg}} full-bleed">
+    <view class="brand">🔐 权限审批</view>
+    <view class="nav-actions">
+      <picker wx:if="{{canView}}" mode="selector" range="{{['全部状态', '待审批', '已批准', '已拒绝']}}" range-key="label" value="0" bindchange="onStatusFilterChange">
+        <text class="nav-filter">筛选</text>
+      </picker>
+    </view>
+  </view>
+
+  <!-- 权限检查 -->
+  <view wx:if="{{!canView}}" class="no-permission">
+    <empty-state
+      show="{{true}}"
+      icon="🔒"
+      title="权限不足"
+      description="权限审批功能仅管理员可用，请联系管理员获取访问权限"
+      variant="compact"
+      action-text="申请权限"
+      bindaction="onRequestPermission">
+    </empty-state>
+  </view>
+
+  <!-- 主要内容 -->
+  <view wx:else>
+    <!-- 标签页切换 -->
+    <view class="tab-bar">
+      <view class="tab-item {{currentTab === 'pending' ? 'active' : ''}}" 
+            bindtap="onTabChange" data-tab="pending">
+        <text class="tab-text">待审批</text>
+        <view wx:if="{{pendingRequests.length > 0}}" class="tab-badge">{{pendingRequests.length}}</view>
+      </view>
+      <view class="tab-item {{currentTab === 'processed' ? 'active' : ''}}" 
+            bindtap="onTabChange" data-tab="processed">
+        <text class="tab-text">已处理</text>
+      </view>
+      <view class="tab-item {{currentTab === 'all' ? 'active' : ''}}" 
+            bindtap="onTabChange" data-tab="all">
+        <text class="tab-text">全部</text>
+      </view>
+    </view>
+
+    <!-- 加载状态 -->
+    <loading-skeleton wx:if="{{loading && (pendingRequests.length === 0 && processedRequests.length === 0)}}" 
+                     type="list" count="5"></loading-skeleton>
+
+    <!-- 错误状态 -->
+    <error-view wx:elif="{{error}}"
+                show="{{true}}"
+                error="{{error}}"
+                retry-text="重试"
+                variant="compact"
+                bindretry="onRetryLoad">
+    </error-view>
+
+    <!-- 待审批列表 -->
+    <view wx:elif="{{currentTab === 'pending' || currentTab === 'all'}}" class="requests-section">
+      <view wx:if="{{pendingRequests.length > 0}}" class="section-title">
+        <text class="title-text">🟡 待审批请求</text>
+        <text class="count-badge">{{pendingRequests.length}}</text>
+      </view>
+      
+      <view class="requests-list">
+        <block wx:for="{{pendingRequests}}" wx:key="id">
+          <view class="request-item pending">
+            <view class="request-header">
+              <view class="user-info">
+                <view class="user-avatar">{{item.requesterName.charAt(0)}}</view>
+                <view class="user-details">
+                  <text class="user-name">{{item.requesterName}}</text>
+                  <text class="user-role">{{item.requesterRole}}</text>
+                </view>
+              </view>
+              <view class="request-time">{{formatTime(item.createdAt)}}</view>
+            </view>
+            
+            <view class="request-content">
+              <view class="field-info">
+                <text class="field-name">申请访问：{{item.fieldDisplayName}}</text>
+                <text class="field-target">患者：{{item.patientName}}</text>
+              </view>
+              <view wx:if="{{item.reason}}" class="request-reason">
+                <text class="reason-label">申请原因：</text>
+                <text class="reason-text">{{item.reason}}</text>
+              </view>
+            </view>
+            
+            <view class="request-actions">
+              <button class="action-btn approve" size="mini" 
+                      bindtap="onApprovalAction" 
+                      data-request-id="{{item.id}}" 
+                      data-action="approve">
+                批准
+              </button>
+              <button class="action-btn reject" size="mini" 
+                      bindtap="onApprovalAction" 
+                      data-request-id="{{item.id}}" 
+                      data-action="reject">
+                拒绝
+              </button>
+              <button class="action-btn detail" size="mini" 
+                      bindtap="onViewDetail" 
+                      data-request-id="{{item.id}}">
+                详情
+              </button>
+            </view>
+          </view>
+        </block>
+      </view>
+      
+      <empty-state wx:if="{{pendingRequests.length === 0 && !loading}}"
+                   show="{{true}}"
+                   icon="✅"
+                   title="无待审批请求"
+                   description="当前没有需要处理的权限申请"
+                   variant="compact">
+      </empty-state>
+    </view>
+
+    <!-- 已处理列表 -->
+    <view wx:if="{{currentTab === 'processed' || currentTab === 'all'}}" class="requests-section">
+      <view wx:if="{{processedRequests.length > 0 && (currentTab === 'all' && pendingRequests.length > 0)}}" class="section-title">
+        <text class="title-text">📋 已处理请求</text>
+      </view>
+      
+      <view class="requests-list">
+        <block wx:for="{{processedRequests}}" wx:key="id">
+          <view class="request-item {{item.status}}">
+            <view class="request-header">
+              <view class="user-info">
+                <view class="user-avatar">{{item.requesterName.charAt(0)}}</view>
+                <view class="user-details">
+                  <text class="user-name">{{item.requesterName}}</text>
+                  <text class="user-role">{{item.requesterRole}}</text>
+                </view>
+              </view>
+              <view class="status-info">
+                <view class="status-badge {{item.status}}">
+                  <text class="status-text">{{item.status === 'approved' ? '已批准' : '已拒绝'}}</text>
+                </view>
+                <text class="processed-time">{{formatTime(item.processedAt)}}</text>
+              </view>
+            </view>
+            
+            <view class="request-content">
+              <view class="field-info">
+                <text class="field-name">{{item.fieldDisplayName}}</text>
+                <text class="field-target">{{item.patientName}}</text>
+              </view>
+              <view wx:if="{{item.processorName}}" class="processor-info">
+                <text class="processor-text">处理人：{{item.processorName}}</text>
+              </view>
+            </view>
+            
+            <view class="request-actions">
+              <button class="action-btn detail" size="mini" 
+                      bindtap="onViewDetail" 
+                      data-request-id="{{item.id}}">
+                详情
+              </button>
+            </view>
+          </view>
+        </block>
+      </view>
+      
+      <empty-state wx:if="{{processedRequests.length === 0 && currentTab === 'processed' && !loading}}"
+                   show="{{true}}"
+                   icon="📋"
+                   title="无处理记录"
+                   description="还没有处理过任何权限申请"
+                   variant="compact">
+      </empty-state>
+    </view>
+
+    <!-- 加载更多 -->
+    <view wx:if="{{hasMore && !loading}}" class="load-more">
+      <text class="load-more-text">上拉加载更多</text>
+    </view>
+    
+    <view wx:elif="{{!hasMore && (pendingRequests.length > 0 || processedRequests.length > 0)}}" class="no-more">
+      <text class="no-more-text">已显示全部内容</text>
+    </view>
+  </view>
+</view>

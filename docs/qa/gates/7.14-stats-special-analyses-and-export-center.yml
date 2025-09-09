@@ -1,0 +1,25 @@
+story: "7.14"
+title: "统计专项分析子页与导出中心 - 实施质量门"
+status: PASS
+status_reason: "AC 达成：专项分析三页可达且权限控制一致；导出中心具备模板/参数/任务轮询/历史记录；状态组件统一。"
+issues:
+  - id: A11Y-PROGRESS-ARIA
+    level: IMPROVEMENT
+    description: "进度条缺少 aria-valuenow/valuemax，历史项/任务卡可补 aria-label"
+    suggested_action: "在进度条与列表项组件化时补充 A11y 属性"
+  - id: POLLING-BACKOFF
+    level: IMPROVEMENT
+    description: "轮询固定 2s，建议在错误时退避；网络异常时提前终止并提示"
+    suggested_action: "失败累计阈值 + 指数退避；显式错误提示"
+  - id: EXPORT-LINK-SECURITY
+    level: ADVISORY
+    description: "下载链接复制暴露在前端，需后端短期签名/一次性令牌控制"
+    suggested_action: "文档标注后端签名策略；链接有效期≤15分钟，关联 requestId"
+last_review: 2025-09-09
+evidence:
+  - path: miniprogram/pages/stats/*.wxml
+    note: "专项分析子页存在并接入 stat-card/chart-container/empty/error"
+  - path: miniprogram/pages/exports/index.*
+    note: "模板选择、参数配置、任务轮询、导出历史、错误处理逻辑"
+  - path: docs/stories/7.14.stats-special-analyses-and-export-center.md
+    note: "AC 与 Dev Notes 对齐"

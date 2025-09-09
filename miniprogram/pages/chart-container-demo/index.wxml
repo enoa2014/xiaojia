@@ -1,0 +1,76 @@
+<!--pages/chart-container-demo/index.wxml-->
+<view class="container">
+  <view class="demo-header">
+    <text class="demo-title">Chart Container 交互演示</text>
+    <text class="demo-subtitle">演示图表容器的时间筛选、维度筛选、Mock数据等功能</text>
+  </view>
+
+  <!-- 测试控制区域 -->
+  <view class="demo-controls">
+    <text class="section-title">状态测试</text>
+    <view class="control-buttons">
+      <button size="mini" bindtap="testLoading" class="control-btn">加载中</button>
+      <button size="mini" bindtap="testError" class="control-btn">错误状态</button>
+      <button size="mini" bindtap="testEmpty" class="control-btn">空状态</button>
+      <button size="mini" bindtap="testNormal" class="control-btn">正常状态</button>
+      <button size="mini" bindtap="testMock" class="control-btn">Mock模式</button>
+    </view>
+
+    <text class="section-title">交互功能</text>
+    <view class="control-switches">
+      <view class="switch-item">
+        <text>时间范围切换</text>
+        <switch checked="{{enableTimeRange}}" bindchange="toggleTimeRange" />
+      </view>
+      <view class="switch-item">
+        <text>维度筛选</text>
+        <switch checked="{{enableFilters}}" bindchange="toggleFilters" />
+      </view>
+    </view>
+  </view>
+
+  <!-- Chart Container 演示 -->
+  <view class="demo-chart-section">
+    <chart-container
+      title="{{chartTitle}}"
+      height="{{chartHeight}}"
+      loading="{{loading}}"
+      error="{{error}}"
+      empty="{{empty}}"
+      enable-time-range="{{enableTimeRange}}"
+      time-range-options="{{timeRangeOptions}}"
+      current-time-range="{{currentTimeRange}}"
+      enable-filters="{{enableFilters}}"
+      filter-options="{{filterOptions}}"
+      current-filters="{{currentFilters}}"
+      enable-mock="{{enableMock}}"
+      bindtimeRangeChange="onTimeRangeChange"
+      bindfilterChange="onFilterChange"
+      bindmockDataGenerated="onMockDataGenerated"
+      bindretry="onRetry"
+    >
+      <!-- 模拟图表内容 -->
+      <view class="mock-chart-content">
+        <text class="chart-placeholder">📊 这里是实际的图表内容</text>
+        <view class="chart-info">
+          <text>当前时间范围: {{currentTimeRange}}</text>
+          <text wx:if="{{Object.keys(currentFilters).length > 0}}">
+            当前筛选: {{JSON.stringify(currentFilters)}}
+          </text>
+        </view>
+      </view>
+    </chart-container>
+  </view>
+
+  <!-- 功能说明 -->
+  <view class="demo-instructions">
+    <text class="section-title">功能说明</text>
+    <view class="instruction-list">
+      <text class="instruction-item">• 时间范围切换：支持7天、30天、90天、自定义等选项</text>
+      <text class="instruction-item">• 维度筛选：支持多个筛选条件，可重置筛选</text>
+      <text class="instruction-item">• 状态管理：统一的加载、错误、空状态处理</text>
+      <text class="instruction-item">• Mock数据：支持随机生成正常/空/错误状态用于开发测试</text>
+      <text class="instruction-item">• 无障碍：支持屏幕阅读器和键盘导航</text>
+    </view>
+  </view>
+</view>
