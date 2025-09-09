@@ -9,6 +9,9 @@ export const main = async (event:any) => {
   const evt = event || {}
   const action = evt.action
   const { OPENID } = cloud.getWXContext?.() || ({} as any)
+  const db = cloud.database()
+  const started = Date.now()
+  const reqId = (evt && (evt.payload && (evt.payload as any).requestId)) || null
   if (action === 'monthly') {
     const allowed = await hasAnyRole(db, OPENID, ['admin','social_worker'])
     if (!allowed) return err('E_PERM','需要权限')
@@ -53,6 +56,7 @@ export const main = async (event:any) => {
       const v = await countForDay(ds, i)
       items.push({ date: ds, value: v })
     }
+    try { await db.collection('Metrics').add({ data: { ns: 'stats', action: 'monthly', ok: true, duration: Date.now()-started, requestId: reqId, actorId: OPENID||null, scope, ts: Date.now() } as any }) } catch {}
     return ok({ items, meta: { total: days, hasMore: false } })
   }
   if (action === 'yearly') {
@@ -93,6 +97,7 @@ export const main = async (event:any) => {
       } catch { value = 0 }
       items.push({ date: ym, value })
     }
+    try { await db.collection('Metrics').add({ data: { ns: 'stats', action: 'yearly', ok: true, duration: Date.now()-started, requestId: reqId, actorId: OPENID||null, scope, ts: Date.now() } as any }) } catch {}
     return ok({ items, meta: { total: 12, hasMore: false } })
   }
   if (action === 'counts') {
@@ -109,6 +114,7 @@ export const main = async (event:any) => {
         out[name] = null
       }
     }
+    try { await db.collection('Metrics').add({ data: { ns: 'stats', action: 'counts', ok: true, duration: Date.now()-started, requestId: reqId, actorId: OPENID||null, ts: Date.now() } as any }) } catch {}
     return ok(out)
   }
   if (action === 'homeSummary') {
@@ -208,7 +214,9 @@ export const main = async (event:any) => {
       ]
     })()
 
+    try { await db.collection('Metrics').add({ data: { ns: 'stats', action: 'homeSummary', ok: true, duration: Date.now()-started, requestId: reqId, actorId: OPENID||null, ts: Date.now() } as any }) } catch {}
     return ok({ role, items, notifications, permText })
   }
+  try { await db.collection('Metrics').add({ data: { ns: 'stats', action: action || 'ping', ok: true, duration: Date.now()-started, requestId: reqId, actorId: OPENID||null, ts: Date.now() } as any }) } catch {}
   return ok({ ping: 'stats' })
 }

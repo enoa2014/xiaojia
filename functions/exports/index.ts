@@ -27,6 +27,8 @@ export const main = async (event:any) => {
     const { OPENID } = cloud.getWXContext?.() || ({} as any)
     const allowed = await hasAnyRole(db, OPENID, ['admin','social_worker'])
     if (!allowed) return err('E_PERM','需要权限')
+    const started = Date.now()
+    const reqId = (payload && (payload as any).requestId) || null
 
     if (action === 'create') {
       const p = CreateSchema.safeParse(payload || {})
@@ -74,7 +76,9 @@ export const main = async (event:any) => {
 
       // 审计：export.status
       try { await db.collection('AuditLogs').add({ data: { actorId: OPENID || null, action: 'export.status', target: { taskId, status: t.status }, requestId: p.data.requestId || null, createdAt: Date.now() } }) } catch {}
-      return ok({ status: t.status, downloadUrl: t.downloadUrl, expiresAt: t.expiresAt })
+      const out = { status: t.status, downloadUrl: t.downloadUrl, expiresAt: t.expiresAt }
+      try { await db.collection('Metrics').add({ data: { ns: 'exports', action: 'status', ok: true, duration: Date.now()-started, requestId: reqId, actorId: OPENID||null, ts: Date.now() } as any }) } catch {}
+      return ok(out)
     }
 
     if (action === 'history') {
@@ -102,11 +106,19 @@ export const main = async (event:any) => {
         }
       } catch {}
       // 返回统计信息（占位）
+      try { await db.collection('Metrics').add({ data: { ns: 'exports', action: 'cronCleanup', ok: true, duration: Date.now()-started, requestId: reqId, actorId: OPENID||null, ts: Date.now() } as any }) } catch {}
       return ok({ cleaned: true, ts: now })
     }
 
+    try { await db.collection('Metrics').add({ data: { ns: 'exports', action: action || 'ping', ok: true, duration: Date.now()-started, requestId: reqId, actorId: OPENID||null, ts: Date.now() } as any }) } catch {}
     return ok({ ping: 'exports' })
   } catch (e:any) {
+    try {
+      const { action, payload } = event || {}
+      const reqId = (payload && (payload as any).requestId) || null
+      const { OPENID } = cloud.getWXContext?.() || ({} as any)
+      await db.collection('Metrics').add({ data: { ns: 'exports', action: action || 'unknown', ok: false, code: e.code || 'E_INTERNAL', message: String(e.message||''), ts: Date.now(), actorId: OPENID||null, requestId: reqId } as any })
+    } catch {}
     return err(e.code || 'E_INTERNAL', e.message, e.stack)
   }
 }

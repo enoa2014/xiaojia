@@ -1,5 +1,5 @@
 # Story: EP-00-S2 观测与告警（Observability & Alerts）
-Status: Planned
+Status: In Progress
 
 ## Story
 - As: 架构/运维
@@ -59,12 +59,12 @@ Status: Planned
 
 ## Tasks
 - Ops/BE：
-  - T1 指标源与面板配置；错误率/P95/失败率/SLA
-  - T2 阈值/静默窗口/合并策略；通知通道接入
+  - [x] T1 指标源与采集：在关键函数写入 `Metrics`（ns/action/ok/duration/requestId/actorId/ts）
+  - [ ] T2 面板与阈值配置；通知通道接入（Webhook）
 - Docs：
-  - T3 更新 `architecture/09-observability.md` 与 Runbook
+  - [x] T3 更新 `architecture/09-observability.md` 与 Runbook 概要
 - QA：
-  - T4 演练触发：制造错误/延迟/失败样例，验证告警
+  - [ ] T4 演练触发：制造错误/延迟/失败样例，验证告警
 
 ## 测试用例（建议）
 - 错误率告警：制造 5 分钟内 5% 错误；产生与恢复通知。
@@ -86,3 +86,31 @@ Status: Planned
 
 ## DoD
 - [ ] 面板与告警可用；文档与演练完成
+
+---
+
+## Dev Agent Record
+
+### Agent Model Used
+dev (James)
+
+### Tasks / Subtasks Checkboxes
+- [x] 在 `functions/stats` 与 `functions/exports` 关键 action 写入 `Metrics`
+- [x] 文档更新 `docs/architecture/09-observability.md`（MVP 实施与 Runbook 概要）
+- [ ] 配置 TCB 控制台自定义面板与告警阈值；对接通知通道（待运维）
+- [ ] QA 演练：错误率/P95/导出失败率
+
+### Debug Log References
+- Updated `functions/stats/index.ts`：在 `monthly|yearly|counts|homeSummary` 记录 `Metrics`
+- Updated `functions/exports/index.ts`：在 `status|cronCleanup` 记录 `Metrics`，并已有 `AuditLogs`
+
+### Completion Notes List
+- 最小可用：可在 `Metrics` 集合与 TCB 控制台中搭建面板，后续接入告警通道
+
+### File List
+- Modified: `functions/stats/index.ts`
+- Modified: `functions/exports/index.ts`
+- Modified: `docs/architecture/09-observability.md`
+
+### Status
+Ready for Review
