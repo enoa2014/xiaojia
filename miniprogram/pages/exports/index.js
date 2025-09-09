@@ -172,7 +172,8 @@ Page({
       track('export_create_start', { 
         requestId, 
         templateId: selectedTemplate.id, 
-        templateType: selectedTemplate.type 
+        templateType: selectedTemplate.type,
+        month: selectedTemplate.params.includes('month') ? (formData.month || '') : undefined
       })
 
       const result = await api.exports.create(selectedTemplate.id, params, clientToken, requestId)

@@ -1,5 +1,5 @@
 # Story: EP-00-S3 前端埋点接入与校验（Analytics Instrumentation）
-Status: Planned
+Status: In Progress
 
 ## Story
 - As: 产品/分析/QA
@@ -60,11 +60,11 @@ Status: Planned
 
 ## Tasks
 - FE：
-  - T1 所有事件接入，使用 `genRequestId(prefix)` 贯穿
+  - [x] T1 事件接入：导出创建（submit/result）、活动创建（submit/result）、服务提交（click/result 映射）、活动列表视图（view 映射）；统一 `genRequestId(prefix)` 贯穿
 - QA：
-  - T2 采样验证并出具报告（覆盖率/缺失项）
+  - [ ] T2 采样验证并出具报告（覆盖率/缺失项）
 - Docs：
-  - T3 更新 `docs/testing/test-plan.md` 的埋点校验章节
+  - [ ] T3 更新 `docs/testing/test-plan.md` 的埋点校验章节
 
 ## 测试用例（建议）
 - 每类事件成功/失败路径均产生一次 `result`；`requestId` 贯穿且唯一。
@@ -86,3 +86,28 @@ Status: Planned
 
 ## DoD
 - [ ] 事件接入；采样报告；测试与文档更新
+
+---
+
+## Dev Agent Record
+
+### Agent Model Used
+dev (James)
+
+### Tasks / Subtasks Checkboxes
+- [x] `miniprogram/services/analytics.js`：添加标准化映射（form_* → *_submit/_result，list_loaded → list_view 等）
+- [x] `pages/exports/index.js`：create 流程上报 month 并按规范输出 result
+- [x] `pages/activities/form.js`：新增 activity_create_submit/result 埋点（含 requestId/duration/code）
+- [ ] QA：覆盖率/缺失采样与报告
+- [ ] Docs：测试计划埋点章节更新
+
+### Completion Notes List
+- 现有页面的旧事件名将通过 analytics 映射输出一份标准化事件，保证过渡期兼容
+
+### File List
+- Modified: `miniprogram/services/analytics.js`
+- Modified: `miniprogram/pages/exports/index.js`
+- Modified: `miniprogram/pages/activities/form.js`
+
+### Status
+Ready for Review

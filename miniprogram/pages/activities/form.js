@@ -646,6 +646,17 @@ Page({
       delete submitData.registrationEndTime
       
       const action = this.data.mode === 'edit' ? 'update' : 'create'
+      const submitReqId = genRequestId('activity')
+      const submitStart = Date.now()
+      // 统一提交事件埋点（标准化：activity_create_submit）
+      try {
+        track('activity_create_submit', {
+          requestId: submitReqId,
+          capacity: submitData.capacity,
+          status: submitData.status,
+          hasLocation: !!submitData.location
+        })
+      } catch(_) {}
       const payload = this.data.mode === 'edit'
         ? { activityId: this.data.activityId, data: submitData }
         : submitData
@@ -674,11 +685,11 @@ Page({
           : `activity_draft_new_${this.data.currentUserId}`
         wx.removeStorageSync(draftKey)
         
-        // 埋点
-        track('activity_form_submit', {
-          mode: this.data.mode,
-          published: publishNow,
-          activityId: result.result.data.id || this.data.activityId
+        // 埋点（标准化：activity_create_result）
+        track('activity_create_result', {
+          requestId: submitReqId,
+          duration: Date.now() - submitStart,
+          code: 'OK'
         })
         
         // 延迟返回，让用户看到成功提示
@@ -692,6 +703,13 @@ Page({
       
     } catch (error) {
       console.error('提交表单失败:', error)
+      try {
+        track('activity_create_result', {
+          requestId: submitReqId,
+          duration: Date.now() - submitStart,
+          code: error.code || 'ERR'
+        })
+      } catch(_){ }
       wx.showToast({
         title: mapError(error.code || 'E_INTERNAL'),
         icon: 'none'
