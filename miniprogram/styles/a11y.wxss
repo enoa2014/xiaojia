@@ -1,0 +1,255 @@
+/* A11y (Accessibility) utility classes */
+
+/* Screen reader only text */
+.sr-only {
+  position: absolute;
+  width: 1rpx;
+  height: 1rpx;
+  padding: 0;
+  margin: -1rpx;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+/* Remove sr-only styling when focused (for keyboard navigation) */
+.sr-only:focus {
+  position: static;
+  width: auto;
+  height: auto;
+  padding: inherit;
+  margin: inherit;
+  overflow: visible;
+  clip: auto;
+  white-space: normal;
+}
+
+/* Focus ring utilities */
+.focus-ring {
+  outline: 4rpx solid var(--color-primary-400);
+  outline-offset: 4rpx;
+}
+
+.focus-ring-inset {
+  outline: 4rpx solid var(--color-primary-400);
+  outline-offset: -4rpx;
+}
+
+/* High contrast focus ring for dark backgrounds */
+.focus-ring-light {
+  outline: 4rpx solid #FFFFFF;
+  outline-offset: 4rpx;
+}
+
+/* Minimum touch target size (88x88rpx) */
+.touch-target {
+  min-width: 88rpx;
+  min-height: 88rpx;
+}
+
+/* Extend clickable area without changing visual appearance */
+.touch-area-extended {
+  position: relative;
+}
+
+.touch-area-extended::before {
+  content: '';
+  position: absolute;
+  top: -8rpx;
+  right: -8rpx;
+  bottom: -8rpx;
+  left: -8rpx;
+  min-width: 88rpx;
+  min-height: 88rpx;
+}
+
+/* Skip link for keyboard navigation */
+.skip-link {
+  position: absolute;
+  top: -80rpx;
+  left: 24rpx;
+  background: var(--color-primary-600);
+  color: var(--text-on-primary);
+  padding: var(--space-2) var(--space-3);
+  text-decoration: none;
+  border-radius: var(--radius-sm);
+  z-index: var(--z-toast);
+  transition: top var(--duration-fast) ease;
+}
+
+.skip-link:focus {
+  top: 24rpx;
+}
+
+/* Reduced motion utilities */
+.motion-reduce {
+  animation: none !important;
+  transition: none !important;
+}
+
+/* High contrast utilities */
+.high-contrast {
+  border: 2rpx solid var(--gray-900);
+}
+
+.high-contrast-text {
+  color: var(--gray-900);
+  font-weight: var(--weight-medium);
+}
+
+/* Error state styling for form fields */
+.error-field {
+  border: 2rpx solid var(--color-danger-600);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.error-text {
+  color: var(--color-danger-600);
+  font-size: var(--font-caption);
+  margin-top: var(--space-1);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+
+.error-icon {
+  flex-shrink: 0;
+  width: 32rpx;
+  height: 32rpx;
+  margin-top: -2rpx;
+}
+
+/* Success state styling */
+.success-field {
+  border: 2rpx solid var(--color-success-600);
+  background: rgba(22, 163, 74, 0.05);
+}
+
+.success-text {
+  color: var(--color-success-600);
+  font-size: var(--font-caption);
+  margin-top: var(--space-1);
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1);
+}
+
+/* Loading state utilities */
+.loading-overlay {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(255, 255, 255, 0.8);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 10;
+}
+
+/* Disabled state utilities */
+.disabled {
+  opacity: var(--opacity-disabled);
+  pointer-events: none;
+  cursor: not-allowed;
+}
+
+/* Semantic color utilities with sufficient contrast */
+.text-contrast-high {
+  color: var(--gray-900);
+  font-weight: var(--weight-medium);
+}
+
+.text-contrast-medium {
+  color: var(--gray-700);
+}
+
+.bg-contrast-high {
+  background: var(--gray-900);
+  color: var(--text-on-primary);
+}
+
+/* Interactive states */
+.interactive:active {
+  transform: scale(0.98);
+  transition: transform var(--duration-fast) ease;
+}
+
+.interactive:hover {
+  opacity: 0.9;
+  transition: opacity var(--duration-fast) ease;
+}
+
+/* Layout utilities for better spacing */
+.spacing-comfortable {
+  margin: var(--space-3);
+}
+
+.spacing-compact {
+  margin: var(--space-2);
+}
+
+.spacing-relaxed {
+  margin: var(--space-4);
+}
+
+/* Text size utilities ensuring readability */
+.text-readable {
+  font-size: var(--font-body);
+  line-height: var(--lh-normal);
+}
+
+.text-large {
+  font-size: var(--font-h3);
+  line-height: var(--lh-normal);
+}
+
+/* List accessibility improvements */
+.list-accessible {
+  list-style: none;
+  padding: 0;
+}
+
+.list-accessible > .list-item {
+  min-height: 88rpx;
+  padding: var(--space-3);
+  border-bottom: 1rpx solid var(--gray-200);
+  display: flex;
+  align-items: center;
+  gap: var(--space-3);
+}
+
+.list-accessible > .list-item:last-child {
+  border-bottom: none;
+}
+
+/* Modal and dialog accessibility */
+.modal-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, var(--opacity-overlay));
+  z-index: var(--z-drawer);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg);
+  max-width: 90%;
+  max-height: 80%;
+  padding: var(--space-6);
+  position: relative;
+}
+
+.modal-content:focus {
+  outline: 4rpx solid var(--color-primary-400);
+  outline-offset: -4rpx;
+}

@@ -10,11 +10,15 @@
     required="{{true}}">
     <input 
       slot="control"
-      class="input" 
+      class="input touch-target" 
       placeholder="请输入姓名" 
       value="{{name}}" 
       data-key="name"
-      bindinput="onInput" />
+      name="name"
+      aria-label="姓名，必填"
+      bindinput="onInput" 
+      bindfocus="onFieldFocus"
+      bindblur="onFieldBlur" />
   </ui-form-field>
   <ui-form-field 
     id="field-id_card"
@@ -171,10 +175,13 @@
   </view>
 
   <ui-button 
+    id="submit-btn"
     text="提交" 
     variant="primary" 
     size="md"
     loading="{{submitting}}"
     fullWidth="{{true}}"
+    class="touch-target"
+    aria-label="提交档案表单"
     bindtap="onSubmit" />
 </view>

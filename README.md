@@ -21,6 +21,7 @@
 pnpm i
 pnpm -r --filter ./functions/* i
 pnpm run build:functions
+pnpm run build:tokens
 
 # 建库（集合一次性创建）
 pnpm run init:db
@@ -76,5 +77,25 @@ wx cloud callFunction --name import-xlsx --data '{"action":"fromCos","payload":{
 
 > 额外字段会进入 `extra.*` 便于追溯；日期统一转 `YYYY-MM-DD`。
 
-## 5. 小程序运行
-导入 `miniprogram/` 到微信开发者工具，首页“加载列表”调用 `patients.list`。
+## 5. 设计令牌构建
+
+本项目支持构建期令牌注入，将 `docs/uiux/design-system/tokens.md` 的设计配置注入到 WXSS 中：
+
+```bash
+# 构建设计令牌
+pnpm run build:tokens
+```
+
+**特性**：
+- 自动从 tokens.md 解析颜色、尺寸、阴影等令牌
+- 验证关键令牌存在性，防止配置错误
+- 失败时自动恢复备份文件
+- 生成的 `miniprogram/styles/tokens.wxss` 保持向后兼容
+
+**注意事项**：
+- 修改 `tokens.md` 后需重新运行构建命令
+- 构建失败时会自动恢复原始文件
+- 关键令牌缺失会阻止构建并报错
+
+## 6. 小程序运行
+导入 `miniprogram/` 到微信开发者工具，首页"加载列表"调用 `patients.list`。

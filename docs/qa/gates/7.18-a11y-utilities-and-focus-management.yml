@@ -1,0 +1,23 @@
+story: "7.18"
+title: "A11y 工具类与焦点管理 - 实施质量门"
+status: PASS
+status_reason: "a11y 工具类与服务实现并全局接入；表单错误定位/播报可用；组件 aria/role 覆盖广；对比度抽样达标。"
+issues:
+  - id: ANNOUNCE-TOAST-TITLE
+    level: ADVISORY
+    description: "通过设置页面标题进行播报的方案存在还原标题依赖，建议维护更完备的路由→标题映射"
+    suggested_action: "扩充 getPageTitle 映射并在页面 onShow 时兜底恢复"
+  - id: DIALOG-HOOKS-EXAMPLES
+    level: IMPROVEMENT
+    description: "Dialog 焦点管理接口已提供，建议在实际弹层接线示例"
+    suggested_action: "在常用弹层入口（如确认框/筛选面板）调用 handleDialogOpen/Close"
+last_review: 2025-09-09
+evidence:
+  - path: miniprogram/styles/a11y.wxss
+    note: "sr-only、focus-ring、touch-target、skip-link 等工具类"
+  - path: miniprogram/services/a11y.js
+    note: "焦点栈、错误定位、Dialog 管理、对比度/键盘导航工具"
+  - path: miniprogram/pages/patients/form.js
+    note: "setupPageAccessibility/announceToast/focusFirstError 集成"
+  - path: miniprogram/app.wxss
+    note: "全局导入 a11y.wxss"

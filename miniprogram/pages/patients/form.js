@@ -1,4 +1,5 @@
 import { api, mapError } from '../../services/api'
+import a11yService from '../../services/a11y'
 
 // 本地校验：姓名/手机号/身份证（含校验位）/出生日期不晚于今天
 const REG = {
@@ -53,13 +54,22 @@ Page({
     errors: {},
     submitting: false,
   },
-  onLoad(){ try { require('../../services/theme').applyThemeByRole(this) } catch(_) {} },
+  onLoad(){ 
+    try { require('../../services/theme').applyThemeByRole(this) } catch(_) {}
+    // 设置页面无障碍属性
+    a11yService.setupPageAccessibility(this, {
+      title: '编辑档案',
+      description: '填写和编辑家庭档案信息'
+    })
+  },
   onShow(){ try { require('../../services/theme').applyThemeByRole(this) } catch(_) {} },
   // 绑定
   onInput(e) {
     const key = e.currentTarget.dataset.key || e.target.dataset.key
     const value = e.detail.value
     if (key) {
+      // 清除该字段的错误状态
+      a11yService.clearFieldError(key, this)
       this.setData({ [key]: value, errors: { ...this.data.errors, [key]: '' } })
     }
   },
@@ -67,6 +77,51 @@ Page({
     this.setData({ birthDate: e.detail.value, errors: { ...this.data.errors, birthDate: '' } }) 
   },
   toggleMore() { this.setData({ moreOpen: !this.data.moreOpen }) },
+  
+  // 可访问性焦点处理
+  onFieldFocus(e) {
+    const key = e.currentTarget.dataset.key || e.target.dataset.key
+    if (key) {
+      a11yService.lastFocusedElement = key
+    }
+  },
+  
+  onFieldBlur(e) {
+    const key = e.currentTarget.dataset.key || e.target.dataset.key
+    const value = e.detail.value
+    // 可以在这里进行实时验证
+    if (key && value) {
+      this.validateSingleField(key, value)
+    }
+  },
+  
+  // 单字段验证
+  validateSingleField(key, value) {
+    const errors = {}
+    switch (key) {
+      case 'name':
+        if (!REG.name.test(String(value).trim())) {
+          errors[key] = '姓名需为 2–30 个中文/字母'
+        }
+        break
+      case 'phone':
+      case 'motherPhone':
+        if (value && !REG.phone.test(value)) {
+          errors[key] = '手机号格式错误'
+        }
+        break
+      case 'id_card':
+      case 'motherIdCard':
+        if (value && !isValidIdCard(String(value).trim())) {
+          errors[key] = '身份证格式或校验位错误'
+        }
+        break
+    }
+    
+    if (Object.keys(errors).length > 0) {
+      a11yService.showFieldError(key, errors[key], this)
+    }
+  },
 
   // 校验并滚动到第一个错误字段
   validate() {
@@ -86,12 +141,22 @@ Page({
     const idOrder = ['name','id_card','phone','birthDate','motherPhone','motherIdCard']
     const first = idOrder.find(k => er[k])
     if (!first) return
+    
+    // 使用 A11y 服务聚焦到第一个错误字段
+    const firstErrorInfo = { field: first, message: er[first] }
+    a11yService.focusFirstError([firstErrorInfo], this)
+    
+    // 滚动到错误字段
     const q = wx.createSelectorQuery()
     q.select(`#field-${first}`).boundingClientRect()
     q.selectViewport().scrollOffset()
     q.exec(res => {
       const rect = res && res[0]
-      if (rect) wx.pageScrollTo({ scrollTop: Math.max(0, rect.top + (res[1]?.scrollTop || 0) - 60), duration: 200 })
+      if (rect) {
+        wx.pageScrollTo({ scrollTop: Math.max(0, rect.top + (res[1]?.scrollTop || 0) - 60), duration: 200 })
+        // 播报错误消息
+        a11yService.announceToast(`${first}字段错误：${er[first]}`, 'error')
+      }
     })
   },
 
@@ -122,12 +187,16 @@ Page({
         familyEconomy: this.data.familyEconomy || undefined,
       }
       await api.patients.create(patient, clientToken)
+      // 使用 A11y 服务播报成功消息
+      a11yService.announceToast('档案创建成功', 'success')
       wx.showToast({ title: '创建成功' })
       setTimeout(()=>{ wx.navigateBack({ delta: 1 }) }, 500)
     } catch (e) {
       const code = e.code || 'E_INTERNAL'
       if (code === 'E_CONFLICT') {
         const tail = (this.data.id_card || '').slice(-4)
+        // 保存当前焦点位置
+        a11yService.pushFocus('submit-btn')
         wx.showModal({
           title: '已存在该身份证',
           content: '身份证已存在，请搜索后编辑',
@@ -137,7 +206,14 @@ Page({
             if (res.confirm) {
               const kw = encodeURIComponent(tail)
               wx.navigateTo({ url: `/pages/patients/search?keyword=${kw}&mode=tail` })
+            } else {
+              // 用户取消时恢复焦点
+              a11yService.popFocus(this)
             }
+          },
+          fail: () => {
+            // Modal显示失败时恢复焦点
+            a11yService.popFocus(this)
           }
         })
       } else if (code === 'E_VALIDATE') {

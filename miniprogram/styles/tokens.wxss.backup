@@ -8,18 +8,18 @@ page {
   --radius-xl: 20rpx;
 
   /* Brand Colors (Primary) */
-  --color-primary-600: #16A34A;
-  --color-primary-700: #15803D;
+  --color-primary-600: #22C55E;
+  --color-primary-700: #16A34A;
   --color-primary-400: #34D399;
   --bg-primary: #FFFFFF;
   --text-primary: #111827;
   --text-on-primary: #FFFFFF;
 
   /* Semantic Colors */
-  --color-success-600: #15803D;
-  --color-warning-600: #D97706;
-  --color-danger-600: #DC2626;
-  --color-info-600: #2563EB;
+  --color-success-600: #16A34A;
+  --color-warning-600: #F59E0B;
+  --color-danger-600: #EF4444;
+  --color-info-600: #3B82F6;
 
   /* Gray Scale (50-900) */
   --gray-900: #111827;
@@ -32,8 +32,8 @@ page {
   /* Role Colors */
   --role-admin: #7C3AED;
   --role-social: #2563EB;
-  --role-volunteer: #D97706;
-  --role-parent: #DC2626;
+  --role-volunteer: #F59E0B;
+  --role-parent: #EC4899;
 
   /* Background & Text */
   --bg-subtle: #F0FDF4;

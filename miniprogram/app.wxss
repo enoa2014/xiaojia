@@ -1,5 +1,6 @@
 
 @import "styles/tokens.wxss";
+@import "styles/a11y.wxss";
 
 page { background: var(--gradient-page); }
 

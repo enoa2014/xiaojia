@@ -4,22 +4,22 @@
 
 ## 颜色（Colors）
 - 品牌（Primary）
-  - `--color-primary-600: #22C55E`（主）：按钮主色/高亮
-  - `--color-primary-700: #16A34A`（深）：Pressed 背景
+  - `--color-primary-600: #16A34A`（主）：按钮主色/高亮 - 提升对比度
+  - `--color-primary-700: #15803D`（深）：Pressed 背景 - 更深的绿色
   - `--color-primary-400: #34D399`（浅）：强调/选中背景
 - 语义（Semantic）
-  - 成功：`--color-success-600: #16A34A`
-  - 警告：`--color-warning-600: #F59E0B`
-  - 危险：`--color-danger-600: #EF4444`
-  - 信息：`--color-info-600: #3B82F6`
+  - 成功：`--color-success-600: #15803D` - 提升对比度
+  - 警告：`--color-warning-600: #D97706` - 更深的橙色，提升对比度
+  - 危险：`--color-danger-600: #DC2626` - 更深的红色，提升对比度
+  - 信息：`--color-info-600: #2563EB` - 更深的蓝色，提升对比度
 - 中性色（Gray 50–900）
   - `--gray-900: #111827`、`--gray-700: #374151`、`--gray-500: #6B7280`
   - `--gray-300: #D1D5DB`、`--gray-200: #E5E7EB`、`--gray-50: #F9FAFB`
 - 角色色（Role Badges）
-  - 管理员：`--role-admin: #7C3AED`（紫）
-  - 社工：`--role-social: #2563EB`（蓝）
-  - 志愿者：`--role-volunteer: #F59E0B`（橙）
-  - 家长：`--role-parent: #EC4899`（粉）
+  - 管理员：`--role-admin: #7C3AED`（紫）- 对比度已符合标准
+  - 社工：`--role-social: #2563EB`（蓝）- 对比度已符合标准
+  - 志愿者：`--role-volunteer: #D97706`（橙）- 提升对比度
+  - 家长：`--role-parent: #DC2626`（粉红改为深红）- 提升对比度
 - 背景与文本
   - 背景主：`--bg-primary: #FFFFFF`、次：`--bg-subtle: #F0FDF4`
   - 文本主：`--text-primary: #111827`、次：`--text-secondary: #374151`

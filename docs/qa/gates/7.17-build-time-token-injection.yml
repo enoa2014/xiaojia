@@ -1,0 +1,21 @@
+story: "7.17"
+title: "构建期令牌注入方案 - 实施质量门"
+status: PASS
+status_reason: "构建脚本可解析 tokens.md 并生成 tokens.wxss；命令行可复现；失败场景自动回退；不影响运行时逻辑。"
+issues:
+  - id: TOKENS-COVERAGE
+    level: ADVISORY
+    description: "解析以反引号格式的令牌配置；如 tokens.md 改为表格或 YAML，需同步更新解析规则"
+    suggested_action: "在 tokens.md 维护规范中注明格式约束；必要时扩展解析器以支持更多格式"
+  - id: BACKUP-PATH
+    level: ADVISORY
+    description: "备份文件命名为 tokens.wxss.backup，可考虑时间戳/多版本备份"
+    suggested_action: "引入带时间戳的备份文件名并清理历史备份"
+last_review: 2025-09-09
+evidence:
+  - path: scripts/build-tokens.js
+    note: "解析/校验/备份回退/写入流程完整"
+  - path: package.json
+    note: "提供 build:tokens 脚本"
+  - path: README.md
+    note: "包含运行说明与注意事项"
