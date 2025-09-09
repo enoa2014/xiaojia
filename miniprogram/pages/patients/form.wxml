@@ -63,5 +63,11 @@
     <view class="section"><text class="label">家庭经济（可选）</text><input class="input" placeholder="如：困难/一般/良好" value="{{familyEconomy}}" data-key="familyEconomy" bindinput="onInput" /></view>
   </view>
 
-  <button class="submit" loading="{{submitting}}" bindtap="onSubmit">提交</button>
+  <ui-button 
+    text="提交" 
+    variant="primary" 
+    size="md"
+    loading="{{submitting}}"
+    fullWidth="{{true}}"
+    bindtap="onSubmit" />
 </view>

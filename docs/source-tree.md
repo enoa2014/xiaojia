@@ -172,6 +172,11 @@ miniprogram/components/action-card/index.js
 miniprogram/components/action-card/index.json
 miniprogram/components/action-card/index.wxml
 miniprogram/components/action-card/index.wxss
+miniprogram/components/button
+miniprogram/components/button/index.js
+miniprogram/components/button/index.json
+miniprogram/components/button/index.wxml
+miniprogram/components/button/index.wxss
 miniprogram/components/empty-state
 miniprogram/components/empty-state/index.js
 miniprogram/components/empty-state/index.json
@@ -220,6 +225,11 @@ miniprogram/pages/audits/index.js
 miniprogram/pages/audits/index.json
 miniprogram/pages/audits/index.wxml
 miniprogram/pages/audits/index.wxss
+miniprogram/pages/button-demo
+miniprogram/pages/button-demo/index.js
+miniprogram/pages/button-demo/index.json
+miniprogram/pages/button-demo/index.wxml
+miniprogram/pages/button-demo/index.wxss
 miniprogram/pages/empty-error-demo
 miniprogram/pages/empty-error-demo/index.js
 miniprogram/pages/empty-error-demo/index.json
@@ -520,6 +530,7 @@ docs/qa/gates
 docs/qa/reports
 docs/qa/results
 docs/qa/test-plan-action-card.md
+docs/qa/test-plan-button.md
 docs/qa/test-plan-empty-error.md
 docs/qa/test-plan-role-badge.md
 docs/qa/test-plan-stat-card.md
@@ -579,4 +590,4 @@ docs/uiux/xiaojia_homepage.tsx
 docs/uiux/xiaojia_patient_design_doc.html
 ```
 
-生成时间：2025-09-09 08:32:58
+生成时间：2025-09-09 08:57:21

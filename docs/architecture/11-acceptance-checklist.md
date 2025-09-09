@@ -16,6 +16,10 @@
 - Empty/Error（7.7）：
   - EmptyState：`icon|title|description|action|secondary|variant|show`；`role=region`。
   - ErrorView：错误码映射与 CTA；`role=alert`；`retrying` 禁点且 `aria-disabled`。
+ - Button（7.8）：
+  - 变体/尺寸/状态：`primary|secondary|ghost|danger`；`sm|md`；`default|disabled|loading`。
+  - 交互：`hover/active` 动效；loading 禁点与 Spinner 显示。
+  - A11y：原生语义；`aria-disabled` 与禁用/加载一致；对比度达标。
 
 ### EP-04-S1 活动发布与列表
 - 字段校验：title(2–40)/date(YYYY-MM-DD)/location(≤80)/capacity≥0/status∈open|ongoing|done|closed。

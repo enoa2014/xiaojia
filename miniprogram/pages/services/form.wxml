@@ -31,14 +31,18 @@
     <view class="mode-header">
       <text class="mode-title">记录模式</text>
       <view class="save-actions">
-        <button class="action-btn" size="mini" bindtap="saveDraft">
-          <text class="btn-icon">💾</text>
-          <text class="btn-text">保存草稿</text>
-        </button>
-        <button class="action-btn" size="mini" bindtap="clearDraft">
-          <text class="btn-icon">🗑️</text>
-          <text class="btn-text">清除</text>
-        </button>
+        <ui-button 
+          text="保存草稿" 
+          variant="secondary" 
+          size="sm"
+          icon="💾"
+          bindtap="saveDraft" />
+        <ui-button 
+          text="清除" 
+          variant="ghost" 
+          size="sm"
+          icon="🗑️"
+          bindtap="clearDraft" />
       </view>
     </view>
     <view class="mode-switcher">
@@ -139,10 +143,12 @@
     <view class="section-header">
       <text class="section-title">服务内容</text>
       <text class="section-required" wx:if="{{!quickMode}}">*</text>
-      <button class="voice-btn" size="mini" bindtap="startVoiceInput">
-        <text class="btn-icon">🎤</text>
-        <text class="btn-text">语音输入</text>
-      </button>
+      <ui-button 
+        text="语音输入" 
+        variant="secondary" 
+        size="sm"
+        icon="🎤"
+        bindtap="startVoiceInput" />
     </view>
     <textarea class="content-textarea" 
               placeholder="{{contentPlaceholder}}"
@@ -167,10 +173,12 @@
   <view class="quick-content-section" wx:if="{{quickMode && !showAdvancedContent}}">
     <view class="section-header">
       <text class="section-title">服务内容</text>
-      <button class="expand-btn" bindtap="toggleAdvancedContent">
-        <text class="btn-text">详细填写</text>
-        <text class="btn-icon">📝</text>
-      </button>
+      <ui-button 
+        text="详细填写" 
+        variant="ghost" 
+        size="sm"
+        iconRight="📝"
+        bindtap="toggleAdvancedContent" />
     </view>
     <view class="quick-templates">
       <view class="template-item {{quickTemplate === item ? 'selected' : ''}}"
@@ -230,16 +238,20 @@
 
 <!-- 底部操作区 -->
 <view class="bottom-actions" wx:if="{{!loading}}">
-  <button class="action-btn secondary" bindtap="saveDraft" wx:if="{{!quickMode}}">
-    <text class="btn-icon">💾</text>
-    <text class="btn-text">保存草稿</text>
-  </button>
-  <button class="action-btn primary" 
-          loading="{{submitting}}" 
-          bindtap="onSubmit">
-    <text class="btn-icon">✅</text>
-    <text class="btn-text">{{quickMode || isQuickMode ? '快速提交' : '提交审核'}}</text>
-  </button>
+  <ui-button 
+    text="保存草稿" 
+    variant="secondary" 
+    size="md"
+    icon="💾"
+    bindtap="saveDraft" 
+    wx:if="{{!quickMode}}" />
+  <ui-button 
+    text="{{quickMode || isQuickMode ? '快速提交' : '提交审核'}}" 
+    variant="primary" 
+    size="md"
+    icon="✅"
+    loading="{{submitting}}"
+    bindtap="onSubmit" />
 </view>
 
 <!-- 加载状态 -->
@@ -262,7 +274,12 @@
   <view class="modal-content" catchtap="stopPropagation">
     <view class="modal-header">
       <text class="modal-title">选择服务对象</text>
-      <button class="modal-close" bindtap="hidePatientModal">✕</button>
+      <ui-button 
+        text="✕" 
+        variant="ghost" 
+        size="sm"
+        round="{{true}}"
+        bindtap="hidePatientModal" />
     </view>
     <view class="modal-body">
       <view class="patient-search">

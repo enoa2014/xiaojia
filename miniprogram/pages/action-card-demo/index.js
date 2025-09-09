@@ -138,6 +138,15 @@ Page({
     }, 2000);
   },
 
+  // 长文本测试点击
+  onLongTextTap(e) {
+    this.addLog('点击了长文本测试卡片 - 文本溢出处理正常');
+    wx.showToast({
+      title: '长文本卡片点击成功',
+      icon: 'success'
+    });
+  },
+
   // 快速操作点击
   onQuickAction(e) {
     const { detail } = e;

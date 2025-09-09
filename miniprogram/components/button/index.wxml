@@ -1,0 +1,23 @@
+<button 
+  class="ui-button {{variant}} {{size}} {{loading ? 'loading' : ''}} {{disabled ? 'disabled' : ''}} {{fullWidth ? 'full-width' : ''}} {{round ? 'round' : ''}} {{touchEnhanced ? 'touch-enhanced' : ''}}"
+  hover-class="{{disabled || loading ? '' : 'hover'}}"
+  disabled="{{disabled || loading}}"
+  loading="{{false}}"
+  bindtap="{{disabled || loading ? '' : '_onTap'}}"
+  type="{{formType}}"
+  open-type="{{openType}}"
+  aria-label="{{ariaLabel}}"
+  aria-disabled="{{disabled || loading}}">
+  
+  <!-- 加载状态 spinner -->
+  <view class="button-spinner" wx:if="{{loading}}"></view>
+  
+  <!-- 按钮图标 -->
+  <text class="button-icon" wx:if="{{icon && !loading}}">{{icon}}</text>
+  
+  <!-- 按钮文本 -->
+  <text class="button-text">{{text}}</text>
+  
+  <!-- 右侧图标 -->
+  <text class="button-icon-right" wx:if="{{iconRight && !loading}}">{{iconRight}}</text>
+</button>

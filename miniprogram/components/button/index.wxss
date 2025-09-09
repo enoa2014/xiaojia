@@ -1,0 +1,240 @@
+/* Button 组件样式 - 基于设计系统规范 */
+
+.ui-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  border: none;
+  border-radius: var(--radius-md);
+  font-weight: var(--weight-medium);
+  transition: all var(--duration-base) var(--ease-standard);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+  box-sizing: border-box;
+  text-align: center;
+  line-height: 1;
+  
+  /* 移除微信默认样式 */
+  margin: 0;
+  padding: 0;
+  background: none;
+  color: inherit;
+  font-size: inherit;
+  font-family: inherit;
+}
+
+.ui-button::after {
+  border: none;
+}
+
+/* 尺寸变体 */
+.ui-button.md {
+  height: 80rpx;
+  padding: 0 var(--space-6);
+  font-size: 24rpx;
+  min-width: 160rpx;
+}
+
+.ui-button.sm {
+  height: 64rpx;
+  padding: 0 var(--space-4);
+  font-size: 20rpx;
+  min-width: 120rpx;
+}
+
+.ui-button.lg {
+  height: 96rpx;
+  padding: 0 var(--space-8);
+  font-size: 28rpx;
+  min-width: 200rpx;
+}
+
+/* Primary 变体 */
+.ui-button.primary {
+  background: var(--color-primary-600);
+  color: var(--text-on-primary);
+}
+
+.ui-button.primary.hover {
+  background: var(--color-primary-700);
+  transform: translateY(-1rpx);
+  box-shadow: var(--shadow-md);
+}
+
+.ui-button.primary:active {
+  transform: translateY(1rpx);
+}
+
+/* Secondary 变体 */
+.ui-button.secondary {
+  background: transparent;
+  color: var(--color-primary-600);
+  border: 2rpx solid var(--color-primary-600);
+}
+
+.ui-button.secondary.hover {
+  background: var(--color-primary-600);
+  color: var(--text-on-primary);
+  transform: translateY(-1rpx);
+  box-shadow: var(--shadow-sm);
+}
+
+.ui-button.secondary:active {
+  transform: translateY(1rpx);
+}
+
+/* Ghost 变体 */
+.ui-button.ghost {
+  background: transparent;
+  color: var(--color-primary-600);
+  border: none;
+}
+
+.ui-button.ghost.hover {
+  background: var(--color-primary-600);
+  color: var(--text-on-primary);
+  transform: translateY(-1rpx);
+}
+
+.ui-button.ghost:active {
+  transform: translateY(1rpx);
+}
+
+/* Danger 变体 */
+.ui-button.danger {
+  background: var(--color-danger-600);
+  color: var(--text-on-primary);
+}
+
+.ui-button.danger.hover {
+  background: #DC2626;
+  transform: translateY(-1rpx);
+  box-shadow: var(--shadow-md);
+}
+
+.ui-button.danger:active {
+  transform: translateY(1rpx);
+}
+
+/* 禁用状态 */
+.ui-button.disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: none !important;
+}
+
+/* 加载状态 */
+.ui-button.loading {
+  cursor: not-allowed;
+  color: var(--text-on-primary);
+}
+
+.ui-button.loading.secondary,
+.ui-button.loading.ghost {
+  color: var(--color-primary-600);
+}
+
+/* 按钮内容 */
+.button-text {
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.button-icon,
+.button-icon-right {
+  font-size: 1.2em;
+  line-height: 1;
+  flex-shrink: 0;
+}
+
+/* Spinner 动画 */
+.button-spinner {
+  width: 20rpx;
+  height: 20rpx;
+  border: 2rpx solid rgba(255, 255, 255, 0.3);
+  border-top: 2rpx solid currentColor;
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+  flex-shrink: 0;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Secondary/Ghost 变体的 spinner */
+.ui-button.secondary .button-spinner,
+.ui-button.ghost .button-spinner {
+  border: 2rpx solid var(--gray-300);
+  border-top: 2rpx solid var(--color-primary-600);
+}
+
+/* 全宽按钮 */
+.ui-button.full-width {
+  width: 100%;
+  min-width: auto;
+}
+
+/* 触达区域增强 - 确保≥88rpx无障碍标准 */
+.ui-button.touch-enhanced {
+  min-height: 88rpx;
+  padding-top: 4rpx;
+  padding-bottom: 4rpx;
+}
+
+.ui-button.touch-enhanced.sm {
+  height: 88rpx;
+  padding-top: 12rpx;
+  padding-bottom: 12rpx;
+}
+
+/* 圆形按钮（图标按钮） */
+.ui-button.round {
+  border-radius: 50%;
+  min-width: auto;
+  padding: 0;
+}
+
+.ui-button.round.md {
+  width: 80rpx;
+  height: 80rpx;
+}
+
+.ui-button.round.sm {
+  width: 64rpx;
+  height: 64rpx;
+}
+
+.ui-button.round.lg {
+  width: 96rpx;
+  height: 96rpx;
+}
+
+/* 响应式调整 */
+@media screen and (max-width: 750rpx) {
+  .ui-button.md {
+    height: 72rpx;
+    font-size: 22rpx;
+    min-width: 140rpx;
+  }
+  
+  .ui-button.sm {
+    height: 56rpx;
+    font-size: 18rpx;
+    min-width: 100rpx;
+  }
+  
+  .ui-button.lg {
+    height: 88rpx;
+    font-size: 26rpx;
+    min-width: 180rpx;
+  }
+}
