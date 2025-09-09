@@ -93,13 +93,6 @@
               "envVariables": {},
               "runtime": "Nodejs16.13",
               "installDependency": true
-            },
-            {
-              "name": "test",
-              "timeout": 60,
-              "envVariables": {},
-              "runtime": "Nodejs16.13",
-              "installDependency": true
             }
           ]
         }

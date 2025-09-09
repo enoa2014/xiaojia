@@ -27,8 +27,5 @@
       "ignore": ["node_modules/**/*", ".git/**/*", "*.ts", "tsconfig.json", "tsup.config.ts", "pnpm-lock.yaml", "package-lock.json"] },
     { "name": "relations", "timeout": 60, "runtime": "Nodejs16.13", "installDependency": true, "handler": "index.main",
       "ignore": ["node_modules/**/*", ".git/**/*", "*.ts", "tsconfig.json", "tsup.config.ts", "pnpm-lock.yaml", "package-lock.json"] }
-    ,
-    { "name": "test", "timeout": 60, "runtime": "Nodejs16.13", "installDependency": true, "handler": "index.main",
-      "ignore": ["node_modules/**/*", ".git/**/*", "*.ts", "tsconfig.json", "tsup.config.ts", "pnpm-lock.yaml", "package-lock.json"] }
   ]
 }
