@@ -4,6 +4,7 @@
   "usingComponents": {
     "empty-state": "../../components/empty-state/index",
     "error-view": "../../components/error-view/index",
-    "loading-skeleton": "../../components/loading-skeleton/index"
+    "loading-skeleton": "../../components/loading-skeleton/index",
+    "ui-button": "../../components/button/index"
   }
 }

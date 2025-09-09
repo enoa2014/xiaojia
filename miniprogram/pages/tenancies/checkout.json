@@ -1,3 +1,6 @@
 {
-  "navigationBarTitleText": "退住登记"
+  "navigationBarTitleText": "退住登记",
+  "usingComponents": {
+    "ui-button": "../../components/button/index"
+  }
 }

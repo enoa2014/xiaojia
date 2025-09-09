@@ -11,6 +11,6 @@
       </picker>
     </view>
     <view class="error" wx:if="{{error}}">{{error}}</view>
-    <button type="primary" loading="{{submitting}}" bindtap="onSubmit">提交退住</button>
+    <ui-button variant="primary" size="md" loading="{{submitting}}" bindtap="onSubmit" text="提交退住"></ui-button>
   </view>
 </view>

@@ -1,6 +1,0 @@
-{
-  "navigationBarTitleText": "Button 组件演示",
-  "usingComponents": {
-    "ui-button": "../../components/button/index"
-  }
-}

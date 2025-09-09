@@ -17,7 +17,7 @@ Page({
     },
     
     // 权限与状态
-    role: null,
+    role: '',
     canEdit: false,
     canManage: false,
     canShare: false,

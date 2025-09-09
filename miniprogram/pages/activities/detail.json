@@ -1,2 +1,6 @@
-{ "navigationBarTitleText": "活动详情" }
-
+{ 
+  "navigationBarTitleText": "活动详情",
+  "usingComponents": {
+    "ui-button": "../../components/button/index"
+  }
+}

@@ -38,7 +38,7 @@
           label="活动标题"
           fieldId="title"
           required="{{true}}"
-          errorText="{{errors.title}}"
+          errorText="{{errors.title || ''}}"
           helpText="{{formData.title.length}}/50">
           <input 
             slot="control"
@@ -55,7 +55,7 @@
           label="活动分类"
           fieldId="category"
           required="{{true}}"
-          errorText="{{errors.category}}">
+          errorText="{{errors.category || ''}}">
           <picker 
             slot="control"
             mode="selector" 
@@ -75,7 +75,7 @@
           label="活动描述"
           fieldId="description"
           required="{{true}}"
-          errorText="{{errors.description}}"
+          errorText="{{errors.description || ''}}"
           helpText="{{formData.description.length}}/1000"
           controlRole="textbox">
           <textarea 
@@ -122,7 +122,7 @@
           label="开始时间"
           fieldId="startDateTime"
           required="{{true}}"
-          errorText="{{errors.startDate || errors.startTime}}">
+          errorText="{{(errors.startDate || errors.startTime) || ''}}">
           <view 
             slot="control"
             class="datetime-picker">
@@ -150,7 +150,7 @@
         <ui-form-field 
           label="结束时间"
           fieldId="endDateTime"
-          errorText="{{errors.endDate || errors.endTime}}">
+          errorText="{{(errors.endDate || errors.endTime) || ''}}">
           <view slot="control" class="datetime-picker">
             <picker mode="date" 
                     value="{{formData.endDate}}"
@@ -177,7 +177,7 @@
           label="活动地点"
           fieldId="location"
           required="{{true}}"
-          errorText="{{errors.location}}"
+          errorText="{{errors.location || ''}}"
           helpText="{{formData.location.length}}/100">
           <input 
             slot="control"
@@ -205,7 +205,7 @@
           label="参与人数限制"
           fieldId="capacity"
           required="{{true}}"
-          errorText="{{errors.capacity}}"
+          errorText="{{errors.capacity || ''}}"
           helpText="设置为0表示不限制人数">
           <input 
             slot="control"

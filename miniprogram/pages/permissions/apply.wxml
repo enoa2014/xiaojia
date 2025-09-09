@@ -26,5 +26,11 @@
     <text class="error" wx:if="{{errors.reason}}">{{errors.reason}}</text>
   </view>
 
-  <button class="submit" loading="{{submitting}}" bindtap="onSubmit">提交申请</button>
+  <ui-button 
+    ext-class="submit"
+    variant="primary"
+    size="md"
+    loading="{{submitting}}"
+    text="提交申请"
+    bindtap="onSubmit"></ui-button>
 </view>

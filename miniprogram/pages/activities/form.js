@@ -1,4 +1,4 @@
-import { api, mapError } from '../../services/api'
+import { api, mapError, genRequestId } from '../../services/api'
 import { track } from '../../services/analytics'
 
 Page({
@@ -186,35 +186,31 @@ Page({
     this.setData({ loading: true })
     
     try {
-      const activity = await require('../../services/api').api.activities.get(activityId)
-        
-        // 转换数据格式适配表单
-        const formData = {
-          title: activity.title || '',
-          category: activity.category || '',
-          description: activity.description || '',
-          startDate: activity.startTime ? new Date(activity.startTime).toISOString().split('T')[0] : '',
-          startTime: activity.startTime ? new Date(activity.startTime).toTimeString().substr(0, 5) : '',
-          endDate: activity.endTime ? new Date(activity.endTime).toISOString().split('T')[0] : '',
-          endTime: activity.endTime ? new Date(activity.endTime).toTimeString().substr(0, 5) : '',
-          location: activity.location || '',
-          coverImage: activity.coverImage || '',
-          capacity: activity.capacity || 0,
-          registrationMode: activity.registrationMode || 'open',
-          tags: activity.tags || [],
-          visibility: activity.visibility || 'public',
-          contactPerson: activity.contactPerson || '',
-          contactPhone: activity.contactPhone || '',
-          status: activity.status || 'draft'
-        }
-        
-        this.setData({ formData })
-        this.updateCategoryLabel()
-        this.updateFormProgress()
-        
-      } else {
-        throw new Error(result.result.error?.msg || '加载活动数据失败')
+      const activity = await api.activities.get(activityId)
+      
+      // 转换数据格式适配表单
+      const formData = {
+        title: activity.title || '',
+        category: activity.category || '',
+        description: activity.description || '',
+        startDate: activity.startTime ? new Date(activity.startTime).toISOString().split('T')[0] : '',
+        startTime: activity.startTime ? new Date(activity.startTime).toTimeString().substr(0, 5) : '',
+        endDate: activity.endTime ? new Date(activity.endTime).toISOString().split('T')[0] : '',
+        endTime: activity.endTime ? new Date(activity.endTime).toTimeString().substr(0, 5) : '',
+        location: activity.location || '',
+        coverImage: activity.coverImage || '',
+        capacity: activity.capacity || 0,
+        registrationMode: activity.registrationMode || 'open',
+        tags: activity.tags || [],
+        visibility: activity.visibility || 'public',
+        contactPerson: activity.contactPerson || '',
+        contactPhone: activity.contactPhone || '',
+        status: activity.status || 'draft'
       }
+      
+      this.setData({ formData })
+      this.updateCategoryLabel()
+      this.updateFormProgress()
     } catch (error) {
       console.error('加载活动数据失败:', error)
       wx.showToast({
@@ -649,9 +645,9 @@ Page({
         })
       } catch(_) {}
       if (isEdit) {
-        await require('../../services/api').api.activities.update(this.data.activityId, submitData)
+        await api.activities.update(this.data.activityId, submitData)
       } else {
-        await require('../../services/api').api.activities.create(submitData)
+        await api.activities.create(submitData)
       }
 
       {

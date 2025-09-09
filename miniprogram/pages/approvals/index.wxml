@@ -87,23 +87,9 @@
             </view>
             
             <view class="request-actions">
-              <button class="action-btn approve" size="mini" 
-                      bindtap="onApprovalAction" 
-                      data-request-id="{{item.id}}" 
-                      data-action="approve">
-                批准
-              </button>
-              <button class="action-btn reject" size="mini" 
-                      bindtap="onApprovalAction" 
-                      data-request-id="{{item.id}}" 
-                      data-action="reject">
-                拒绝
-              </button>
-              <button class="action-btn detail" size="mini" 
-                      bindtap="onViewDetail" 
-                      data-request-id="{{item.id}}">
-                详情
-              </button>
+              <ui-button ext-class="action-btn approve" variant="primary" size="sm" text="批准" bindtap="onApprovalAction" data-request-id="{{item.id}}" data-action="approve"></ui-button>
+              <ui-button ext-class="action-btn reject" variant="danger" size="sm" text="拒绝" bindtap="onApprovalAction" data-request-id="{{item.id}}" data-action="reject"></ui-button>
+              <ui-button ext-class="action-btn detail" variant="secondary" size="sm" text="详情" bindtap="onViewDetail" data-request-id="{{item.id}}"></ui-button>
             </view>
           </view>
         </block>
@@ -154,11 +140,7 @@
             </view>
             
             <view class="request-actions">
-              <button class="action-btn detail" size="mini" 
-                      bindtap="onViewDetail" 
-                      data-request-id="{{item.id}}">
-                详情
-              </button>
+              <ui-button ext-class="action-btn detail" variant="secondary" size="sm" text="详情" bindtap="onViewDetail" data-request-id="{{item.id}}"></ui-button>
             </view>
           </view>
         </block>

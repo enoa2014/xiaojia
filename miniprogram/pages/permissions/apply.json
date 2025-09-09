@@ -1,1 +1,6 @@
-{ "navigationBarTitleText": "申请查看明文" }
+{ 
+  "navigationBarTitleText": "申请查看明文",
+  "usingComponents": {
+    "ui-button": "../../components/button/index"
+  }
+}

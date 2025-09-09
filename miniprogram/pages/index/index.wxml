@@ -21,7 +21,7 @@
     <view class="user-info">
       <view class="name-role-row">
         <text class="user-name">{{user.name}}</text>
-        <role-badge roleKey="{{user.roleKey}}" size="sm"></role-badge>
+        <role-badge roleKey="{{user.roleKey || ''}}" size="sm"></role-badge>
       </view>
       <view class="permissions-row">
         <text class="perm-text">{{user.permText}}</text>
@@ -52,7 +52,7 @@
 <view class="quick-actions-section" wx:if="{{!loading}}">
   <view class="section-header">
     <text class="section-title">📌 快速操作</text>
-    <role-badge roleKey="{{user.roleKey}}" size="sm"></role-badge>
+    <role-badge roleKey="{{user.roleKey || ''}}" size="sm"></role-badge>
   </view>
   
   <view class="actions-grid">

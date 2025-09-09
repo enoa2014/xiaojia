@@ -47,21 +47,38 @@
           confirm-type="search" 
           bindconfirm="performSearchConfirm"
         />
-        <button class="clear-btn" wx:if="{{keyword}}" catchtap="clearSearch">
-          <text class="clear-icon">✕</text>
-        </button>
+        <ui-button 
+          wx:if="{{keyword}}"
+          ext-class="clear-btn"
+          variant="ghost"
+          size="sm"
+          icon="✕"
+          aria-label="清除搜索"
+          catchtap="clearSearch">
+        </ui-button>
       </view>
-      <button class="filter-btn {{activeFilterCount > 0 ? 'active' : ''}}" bindtap="toggleAdvancedFilter">
-        <text class="filter-icon">🏷️</text>
-        <text class="filter-count" wx:if="{{activeFilterCount > 0}}">{{activeFilterCount}}</text>
-      </button>
+      <ui-button 
+        ext-class="filter-btn {{activeFilterCount > 0 ? 'active' : ''}}"
+        variant="secondary"
+        size="sm"
+        icon="🏷️"
+        aria-label="筛选"
+        bindtap="toggleAdvancedFilter">
+      </ui-button>
     </view>
     
     <!-- 优化高级筛选面板 -->
     <view class="advanced-filter {{showAdvancedFilter ? 'show' : ''}}">
       <view class="filter-header">
         <text class="filter-title">高级筛选</text>
-        <button class="close-filter" catchtap="toggleAdvancedFilter">✕</button>
+        <ui-button 
+          ext-class="close-filter"
+          variant="ghost"
+          size="sm"
+          icon="✕"
+          aria-label="关闭"
+          catchtap="toggleAdvancedFilter">
+        </ui-button>
       </view>
       
       <view class="filter-section">
@@ -112,14 +129,20 @@
       </view>
       
       <view class="filter-actions">
-        <button class="reset-btn" bindtap="resetFilters">
-          <text class="action-icon">🔄</text>
-          <text class="action-text">重置</text>
-        </button>
-        <button class="apply-btn" bindtap="applyFilters">
-          <text class="action-icon">✓</text>
-          <text class="action-text">应用筛选 {{activeFilterCount > 0 ? '(' + activeFilterCount + ')' : ''}}</text>
-        </button>
+        <ui-button 
+          ext-class="reset-btn"
+          variant="secondary"
+          size="md"
+          text="重置"
+          fullWidth
+          bindtap="resetFilters"></ui-button>
+        <ui-button 
+          ext-class="apply-btn"
+          variant="primary"
+          size="md"
+          text="{{'应用筛选' + (activeFilterCount > 0 ? ('(' + activeFilterCount + ')') : '')}}"
+          fullWidth
+          bindtap="applyFilters"></ui-button>
       </view>
     </view>
   </view>
@@ -143,9 +166,12 @@
       <text class="section-icon">⭐</text>
       <text class="section-title">优先关注</text>
       <text class="section-count">({{starredList.length}})</text>
-      <button class="expand-btn" bindtap="toggleStarredExpand">
-        {{starredExpanded ? '收起' : '展开'}}
-      </button>
+      <ui-button 
+        ext-class="expand-btn"
+        variant="secondary"
+        size="sm"
+        text="{{starredExpanded ? '收起' : '展开'}}"
+        bindtap="toggleStarredExpand"></ui-button>
     </view>
     <view class="patient-list" wx:if="{{starredExpanded}}">
       <block wx:for="{{starredList}}" wx:key="_id">
@@ -196,7 +222,12 @@
       <text class="section-title">当前在住</text>
       <text class="section-subtitle">- {{currentBuilding}}</text>
       <text class="section-count">({{inhouseList.length}})</text>
-      <button class="building-switch" bindtap="switchBuilding">切换楼栋</button>
+      <ui-button 
+        ext-class="building-switch"
+        variant="secondary"
+        size="sm"
+        text="切换楼栋"
+        bindtap="switchBuilding"></ui-button>
     </view>
     <view class="patient-list">
       <block wx:for="{{inhouseList}}" wx:key="_id">

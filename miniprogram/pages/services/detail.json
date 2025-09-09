@@ -4,5 +4,9 @@
   "navigationBarTextStyle": "white",
   "backgroundColor": "#F9FAFB",
   "enablePullDownRefresh": true,
-  "onReachBottomDistance": 50
+  "onReachBottomDistance": 50,
+  "usingComponents": {
+    "ui-button": "../../components/button/index",
+    "loading-skeleton": "../../components/loading-skeleton/index"
+  }
 }

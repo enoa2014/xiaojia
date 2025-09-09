@@ -97,9 +97,13 @@
 
       <!-- 创建按钮 -->
       <view class="action-section">
-        <button class="create-btn" loading="{{loading}}" disabled="{{loading}}" bindtap="onCreateExport">
-          {{loading ? '创建中...' : '创建导出任务'}}
-        </button>
+        <ui-button 
+          ext-class="create-btn"
+          variant="primary"
+          size="md"
+          loading="{{loading}}"
+          text="{{loading ? '创建中...' : '创建导出任务'}}"
+          bindtap="onCreateExport"></ui-button>
       </view>
 
       <!-- 当前任务状态 -->
@@ -123,14 +127,12 @@
           
           <!-- 下载链接 -->
           <view wx:if="{{currentTask.downloadUrl}}" class="download-section">
-            <button size="mini" type="primary" bindtap="onDownload" data-url="{{currentTask.downloadUrl}}">
-              复制下载链接
-            </button>
+            <ui-button variant="secondary" size="sm" text="复制下载链接" bindtap="onDownload" data-url="{{currentTask.downloadUrl}}"></ui-button>
           </view>
           
           <!-- 操作按钮 -->
           <view class="task-actions">
-            <button size="mini" bindtap="onCheckTask">刷新状态</button>
+            <ui-button variant="secondary" size="sm" text="刷新状态" bindtap="onCheckTask"></ui-button>
           </view>
         </view>
       </view>
@@ -165,9 +167,7 @@
               </view>
             </view>
             <view class="history-actions">
-              <button wx:if="{{item.downloadUrl}}" size="mini" type="default" bindtap="onDownload" data-url="{{item.downloadUrl}}">
-                下载
-              </button>
+              <ui-button wx:if="{{item.downloadUrl}}" variant="secondary" size="sm" text="下载" bindtap="onDownload" data-url="{{item.downloadUrl}}"></ui-button>
             </view>
           </view>
         </block>

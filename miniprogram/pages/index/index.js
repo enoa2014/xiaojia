@@ -6,7 +6,7 @@ Page({
     user: {
       name: '李社工',
       roleName: '社工',
-      roleKey: null,
+      roleKey: '',
       avatar: '🧑‍💼',
       permText: '档案管理 • 服务审核',
       todayDone: 5,

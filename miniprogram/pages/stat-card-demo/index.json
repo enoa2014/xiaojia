@@ -1,6 +1,0 @@
-{
-  "navigationBarTitleText": "StatCard Demo",
-  "usingComponents": {
-    "stat-card": "../../components/stat-card/index"
-  }
-}

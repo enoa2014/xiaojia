@@ -17,9 +17,9 @@
   <view class="actions">
     <!-- User participation actions -->
     <view class="user-actions">
-      <button wx:if="{{!myReg || myReg.status==='cancelled'}}" class="primary" bindtap="doRegister">报名</button>
-      <button wx:elif="{{myReg.status==='registered' || myReg.status==='waitlist'}}" class="warn" bindtap="doCancel">取消报名</button>
-      <button wx:if="{{myReg && !myReg.checkedInAt}}" class="secondary" bindtap="doCheckin">签到</button>
+      <ui-button wx:if="{{!myReg || myReg.status==='cancelled'}}" variant="primary" size="md" text="报名" bindtap="doRegister"></ui-button>
+      <ui-button wx:elif="{{myReg.status==='registered' || myReg.status==='waitlist'}}" variant="danger" size="md" text="取消报名" bindtap="doCancel"></ui-button>
+      <ui-button wx:if="{{myReg && !myReg.checkedInAt}}" variant="secondary" size="md" text="签到" bindtap="doCheckin"></ui-button>
       <view wx:if="{{myReg}}" class="hint">
         当前状态：{{myReg.status}} {{myReg.checkedInAt ? '（已签到）' : ''}}
       </view>
@@ -30,14 +30,8 @@
       <view class="divider"></view>
       <view class="management-title">管理功能</view>
       <view class="management-buttons">
-        <button class="management-btn" bindtap="goToManagement">
-          <text class="btn-icon">⚙️</text>
-          <text class="btn-text">活动管理</text>
-        </button>
-        <button class="management-btn" bindtap="goToRegistrations">
-          <text class="btn-icon">📈</text>
-          <text class="btn-text">报名管理</text>
-        </button>
+        <ui-button ext-class="management-btn" variant="secondary" size="md" icon="⚙️" text="活动管理" bindtap="goToManagement"></ui-button>
+        <ui-button ext-class="management-btn" variant="secondary" size="md" icon="📈" text="报名管理" bindtap="goToRegistrations"></ui-button>
       </view>
     </view>
   </view>

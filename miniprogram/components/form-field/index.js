@@ -78,11 +78,23 @@ Component({
       }
     },
     
+    // 兼容外部传入 null/undefined，统一为空字符串，避免基础库类型告警
     'errorText': function(errorText) {
-      if (errorText && this.data.state !== 'disabled') {
+      const safe = (typeof errorText === 'string') ? errorText : ''
+      if (safe !== errorText) {
+        this.setData({ errorText: safe })
+        return
+      }
+      if (safe && this.data.state !== 'disabled') {
         this.setData({ state: 'error' })
-      } else if (!errorText && this.data.state === 'error') {
+      } else if (!safe && this.data.state === 'error') {
         this.setData({ state: 'default' })
+      }
+    },
+    'helpText': function(helpText) {
+      const safe = (typeof helpText === 'string') ? helpText : ''
+      if (safe !== helpText) {
+        this.setData({ helpText: safe })
       }
     }
   },

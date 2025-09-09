@@ -35,11 +35,12 @@
   --shadow-md: 0 8rpx 24rpx rgba(0,0,0,0.12);
   --shadow-lg: 0 16rpx 48rpx rgba(0,0,0,0.16);
   
-  --spacing-xs: 8rpx;
-  --spacing-sm: 16rpx;
-  --spacing-md: 24rpx;
-  --spacing-lg: 32rpx;
-  --spacing-xl: 48rpx;
+  /* Align local spacing tokens to global standard tokens */
+  --spacing-xs: var(--space-1);
+  --spacing-sm: var(--space-2);
+  --spacing-md: var(--space-4);
+  --spacing-lg: var(--space-6);
+  --spacing-xl: var(--space-8);
 }
 
 /* 页面基础样式 */
@@ -314,7 +315,7 @@
 
 /* 服务内容卡片 */
 .content-body {
-  padding: var(--spacing-md);
+  padding: var(--space-4);
 }
 
 .content-text {
@@ -325,7 +326,7 @@
 }
 
 .content-section {
-  padding: 0 var(--spacing-md) var(--spacing-md);
+  padding: 0 var(--space-4) var(--space-4);
 }
 
 .section-title {
@@ -333,7 +334,7 @@
   font-size: var(--font-size-base);
   font-weight: 600;
   color: var(--color-gray-800);
-  margin-bottom: var(--spacing-xs);
+  margin-bottom: var(--space-1);
 }
 
 .section-content {
@@ -345,10 +346,10 @@
 
 /* 附件网格 */
 .attachments-grid {
-  padding: var(--spacing-md);
+  padding: var(--space-4);
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(200rpx, 1fr));
-  gap: var(--spacing-md);
+  gap: var(--space-4);
 }
 
 .attachment-item {
@@ -395,14 +396,14 @@
 /* 文档附件 */
 .attachment-doc {
   background: white;
-  padding: var(--spacing-md);
+  padding: var(--space-4);
   text-align: center;
   min-height: 200rpx;
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  gap: var(--spacing-xs);
+  gap: var(--space-1);
 }
 
 .doc-icon {

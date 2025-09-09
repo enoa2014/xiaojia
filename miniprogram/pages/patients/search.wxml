@@ -5,7 +5,7 @@
   </view>
   <view class="search-bar">
     <input class="search-input" placeholder="输入姓名前缀或证件尾4位" value="{{keyword}}" bindinput="onInput" confirm-type="search" bindconfirm="search" />
-    <button class="search-btn" loading="{{loading}}" bindtap="search">搜索</button>
+    <ui-button ext-class="search-btn" variant="primary" size="md" loading="{{loading}}" text="搜索" bindtap="search"></ui-button>
   </view>
   <view class="modes">
     <text data-mode="auto" bindtap="onMode" class="mode {{mode==='auto'?'active':''}}">智能</text>

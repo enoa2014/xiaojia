@@ -11,6 +11,7 @@
     "empty-state": "../../components/empty-state/index",
     "error-view": "../../components/error-view/index",
     "loading-skeleton": "../../components/loading-skeleton/index",
-    "calendar-view": "../../components/calendar-view/index"
+    "calendar-view": "../../components/calendar-view/index",
+    "ui-button": "../../components/button/index"
   }
 }

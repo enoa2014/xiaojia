@@ -39,16 +39,32 @@
                value="{{searchKeyword}}"
                bindinput="onSearchInput"
                bindconfirm="performSearch" />
-        <button class="clear-btn" wx:if="{{searchKeyword}}" catchtap="clearSearch">
-          <text class="clear-icon">✕</text>
-        </button>
+        <ui-button 
+          wx:if="{{searchKeyword}}"
+          ext-class="clear-btn"
+          variant="ghost"
+          size="sm"
+          icon="✕"
+          aria-label="清除搜索"
+          catchtap="clearSearch">
+        </ui-button>
       </view>
-      <button class="filter-btn" bindtap="showFilterOptions">
-        <text class="filter-icon">🏷️</text>
-      </button>
-      <button class="view-mode-btn" bindtap="toggleViewMode">
-        <text class="view-icon">{{viewMode === 'list' ? '📅' : '📋'}}</text>
-      </button>
+      <ui-button 
+        ext-class="filter-btn"
+        variant="secondary"
+        size="sm"
+        icon="🏷️"
+        aria-label="筛选"
+        bindtap="showFilterOptions">
+      </ui-button>
+      <ui-button 
+        ext-class="view-mode-btn"
+        variant="secondary"
+        size="sm"
+        icon="{{viewMode === 'list' ? '📅' : '📋'}}"
+        aria-label="切换视图"
+        bindtap="toggleViewMode">
+      </ui-button>
     </view>
     
     <view class="filter-tabs">
@@ -122,16 +138,15 @@
 
   <!-- 活动列表 -->
   <view class="activities-list" wx:if="{{viewMode === 'list'}}">
-    <!-- 加载状态 -->
-    <view class="loading-container" wx:if="{{loading}}">
-      <view class="loading-content">
-        <view class="skeleton-card" wx:for="{{[1,2,3]}}" wx:key="*this">
-          <view class="skeleton-header"></view>
-          <view class="skeleton-line"></view>
-          <view class="skeleton-line short"></view>
-        </view>
-      </view>
-    </view>
+    <!-- 加载状态（统一组件：loading-skeleton） -->
+    <loading-skeleton
+      wx:if="{{loading}}"
+      id="loading-skeleton-list"
+      show="{{loading}}"
+      type="list"
+      count="5"
+      animation="shimmer">
+    </loading-skeleton>
 
     <!-- 空状态 -->
     <empty-state
@@ -216,15 +231,18 @@
           </view>
           
           <view class="card-actions">
-            <!-- 报名按钮 -->
-            <button class="action-btn register-btn" 
-                    wx:if="{{item.canRegister}}"
-                    bindtap="registerActivity"
-                    data-id="{{item._id}}"
-                    catchtap="true">
-              <text class="btn-icon">✋</text>
-              <text class="btn-text">报名</text>
-            </button>
+            <!-- 报名按钮（统一 ui-button） -->
+            <ui-button 
+              wx:if="{{item.canRegister}}"
+              ext-class="action-btn register-btn"
+              variant="primary"
+              size="md"
+              icon="✋"
+              text="报名"
+              catchtap="registerActivity"
+              data-id="{{item._id}}"
+              touchEnhanced="{{true}}">
+            </ui-button>
             
             <!-- 已报名状态 -->
             <view class="action-status registered" wx:elif="{{item.isRegistered}}">
@@ -232,14 +250,17 @@
               <text class="status-text">已报名</text>
             </view>
             
-            <!-- 查看详情按钮 -->
-            <button class="action-btn detail-btn" 
-                    bindtap="toDetail" 
-                    data-id="{{item._id}}"
-                    catchtap="true">
-              <text class="btn-text">查看详情</text>
-              <text class="btn-arrow">〉</text>
-            </button>
+            <!-- 查看详情按钮（统一 ui-button） -->
+            <ui-button 
+              ext-class="action-btn detail-btn"
+              variant="secondary"
+              size="md"
+              text="查看详情"
+              iconRight="〉"
+              catchtap="toDetail"
+              data-id="{{item._id}}"
+              touchEnhanced="{{true}}">
+            </ui-button>
           </view>
         </view>
 
@@ -252,9 +273,16 @@
 
     <!-- 加载更多 -->
     <view class="load-more" wx:if="{{!loading && hasMore && list.length > 0}}">
-      <button class="load-more-btn" bindtap="loadMore" loading="{{loadingMore}}">
-        {{loadingMore ? '加载中...' : '加载更多'}}
-      </button>
+      <ui-button 
+        ext-class="load-more-btn"
+        variant="secondary"
+        size="md"
+        text="{{loadingMore ? '加载中...' : '加载更多'}}"
+        loading="{{loadingMore}}"
+        bindtap="loadMore"
+        fullWidth="{{true}}"
+        touchEnhanced="{{true}}">
+      </ui-button>
     </view>
   </view>
 
@@ -271,7 +299,14 @@
   <view class="modal-content" catchtap="stopPropagation">
     <view class="modal-header">
       <text class="modal-title">筛选条件</text>
-      <button class="modal-close" bindtap="hideFilterModal">✕</button>
+      <ui-button 
+        ext-class="modal-close"
+        variant="ghost"
+        size="sm"
+        icon="✕"
+        aria-label="关闭"
+        bindtap="hideFilterModal">
+      </ui-button>
     </view>
     
     <view class="modal-body">
@@ -317,8 +352,22 @@
     </view>
     
     <view class="modal-actions">
-      <button class="modal-btn secondary" bindtap="resetFilters">重置</button>
-      <button class="modal-btn primary" bindtap="applyFilters">应用筛选</button>
+      <ui-button 
+        ext-class="modal-btn"
+        variant="secondary"
+        size="md"
+        text="重置"
+        fullWidth
+        bindtap="resetFilters">
+      </ui-button>
+      <ui-button 
+        ext-class="modal-btn"
+        variant="primary"
+        size="md"
+        text="应用筛选"
+        fullWidth
+        bindtap="applyFilters">
+      </ui-button>
     </view>
   </view>
 </view>

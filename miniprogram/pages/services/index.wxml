@@ -137,21 +137,9 @@
         
         <!-- 快速审核操作区 -->
         <view class="record-actions" wx:if="{{canReview && item.status === 'pending'}}">
-          <button class="action-btn approve-btn" 
-                  catchtap="onApprove" data-id="{{item.id}}">
-            <text class="btn-icon">✅</text>
-            <text class="btn-text">通过</text>
-          </button>
-          <button class="action-btn reject-btn" 
-                  catchtap="onReject" data-id="{{item.id}}">
-            <text class="btn-icon">❌</text>
-            <text class="btn-text">驳回</text>
-          </button>
-          <button class="action-btn detail-btn" 
-                  catchtap="onRecordDetail" data-id="{{item.id}}">
-            <text class="btn-icon">👁️</text>
-            <text class="btn-text">详情</text>
-          </button>
+          <ui-button ext-class="action-btn approve-btn" variant="primary" size="sm" text="通过" catchtap="onApprove" data-id="{{item.id}}"></ui-button>
+          <ui-button ext-class="action-btn reject-btn" variant="danger" size="sm" text="驳回" catchtap="onReject" data-id="{{item.id}}"></ui-button>
+          <ui-button ext-class="action-btn detail-btn" variant="secondary" size="sm" text="详情" catchtap="onRecordDetail" data-id="{{item.id}}"></ui-button>
         </view>
       </view>
     </view>
@@ -183,43 +171,7 @@
 
 
 <!-- 加载状态 -->
-<view class="loading-container" wx:if="{{loading}}">
-  <view class="loading-header">
-    <view class="skeleton-nav"></view>
-    <view class="skeleton-stats">
-      <view class="skeleton-card">
-        <view class="skeleton-line long"></view>
-        <view class="skeleton-grid">
-          <view class="skeleton-stat" wx:for="{{[1,2,3,4]}}" wx:key="*this">
-            <view class="skeleton-line short"></view>
-            <view class="skeleton-line tiny"></view>
-          </view>
-        </view>
-      </view>
-    </view>
-  </view>
-  <view class="loading-content">
-    <view class="skeleton-section">
-      <view class="skeleton-line medium"></view>
-      <view class="skeleton-actions">
-        <view class="skeleton-action" wx:for="{{[1,2,3,4,5]}}" wx:key="*this"></view>
-      </view>
-    </view>
-    <view class="skeleton-list">
-      <view class="skeleton-record" wx:for="{{[1,2,3]}}" wx:key="*this">
-        <view class="skeleton-record-header">
-          <view class="skeleton-line short"></view>
-          <view class="skeleton-line tiny"></view>
-        </view>
-        <view class="skeleton-record-content">
-          <view class="skeleton-line long"></view>
-          <view class="skeleton-line medium"></view>
-          <view class="skeleton-line short"></view>
-        </view>
-      </view>
-    </view>
-  </view>
-</view>
+<loading-skeleton wx:if="{{loading}}" id="loading-skeleton" show="{{loading}}" type="list" count="5" animation="shimmer"></loading-skeleton>
 
 <!-- 错误状态 -->
 <error-view

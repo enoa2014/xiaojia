@@ -1,6 +1,0 @@
-{
-  "navigationBarTitleText": "ActionCard 演示",
-  "usingComponents": {
-    "action-card": "../../components/action-card/index"
-  }
-}

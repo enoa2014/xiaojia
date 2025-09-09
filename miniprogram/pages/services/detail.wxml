@@ -30,14 +30,8 @@
     
     <!-- 审核操作按钮 -->
     <view class="review-actions" wx:if="{{canReview && record.status === 'pending'}}">
-      <button class="review-btn approve-btn" bindtap="approveRecord" loading="{{reviewing}}">
-        <text class="btn-icon">✅</text>
-        <text class="btn-text">通过</text>
-      </button>
-      <button class="review-btn reject-btn" bindtap="rejectRecord" loading="{{reviewing}}">
-        <text class="btn-icon">❌</text>
-        <text class="btn-text">驳回</text>
-      </button>
+      <ui-button ext-class="review-btn approve-btn" variant="primary" size="md" text="通过" bindtap="approveRecord" loading="{{reviewing}}"></ui-button>
+      <ui-button ext-class="review-btn reject-btn" variant="danger" size="md" text="驳回" bindtap="rejectRecord" loading="{{reviewing}}"></ui-button>
     </view>
   </view>
 
@@ -225,16 +219,7 @@
 </view>
 
 <!-- 加载状态 -->
-<view class="loading-container" wx:if="{{loading}}">
-  <view class="loading-content">
-    <view class="skeleton-header"></view>
-    <view class="skeleton-card" wx:for="{{[1,2,3]}}">
-      <view class="skeleton-title"></view>
-      <view class="skeleton-line"></view>
-      <view class="skeleton-line short"></view>
-    </view>
-  </view>
-</view>
+<loading-skeleton wx:if="{{loading}}" id="loading-skeleton" show="{{loading}}" type="detail" count="3" animation="shimmer"></loading-skeleton>
 
 <!-- 错误状态 -->
 <view class="error-container" wx:if="{{error && !loading}}">
@@ -242,11 +227,11 @@
     <text class="error-icon">😔</text>
     <text class="error-title">加载失败</text>
     <text class="error-message">{{error.message || '无法获取服务记录详情'}}</text>
-    <button class="error-retry" bindtap="retryLoad">重新加载</button>
+    <ui-button ext-class="error-retry" variant="secondary" size="md" text="重新加载" bindtap="retryLoad"></ui-button>
   </view>
 </view>
 
-<!-- 底部操作区 -->
+  <!-- 底部操作区 -->
 <view class="bottom-actions" wx:if="{{!loading && !error}}">
   <view class="action-group" wx:if="{{canEdit && record.status === 'draft'}}">
     <button class="action-btn secondary" bindtap="deleteRecord">

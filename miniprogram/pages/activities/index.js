@@ -5,7 +5,7 @@ Page({
   data: {
     // 主题配置
     theme: {
-      headerBg: 'primary-gradient'
+      headerBg: 'nav-header--blue'
     },
     
     // 用户权限
@@ -347,17 +347,24 @@ Page({
       const params = {
         page: 1,
         pageSize: 100, // 获取更多数据用于日历显示
-        filter: {
-          startTime: {
-            $gte: new Date(year, month - 1, 1).toISOString(),
-            $lt: new Date(year, month, 1).toISOString()
-          }
-        }
+        filter: {}
       }
+      // 使用 from/to（后端按 date 字段范围查询）
+      const first = new Date(Number(year), Number(month)-1, 1)
+      const last = new Date(Number(year), Number(month), 0)
+      const pad2 = (n) => String(n).padStart(2, '0')
+      const toDateStr = (d) => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`
+      params.filter.from = toDateStr(first)
+      params.filter.to = toDateStr(last)
 
-      // 添加状态筛选
+      // 添加状态筛选（映射到后端枚举）
       if (this.data.filterOptions.status !== 'all') {
-        params.filter.status = this.data.filterOptions.status
+        const apiStatus = this.mapStatusForApi(this.data.filterOptions.status)
+        if (apiStatus) {
+          params.filter.status = apiStatus
+        } else if (this.data.filterOptions.status === 'upcoming') {
+          params.filter.startTime = Object.assign({}, params.filter.startTime || {}, { $gte: new Date().toISOString() })
+        }
       }
 
       const response = await api.activities.list(params)
@@ -443,7 +450,7 @@ Page({
 
   // 检查用户是否可以报名
   canUserRegister(activity) {
-    return activity.status === 'published' && 
+    return (activity.status === 'published' || activity.status === 'open') && 
            activity.registrationEndTime && 
            new Date(activity.registrationEndTime) > new Date()
   },
@@ -451,7 +458,7 @@ Page({
   // 检查用户是否可以签到
   canUserCheckIn(activity) {
     return activity.status === 'ongoing' || 
-           (activity.status === 'published' && new Date(activity.startTime) <= new Date())
+           ((activity.status === 'published' || activity.status === 'open') && new Date(activity.startTime) <= new Date())
   },
 
   // ========== 日历视图事件处理 ==========
@@ -518,23 +525,59 @@ Page({
       params.filter.type = filterOptions.type
     }
     
-    // 添加状态筛选
+    // 添加状态筛选（映射到后端枚举）
     if (filterOptions.status !== 'all') {
-      params.filter.status = filterOptions.status
+      const apiStatus = this.mapStatusForApi(filterOptions.status)
+      if (apiStatus) {
+        params.filter.status = apiStatus
+      } else if (filterOptions.status === 'upcoming') {
+        params.filter.timeRange = 'future'
+      }
     }
     
-    // 添加时间筛选
-    if (filterOptions.time !== 'all') {
-      params.filter.timeRange = filterOptions.time
+    // 添加时间筛选（转换为后端支持的 from/to: 'YYYY-MM-DD'）
+    if (filterOptions.time && filterOptions.time !== 'all') {
+      const range = this.computeDateRange(filterOptions.time)
+      if (range.from) params.filter.from = range.from
+      if (range.to) params.filter.to = range.to
     }
     
     // 基于用户角色的数据过滤
     if (userRole === 'volunteer' || userRole === 'parent') {
-      // 志愿者和家长只能看到已发布的活动
-      params.filter.statusIn = ['published', 'ongoing', 'upcoming', 'completed']
+      // 志愿者和家长：公开/进行中/已结束
+      params.filter.statusIn = ['open', 'ongoing', 'done']
     }
     
     return params
+  },
+
+  // 计算时间范围（today|week|month|future）→ { from?: 'YYYY-MM-DD', to?: 'YYYY-MM-DD' }
+  computeDateRange(key) {
+    const pad2 = (n) => String(n).padStart(2, '0')
+    const toDateStr = (d) => `${d.getFullYear()}-${pad2(d.getMonth()+1)}-${pad2(d.getDate())}`
+    const today = new Date()
+    if (key === 'today') {
+      const s = toDateStr(today)
+      return { from: s, to: s }
+    }
+    if (key === 'week') {
+      const d = new Date(today)
+      const day = d.getDay() || 7 // 周一=1...周日=7
+      const monday = new Date(d)
+      monday.setDate(d.getDate() - (day - 1))
+      const sunday = new Date(monday)
+      sunday.setDate(monday.getDate() + 6)
+      return { from: toDateStr(monday), to: toDateStr(sunday) }
+    }
+    if (key === 'month') {
+      const first = new Date(today.getFullYear(), today.getMonth(), 1)
+      const last = new Date(today.getFullYear(), today.getMonth()+1, 0)
+      return { from: toDateStr(first), to: toDateStr(last) }
+    }
+    if (key === 'future') {
+      return { from: toDateStr(today) }
+    }
+    return {}
   },
 
   // 处理活动数据项
@@ -597,18 +640,34 @@ Page({
     const statusMap = {
       draft: '草稿',
       pending: '待审核',
+      // 前端别名 published ≈ 后端 open
       published: '报名中',
+      open: '报名中',
       ongoing: '进行中',
       upcoming: '即将开始',
       completed: '已结束',
-      cancelled: '已取消'
+      done: '已结束',
+      cancelled: '已取消',
+      closed: '已关闭'
     }
     return statusMap[status] || '未知状态'
   },
 
-  // 判断用户是否可以报名
+  // 将前端状态映射为后端枚举
+  mapStatusForApi(status) {
+    const map = { published: 'open', ongoing: 'ongoing', completed: 'done', closed: 'closed' }
+    return map[status] || null
+  },
+
+  // 将后端枚举映射回前端筛选键值
+  mapStatusForUi(status) {
+    const map = { open: 'published', done: 'completed' }
+    return map[status] || status
+  },
+
+  // 判断用户是否可以报名（用于列表项渲染，含角色判断）
   canUserRegister(activity, userRole) {
-    if (activity.status !== 'published') return false
+    if (!(activity.status === 'published' || activity.status === 'open')) return false
     if (activity.capacity && activity.registeredCount >= activity.capacity) return false
     if (activity.registrationDeadline && new Date() > new Date(activity.registrationDeadline)) return false
     
@@ -686,7 +745,8 @@ Page({
         
         // 统计状态
         if (activity.status) {
-          statusCounts[activity.status] = (statusCounts[activity.status] || 0) + 1
+          const uiKey = this.mapStatusForUi(activity.status)
+          statusCounts[uiKey] = (statusCounts[uiKey] || 0) + 1
         }
       })
       
@@ -756,10 +816,14 @@ Page({
     const key = e.currentTarget.dataset.key
     if (key === this.data.activeFilter) return
     
-    this.setData({ 
-      activeFilter: key,
-      'filterOptions.status': key === 'all' ? 'all' : key
-    })
+    const updates = { activeFilter: key }
+    if (key === 'upcoming') {
+      updates['filterOptions.status'] = 'all'
+      updates['filterOptions.time'] = 'future'
+    } else {
+      updates['filterOptions.status'] = key === 'all' ? 'all' : key
+    }
+    this.setData(updates)
     this.updateActiveFilterLabel()
     this.loadActivityData()
     

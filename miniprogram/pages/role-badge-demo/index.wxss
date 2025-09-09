@@ -1,7 +1,0 @@
-page {
-  padding: var(--space-4);
-  background: var(--gradient-page);
-}
-.section { margin-bottom: var(--space-6); }
-.title { font-size: var(--font-h2); margin-bottom: var(--space-3); color: var(--gray-700); }
-.row { display: flex; gap: var(--space-4); flex-wrap: wrap; }

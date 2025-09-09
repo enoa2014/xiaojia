@@ -59,6 +59,7 @@ page {
   --space-4: 16rpx;
   --space-6: 24rpx;
   --space-8: 32rpx;
+  --space-12: 48rpx;
 
   /* Radius */
   --radius-sm: 8rpx;
@@ -101,4 +102,21 @@ page {
   /* Backgrounds */
   --gradient-primary: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
   --gradient-page: #F6F8FA;
+
+  /* Aliases for backward compatibility (legacy vars used in older WXSS) */
+  --primary-color: var(--color-primary-600);
+  --success-color: var(--color-success-600);
+  --warning-color: var(--color-warning-600);
+  --danger-color: var(--color-danger-600);
+  --info-color: var(--color-info-600);
+  --bg-secondary: var(--gray-50);
+  --primary-gradient: var(--gradient-primary);
+  --spacing-xs: var(--space-1);
+  --spacing-sm: var(--space-2);
+  --spacing-md: var(--space-4);
+  --spacing-lg: var(--space-6);
+  --spacing-xl: var(--space-8);
+  --spacing-2xl: 48rpx;
+  --radius-medium: var(--radius-md);
+  --radius-large: var(--radius-lg);
 }

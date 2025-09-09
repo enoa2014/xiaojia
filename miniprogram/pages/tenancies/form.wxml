@@ -16,7 +16,7 @@
   <ui-form-field 
     label="身份证（可选）"
     fieldId="id_card" 
-    errorText="{{errors.identity}}">
+    errorText="{{errors.identity || ''}}">
     <input 
       slot="control"
       class="input" 
@@ -28,7 +28,7 @@
     label="入住日期"
     fieldId="checkInDate"
     required="{{true}}"
-    errorText="{{errors.checkInDate}}">
+    errorText="{{errors.checkInDate || ''}}">
     <picker 
       slot="control"
       mode="date" 
@@ -40,7 +40,7 @@
   <ui-form-field 
     label="退住日期（可选）"
     fieldId="checkOutDate"
-    errorText="{{errors.checkOutDate}}">
+    errorText="{{errors.checkOutDate || ''}}">
     <picker 
       slot="control"
       mode="date" 
@@ -74,7 +74,7 @@
   <ui-form-field 
     label="补助金额（元，可选）"
     fieldId="subsidy"
-    errorText="{{errors.subsidy}}">
+    errorText="{{errors.subsidy || ''}}">
     <input 
       slot="control"
       class="input" 
