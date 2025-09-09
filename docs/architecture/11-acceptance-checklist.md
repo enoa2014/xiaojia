@@ -27,7 +27,7 @@
 
 ### 表单页组件化替换（7.10）
 - 覆盖范围：`activities/form`、`tenancies/form`、`patients/form`
-- 当前状态：部分完成（tenancies/patients 已替换；activities 待替换字段容器）
+- 当前状态：完成（三页均使用统一组件）
 - 验收点：
   - 组件替换：按钮 `ui-button`、字段容器 `ui-form-field`
   - 流程可用：成功/失败/校验错误路径；`mapError` 文案统一

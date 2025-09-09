@@ -146,10 +146,12 @@
           </view>
         </ui-form-field>
 
-        <!-- 结束时间 -->
-        <view class="{{ (errors.endDate || errors.endTime) ? 'form-item error' : 'form-item' }}">
-          <view class="form-label">结束时间</view>
-          <view class="datetime-picker">
+        <!-- 结束时间（改为 ui-form-field） -->
+        <ui-form-field 
+          label="结束时间"
+          fieldId="endDateTime"
+          errorText="{{errors.endDate || errors.endTime}}">
+          <view slot="control" class="datetime-picker">
             <picker mode="date" 
                     value="{{formData.endDate}}"
                     data-field="endDate"
@@ -168,10 +170,7 @@
               </view>
             </picker>
           </view>
-          <text class="error-text" wx:if="{{errors.endDate || errors.endTime}}">
-            {{errors.endDate || errors.endTime}}
-          </text>
-        </view>
+        </ui-form-field>
 
         <!-- 活动地点 -->
         <ui-form-field 
