@@ -8,7 +8,7 @@
   color: var(--text-on-primary);
   position: sticky;
   top: 0;
-  z-index: 120;
+  z-index: var(--z-nav);
   box-shadow: var(--shadow-md);
   margin: calc(-1 * var(--space-6)) calc(-1 * var(--space-6)) var(--space-6);
 }

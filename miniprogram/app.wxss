@@ -30,8 +30,13 @@ page { background: var(--gradient-page); }
   margin: 0 -24rpx;
 }
 
+/* Default header background - 确保有背景遮挡滚动内容 */
+.nav-header {
+  background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-700) 100%);
+}
+
 /* Role-based header themes */
-.nav-header--green { background: linear-gradient(135deg, #22C55E 0%, #16A34A 100%); }
+.nav-header--green { background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-700) 100%); }
 .nav-header--blue { background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%); }
 .nav-header--purple { background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%); }
 .nav-header--orange { background: linear-gradient(135deg, #FB923C 0%, #F97316 100%); }

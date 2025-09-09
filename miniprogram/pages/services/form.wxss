@@ -49,7 +49,7 @@ page {
   box-shadow: var(--shadow-md);
   position: sticky;
   top: 0;
-  z-index: 1000;
+  z-index: var(--z-nav);
   margin: 0 -24rpx; /* 确保紧贴页面边缘 */
 }
 
@@ -771,7 +771,7 @@ page {
   font-size: 22rpx;
   backdrop-filter: blur(10rpx);
   box-shadow: var(--shadow-lg);
-  z-index: 999;
+  z-index: var(--z-toast);
   animation: slideIn 0.3s ease-out;
 }
 
@@ -800,7 +800,7 @@ page {
   background: white;
   border-top: 2rpx solid var(--color-gray-100);
   box-shadow: 0 -4rpx 12rpx rgba(0, 0, 0, 0.1);
-  z-index: 1000;
+  z-index: var(--z-overlay);
 }
 
 .bottom-actions .action-btn {
@@ -909,7 +909,7 @@ page {
   background: rgba(0, 0, 0, 0.5);
   display: flex;
   align-items: flex-end;
-  z-index: 2000;
+  z-index: var(--z-drawer);
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s ease;

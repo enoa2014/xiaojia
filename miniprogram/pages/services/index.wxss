@@ -550,7 +550,7 @@
   box-shadow: 0 16rpx 32rpx rgba(34, 197, 94, 0.3);
   border: none;
   transition: all 0.3s ease;
-  z-index: 1000;
+  z-index: var(--z-overlay);
 }
 
 .fab:active {

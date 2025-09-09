@@ -23,7 +23,7 @@ page {
   color: var(--text-on-primary);
   position: sticky;
   top: 0;
-  z-index: 120;
+  z-index: var(--z-nav);
   box-shadow: var(--shadow-md);
   margin: 0 calc(-1 * var(--space-6)) var(--space-6); /* 确保紧贴页面边缘 */
 }
@@ -752,7 +752,7 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 200;
+  z-index: var(--z-overlay);
 }
 
 .loading-content {
@@ -797,7 +797,7 @@ page {
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 300;
+  z-index: var(--z-overlay);
   opacity: 0;
   visibility: hidden;
   transition: all 0.3s ease;

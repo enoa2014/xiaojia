@@ -70,6 +70,12 @@ page {
   --shadow-md: 0 4rpx 16rpx rgba(0,0,0,0.08);
   --shadow-lg: 0 8rpx 24rpx rgba(0,0,0,0.12);
 
+  /* Z-Index Layers */
+  --z-nav: 100;
+  --z-overlay: 1000;
+  --z-drawer: 2000;
+  --z-toast: 3000;
+
   /* Motion */
   --duration-fast: 150ms;
   --duration-base: 250ms;
@@ -96,4 +102,3 @@ page {
   --gradient-primary: linear-gradient(135deg, #22C55E 0%, #16A34A 100%);
   --gradient-page: #F6F8FA;
 }
-

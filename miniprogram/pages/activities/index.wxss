@@ -707,7 +707,7 @@
   justify-content: center;
   box-shadow: 0 16rpx 32rpx rgba(0, 122, 255, 0.3);
   transition: all 0.3s ease;
-  z-index: 1000;
+  z-index: var(--z-overlay);
 }
 
 .floating-fab:active {
@@ -728,7 +728,7 @@
   right: 0;
   bottom: 0;
   background: rgba(0, 0, 0, 0.5);
-  z-index: 1000;
+  z-index: var(--z-overlay);
   display: flex;
   align-items: flex-end;
   opacity: 0;
