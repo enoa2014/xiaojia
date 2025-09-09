@@ -46,6 +46,9 @@
       <button class="filter-btn" bindtap="showFilterOptions">
         <text class="filter-icon">🏷️</text>
       </button>
+      <button class="view-mode-btn" bindtap="toggleViewMode">
+        <text class="view-icon">{{viewMode === 'list' ? '📅' : '📋'}}</text>
+      </button>
     </view>
     
     <view class="filter-tabs">
@@ -66,8 +69,59 @@
     </view>
   </view>
 
+  <!-- 日历视图 -->
+  <view class="calendar-section" wx:if="{{viewMode === 'calendar'}}">
+    <!-- 骨架屏 -->
+    <loading-skeleton
+      wx:if="{{showSkeleton}}"
+      id="loading-skeleton"
+      show="{{showSkeleton}}"
+      type="calendar"
+      count="1">
+    </loading-skeleton>
+    
+    <!-- 错误状态 -->
+    <error-view
+      wx:elif="{{error && !loading}}"
+      show="{{true}}"
+      error="{{error}}"
+      retry-text="重新加载"
+      feedback-text="反馈问题"
+      bindretry="retryLoad"
+      bindfeedback="onErrorFeedback">
+    </error-view>
+    
+    <!-- 空状态 -->
+    <empty-state
+      wx:elif="{{!loading && calendarActivities.length === 0}}"
+      show="{{true}}"
+      icon="📅"
+      title="暂无{{activeFilterLabel}}活动"
+      description="{{searchKeyword ? '尝试调整搜索条件' : '选择其他日期查看活动'}}"
+      action-text="{{searchKeyword ? '清除搜索条件' : '回到今天'}}"
+      action-icon="🔄"
+      bindaction="onCalendarEmptyAction">
+    </empty-state>
+    
+    <!-- 日历组件 -->
+    <calendar-view
+      wx:else
+      view-mode="{{calendarViewMode}}"
+      current-date="{{selectedDate}}"
+      activities="{{calendarActivities}}"
+      status-filter="{{filterOptions.status}}"
+      show-today="{{true}}"
+      bindviewModeChange="onCalendarViewModeChange"
+      binddateChange="onCalendarDateChange"
+      binddateSelect="onCalendarDateSelect"
+      bindactivityTap="onCalendarActivityTap"
+      bindregisterTap="onCalendarRegisterTap"
+      bindcheckInTap="onCalendarCheckInTap">
+    </calendar-view>
+  </view>
+
   <!-- 活动列表 -->
-  <view class="activities-list">
+  <view class="activities-list" wx:if="{{viewMode === 'list'}}">
     <!-- 加载状态 -->
     <view class="loading-container" wx:if="{{loading}}">
       <view class="loading-content">

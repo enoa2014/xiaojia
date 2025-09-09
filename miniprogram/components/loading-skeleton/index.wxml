@@ -11,8 +11,8 @@
     </view>
   </view>
 
-  <!-- 详情型骨架 -->
-  <view wx:elif="{{type === 'detail'}}" class="skeleton-detail">
+  <!-- 详情型骨架（兼容 calendar 作为详情布局） -->
+  <view wx:elif="{{type === 'detail' || type === 'calendar'}}" class="skeleton-detail">
     <!-- 头部信息 -->
     <view class="skeleton-detail-header">
       <view class="skeleton-avatar large"></view>

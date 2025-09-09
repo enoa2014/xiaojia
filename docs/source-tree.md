@@ -177,6 +177,11 @@ miniprogram/components/button/index.js
 miniprogram/components/button/index.json
 miniprogram/components/button/index.wxml
 miniprogram/components/button/index.wxss
+miniprogram/components/calendar-view
+miniprogram/components/calendar-view/index.js
+miniprogram/components/calendar-view/index.json
+miniprogram/components/calendar-view/index.wxml
+miniprogram/components/calendar-view/index.wxss
 miniprogram/components/empty-state
 miniprogram/components/empty-state/index.js
 miniprogram/components/empty-state/index.json
@@ -546,6 +551,7 @@ docs/qa/gates
 docs/qa/reports
 docs/qa/results
 docs/qa/test-plan-action-card.md
+docs/qa/test-plan-activities-calendar.md
 docs/qa/test-plan-button.md
 docs/qa/test-plan-empty-error.md
 docs/qa/test-plan-form-field.md
@@ -609,4 +615,4 @@ docs/uiux/xiaojia_homepage.tsx
 docs/uiux/xiaojia_patient_design_doc.html
 ```
 
-生成时间：2025-09-09 12:22:46
+生成时间：2025-09-09 12:48:56

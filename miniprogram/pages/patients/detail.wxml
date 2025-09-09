@@ -6,7 +6,7 @@
   animation="shimmer"
   wx:if="{{showSkeleton}}" />
 
-<view class="detail-page" wx:if="{{!loading}}"
+<view class="detail-page" wx:if="{{!loading}}">
   <!-- 导航头部区 -->
   <view class="nav-header {{theme.headerBg}}">
     <view class="nav-left" bindtap="navigateBack">

@@ -100,6 +100,16 @@ Page({
     searchKeyword: '',
     showFilterModal: false,
     
+    // 视图模式控制
+    viewMode: 'list', // list | calendar
+    calendarViewMode: 'month', // month | week
+    selectedDate: '',
+    calendarActivities: [],
+    
+    // 骨架屏状态
+    showSkeleton: false,
+    skeletonTimer: null,
+    
     // 活动列表
     list: [],
     loading: false,
@@ -304,6 +314,188 @@ Page({
       })
       wx.stopPullDownRefresh()
     }
+  },
+
+  // ========== 视图模式切换 ==========
+  
+  // 切换视图模式 (列表/日历)
+  toggleViewMode() {
+    const newViewMode = this.data.viewMode === 'list' ? 'calendar' : 'list'
+    this.setData({ viewMode: newViewMode })
+    
+    if (newViewMode === 'calendar') {
+      this.loadCalendarData()
+    }
+    
+    track('activities_view_mode_change', { mode: newViewMode })
+  },
+
+  // 加载日历数据
+  async loadCalendarData() {
+    // 设置骨架屏延迟显示定时器（300ms）
+    this.data.skeletonTimer = setTimeout(() => {
+      this.setData({ showSkeleton: true })
+    }, 300)
+
+    try {
+      this.setData({ loading: true, error: '' })
+      
+      // 获取当前月份的活动数据
+      const currentDate = this.data.selectedDate || new Date().toISOString().split('T')[0]
+      const [year, month] = currentDate.split('-')
+      
+      const params = {
+        page: 1,
+        pageSize: 100, // 获取更多数据用于日历显示
+        filter: {
+          startTime: {
+            $gte: new Date(year, month - 1, 1).toISOString(),
+            $lt: new Date(year, month, 1).toISOString()
+          }
+        }
+      }
+
+      // 添加状态筛选
+      if (this.data.filterOptions.status !== 'all') {
+        params.filter.status = this.data.filterOptions.status
+      }
+
+      const response = await api.activities.list(params)
+      const items = Array.isArray(response) ? response : (response?.items || [])
+      
+      const processedItems = items.map(item => this.processActivityItemForCalendar(item))
+      
+      this.setData({
+        calendarActivities: processedItems
+      })
+
+    } catch (error) {
+      console.error('加载日历数据失败:', error)
+      this.setData({ error: mapError(error.code || error.message) })
+    } finally {
+      // 清理骨架屏
+      this.clearSkeletonTimer()
+      this.setData({ loading: false })
+    }
+  },
+
+  // 处理活动数据用于日历显示
+  processActivityItemForCalendar(item) {
+    const startTime = new Date(item.startTime || item.createdAt)
+    const endTime = item.endTime ? new Date(item.endTime) : null
+    
+    return {
+      ...item,
+      id: item._id || item.id,
+      startTimeDisplay: this.formatTime(startTime),
+      endTimeDisplay: endTime ? this.formatTime(endTime) : '',
+      duration: endTime ? this.calculateDuration(startTime, endTime) : '',
+      categoryName: this.getCategoryName(item.category),
+      canRegister: this.canUserRegister(item),
+      canCheckIn: this.canUserCheckIn(item)
+    }
+  },
+
+  // 清理骨架屏定时器
+  clearSkeletonTimer() {
+    if (this.data.skeletonTimer) {
+      clearTimeout(this.data.skeletonTimer)
+      this.data.skeletonTimer = null
+    }
+
+    if (this.data.showSkeleton) {
+      const skeletonComponent = this.selectComponent('#loading-skeleton')
+      if (skeletonComponent && skeletonComponent.fadeOut) {
+        skeletonComponent.fadeOut(() => {
+          this.setData({ showSkeleton: false })
+        })
+      } else {
+        this.setData({ showSkeleton: false })
+      }
+    }
+  },
+
+  // 格式化时间显示
+  formatTime(date) {
+    const hours = date.getHours().toString().padStart(2, '0')
+    const minutes = date.getMinutes().toString().padStart(2, '0')
+    return `${hours}:${minutes}`
+  },
+
+  // 计算活动时长
+  calculateDuration(startTime, endTime) {
+    const diffMs = endTime.getTime() - startTime.getTime()
+    const diffHours = Math.floor(diffMs / (1000 * 60 * 60))
+    const diffMinutes = Math.floor((diffMs % (1000 * 60 * 60)) / (1000 * 60))
+    
+    if (diffHours > 0) {
+      return diffMinutes > 0 ? `${diffHours}小时${diffMinutes}分钟` : `${diffHours}小时`
+    } else {
+      return `${diffMinutes}分钟`
+    }
+  },
+
+  // 获取分类名称
+  getCategoryName(category) {
+    const categoryConfig = this.data.activityTypes.find(type => type.key === category)
+    return categoryConfig ? categoryConfig.name : '其他'
+  },
+
+  // 检查用户是否可以报名
+  canUserRegister(activity) {
+    return activity.status === 'published' && 
+           activity.registrationEndTime && 
+           new Date(activity.registrationEndTime) > new Date()
+  },
+
+  // 检查用户是否可以签到
+  canUserCheckIn(activity) {
+    return activity.status === 'ongoing' || 
+           (activity.status === 'published' && new Date(activity.startTime) <= new Date())
+  },
+
+  // ========== 日历视图事件处理 ==========
+
+  // 日历视图模式切换 (月/周)
+  onCalendarViewModeChange(e) {
+    const { mode } = e.detail
+    this.setData({ calendarViewMode: mode })
+  },
+
+  // 日历日期变更
+  onCalendarDateChange(e) {
+    const { date } = e.detail
+    this.setData({ selectedDate: date })
+    this.loadCalendarData()
+  },
+
+  // 日历日期选择
+  onCalendarDateSelect(e) {
+    const { date, activities } = e.detail
+    this.setData({ selectedDate: date })
+    
+    track('activities_calendar_date_select', { 
+      date, 
+      activitiesCount: activities.length 
+    })
+  },
+
+  // 点击日历中的活动
+  onCalendarActivityTap(e) {
+    const { activity } = e.detail
+    this.navigateToActivity(activity)
+  },
+
+  // 日历中的活动报名
+  onCalendarRegisterTap(e) {
+    const { activity } = e.detail
+    this.registerActivityFromCalendar(activity)
+  },
+
+  // 日历中的活动签到
+  onCalendarCheckInTap(e) {
+    const { activity } = e.detail
+    this.checkInActivityFromCalendar(activity)
   },
 
   // 构建查询参数
@@ -742,6 +934,118 @@ Page({
       success: () => {
         track('activity_detail_view', { activityId: id })
       }
+    })
+  },
+
+  // 从日历点击活动跳转（navigateToActivity 的别名）
+  navigateToActivity(activity) {
+    if (!activity || !activity._id) return
+    
+    wx.navigateTo({ 
+      url: `/pages/activities/detail?id=${activity._id}`,
+      success: () => {
+        track('activity_detail_view', { activityId: activity._id, from: 'calendar' })
+      }
+    })
+  },
+
+  // 从日历报名活动
+  async registerActivityFromCalendar(activity) {
+    if (!activity || !activity._id) return
+    
+    try {
+      wx.showLoading({ title: '报名中...' })
+      
+      await api.registrations.register(activity._id)
+      
+      wx.hideLoading()
+      wx.showToast({ title: '报名成功', icon: 'success' })
+      
+      // 更新日历数据中的活动状态
+      this.updateCalendarActivityStatus(activity._id, true)
+      
+      track('activity_register', { activityId: activity._id, from: 'calendar' })
+    } catch (error) {
+      wx.hideLoading()
+      wx.showToast({ 
+        title: mapError(error.code || error.message), 
+        icon: 'none' 
+      })
+    }
+  },
+
+  // 从日历签到活动
+  async checkInActivityFromCalendar(activity) {
+    if (!activity || !activity._id) return
+    
+    try {
+      wx.showLoading({ title: '签到中...' })
+      
+      // 这里假设存在签到API，如果不存在则需要根据实际情况调整
+      await api.registrations.checkIn(activity._id)
+      
+      wx.hideLoading()
+      wx.showToast({ title: '签到成功', icon: 'success' })
+      
+      track('activity_checkin', { activityId: activity._id, from: 'calendar' })
+    } catch (error) {
+      wx.hideLoading()
+      wx.showToast({ 
+        title: mapError(error.code || error.message), 
+        icon: 'none' 
+      })
+    }
+  },
+
+  // 更新日历中活动的状态
+  updateCalendarActivityStatus(activityId, isRegistered) {
+    const updatedActivities = this.data.calendarActivities.map(activity => {
+      if (activity._id === activityId) {
+        return {
+          ...activity,
+          isRegistered,
+          registeredCount: isRegistered ? 
+            (activity.registeredCount || 0) + 1 : 
+            Math.max(0, (activity.registeredCount || 0) - 1),
+          canRegister: !isRegistered && activity.canRegister
+        }
+      }
+      return activity
+    })
+    
+    this.setData({ calendarActivities: updatedActivities })
+  },
+
+  // 处理日历空状态操作
+  onCalendarEmptyAction() {
+    if (this.data.searchKeyword) {
+      // 清除搜索条件
+      this.clearSearch()
+    } else {
+      // 回到今天
+      const today = new Date()
+      this.setData({
+        selectedDate: today.toISOString().split('T')[0]
+      })
+      this.loadCalendarData()
+    }
+  },
+
+
+  // 处理列表空状态操作（已存在，但需要确保存在）
+  onEmptyAction() {
+    if (this.data.searchKeyword) {
+      this.clearSearch()
+    } else {
+      this.refreshData()
+    }
+  },
+
+  // 处理错误反馈（确保存在）
+  onErrorFeedback() {
+    wx.showToast({
+      title: '感谢反馈，我们会及时处理',
+      icon: 'none'
     })
   }
 })

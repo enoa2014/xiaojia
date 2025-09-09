@@ -1,0 +1,122 @@
+<view class="calendar-view" role="region" aria-label="活动日历 {{viewMode === 'month' ? '月视图' : '周视图'}} {{calendarData.year}}年{{calendarData.month}}月">
+  <!-- 日历头部控制栏 -->
+  <view class="calendar-header">
+    <view class="calendar-controls">
+      <button class="control-btn" bindtap="onPrevious" aria-label="上一月或上一周">
+        <text class="control-icon">‹</text>
+      </button>
+      <view class="calendar-title">
+        <text class="year-month">{{calendarData.year}}年{{calendarData.month}}月</text>
+        <text class="view-mode {{viewMode}}">{{viewMode === 'month' ? '月视图' : '周视图'}}</text>
+      </view>
+      <button class="control-btn" bindtap="onNext" aria-label="下一月或下一周">
+        <text class="control-icon">›</text>
+      </button>
+    </view>
+    
+    <view class="calendar-actions">
+      <button class="action-btn" bindtap="toggleViewMode" aria-label="切换视图">
+        <text class="action-icon">{{viewMode === 'month' ? '📅' : '📆'}}</text>
+      </button>
+      <button class="action-btn today-btn" wx:if="{{showToday}}" bindtap="goToToday" aria-label="回到今天">
+        <text class="action-text">今天</text>
+      </button>
+    </view>
+  </view>
+
+  <!-- 星期标题行 -->
+  <view class="calendar-weekdays">
+    <text class="weekday-item">日</text>
+    <text class="weekday-item">一</text>
+    <text class="weekday-item">二</text>
+    <text class="weekday-item">三</text>
+    <text class="weekday-item">四</text>
+    <text class="weekday-item">五</text>
+    <text class="weekday-item">六</text>
+  </view>
+
+  <!-- 日历主体 -->
+  <view class="calendar-body">
+    <view wx:for="{{calendarData.weeks}}" wx:key="index" class="calendar-week">
+      <view 
+        wx:for="{{item}}" 
+        wx:key="date" 
+        wx:for-item="dayItem"
+        class="calendar-day {{dayItem.isCurrentMonth ? 'current-month' : 'other-month'}} {{dayItem.isToday ? 'today' : ''}} {{dayItem.isSelected ? 'selected' : ''}}"
+        aria-label="{{dayItem.date}}，{{dayItem.activities.length}} 个活动"
+        data-date="{{dayItem.date}}"
+        bindtap="onDateSelect">
+        
+        <!-- 日期数字 -->
+        <view class="day-number">{{dayItem.day}}</view>
+        
+        <!-- 活动指示器 -->
+        <view class="day-activities" wx:if="{{dayItem.activities.length > 0}}">
+          <view 
+            wx:for="{{dayItem.activities}}" 
+            wx:key="id" 
+            wx:for-item="activity"
+            class="activity-dot {{activity.status}}"
+            data-activity="{{activity}}"
+            catchtap="onActivityTap">
+          </view>
+          <view class="activity-count" wx:if="{{dayItem.activities.length > 3}}">
+            +{{dayItem.activities.length - 3}}
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 选中日期的活动列表 -->
+  <view class="selected-date-activities" wx:if="{{selectedDate}}">
+    <view class="activities-header">
+      <text class="activities-date">{{selectedDate}} 的活动</text>
+      <text class="activities-count">({{getActivitiesForDate(selectedDate).length}})</text>
+    </view>
+    
+    <scroll-view class="activities-list" scroll-y="true">
+      <view 
+        wx:for="{{getActivitiesForDate(selectedDate)}}" 
+        wx:key="id" 
+        class="activity-item {{item.status}}"
+        data-activity="{{item}}"
+        bindtap="onActivityTap">
+        
+        <view class="activity-time">
+          <text class="start-time">{{item.startTimeDisplay}}</text>
+          <text class="duration" wx:if="{{item.duration}}"> · {{item.duration}}</text>
+        </view>
+        
+        <view class="activity-content">
+          <view class="activity-title">{{item.title}}</view>
+          <view class="activity-meta">
+            <text class="activity-category">{{item.categoryName}}</text>
+            <text class="activity-location" wx:if="{{item.location}}"> · {{item.location}}</text>
+            <text class="activity-capacity" wx:if="{{item.capacity}}"> · {{item.registeredCount || 0}}/{{item.capacity}}人</text>
+          </view>
+        </view>
+        
+        <view class="activity-status">
+          <view class="status-badge {{item.status}}">
+            {{statusConfig[item.status].name}}
+          </view>
+          <button class="activity-action" 
+                  wx:if="{{item.canRegister}}" 
+                  size="mini"
+                  data-activity="{{item}}"
+                  catchtap="onRegisterTap">
+            报名
+          </button>
+          <button class="activity-action" 
+                  wx:elif="{{item.canCheckIn}}" 
+                  size="mini"
+                  data-activity="{{item}}"
+                  catchtap="onCheckInTap">
+            签到
+          </button>
+        </view>
+      </view>
+    </scroll-view>
+  </view>
+</view>

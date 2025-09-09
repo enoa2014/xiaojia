@@ -225,6 +225,28 @@
   color: #6B7280;
 }
 
+.view-mode-btn {
+  width: 88rpx;
+  height: 88rpx;
+  border-radius: 28rpx;
+  background: #F9FAFB;
+  border: 2rpx solid #E5E7EB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.3s ease;
+}
+
+.view-mode-btn:active {
+  background: #F3F4F6;
+  transform: scale(0.92) translateY(-2rpx);
+}
+
+.view-icon {
+  font-size: 28rpx;
+  color: #6B7280;
+}
+
 .filter-tabs {
   display: flex;
   align-items: center;
@@ -659,6 +681,15 @@
 .load-more-btn:active {
   background: var(--primary-color);
   color: #FFFFFF;
+}
+
+/* ========== 日历视图 ========== */
+.calendar-section {
+  margin: var(--spacing-lg) var(--spacing-lg) 0;
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: 0 2rpx 12rpx rgba(0,0,0,0.08);
 }
 
 /* 浮动操作按钮 */
