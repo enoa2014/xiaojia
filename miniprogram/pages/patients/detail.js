@@ -7,6 +7,9 @@ Page({
     loading: true,
     error: null,
     patient: null,
+    // 骨架屏状态
+    showSkeleton: false,
+    skeletonTimer: null,
     
     // 主题配置
     theme: {
@@ -93,6 +96,14 @@ Page({
     }
   },
 
+  onUnload() {
+    // 清理骨架屏定时器
+    if (this.data.skeletonTimer) {
+      clearTimeout(this.data.skeletonTimer)
+      this.data.skeletonTimer = null
+    }
+  },
+
   async onLoad(opts) {
     try { require('../../services/theme').applyThemeByRole(this) } catch(_) {}
     const id = opts && opts.id
@@ -126,6 +137,11 @@ Page({
   async loadPatientData() {
     this.setData({ loading: true, error: null })
     
+    // 设置骨架屏延迟显示定时器（300ms）
+    this.data.skeletonTimer = setTimeout(() => {
+      this.setData({ showSkeleton: true })
+    }, 300)
+    
     try {
       const patient = await api.patients.get(this.data.id)
       
@@ -142,8 +158,14 @@ Page({
         this.loadServiceData(this.data.id)
       ])
 
+      // 清理骨架屏定时器
+      if (this.data.skeletonTimer) {
+        clearTimeout(this.data.skeletonTimer)
+        this.data.skeletonTimer = null
+      }
+      
       // 设置显示数据
-      this.setData({
+      const updateData = {
         patient: processedPatient,
         basicInfoItems: this.buildBasicInfoItems(patient),
         patientBasicStats: this.buildPatientStats(patient),
@@ -153,19 +175,55 @@ Page({
         inResidence: this.checkInResidence(tenancies),
         starred: this.checkStarred(this.data.id),
         loading: false
-      })
+      }
+      
+      // 如果骨架屏已显示，添加淡出效果
+      if (this.data.showSkeleton) {
+        const skeletonComponent = this.selectComponent('#loading-skeleton')
+        if (skeletonComponent && skeletonComponent.fadeOut) {
+          skeletonComponent.fadeOut(() => {
+            this.setData({ ...updateData, showSkeleton: false })
+          })
+        } else {
+          this.setData({ ...updateData, showSkeleton: false })
+        }
+      } else {
+        this.setData(updateData)
+      }
 
       // 设置权限相关状态
       this.updatePermissionUI(patient.permission)
       
     } catch (error) {
       console.error('加载患者数据失败:', error)
-      this.setData({ 
+      
+      // 清理骨架屏定时器
+      if (this.data.skeletonTimer) {
+        clearTimeout(this.data.skeletonTimer)
+        this.data.skeletonTimer = null
+      }
+      
+      // 错误状态处理
+      const errorData = { 
         error: { 
           message: error.message || '加载患者信息失败，请重试' 
         },
         loading: false 
-      })
+      }
+      
+      // 如果骨架屏已显示，添加淡出效果
+      if (this.data.showSkeleton) {
+        const skeletonComponent = this.selectComponent('#loading-skeleton')
+        if (skeletonComponent && skeletonComponent.fadeOut) {
+          skeletonComponent.fadeOut(() => {
+            this.setData({ ...errorData, showSkeleton: false })
+          })
+        } else {
+          this.setData({ ...errorData, showSkeleton: false })
+        }
+      } else {
+        this.setData(errorData)
+      }
     }
   },
 

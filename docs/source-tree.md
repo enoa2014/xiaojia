@@ -192,6 +192,11 @@ miniprogram/components/form-field/index.js
 miniprogram/components/form-field/index.json
 miniprogram/components/form-field/index.wxml
 miniprogram/components/form-field/index.wxss
+miniprogram/components/loading-skeleton
+miniprogram/components/loading-skeleton/index.js
+miniprogram/components/loading-skeleton/index.json
+miniprogram/components/loading-skeleton/index.wxml
+miniprogram/components/loading-skeleton/index.wxss
 miniprogram/components/role-badge
 miniprogram/components/role-badge/index.js
 miniprogram/components/role-badge/index.json
@@ -545,6 +550,7 @@ docs/qa/test-plan-button.md
 docs/qa/test-plan-empty-error.md
 docs/qa/test-plan-form-field.md
 docs/qa/test-plan-forms-refactor.md
+docs/qa/test-plan-loading-skeleton.md
 docs/qa/test-plan-role-badge.md
 docs/qa/test-plan-stat-card.md
 docs/reports
@@ -603,4 +609,4 @@ docs/uiux/xiaojia_homepage.tsx
 docs/uiux/xiaojia_patient_design_doc.html
 ```
 
-生成时间：2025-09-09 12:05:05
+生成时间：2025-09-09 12:22:46

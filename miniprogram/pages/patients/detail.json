@@ -6,6 +6,7 @@
   "backgroundColor": "#f5f7fa",
   "usingComponents": {
     "role-badge": "../../components/role-badge/index",
-    "empty-state": "../../components/empty-state/index"
+    "empty-state": "../../components/empty-state/index",
+    "loading-skeleton": "../../components/loading-skeleton/index"
   }
 }

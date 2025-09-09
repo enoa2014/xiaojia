@@ -25,6 +25,12 @@
   - 文案：错误提示遵循 `validation-rules.md`；error 优先于 help。
   - A11y：容器 `aria-labelledby/aria-describedby`；Error `role=alert`、`aria-live=polite`。
 
+### Skeleton 统一（7.11）
+- 组件：`loading-skeleton`（list/detail/custom；`shimmer|pulse|none`）
+- 时序：请求发起 ≤300ms 显示；快速返回不显示；内容返回后淡出
+- A11y：容器 `role=status`、`aria-live=polite`、`aria-busy`
+- 接入：patients/index（list）、patients/detail（detail）
+
 ### 表单页组件化替换（7.10）
 - 覆盖范围：`activities/form`、`tenancies/form`、`patients/form`
 - 当前状态：完成（三页均使用统一组件）

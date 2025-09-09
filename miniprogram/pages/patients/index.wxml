@@ -180,6 +180,15 @@
     </view>
   </view>
 
+  <!-- 骨架屏 -->
+  <loading-skeleton 
+    id="loading-skeleton"
+    type="list" 
+    count="5" 
+    show="{{showSkeleton}}" 
+    animation="shimmer"
+    wx:if="{{showSkeleton}}" />
+
   <!-- 当前在住患者组 -->
   <view class="inhouse-section" wx:if="{{inhouseList.length > 0}}">
     <view class="section-header inhouse">

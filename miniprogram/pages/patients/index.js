@@ -43,6 +43,9 @@ Page({
     page: 1,
     hasMore: true,
     loading: false,
+    // 骨架屏状态
+    showSkeleton: false,
+    skeletonTimer: null,
     // 统计
     stats: { patients: 0 },
     // 本地标星
@@ -102,6 +105,12 @@ Page({
     }
   },
   onUnload(){
+    // 清理骨架屏定时器
+    if (this.data.skeletonTimer) {
+      clearTimeout(this.data.skeletonTimer)
+      this.data.skeletonTimer = null
+    }
+    
     // 缓存当前列表状态
     const { starredList, inhouseList, historyList, keyword, fromDate, toDate, activeQuickFilter } = this.data
     wx.setStorageSync('patients_list_state', { 
@@ -219,6 +228,11 @@ Page({
     if (this.data.loading) return
     this.setData({ loading: true })
     
+    // 设置骨架屏延迟显示定时器（300ms）
+    this.data.skeletonTimer = setTimeout(() => {
+      this.setData({ showSkeleton: true })
+    }, 300)
+    
     try {
       const filter = this.buildAdvancedFilter()
       const resp = await api.patients.list({ 
@@ -255,7 +269,25 @@ Page({
         emptyActionHandler: 'loadPatientData'
       })
     } finally {
-      this.setData({ loading: false })
+      // 清理骨架屏定时器
+      if (this.data.skeletonTimer) {
+        clearTimeout(this.data.skeletonTimer)
+        this.data.skeletonTimer = null
+      }
+      
+      // 如果骨架屏已显示，添加淡出效果
+      if (this.data.showSkeleton) {
+        const skeletonComponent = this.selectComponent('#loading-skeleton')
+        if (skeletonComponent && skeletonComponent.fadeOut) {
+          skeletonComponent.fadeOut(() => {
+            this.setData({ loading: false, showSkeleton: false })
+          })
+        } else {
+          this.setData({ loading: false, showSkeleton: false })
+        }
+      } else {
+        this.setData({ loading: false })
+      }
     }
   },
   onPullDownRefresh(){

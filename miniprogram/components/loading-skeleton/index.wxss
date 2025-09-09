@@ -1,0 +1,209 @@
+/* Loading Skeleton 组件样式 */
+
+.loading-skeleton {
+  width: 100%;
+  background: transparent;
+  transition: opacity 0.2s ease;
+}
+
+.loading-skeleton.hidden {
+  opacity: 0;
+}
+
+/* 骨架基础样式 */
+.skeleton-line {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e6e6e6 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: var(--border-radius-sm, 4rpx);
+  height: 32rpx;
+  margin-bottom: 16rpx;
+}
+
+.skeleton-avatar {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e6e6e6 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  border-radius: 50%;
+  width: 88rpx;
+  height: 88rpx;
+  flex-shrink: 0;
+}
+
+.skeleton-avatar.large {
+  width: 120rpx;
+  height: 120rpx;
+}
+
+.skeleton-divider {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e6e6e6 50%, #f0f0f0 75%);
+  background-size: 200% 100%;
+  height: 2rpx;
+  margin: 32rpx 0;
+}
+
+/* 动画效果 */
+.loading-skeleton.shimmer .skeleton-line,
+.loading-skeleton.shimmer .skeleton-avatar,
+.loading-skeleton.shimmer .skeleton-divider {
+  animation: shimmer 1.5s ease-in-out infinite;
+}
+
+.loading-skeleton.pulse .skeleton-line,
+.loading-skeleton.pulse .skeleton-avatar,
+.loading-skeleton.pulse .skeleton-divider {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.6; }
+}
+
+/* 列表型骨架 */
+.skeleton-list {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  padding: 24rpx 32rpx;
+}
+
+.skeleton-list-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 24rpx;
+  padding: 20rpx 0;
+}
+
+.skeleton-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.skeleton-line.title {
+  height: 36rpx;
+  margin-bottom: 12rpx;
+}
+
+.skeleton-line.subtitle {
+  height: 28rpx;
+  margin-bottom: 8rpx;
+}
+
+.skeleton-line.meta {
+  height: 24rpx;
+  margin-bottom: 0;
+}
+
+/* 详情型骨架 */
+.skeleton-detail {
+  padding: 32rpx;
+}
+
+.skeleton-detail-header {
+  display: flex;
+  align-items: flex-start;
+  gap: 32rpx;
+  margin-bottom: 32rpx;
+}
+
+.skeleton-header-content {
+  flex: 1;
+  min-width: 0;
+}
+
+.skeleton-line.large {
+  height: 40rpx;
+  margin-bottom: 16rpx;
+}
+
+.skeleton-detail-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 40rpx;
+}
+
+.skeleton-section {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+}
+
+.skeleton-line.section-title {
+  height: 36rpx;
+  margin-bottom: 8rpx;
+}
+
+.skeleton-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+}
+
+.skeleton-field {
+  display: flex;
+  align-items: center;
+  gap: 24rpx;
+}
+
+.skeleton-line.field-label {
+  height: 28rpx;
+  flex-shrink: 0;
+  min-width: 120rpx;
+}
+
+.skeleton-line.field-value {
+  height: 28rpx;
+  flex: 1;
+  min-width: 0;
+}
+
+/* 自定义骨架 */
+.skeleton-custom {
+  width: 100%;
+  min-height: 200rpx;
+}
+
+/* 主题适配 */
+.loading-skeleton {
+  --skeleton-bg: #f0f0f0;
+  --skeleton-highlight: #e6e6e6;
+}
+
+/* 深色主题适配 */
+@media (prefers-color-scheme: dark) {
+  .loading-skeleton {
+    --skeleton-bg: #2a2a2a;
+    --skeleton-highlight: #3a3a3a;
+  }
+  
+  .skeleton-line,
+  .skeleton-avatar,
+  .skeleton-divider {
+    background: linear-gradient(90deg, var(--skeleton-bg) 25%, var(--skeleton-highlight) 50%, var(--skeleton-bg) 75%);
+    background-size: 200% 100%;
+  }
+}
+
+/* 响应式适配 */
+@media screen and (max-width: 480px) {
+  .skeleton-list {
+    padding: 20rpx 24rpx;
+    gap: 20rpx;
+  }
+  
+  .skeleton-list-item {
+    gap: 20rpx;
+  }
+  
+  .skeleton-detail {
+    padding: 24rpx 20rpx;
+  }
+  
+  .skeleton-detail-header {
+    gap: 24rpx;
+  }
+}

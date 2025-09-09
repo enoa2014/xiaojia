@@ -1,0 +1,71 @@
+<view class="loading-skeleton {{animation}} {{!show ? 'hidden' : ''}}" wx:if="{{show}}" role="status" aria-live="polite" aria-busy="{{show}}" aria-label="加载中">
+  <!-- 列表型骨架 -->
+  <view wx:if="{{type === 'list'}}" class="skeleton-list">
+    <view wx:for="{{listItems}}" wx:key="id" class="skeleton-list-item">
+      <view class="skeleton-avatar"></view>
+      <view class="skeleton-content">
+        <view class="skeleton-line title" style="width: {{item.titleWidth}}%"></view>
+        <view class="skeleton-line subtitle" style="width: {{item.contentWidth}}%"></view>
+        <view class="skeleton-line meta" style="width: {{item.lineWidth}}%"></view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 详情型骨架 -->
+  <view wx:elif="{{type === 'detail'}}" class="skeleton-detail">
+    <!-- 头部信息 -->
+    <view class="skeleton-detail-header">
+      <view class="skeleton-avatar large"></view>
+      <view class="skeleton-header-content">
+        <view class="skeleton-line title large" style="width: 80%"></view>
+        <view class="skeleton-line subtitle" style="width: 60%"></view>
+        <view class="skeleton-line meta" style="width: 45%"></view>
+      </view>
+    </view>
+
+    <!-- 分割线 -->
+    <view class="skeleton-divider"></view>
+
+    <!-- 详情内容区块 -->
+    <view class="skeleton-detail-sections">
+      <!-- 基本信息块 -->
+      <view class="skeleton-section">
+        <view class="skeleton-line section-title" style="width: 30%"></view>
+        <view class="skeleton-fields">
+          <view class="skeleton-field">
+            <view class="skeleton-line field-label" style="width: 25%"></view>
+            <view class="skeleton-line field-value" style="width: 55%"></view>
+          </view>
+          <view class="skeleton-field">
+            <view class="skeleton-line field-label" style="width: 30%"></view>
+            <view class="skeleton-line field-value" style="width: 70%"></view>
+          </view>
+          <view class="skeleton-field">
+            <view class="skeleton-line field-label" style="width: 35%"></view>
+            <view class="skeleton-line field-value" style="width: 40%"></view>
+          </view>
+        </view>
+      </view>
+
+      <!-- 扩展信息块 -->
+      <view class="skeleton-section">
+        <view class="skeleton-line section-title" style="width: 35%"></view>
+        <view class="skeleton-fields">
+          <view class="skeleton-field">
+            <view class="skeleton-line field-label" style="width: 40%"></view>
+            <view class="skeleton-line field-value" style="width: 60%"></view>
+          </view>
+          <view class="skeleton-field">
+            <view class="skeleton-line field-label" style="width: 25%"></view>
+            <view class="skeleton-line field-value" style="width: 80%"></view>
+          </view>
+        </view>
+      </view>
+    </view>
+  </view>
+
+  <!-- 自定义骨架 -->
+  <view wx:elif="{{type === 'custom'}}" class="skeleton-custom" style="{{height ? 'height:' + height : ''}}">
+    <slot name="skeleton"></slot>
+  </view>
+</view>
