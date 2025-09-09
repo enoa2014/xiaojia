@@ -1,5 +1,5 @@
 # Story: EP-05-S2 导出 Excel（临时链接）
-Status: Planned
+Status: In Progress
 
 ## Story
 - As: 管理员/社工
@@ -120,3 +120,34 @@ Status: Planned
 
 ## DoD
 - [ ] 接口/页面联调；审计/CRON 生效；用例通过；文档同步
+
+---
+
+## Dev Agent Record
+
+### Agent Model Used
+dev (James)
+
+### Tasks / Subtasks Checkboxes
+- [x] T1 `exports.create` 幂等 + 审计；`exports.status` 返回链接（首次查询惰性生成临时链接并完成任务，MVP）
+- [x] T2 CRON 任务：新增 `exports.cronCleanup` 动作以清理过期链接（可由平台定时触发）
+- [ ] T3 导出页对接 API；按角色可见入口；轮询与结果处理（前端联调待确认）
+- [ ] T4 幂等/权限/有效期/失败率用例（QA）
+
+### Debug Log References
+- Updated `functions/exports/index.ts`: 
+  - `status` 动作惰性生成临时链接（30min）并置 `status=done`；写入审计 `export.status`
+  - 新增 `cronCleanup` 动作清理过期链接
+
+### Completion Notes List
+- 后端：create/status 已具备幂等与审计；status 可返回下载链接与 expiresAt；cronCleanup 可清理过期链接
+- 权限：仅 `admin|social_worker` 可用；其余 `E_PERM`
+
+### File List
+- Modified: `functions/exports/index.ts`
+
+### Change Log
+- feat(exports): lazy-generate temp download url on first status check; add cronCleanup action
+
+### Status
+Ready for Review

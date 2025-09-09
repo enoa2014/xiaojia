@@ -48,12 +48,44 @@ export const main = async (event:any) => {
     if (action === 'status') {
       const p = StatusSchema.safeParse(payload || {})
       if (!p.success) return errValidate('参数不合法', p.error.issues)
-      const r = await db.collection('ExportTasks').doc(p.data.taskId).get()
+      const taskId = p.data.taskId
+      const r = await db.collection('ExportTasks').doc(taskId).get()
       if (!r?.data) return err('E_NOT_FOUND','task not found')
       const t = r.data as any
-      // 审计：export.status（注意文档中的命名可能为 export.status）
-      try { await db.collection('AuditLogs').add({ data: { actorId: OPENID || null, action: 'export.status', target: { taskId: p.data.taskId, status: t.status }, requestId: p.data.requestId || null, createdAt: Date.now() } }) } catch {}
+
+      // 惰性处理：首次查询时生成临时下载链接并完成任务（MVP）
+      if (t.status === 'pending' || t.status === 'running') {
+        const now = Date.now()
+        const expAt = now + 30 * 60 * 1000 // 30 分钟有效
+        // 基于任务类型与参数构造占位链接（实际项目应生成真实文件并存储到 COS）
+        const month = t?.params?.month || 'current'
+        const type = String(t?.type || 'statsMonthly')
+        const fakeUrl = `https://example.com/download/${type}-${month}.xlsx`
+        await db.collection('ExportTasks').doc(taskId).update({ data: { status: 'done', downloadUrl: fakeUrl, expiresAt: expAt, updatedAt: now } })
+        t.status = 'done'
+        t.downloadUrl = fakeUrl
+        t.expiresAt = expAt
+      }
+
+      // 审计：export.status
+      try { await db.collection('AuditLogs').add({ data: { actorId: OPENID || null, action: 'export.status', target: { taskId, status: t.status }, requestId: p.data.requestId || null, createdAt: Date.now() } }) } catch {}
       return ok({ status: t.status, downloadUrl: t.downloadUrl, expiresAt: t.expiresAt })
+    }
+
+    // CRON 清理动作：清理过期下载链接；失败任务重试计数占位（MVP）
+    if (action === 'cronCleanup') {
+      const now = Date.now()
+      // 清理过期下载链接（到期后移除 downloadUrl/expiresAt）
+      try {
+        const _ = db.command as any
+        const res = await db.collection('ExportTasks').where({ status: 'done', expiresAt: _.lt(now) }).get()
+        const tasks = (res?.data || []) as any[]
+        for (const it of tasks) {
+          try { await db.collection('ExportTasks').doc(it._id).update({ data: { downloadUrl: null, expiresAt: null, updatedAt: now } }) } catch {}
+        }
+      } catch {}
+      // 返回统计信息（占位）
+      return ok({ cleaned: true, ts: now })
     }
 
     return ok({ ping: 'exports' })

@@ -43,3 +43,9 @@
 
 ## 变更记录
 - v0.1 初始化。
+
+## 关联故事
+- EP-05-S1 月度统计展示 — docs/backlog/stories/EP-05-S1-stats-monthly.md
+- EP-05-S2 导出 Excel（临时链接） — docs/backlog/stories/EP-05-S2-export-excel.md
+- EP-05-S3 导出历史列表 — docs/backlog/stories/EP-05-S3-export-history.md
+- EP-05-S4 统计专项分析接口（入住/活动/服务） — docs/backlog/stories/EP-05-S4-stats-analysis-endpoints.md

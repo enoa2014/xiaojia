@@ -40,3 +40,9 @@
 
 ## 变更记录
 - v0.1 初始化。
+
+## 关联故事
+- EP-06-S1 字段级权限申请与审批 — docs/backlog/stories/EP-06-S1-permission-field-approval.md
+- EP-06-S2 审计日志 — docs/backlog/stories/EP-06-S2-audit-logs.md
+- EP-06-S3 全模块 RBAC 接入与覆盖 — docs/backlog/stories/EP-06-S3-rbac-enforcement-coverage.md
+- EP-06-S4 审批/审计 API 契约与前端封装统一 — docs/backlog/stories/EP-06-S4-approvals-audits-api-contract-alignment.md

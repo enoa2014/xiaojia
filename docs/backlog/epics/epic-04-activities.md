@@ -44,3 +44,8 @@
 
 ## 变更记录
 - v0.1 初始化。
+ 
+## 关联故事
+- EP-04-S1 活动发布与列表 — docs/backlog/stories/EP-04-S1-activity-create-list.md
+- EP-04-S2 报名/取消/签到 — docs/backlog/stories/EP-04-S2-activity-registrations.md
+- EP-04-S3 活动编辑与调用规范统一 — docs/backlog/stories/EP-04-S3-activities-edit-and-api-consistency.md
