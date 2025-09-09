@@ -69352,7 +69352,9 @@ var collections = [
   "PermissionRequests",
   "Stats",
   "ExportTasks",
-  "AuditLogs"
+  "AuditLogs",
+  "Metrics",
+  "Alerts"
 ];
 var main = async (event) => {
   const action = event && event.action;

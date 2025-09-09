@@ -4,7 +4,8 @@ cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
 const collections = [
   'Patients','Tenancies','Services','Activities','Registrations',
-  'Users','PermissionRequests','Stats','ExportTasks','AuditLogs'
+  'Users','PermissionRequests','Stats','ExportTasks','AuditLogs',
+  'Metrics','Alerts'
 ]
 export const main = async (event?: any) => {
   const action = event && (event as any).action

@@ -89,6 +89,14 @@ wx.cloud.callFunction({ name: 'patients', data: { action: 'list', payload: { pag
   - RBAC：仅 `admin|social_worker` 允许创建；否则 `E_PERM`。
   - 备注：`update` 暂未纳入本 Sprint 范围。
 
+— update（MVP 已实现）
+- in：`{ id: string, patch: Partial<Activity> }` 或兼容 `{ activityId: string, data: Partial<Activity> }`
+- out：`{ ok:true, data:{ updated: number } }`
+- 规则：
+  - RBAC：仅 `admin|social_worker`；否则 `E_PERM`。
+  - 校验：基于 `ActivityCreateSchema.partial()` 的字段级约束；忽略 `undefined` 字段；写入 `updatedAt`。
+  - 审计：写入 `AuditLogs`（`activities.update`，含目标 id）。
+
 ### registrations（已实现：register/cancel/checkin）
 - list：`in { activityId?, userId?, status? }` → `out { ok:true, data: Registration[] }`
   - 约定：`userId='me'` 表示当前用户；支持按 `activityId`、`status` 过滤；默认 `createdAt desc`
@@ -108,12 +116,71 @@ wx.cloud.callFunction({ name: 'patients', data: { action: 'list', payload: { pag
   - 状态：已实现
   - 校验摘要：`fields[]` 必须来自白名单（如 `id_card|phone|diagnosis`）；`reason≥20` 字；`expiresAt` 默认 30 天、最大 90 天；审批通过生成 TTL；任一明文读取与审批写审计。
 
-### stats / exports（当前回显占位）
-- stats.monthly / stats.yearly：`in { scope:'patients'|'services'|..., month|year }` → `out { ok:true, data:{ items, meta } }`
-- export.create：`in { type, params, clientToken }` → `out { ok:true, data:{ taskId } }`
-- export.status：`in { taskId }` → `out { ok:true, data:{ status, downloadUrl?, expiresAt? } }`
-  - 校验摘要：stats.monthly 需 `month=YYYY-MM`；stats.yearly 需 `year=YYYY`；
-    export.create 的 `type ∈ statsMonthly|statsAnnual` 且 `clientToken` 幂等；status 需 `taskId`（存在性校验）。下载链接有效期默认 30 分钟。
+### stats（已实现：monthly/yearly/counts/homeSummary）
+- monthly：
+  - in：`{ scope:'services'|'activities'|'patients', month:'YYYY-MM' }`
+  - out：`{ ok:true, data:{ items: { date:'YYYY-MM-DD', value:number }[], meta:{ total:number, hasMore:false } } }`
+  - 规则：RBAC 仅 `admin|social_worker`；`patients` 统计以 `createdAt` 时间窗计数；其余按 `date` 字段前缀匹配。
+- yearly：
+  - in：`{ scope:'services'|'activities'|'patients', year:'YYYY' }`
+  - out：`{ ok:true, data:{ items: { date:'YYYY-MM', value:number }[], meta:{ total:12, hasMore:false } } }`
+  - 规则：同上。
+- counts：
+  - in：`{ collections?: string[] }`（默认 `['Patients','Tenancies','Activities','Registrations']`）
+  - out：`{ ok:true, data: Record<collection, number|null> }`
+- homeSummary：
+  - in：无
+  - out：`{ ok:true, data:{ role:string|null, notifications:number, permText:string, pendingPermissions:number, items: Array<{ label,value,icon,change }> } }`
+  - 说明：按用户角色返回首页仪表板摘要（本月档案/服务/活动等）。
+
+— servicesAnalysis / tenancyAnalysis / activityAnalysis（占位实现，逐步完善）
+- RBAC：仅 `admin|social_worker`；否则 `E_PERM`。
+- 通用时间参数：`{ range?: 'week'|'month'|'quarter'|'year', month?: 'YYYY-MM', quarter?: 'YYYY-Q1..Q4', year?: 'YYYY' }`
+
+1) servicesAnalysis
+- in：`{ type: 'summary'|'by-type'|'by-worker'|'rating-trend', ...timeParams }`
+- out：
+  - summary：`{ totalServices:number, completedServices:number, avgRating:number, mostPopularType:string }`
+  - by-type：`Array<{ type:string, count:number, percentage:number, color?:string }>`
+  - by-worker：`Array<{ workerId:string, workerName?:string, count:number, percentage:number, color?:string }>`
+  - rating-trend：`Array<{ date:string, rating:number, percentage?:number }>`
+- 备注（MVP）：当前实现返回 summary 与 by-type 的基础数据（按当月 `Services.date` 前缀计数），其余返回空数组。
+
+2) tenancyAnalysis
+- in：`{ type: 'summary'|'occupancy-trend'|'room-utilization'|'stay-duration', ...timeParams }`
+- out：
+  - summary：`{ totalBeds:number, occupiedBeds:number, occupancyRate:number, avgStayDuration:number }`
+  - occupancy-trend：`Array<{ date:string, rate:number }>`
+  - room-utilization：`Array<{ roomId:string, rate:number }>`
+  - stay-duration：`Array<{ bucket:string, count:number }>`
+- 备注（MVP）：当前实现返回结构占位（空数组/默认值），后续完善聚合逻辑。
+
+3) activityAnalysis
+- in：`{ type: 'summary'|'participation-trend'|'by-type'|'participants-by-age', ...timeParams }`
+- out：
+  - summary：`{ totalActivities:number, totalParticipants:number, avgParticipationRate:number, mostPopularActivity:string }`
+  - participation-trend：`Array<{ date:string, participants:number }>`
+  - by-type：`Array<{ type:string, count:number, percentage:number }>`
+  - participants-by-age：`Array<{ ageRange:string, count:number }>`
+- 备注（MVP）：当前实现返回结构占位（空数组/默认值），后续完善聚合逻辑。
+
+### exports（已实现：create/status/history/cronCleanup）
+- create：
+  - in：`{ type:'statsMonthly'|'statsAnnual'|'custom', params: Record<string,any>, clientToken?: string, requestId?: string }`
+  - out：`{ ok:true, data:{ taskId:string } }`
+  - 规则：RBAC 仅 `admin|social_worker`；`clientToken` 幂等（存在即直接返回已建任务）。写审计 `exports.create`。
+- status：
+  - in：`{ taskId:string, requestId?: string }`
+  - out：`{ ok:true, data:{ status:'pending'|'running'|'done'|'failed', downloadUrl?:string, expiresAt?:number } }`
+  - 规则（MVP）：若任务 `pending|running`，首次查询时惰性生成临时下载链接，置为 `done`，有效期 30 分钟；写指标与审计。
+- history：
+  - in：`{ page?:1.., pageSize?:1..100 }`
+  - out：`{ ok:true, data:{ items: ExportTask[], hasMore:boolean } }`
+  - 规则：仅返回当前用户创建的导出任务，按 `createdAt desc` 分页；返回最小必要字段（`status/downloadUrl/expiresAt/createdAt/type`）。
+- cronCleanup：
+  - in：无
+  - out：`{ ok:true, data:{ cleaned:boolean, ts:number } }`
+  - 规则：清理已过期的下载链接（到期移除 `downloadUrl/expiresAt`），写指标。
 
 ### users（当前回显占位）
 - me.get：返回当前用户资料与角色

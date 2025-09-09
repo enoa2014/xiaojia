@@ -186,16 +186,7 @@ Page({
     this.setData({ loading: true })
     
     try {
-      const result = await wx.cloud.callFunction({
-        name: 'activities',
-        data: {
-          action: 'get',
-          payload: { activityId }
-        }
-      })
-
-      if (result.result.ok) {
-        const activity = result.result.data
+      const activity = await require('../../services/api').api.activities.get(activityId)
         
         // 转换数据格式适配表单
         const formData = {
@@ -645,7 +636,7 @@ Page({
       delete submitData.registrationEndDate
       delete submitData.registrationEndTime
       
-      const action = this.data.mode === 'edit' ? 'update' : 'create'
+      const isEdit = this.data.mode === 'edit'
       const submitReqId = genRequestId('activity')
       const submitStart = Date.now()
       // 统一提交事件埋点（标准化：activity_create_submit）
@@ -657,19 +648,13 @@ Page({
           hasLocation: !!submitData.location
         })
       } catch(_) {}
-      const payload = this.data.mode === 'edit'
-        ? { activityId: this.data.activityId, data: submitData }
-        : submitData
-      
-      const result = await wx.cloud.callFunction({
-        name: 'activities',
-        data: {
-          action,
-          payload
-        }
-      })
+      if (isEdit) {
+        await require('../../services/api').api.activities.update(this.data.activityId, submitData)
+      } else {
+        await require('../../services/api').api.activities.create(submitData)
+      }
 
-      if (result.result.ok) {
+      {
         const message = publishNow 
           ? (this.data.mode === 'edit' ? '更新并发布成功' : '创建并发布成功')
           : (this.data.mode === 'edit' ? '更新成功' : '保存成功')
@@ -697,8 +682,6 @@ Page({
           wx.navigateBack()
         }, 1500)
         
-      } else {
-        throw new Error(result.result.error?.msg || '提交失败')
       }
       
     } catch (error) {

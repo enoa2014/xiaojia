@@ -59,6 +59,7 @@ functions/audits
 functions/exports
 functions/import-xlsx
 functions/init-db
+functions/observability
 functions/packages
 functions/patients
 functions/permissions
@@ -145,6 +146,8 @@ project.private.config.json
 README.md
 scripts
 scripts/analyze-bxlsx.js
+scripts/build-tokens.js
+scripts/check-contrast.js
 scripts/convert_b_xlsx.py
 scripts/data
 scripts/deploy-all.sh
@@ -182,6 +185,11 @@ miniprogram/components/calendar-view/index.js
 miniprogram/components/calendar-view/index.json
 miniprogram/components/calendar-view/index.wxml
 miniprogram/components/calendar-view/index.wxss
+miniprogram/components/chart-container
+miniprogram/components/chart-container/index.js
+miniprogram/components/chart-container/index.json
+miniprogram/components/chart-container/index.wxml
+miniprogram/components/chart-container/index.wxss
 miniprogram/components/empty-state
 miniprogram/components/empty-state/index.js
 miniprogram/components/empty-state/index.json
@@ -235,6 +243,11 @@ miniprogram/pages/activities/index.js
 miniprogram/pages/activities/index.json
 miniprogram/pages/activities/index.wxml
 miniprogram/pages/activities/index.wxss
+miniprogram/pages/approvals
+miniprogram/pages/approvals/index.js
+miniprogram/pages/approvals/index.json
+miniprogram/pages/approvals/index.wxml
+miniprogram/pages/approvals/index.wxss
 miniprogram/pages/audits
 miniprogram/pages/audits/index.js
 miniprogram/pages/audits/index.json
@@ -245,6 +258,11 @@ miniprogram/pages/button-demo/index.js
 miniprogram/pages/button-demo/index.json
 miniprogram/pages/button-demo/index.wxml
 miniprogram/pages/button-demo/index.wxss
+miniprogram/pages/chart-container-demo
+miniprogram/pages/chart-container-demo/index.js
+miniprogram/pages/chart-container-demo/index.json
+miniprogram/pages/chart-container-demo/index.wxml
+miniprogram/pages/chart-container-demo/index.wxss
 miniprogram/pages/empty-error-demo
 miniprogram/pages/empty-error-demo/index.js
 miniprogram/pages/empty-error-demo/index.json
@@ -311,10 +329,22 @@ miniprogram/pages/stat-card-demo/index.json
 miniprogram/pages/stat-card-demo/index.wxml
 miniprogram/pages/stat-card-demo/index.wxss
 miniprogram/pages/stats
+miniprogram/pages/stats/activity-analysis.js
+miniprogram/pages/stats/activity-analysis.json
+miniprogram/pages/stats/activity-analysis.wxml
+miniprogram/pages/stats/activity-analysis.wxss
 miniprogram/pages/stats/index.js
 miniprogram/pages/stats/index.json
 miniprogram/pages/stats/index.wxml
 miniprogram/pages/stats/index.wxss
+miniprogram/pages/stats/services-analysis.js
+miniprogram/pages/stats/services-analysis.json
+miniprogram/pages/stats/services-analysis.wxml
+miniprogram/pages/stats/services-analysis.wxss
+miniprogram/pages/stats/tenancy-analysis.js
+miniprogram/pages/stats/tenancy-analysis.json
+miniprogram/pages/stats/tenancy-analysis.wxml
+miniprogram/pages/stats/tenancy-analysis.wxss
 miniprogram/pages/tenancies
 miniprogram/pages/tenancies/checkout.js
 miniprogram/pages/tenancies/checkout.json
@@ -325,6 +355,7 @@ miniprogram/pages/tenancies/form.json
 miniprogram/pages/tenancies/form.wxml
 miniprogram/pages/tenancies/form.wxss
 miniprogram/services
+miniprogram/services/a11y.js
 miniprogram/services/analytics.js
 miniprogram/services/api.js
 miniprogram/services/theme.js
@@ -332,7 +363,9 @@ miniprogram/services/ui.js
 miniprogram/services/upload.js
 miniprogram/sitemap.json
 miniprogram/styles
+miniprogram/styles/a11y.wxss
 miniprogram/styles/tokens.wxss
+miniprogram/styles/tokens.wxss.backup
 ```
 \n## functions（depth ≤ 2）\n
 ```
@@ -388,6 +421,13 @@ functions/init-db/package-lock.json
 functions/init-db/pnpm-lock.yaml
 functions/init-db/tsconfig.json
 functions/init-db/tsup.config.ts
+functions/observability
+functions/observability/cloudbaserc.json
+functions/observability/index.js
+functions/observability/index.ts
+functions/observability/package.json
+functions/observability/tsconfig.json
+functions/observability/tsup.config.ts
 functions/packages
 functions/packages/core-db
 functions/packages/core-rbac
@@ -487,9 +527,11 @@ docs
 docs/api
 docs/api/contracts.md
 docs/api/error-codes.md
+docs/api/interface-gaps.md
 docs/api/mocks
 docs/api/prototype.md
 docs/api/quick-reference.md
+docs/api/stats-analysis-apis.md
 docs/architecture
 docs/architecture/00-overview.md
 docs/architecture/01-frontend.md
@@ -552,11 +594,13 @@ docs/qa/reports
 docs/qa/results
 docs/qa/test-plan-action-card.md
 docs/qa/test-plan-activities-calendar.md
+docs/qa/test-plan-analytics.md
 docs/qa/test-plan-button.md
 docs/qa/test-plan-empty-error.md
 docs/qa/test-plan-form-field.md
 docs/qa/test-plan-forms-refactor.md
 docs/qa/test-plan-loading-skeleton.md
+docs/qa/test-plan-observability.md
 docs/qa/test-plan-role-badge.md
 docs/qa/test-plan-stat-card.md
 docs/reports
@@ -615,4 +659,4 @@ docs/uiux/xiaojia_homepage.tsx
 docs/uiux/xiaojia_patient_design_doc.html
 ```
 
-生成时间：2025-09-09 12:48:56
+生成时间：2025-09-09 21:09:56

@@ -195,8 +195,10 @@ var main = async (event) => {
         return ok({ items, meta });
       }
       case "get": {
-        const { id } = IdSchema.parse(payload || {});
-        const r = await db.collection("Activities").doc(id).get();
+        const pld = payload || {};
+        const id = (pld && (pld.id || pld.activityId)) || (function(){ try { return IdSchema.parse(pld).id } catch { return null } })();
+        if (!id) return err("E_VALIDATE","missing id");
+        const r = await db.collection("Activities").doc(String(id)).get();
         if (!(r == null ? void 0 : r.data))
           return err("E_NOT_FOUND", "activity not found");
         return ok(r.data);
@@ -213,6 +215,20 @@ var main = async (event) => {
         const doc = { ...a, createdAt: Date.now() };
         const { _id } = await db.collection("Activities").add({ data: doc });
         return ok({ _id });
+      }
+      case "update": {
+        // RBAC
+        if (!await canCreate()) return err("E_PERM","\u4EC5\u7BA1\u7406\u5458/\u793E\u5DE5\u53EF\u66F4\u65B0\u6D3B\u52A8");
+        const pld = payload || {};
+        const id = (pld && (pld.id || pld.activityId)) || null;
+        const patch = (pld && (pld.patch || pld.data)) || {};
+        if (!id || typeof patch !== 'object') return err("E_VALIDATE","invalid args");
+        const clean = {};
+        Object.keys(patch || {}).forEach(k => { if (patch[k] !== void 0) clean[k] = patch[k]; });
+        if (!Object.keys(clean).length) return ok({ updated: 0 });
+        await db.collection('Activities').doc(String(id)).update({ data: { ...clean, updatedAt: Date.now() } });
+        try { await db.collection('AuditLogs').add({ data: { actorId: OPENID || null, action: 'activities.update', target: { id: String(id) }, createdAt: Date.now() } }) } catch {}
+        return ok({ updated: 1 });
       }
       default:
         return err("E_ACTION", "unknown action");

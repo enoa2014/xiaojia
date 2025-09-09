@@ -61,6 +61,38 @@ const toCanonical = (event, props = {}) => {
           code: 'OK'
         }])
         break
+      // Stats page events
+      case 'stats_view':
+        out.push(['stats_view', {
+          requestId: props.requestId,
+          scope: props.scope,
+          dimension: props.dimension,
+          month: props.month,
+          year: props.year,
+          duration: props.duration
+        }])
+        break
+      case 'stats_dimension_change':
+        out.push(['stats_dimension_change', {
+          dimension: props.dimension,
+          timeDim: props.timeDim
+        }])
+        break
+      case 'stats_scope_change':
+        out.push(['stats_scope_change', {
+          scope: props.scope
+        }])
+        break
+      case 'stats_month_change':
+        out.push(['stats_month_change', {
+          month: props.month
+        }])
+        break
+      case 'stats_year_change':
+        out.push(['stats_year_change', {
+          year: props.year
+        }])
+        break
       default:
         break
     }

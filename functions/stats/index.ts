@@ -218,5 +218,86 @@ export const main = async (event:any) => {
     return ok({ role, items, notifications, permText })
   }
   try { await db.collection('Metrics').add({ data: { ns: 'stats', action: action || 'ping', ok: true, duration: Date.now()-started, requestId: reqId, actorId: OPENID||null, ts: Date.now() } as any }) } catch {}
-  return ok({ ping: 'stats' })
+    return ok({ ping: 'stats' })
+}
+
+// 新增：专项分析接口（占位实现，后续逐步完善聚合）
+if (action === 'servicesAnalysis') {
+  const allowed = await hasAnyRole(db, OPENID, ['admin','social_worker'])
+  if (!allowed) return err('E_PERM','需要权限')
+  const p = (evt && evt.payload) || {}
+  const range = String(p.range || 'month')
+  const month = String(p.month || '')
+  const quarter = String(p.quarter || '')
+  const _ = db.command
+  // 时间窗口（简化：仅 month 支持，其他降级为当前月）
+  const ym = /^\d{4}-\d{2}$/.test(month) ? month : (() => { const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}` })()
+  // summary（占位：按 Services.date 前缀统计）
+  let total = 0
+  try {
+    const r:any = await db.collection('Services').where({ date: db.RegExp({ regexp: `^${ym}` }) as any }).count()
+    total = (r.total ?? r.count) || 0
+  } catch {}
+  const summary = { totalServices: total, completedServices: total, avgRating: 0, mostPopularType: '' }
+  // by-type（占位：五类固定，逐类 count）
+  const types = ['visit','psych','goods','referral','followup']
+  let typeItems:any[] = []
+  try {
+    let grand = 0
+    const counts: Record<string, number> = {}
+    for (const t of types) {
+      try {
+        const r:any = await db.collection('Services').where({ type: t, date: db.RegExp({ regexp: `^${ym}` }) as any }).count()
+        const c = (r.total ?? r.count) || 0
+        counts[t] = c
+        grand += c
+      } catch { counts[t] = 0 }
+    }
+    typeItems = types.map((t, i) => ({ type: t, count: counts[t]||0, percentage: grand ? Math.round((counts[t]||0)/grand*100) : 0, color: ['#22c55e','#3b82f6','#f59e0b','#ef4444','#8b5cf6'][i%5] }))
+    if (grand > 0) summary.mostPopularType = typeItems.slice().sort((a,b)=>b.count-a.count)[0].type
+  } catch {}
+  // by-worker / rating-trend（占位空数组）
+  const byWorker:any[] = []
+  const ratingTrend:any[] = []
+  try { await db.collection('Metrics').add({ data: { ns: 'stats', action: 'servicesAnalysis', ok: true, duration: Date.now()-started, requestId: reqId, actorId: OPENID||null, ts: Date.now(), range, ym, quarter } as any }) } catch {}
+  return ok({ summary, byType: typeItems, byWorker, ratingTrend })
+}
+
+if (action === 'tenancyAnalysis') {
+  const allowed = await hasAnyRole(db, OPENID, ['admin','social_worker'])
+  if (!allowed) return err('E_PERM','需要权限')
+  const p = (evt && evt.payload) || {}
+  const what = String(p.type || evt?.subAction || '') // 兼容
+  // 简化返回：summary + 3 个数组占位
+  const summary = { totalBeds: 0, occupiedBeds: 0, occupancyRate: 0, avgStayDuration: 0 }
+  const occupancyTrend:any[] = []
+  const roomUtilization:any[] = []
+  const stayDuration:any[] = []
+  try { await db.collection('Metrics').add({ data: { ns: 'stats', action: 'tenancyAnalysis', ok: true, duration: Date.now()-started, requestId: reqId, actorId: OPENID||null, ts: Date.now() } as any }) } catch {}
+  // 根据调用子类型返回对应部分（前端直接用对应接口）
+  const sub = String((evt && evt.payload && evt.payload.kind) || (evt && evt.payload && evt.payload.type) || '')
+  if (sub === 'summary') return ok(summary)
+  if (sub === 'occupancy-trend') return ok(occupancyTrend)
+  if (sub === 'room-utilization') return ok(roomUtilization)
+  if (sub === 'stay-duration') return ok(stayDuration)
+  return ok({ summary, occupancyTrend, roomUtilization, stayDuration })
+}
+
+if (action === 'activityAnalysis') {
+  const allowed = await hasAnyRole(db, OPENID, ['admin','social_worker'])
+  if (!allowed) return err('E_PERM','需要权限')
+  const p = (evt && evt.payload) || {}
+  const ym = String(p.month || '')
+  // summary（占位：活动数量与参与数不可得，置 0）
+  const summary = { totalActivities: 0, totalParticipants: 0, avgParticipationRate: 0, mostPopularActivity: '' }
+  const participationTrend:any[] = []
+  const byType:any[] = []
+  const byAge:any[] = []
+  try { await db.collection('Metrics').add({ data: { ns: 'stats', action: 'activityAnalysis', ok: true, duration: Date.now()-started, requestId: reqId, actorId: OPENID||null, ts: Date.now(), ym } as any }) } catch {}
+  const sub = String(p.type || '')
+  if (sub === 'summary') return ok(summary)
+  if (sub === 'participation-trend') return ok(participationTrend)
+  if (sub === 'by-type') return ok(byType)
+  if (sub === 'participants-by-age') return ok(byAge)
+  return ok({ summary, participationTrend, byType, byAge })
 }

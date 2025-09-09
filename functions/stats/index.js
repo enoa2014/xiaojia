@@ -69855,3 +69855,84 @@ sax/lib/sax.js:
   (*! http://mths.be/fromcodepoint v0.1.0 by @mathias *)
 */
 //# sourceMappingURL=index.js.map
+;(function(){
+  try {
+    const cloud = require('wx-server-sdk');
+    const __origMain = module.exports && module.exports.main;
+    if (typeof __origMain === 'function') {
+      module.exports.main = async (event) => {
+        const evt = event || {};
+        const action = evt.action;
+        try {
+          if (action === 'servicesAnalysis' || action === 'tenancyAnalysis' || action === 'activityAnalysis') {
+            cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV });
+            const db = cloud.database();
+            const { OPENID } = (cloud.getWXContext && cloud.getWXContext()) || {};
+            const started = Date.now();
+            const reqId = (evt && evt.payload && evt.payload.requestId) || null;
+            const ok = (data) => ({ ok: true, data });
+            const err = (code, msg, details) => ({ ok: false, error: { code, msg, details } });
+            const hasAnyRole = async (roles) => {
+              try {
+                for (const r of roles) {
+                  const byOpen = await db.collection('Users').where({ openId: OPENID, role: r }).limit(1).get();
+                  if (byOpen && byOpen.data && byOpen.data.length) return true;
+                }
+              } catch {}
+              return false;
+            };
+            const allowed = await hasAnyRole(['admin','social_worker']);
+            if (!allowed) return err('E_PERM','需要权限');
+            if (action === 'servicesAnalysis') {
+              const p = (evt && evt.payload) || {};
+              const month = String(p.month || '');
+              const ym = /^\d{4}-\d{2}$/.test(month) ? month : (function(){ const d=new Date(); return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}` })();
+              // total services in month
+              let total = 0;
+              try {
+                const r = await db.collection('Services').where({ date: db.RegExp({ regexp: `^${ym}` }) }).count();
+                total = (r.total ?? r.count) || 0;
+              } catch {}
+              const summary = { totalServices: total, completedServices: total, avgRating: 0, mostPopularType: '' };
+              const types = ['visit','psych','goods','referral','followup'];
+              const colors = ['#22c55e','#3b82f6','#f59e0b','#ef4444','#8b5cf6'];
+              let grand = 0; const counts = {}; const items = [];
+              for (let i=0;i<types.length;i++) {
+                const t = types[i]; let c = 0;
+                try { const r = await db.collection('Services').where({ type: t, date: db.RegExp({ regexp: `^${ym}` }) }).count(); c = (r.total ?? r.count) || 0 } catch {}
+                counts[t] = c; grand += c;
+              }
+              types.forEach((t,i) => items.push({ type: t, count: counts[t]||0, percentage: grand? Math.round((counts[t]||0)/grand*100) : 0, color: colors[i%colors.length] }));
+              if (grand>0) summary.mostPopularType = items.slice().sort((a,b)=>b.count-a.count)[0].type;
+              try { await db.collection('Metrics').add({ data: { ns:'stats', action:'servicesAnalysis', ok:true, duration: Date.now()-started, requestId: reqId, actorId: OPENID||null, ts: Date.now(), ym } }) } catch {}
+              return ok({ summary, byType: items, byWorker: [], ratingTrend: [] });
+            }
+            if (action === 'tenancyAnalysis') {
+              const out = { summary: { totalBeds:0, occupiedBeds:0, occupancyRate:0, avgStayDuration:0 }, occupancyTrend: [], roomUtilization: [], stayDuration: [] };
+              try { await db.collection('Metrics').add({ data: { ns:'stats', action:'tenancyAnalysis', ok:true, duration: Date.now()-started, requestId: reqId, actorId: OPENID||null, ts: Date.now() } }) } catch {}
+              const sub = String((evt && evt.payload && evt.payload.type) || '');
+              if (sub === 'summary') return ok(out.summary);
+              if (sub === 'occupancy-trend') return ok(out.occupancyTrend);
+              if (sub === 'room-utilization') return ok(out.roomUtilization);
+              if (sub === 'stay-duration') return ok(out.stayDuration);
+              return ok(out);
+            }
+            if (action === 'activityAnalysis') {
+              const out = { summary: { totalActivities:0, totalParticipants:0, avgParticipationRate:0, mostPopularActivity:'' }, participationTrend: [], byType: [], byAge: [] };
+              try { await db.collection('Metrics').add({ data: { ns:'stats', action:'activityAnalysis', ok:true, duration: Date.now()-started, requestId: reqId, actorId: OPENID||null, ts: Date.now() } }) } catch {}
+              const sub = String((evt && evt.payload && evt.payload.type) || '');
+              if (sub === 'summary') return ok(out.summary);
+              if (sub === 'participation-trend') return ok(out.participationTrend);
+              if (sub === 'by-type') return ok(out.byType);
+              if (sub === 'participants-by-age') return ok(out.byAge);
+              return ok(out);
+            }
+          }
+        } catch (e) {
+          // fall through to original
+        }
+        return await __origMain(event);
+      };
+    }
+  } catch(_e) {}
+})();

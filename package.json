@@ -15,6 +15,7 @@
     "deploy:stats": "tcb fn deploy stats -e cloud1-3grb87gwaba26b64 --dir ./functions/stats --force",
     "deploy:permissions": "tcb fn deploy permissions -e cloud1-3grb87gwaba26b64 --dir ./functions/permissions --force",
     "deploy:users": "tcb fn deploy users -e cloud1-3grb87gwaba26b64 --dir ./functions/users --force",
+    "deploy:observability": "tcb fn deploy observability -e cloud1-3grb87gwaba26b64 --dir ./functions/observability --force",
     "deploy:exports": "tcb fn deploy exports -e cloud1-3grb87gwaba26b64 --dir ./functions/exports --force",
     "deploy:tenancies": "tcb fn deploy tenancies -e cloud1-3grb87gwaba26b64 --dir ./functions/tenancies --force",
     "deploy:importxlsx": "tcb fn deploy import-xlsx -e cloud1-3grb87gwaba26b64 --dir ./functions/import-xlsx --force",

@@ -42,7 +42,51 @@ export const api = {
       call('permissions', 'request.approve', { id, expiresAt, requestId }),
     reject: (id, reason, requestId) =>
       call('permissions', 'request.reject', { id, reason, requestId }),
-    list: (q) => call('permissions', 'request.list', q)
+    list: async (q = {}) => {
+      // 统一返回形状：{ items, hasMore }
+      // 后端当前返回数组（无 meta），此处以 pageSize 猜测 hasMore
+      const page = q.page || 1
+      const pageSize = q.pageSize || 20
+      // 允许顶层 status → 后端 filter.status
+      const payload = { ...q }
+      if (q.status) {
+        payload.filter = Object.assign({}, q.filter || {}, { status: q.status })
+        delete payload.status
+      }
+      const res = await call('permissions', 'request.list', payload)
+      const items = Array.isArray(res) ? res : (res && res.items) || []
+      const hasMore = Array.isArray(res?.items) && typeof res?.hasMore === 'boolean'
+        ? !!res.hasMore
+        : (Array.isArray(items) ? items.length >= pageSize && page >= 1 : false)
+      return { items, hasMore }
+    }
+    ,process: async ({ requestId, action, reason }, reqId) => {
+      // 映射 approve/reject
+      if (action === 'approve') {
+        return call('permissions', 'request.approve', { id: requestId, requestId: reqId })
+      }
+      if (action === 'reject') {
+        return call('permissions', 'request.reject', { id: requestId, reason, requestId: reqId })
+      }
+      throw Object.assign(new Error('不支持的操作'), { code: 'E_ACTION' })
+    }
+    ,createRequest: async ({ patientId, fields, reason, duration }, requestId) => {
+      // duration → expiresDays 粗略映射：1d|3d|7d|15d → 1|3|7|15（天）
+      const map = { '1d': 1, '3d': 3, '7d': 7, '15d': 15 }
+      const expiresDays = map[duration] || 7
+      return call('permissions', 'request.submit', { patientId, fields, reason, expiresDays: String(expiresDays), requestId })
+    }
+    ,getPatientPermissions: async (patientId) => {
+      // 汇总当前用户对某患者的权限状态
+      const { items } = await api.permissions.list({ page: 1, pageSize: 50, filter: { patientId } })
+      const now = Date.now()
+      const approved = items.filter(it => it.status === 'approved' && (!it.expiresAt || it.expiresAt > now))
+      const pending = items.filter(it => it.status === 'pending')
+      const rejected = items.filter(it => it.status === 'rejected')
+      const expiresAt = approved.length ? Math.min(...approved.map(it => it.expiresAt || now)) : null
+      const status = approved.length ? 'approved' : (pending.length ? 'pending' : (rejected.length ? 'rejected' : 'none'))
+      return { status, expiresAt, pendingRequests: pending.length }
+    }
   },
   users: {
     getProfile: () => call('users', 'getProfile'),
@@ -64,6 +108,7 @@ export const api = {
     list: (q) => call('activities','list', q),
     get: (id) => call('activities','get', { id }),
     create: (activity, clientToken) => callWithRetry('activities','create', { activity, clientToken })
+    ,update: (id, patch) => call('activities','update', { id, patch })
   },
   registrations: {
     list: (q) => call('registrations', 'list', q),
@@ -74,7 +119,13 @@ export const api = {
     checkIn: (activityId, userId) => call('registrations', 'checkin', { activityId, userId })
   },
   audits: {
-    list: (q) => call('audits','list', q)
+    list: async (q = {}) => {
+      // 适配返回：后端 { items, meta } → { items, hasMore }
+      const res = await call('audits','list', q)
+      const items = res?.items || []
+      const hasMore = (res?.meta && typeof res.meta.hasMore === 'boolean') ? !!res.meta.hasMore : false
+      return { items, hasMore }
+    }
   },
   exports: {
     create: (type, params = {}, clientToken, requestId) => {
@@ -91,6 +142,9 @@ export const api = {
     homeSummary: (payload = {}) => call('stats','homeSummary', payload),
     monthly: (scope, month) => call('stats','monthly', { scope, month }),
     yearly: (scope, year) => call('stats','yearly', { scope, year })
+    ,servicesAnalysis: (type, params = {}) => call('stats','servicesAnalysis', { type, ...params })
+    ,tenancyAnalysis: (type, params = {}) => call('stats','tenancyAnalysis', { type, ...params })
+    ,activityAnalysis: (type, params = {}) => call('stats','activityAnalysis', { type, ...params })
   }
 }
 export const mapError = (code) => ({
