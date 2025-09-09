@@ -1,5 +1,5 @@
 # Story: EP-05-S3 导出历史列表（Export Tasks History）
-Status: Draft
+Status: In Progress
 
 ## Story
 - As: 管理员/社工
@@ -45,12 +45,12 @@ Status: Draft
 
 ## Tasks
 - BE（S-M）
-  - `functions/exports`：新增 `history({ page,pageSize })`（RBAC+分页+按 createdBy 过滤）
+  - [x] `functions/exports`：新增 `history({ page,pageSize })`（RBAC+分页+按 createdBy 过滤）
 - FE（S）
-  - `services/api.js`：增加 `exports.history(params)`
-  - `pages/exports/index.js`：接入历史加载/刷新/空态；复制链接
+  - [x] `services/api.js`：增加 `exports.history(params)`
+  - [x] `pages/exports/index.js`：接入历史加载/刷新/空态；复制链接
 - QA（S）
-  - 授权/未授权访问；分页与 hasMore；复制链接
+  - [ ] 授权/未授权访问；分页与 hasMore；复制链接
 
 ## 验收清单
 - [ ] 授权用户能看到自己的导出历史（倒序），未授权返回 `E_PERM`
@@ -69,6 +69,35 @@ Status: Draft
 - [ ] AC 全通过；
 - [ ] 文档与 QA 用例更新；
 - [ ] 审计策略（可选）。
+
+---
+
+## Dev Agent Record
+
+### Agent Model Used
+dev (James)
+
+### Tasks / Subtasks Checkboxes
+- [x] 后端 `exports.history`：分页/排序/过滤 createdBy；返回 `{ items, hasMore }`
+- [x] 前端导出页：`loadExportHistory()` 兼容对象形状并规范显示
+- [x] API 层：新增 `api.exports.history`
+- [ ] QA：授权/未授权/分页/复制用例
+
+### Debug Log References
+- Updated `functions/exports/index.ts`: add `history` action using paginate
+- Updated `miniprogram/services/api.js`: add `exports.history`
+- Updated `miniprogram/pages/exports/index.js`: load and render history list
+
+### Completion Notes List
+- 历史列表可展示；hasMore 预留（后续可加分页加载）
+
+### File List
+- Modified: `functions/exports/index.ts`
+- Modified: `miniprogram/services/api.js`
+- Modified: `miniprogram/pages/exports/index.js`
+
+### Status
+Ready for Review
 
 ## 自检清单（Story Draft Checklist）
 - [x] Story: As / I want / So that 明确

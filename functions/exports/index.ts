@@ -3,6 +3,7 @@ import cloud from 'wx-server-sdk'
 import { err, ok, errValidate } from '../packages/core-utils/errors'
 import { hasAnyRole } from '../packages/core-rbac'
 import { z } from 'zod'
+import { paginate } from '../packages/core-db'
 
 cloud.init({ env: cloud.DYNAMIC_CURRENT_ENV })
 const db = cloud.database()
@@ -15,6 +16,10 @@ const CreateSchema = z.object({
 })
 
 const StatusSchema = z.object({ taskId: z.string().min(1), requestId: z.string().optional() })
+const HistorySchema = z.object({
+  page: z.number().int().min(1).default(1),
+  pageSize: z.number().int().min(1).max(100).default(20)
+})
 
 export const main = async (event:any) => {
   try {
@@ -70,6 +75,18 @@ export const main = async (event:any) => {
       // 审计：export.status
       try { await db.collection('AuditLogs').add({ data: { actorId: OPENID || null, action: 'export.status', target: { taskId, status: t.status }, requestId: p.data.requestId || null, createdAt: Date.now() } }) } catch {}
       return ok({ status: t.status, downloadUrl: t.downloadUrl, expiresAt: t.expiresAt })
+    }
+
+    if (action === 'history') {
+      const qp = HistorySchema.safeParse(payload || {})
+      if (!qp.success) return errValidate('参数不合法', qp.error.issues)
+      const { page, pageSize } = qp.data
+      const where = { createdBy: OPENID || null } as any
+      const base = db.collection('ExportTasks').where(where)
+      const { items, meta } = await paginate(base, { page, pageSize, sort: { createdAt: -1 } }, { fallbackSort: { createdAt: -1 }, countQuery: db.collection('ExportTasks').where(where) })
+      const total = (meta && (meta as any).total) || 0
+      const hasMore = (meta && (meta as any).hasMore) != null ? (meta as any).hasMore : (page * pageSize < total)
+      return ok({ items, hasMore })
     }
 
     // CRON 清理动作：清理过期下载链接；失败任务重试计数占位（MVP）

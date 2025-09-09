@@ -310,10 +310,37 @@ Page({
   // 加载导出历史
   async loadExportHistory() {
     try {
-      const history = await api.exports.history()
-      this.setData({ exportHistory: Array.isArray(history) ? history : [] })
+      const res = await api.exports.history({ page: 1, pageSize: 20 })
+      const items = Array.isArray(res) ? res : (Array.isArray(res?.items) ? res.items : [])
+      // 规范化展示字段
+      const normalized = items.map(it => ({
+        id: it._id || it.id || '',
+        templateName: it.type || '导出任务',
+        templateIcon: '📄',
+        createdAt: this.formatTs(it.createdAt),
+        createdBy: it.createdBy || '',
+        status: it.status || '',
+        statusText: (it.status === 'done' ? '已完成' : it.status === 'failed' ? '失败' : it.status === 'running' ? '处理中' : '等待中'),
+        downloadUrl: it.downloadUrl || ''
+      }))
+      this.setData({ exportHistory: normalized })
     } catch (e) {
       console.warn('Failed to load export history:', e)
+    }
+  },
+
+  formatTs(ts) {
+    if (!ts) return ''
+    try {
+      const d = new Date(typeof ts === 'number' ? ts : Number(ts))
+      const y = d.getFullYear()
+      const m = String(d.getMonth()+1).padStart(2,'0')
+      const day = String(d.getDate()).padStart(2,'0')
+      const hh = String(d.getHours()).padStart(2,'0')
+      const mm = String(d.getMinutes()).padStart(2,'0')
+      return `${y}-${m}-${day} ${hh}:${mm}`
+    } catch {
+      return ''
     }
   },
 
