@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "Empty/Error 演示",
+  "usingComponents": {
+    "empty-state": "../../components/empty-state/index",
+    "error-view": "../../components/error-view/index"
+  }
+}

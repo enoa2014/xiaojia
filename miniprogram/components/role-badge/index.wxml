@@ -1,0 +1,3 @@
+<view class="role-badge role-badge--{{roleClassKey}} role-badge--{{size}}" role="{{ariaRole}}" aria-label="{{ariaLabel}}">
+  <text class="role-badge__text">{{displayText}}</text>
+</view>

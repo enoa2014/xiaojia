@@ -1,0 +1,24 @@
+<view class="action-card {{disabled ? 'disabled' : ''}} {{loading ? 'loading' : ''}}"
+      hover-class="{{disabled || loading ? '' : 'hover'}}"
+      bindtap="{{disabled || loading ? '' : '_onTap'}}"
+      role="button"
+      aria-label="{{ariaLabel}}"
+      aria-disabled="{{disabled || loading}}">
+  
+  <view class="card-content">
+    <!-- 图标区域 -->
+    <view class="action-icon" wx:if="{{icon}}">{{icon}}</view>
+    
+    <!-- 信息区域 -->
+    <view class="action-info">
+      <text class="action-title">{{title}}</text>
+      <text class="action-desc" wx:if="{{desc}}">{{desc}}</text>
+    </view>
+  </view>
+  
+  <!-- 右侧指示器 -->
+  <view class="card-indicator">
+    <view class="loading-spinner" wx:if="{{loading}}"></view>
+    <text class="card-arrow" wx:else>›</text>
+  </view>
+</view>

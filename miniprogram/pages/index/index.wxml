@@ -21,7 +21,7 @@
     <view class="user-info">
       <view class="name-role-row">
         <text class="user-name">{{user.name}}</text>
-        <view class="role-badge role-{{user.roleKey}}">{{user.roleName}}</view>
+        <role-badge roleKey="{{user.roleKey}}" size="sm"></role-badge>
       </view>
       <view class="permissions-row">
         <text class="perm-text">{{user.permText}}</text>
@@ -52,24 +52,23 @@
 <view class="quick-actions-section" wx:if="{{!loading}}">
   <view class="section-header">
     <text class="section-title">📌 快速操作</text>
-    <view class="role-indicator">{{user.roleName}}</view>
+    <role-badge roleKey="{{user.roleKey}}" size="sm"></role-badge>
   </view>
   
   <view class="actions-grid">
     <block wx:for="{{actions}}" wx:key="key" wx:for-index="index">
-      <view class="action-card {{selectedActionKey===item.key?'selected':''}}" 
-            bindtap="onAction" 
-            data-key="{{item.key}}"
-            wx:if="{{index < 4}}">
-        <view class="card-content">
-          <view class="action-icon">{{item.icon}}</view>
-          <view class="action-info">
-            <text class="action-title">{{item.title}}</text>
-            <text class="action-subtitle">{{item.subtitle}}</text>
-          </view>
-        </view>
-        <view class="card-arrow">›</view>
-      </view>
+      <action-card
+        title="{{item.title}}"
+        desc="{{item.subtitle}}"
+        icon="{{item.icon}}"
+        disabled="{{item.disabled || false}}"
+        loading="{{item.loading || false}}"
+        custom-data="{{item}}"
+        bindtap="onAction"
+        data-key="{{item.key}}"
+        wx:if="{{index < 4}}"
+        class="{{selectedActionKey===item.key?'selected':''}}">
+      </action-card>
     </block>
   </view>
   
@@ -96,19 +95,15 @@
                show-scrollbar="false">
     <view class="stats-container">
       <block wx:for="{{stats}}" wx:key="key" wx:for-index="index">
-        <view class="stat-card gradient-{{index % 4}}">
-          <view class="card-header">
-            <view class="stat-icon">{{item.icon}}</view>
-            <view class="trend-indicator {{item.change && item.change.indexOf('+')===0 ? 'up' : 'down'}}" wx:if="{{item.change}}">
-              <text class="trend-arrow">{{item.change && item.change.indexOf('+')===0 ? '↗' : '↘'}}</text>
-            </view>
-          </view>
-          <view class="card-body">
-            <text class="stat-label">{{item.label}}</text>
-            <text class="stat-value">{{item.value}}</text>
-            <text class="stat-change" wx:if="{{item.change}}">{{item.change}} 较上期</text>
-          </view>
-        </view>
+        <stat-card 
+          value="{{item.value}}"
+          label="{{item.label}}{{item.change ? ' (' + item.change + ' 较上期)' : ''}}"
+          icon="{{item.icon}}"
+          variant="{{index % 4 === 0 ? 'primary' : (index % 4 === 1 ? 'success' : (index % 4 === 2 ? 'warning' : 'info'))}}"
+          loading="{{loading}}"
+          empty="{{!item.value || item.value === '0'}}"
+          class="index-stat-card">
+        </stat-card>
       </block>
       
       <!-- 占位卡片确保最后一个卡片有右边距 -->
@@ -155,10 +150,14 @@
       </view>
     </block>
     
-    <view class="empty-tasks" wx:if="{{tasks.length === 0}}">
-      <text class="empty-icon">✅</text>
-      <text class="empty-text">暂无待办事项</text>
-    </view>
+    <empty-state
+      wx:if="{{tasks.length === 0}}"
+      show="{{true}}"
+      icon="✅"
+      title="暂无待办事项"
+      description=""
+      variant="compact">
+    </empty-state>
   </view>
 </view>
 
@@ -185,10 +184,14 @@
       </view>
     </block>
     
-    <view class="empty-updates" wx:if="{{updates.length === 0}}">
-      <text class="empty-icon">📰</text>
-      <text class="empty-text">暂无动态</text>
-    </view>
+    <empty-state
+      wx:if="{{updates.length === 0}}"
+      show="{{true}}"
+      icon="📰"
+      title="暂无动态"
+      description=""
+      variant="compact">
+    </empty-state>
   </view>
 </view>
 

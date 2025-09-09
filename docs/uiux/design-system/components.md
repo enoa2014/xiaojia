@@ -50,9 +50,108 @@
 - 可触达区域：高度≥88rpx；间距≥8rpx
 
 ## 专用组件
-- RoleBadge：根据角色显示颜色+图标；用于用户卡片/列表
+
+### RoleBadge 角色徽章
+用于统一显示用户角色标识的组件，基于设计系统token实现。
+
+**属性（Properties）**
+- `roleKey` (String): 角色标识符，支持 `admin | social | volunteer | parent`
+- `size` (String): 尺寸规格，支持 `sm | md`，默认 `md` 
+- `text` (String): 可选的自定义文本，未设置时使用默认角色名
+
+**尺寸规格**
+- `sm`: 最小高度 60rpx，字号 var(--font-caption)，内边距 var(--space-1) var(--space-2)
+- `md`: 最小高度 88rpx，字号 var(--font-body)，内边距 var(--space-2) var(--space-3)
+
+**角色颜色映射**
+- 管理员 (`admin`): var(--role-admin) #7C3AED 紫色
+- 社工 (`social`): var(--role-social) #2563EB 蓝色  
+- 志愿者 (`volunteer`): var(--role-volunteer) #F59E0B 橙色
+- 家长 (`parent`): var(--role-parent) #EC4899 粉色
+
+**无障碍访问**
+- role="badge"属性用于屏幕阅读器识别
+- aria-label动态生成完整描述
+- 最小触摸区域88rpx符合无障碍标准
+- 文本对比度≥4.5:1
+
+**使用示例**
+```wxml
+<!-- 基础用法 -->
+<role-badge roleKey="admin"></role-badge>
+
+<!-- 小尺寸 -->  
+<role-badge roleKey="social" size="sm"></role-badge>
+
+<!-- 自定义文本 -->
+<role-badge roleKey="volunteer" text="资深志愿者"></role-badge>
+```
+
+**实现位置**
+`miniprogram/components/role-badge/`
+
+### StatCard 统计卡片组件
+用于统一显示统计类数值的卡片组件，支持多种状态和变体，符合设计系统规范。
+
+**属性（Properties）**
+- `value` (String): 显示的主要数值，如 "125" 或 "99.5%"
+- `label` (String): 数值标签说明，如 "总用户数" 或 "完成率"
+- `icon` (String): 可选图标emoji，显示在卡片顶部
+- `variant` (String): 视觉变体，支持 `default | primary | success | warning | danger | info`
+- `loading` (Boolean): 加载状态，显示骨架屏动画
+- `empty` (Boolean): 空状态，显示空数据占位符
+
+**尺寸规格**
+- 最小高度：200rpx
+- 内边距：24rpx
+- 圆角：16rpx（var(--radius-lg)）
+- 主数值：48rpx，字重 600
+- 标签文本：20rpx，颜色 var(--gray-500)
+- 图标尺寸：48rpx
+
+**变体颜色**
+- `default`: 白色背景，文本 var(--text-primary)
+- `primary`: 绿色渐变 #22C55E → #34D399，白色文本
+- `success`: 成功绿色渐变 #16A34A → #22C55E，白色文本
+- `warning`: 警告橙色渐变 #F59E0B → #FBBF24，白色文本
+- `danger`: 危险红色渐变 #EF4444 → #F87171，白色文本
+- `info`: 信息蓝色渐变 #3B82F6 → #60A5FA，白色文本
+
+**状态规格**
+- **加载状态**：显示骨架屏动画，1.5s无限循环，禁用点击
+- **空状态**：显示📊图标和"暂无数据"文本，禁用点击
+- **正常状态**：支持点击交互，缩放反馈 scale(0.98)
+
+**无障碍访问**
+- 点击区域最小88rpx符合触摸标准
+- 支持点击事件触发，传递value/label/variant数据
+- 合理的颜色对比度≥4.5:1（白色文本在彩色背景上）
+
+**使用示例**
+```wxml
+<!-- 基础用法 -->
+<stat-card value="125" label="总用户数" icon="👥"></stat-card>
+
+<!-- 带变体 -->
+<stat-card value="98.5%" label="成功率" icon="✅" variant="success"></stat-card>
+
+<!-- 加载状态 -->
+<stat-card loading="{{true}}" label="加载中"></stat-card>
+
+<!-- 空状态 -->
+<stat-card empty="{{true}}" label="暂无数据"></stat-card>
+```
+
+**实现位置**
+`miniprogram/components/stat-card/`
+
+**替换说明**
+本组件已替换原有页面中的自定义KPI卡片实现：
+- `pages/stats/index` KPI关键指标区域
+- `pages/stats/index` 快速统计区域  
+- `pages/index/index` 数据总览区域
+
 - MaskedField：默认显示掩码（如 `***1234`）；点击无权限时引导到申请页
-- KPI Card：统计卡（数值 28rpx，标签 20rpx，图标可选）
 - Chart 容器：留出 24rpx 内边距；空数据占位
 
 实现建议

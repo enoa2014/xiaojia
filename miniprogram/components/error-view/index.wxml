@@ -1,0 +1,43 @@
+<view class="error-view {{variant}}" wx:if="{{show}}" role="alert" aria-label="{{title || '错误'}}">
+  <view class="error-content">
+    <!-- 错误图标区域 -->
+    <view class="error-illustration">
+      <text class="error-icon">{{icon || '😔'}}</text>
+    </view>
+    
+    <!-- 错误信息区域 -->
+    <view class="error-text">
+      <text class="error-title">{{title || '加载失败'}}</text>
+      <text class="error-message" wx:if="{{message}}">{{message}}</text>
+      <text class="error-detail" wx:if="{{detail && showDetail}}">{{detail}}</text>
+    </view>
+    
+    <!-- 操作按钮区域 -->
+    <view class="error-actions">
+      <button 
+        class="error-action primary" 
+        wx:if="{{retryText}}"
+        disabled="{{retrying}}"
+        aria-disabled="{{retrying}}"
+        bindtap="_onRetry">
+        <text class="action-icon" wx:if="{{retrying}}">🔄</text>
+        <text class="action-icon" wx:elif="{{retryIcon}}">{{retryIcon}}</text>
+        <text class="action-text">{{retrying ? '重试中...' : retryText}}</text>
+      </button>
+      
+      <button 
+        class="error-action secondary" 
+        wx:if="{{feedbackText}}"
+        bindtap="_onFeedback">
+        <text class="action-text">{{feedbackText}}</text>
+      </button>
+      
+      <button 
+        class="error-action link" 
+        wx:if="{{showDetail !== undefined}}"
+        bindtap="_toggleDetail">
+        <text class="action-text">{{showDetail ? '收起详情' : '查看详情'}}</text>
+      </button>
+    </view>
+  </view>
+</view>

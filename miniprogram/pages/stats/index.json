@@ -1,1 +1,10 @@
-{ "navigationBarTitleText": "统计", "enablePullDownRefresh": true }
+{
+  "navigationBarTitleText": "统计",
+  "enablePullDownRefresh": true,
+  "usingComponents": {
+    "role-badge": "../../components/role-badge/index",
+    "stat-card": "../../components/stat-card/index",
+    "empty-state": "../../components/empty-state/index",
+    "error-view": "../../components/error-view/index"
+  }
+}

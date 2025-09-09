@@ -1,0 +1,28 @@
+<view class="stat-card stat-card--{{variantClass}} {{loading ? 'stat-card--loading' : ''}} {{empty ? 'stat-card--empty' : ''}}"
+      role="{{ariaRole}}" aria-label="{{ariaLabel}}" bindtap="onTap">
+  
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="stat-card__skeleton">
+    <view class="skeleton skeleton--icon"></view>
+    <view class="skeleton skeleton--label"></view>
+    <view class="skeleton skeleton--value"></view>
+  </view>
+
+  <!-- 空状态 -->
+  <view wx:elif="{{empty}}" class="stat-card__empty">
+    <text class="stat-card__empty-icon">📊</text>
+    <text class="stat-card__empty-text">暂无数据</text>
+  </view>
+
+  <!-- 正常状态 -->
+  <view wx:else class="stat-card__content">
+    <view class="stat-card__header" wx:if="{{icon}}">
+      <text class="stat-card__icon">{{icon}}</text>
+    </view>
+    
+    <view class="stat-card__body">
+      <text class="stat-card__label">{{label}}</text>
+      <text class="stat-card__value">{{value}}</text>
+    </view>
+  </view>
+</view>

@@ -3,5 +3,9 @@
   "enablePullDownRefresh": true,
   "navigationBarBackgroundColor": "#22C55E",
   "navigationBarTextStyle": "white",
-  "backgroundColor": "#f5f7fa"
+  "backgroundColor": "#f5f7fa",
+  "usingComponents": {
+    "role-badge": "../../components/role-badge/index",
+    "empty-state": "../../components/empty-state/index"
+  }
 }

@@ -1,0 +1,6 @@
+{
+  "navigationBarTitleText": "RoleBadge Demo",
+  "usingComponents": {
+    "role-badge": "../../components/role-badge/index"
+  }
+}

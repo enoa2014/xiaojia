@@ -1,0 +1,214 @@
+/* ErrorView 组件样式 - 基于设计系统tokens */
+
+.error-view {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-6);
+  min-height: 400rpx;
+}
+
+.error-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 480rpx;
+  width: 100%;
+}
+
+/* 错误图标区域 */
+.error-illustration {
+  margin-bottom: var(--space-6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.error-icon {
+  font-size: 120rpx;
+  line-height: 1;
+  opacity: 0.8;
+  transition: all var(--duration-base) var(--ease-standard);
+}
+
+/* 错误信息区域 */
+.error-text {
+  margin-bottom: var(--space-8);
+}
+
+.error-title {
+  display: block;
+  font-size: var(--font-h2);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+  line-height: var(--lh-tight);
+  margin-bottom: var(--space-3);
+}
+
+.error-message {
+  display: block;
+  font-size: var(--font-body);
+  color: var(--gray-500);
+  line-height: var(--lh-normal);
+  margin-bottom: var(--space-2);
+}
+
+.error-detail {
+  display: block;
+  font-size: var(--font-caption);
+  color: var(--gray-500);
+  line-height: var(--lh-normal);
+  background: var(--gray-50);
+  border: 1rpx solid var(--gray-200);
+  border-radius: var(--radius-md);
+  padding: var(--space-3);
+  margin-top: var(--space-3);
+  word-break: break-all;
+  font-family: monospace;
+}
+
+/* 操作按钮区域 */
+.error-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.error-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 88rpx;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-body);
+  font-weight: var(--weight-medium);
+  transition: all var(--duration-base) var(--ease-standard);
+  border: none;
+  cursor: pointer;
+}
+
+.error-action.primary {
+  background: var(--color-danger-600);
+  color: var(--text-on-primary);
+}
+
+.error-action.primary:not([disabled]):active {
+  background: #DC2626;
+  transform: scale(0.98);
+}
+
+.error-action.secondary {
+  background: transparent;
+  color: var(--gray-500);
+  border: 2rpx solid var(--gray-300);
+}
+
+.error-action.secondary:not([disabled]):active {
+  background: var(--gray-50);
+  border-color: var(--gray-400);
+  transform: scale(0.98);
+}
+
+.error-action.link {
+  background: transparent;
+  color: var(--color-primary-600);
+  border: none;
+  min-height: 64rpx;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-caption);
+}
+
+.error-action.link:active {
+  color: var(--color-primary-700);
+  transform: scale(0.98);
+}
+
+.error-action[disabled] {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.action-icon {
+  font-size: var(--font-h3);
+  line-height: 1;
+}
+
+.error-action.primary .action-icon {
+  animation: spin 1s linear infinite;
+}
+
+.action-text {
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 变体样式 */
+.error-view.compact {
+  min-height: 300rpx;
+  padding: var(--space-6) var(--space-4);
+}
+
+.error-view.compact .error-icon {
+  font-size: 80rpx;
+  margin-bottom: var(--space-4);
+}
+
+.error-view.compact .error-title {
+  font-size: var(--font-body);
+  margin-bottom: var(--space-2);
+}
+
+.error-view.compact .error-message {
+  font-size: var(--font-caption);
+}
+
+.error-view.compact .error-actions {
+  flex-direction: row;
+  justify-content: center;
+}
+
+.error-view.compact .error-action {
+  min-height: 64rpx;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-caption);
+}
+
+/* 错误类型变体 */
+.error-view.network .error-icon {
+  opacity: 0.6;
+}
+
+.error-view.auth .error-action.primary {
+  background: var(--color-warning-600);
+}
+
+.error-view.permission .error-action.primary {
+  background: var(--color-info-600);
+}
+
+/* 响应式调整 */
+@media screen and (max-width: 750rpx) {
+  .error-view {
+    padding: var(--space-6) var(--space-4);
+    min-height: 320rpx;
+  }
+  
+  .error-icon {
+    font-size: 100rpx;
+  }
+  
+  .error-actions {
+    flex-direction: column;
+  }
+}

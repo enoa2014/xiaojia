@@ -1,0 +1,116 @@
+/* Empty/Error 演示页面样式 */
+
+.page {
+  padding-bottom: 120rpx;
+  background-color: var(--gradient-page);
+}
+
+/* 导航头部 */
+.nav-header {
+  background: var(--gradient-primary);
+  color: white;
+  padding: 24rpx;
+  margin-bottom: 24rpx;
+}
+
+.brand {
+  font-size: var(--font-xl);
+  font-weight: var(--weight-bold);
+  text-align: center;
+}
+
+/* 演示区域 */
+.demo-section {
+  margin: 0 24rpx 32rpx;
+}
+
+.section-header {
+  margin-bottom: 24rpx;
+}
+
+.section-title {
+  font-size: var(--font-h1);
+  font-weight: var(--weight-bold);
+  color: var(--text-primary);
+}
+
+/* 演示分组 */
+.demo-group {
+  margin-bottom: 32rpx;
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  box-shadow: var(--shadow-sm);
+}
+
+.group-title {
+  display: block;
+  font-size: var(--font-h3);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+  padding: 16rpx 24rpx;
+  background: var(--gray-50);
+  border-bottom: 1rpx solid var(--gray-200);
+}
+
+/* 使用说明 */
+.usage-info {
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: 24rpx;
+  box-shadow: var(--shadow-sm);
+}
+
+.info-title {
+  display: block;
+  font-size: var(--font-h3);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+  margin-bottom: 8rpx;
+  margin-top: 16rpx;
+}
+
+.info-title:first-child {
+  margin-top: 0;
+}
+
+.info-content {
+  display: block;
+  font-size: var(--font-body);
+  color: var(--gray-500);
+  line-height: var(--lh-normal);
+  margin-bottom: 12rpx;
+  white-space: pre-line;
+}
+
+/* 操作日志 */
+.log-container {
+  height: 300rpx;
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  padding: 16rpx;
+  box-shadow: var(--shadow-sm);
+}
+
+.log-item {
+  display: flex;
+  flex-direction: column;
+  padding: 12rpx 0;
+  border-bottom: 1rpx solid var(--gray-200);
+}
+
+.log-item:last-child {
+  border-bottom: none;
+}
+
+.log-time {
+  font-size: var(--font-caption);
+  color: var(--gray-500);
+  margin-bottom: 4rpx;
+}
+
+.log-content {
+  font-size: var(--font-body);
+  color: var(--text-primary);
+  line-height: var(--lh-normal);
+}

@@ -1,0 +1,27 @@
+<view class="page">
+  <view class="section">
+    <view class="title">基础与变体</view>
+    <view class="grid">
+      <stat-card value="125" label="总用户数" icon="👥" variant="default"></stat-card>
+      <stat-card value="98.5%" label="成功率" icon="✅" variant="success"></stat-card>
+      <stat-card value="12" label="告警" icon="⚠️" variant="warning"></stat-card>
+      <stat-card value="0" label="今日新增" icon="➕" variant="info"></stat-card>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="title">加载与空状态</view>
+    <view class="grid">
+      <stat-card loading="{{true}}" label="加载中" icon="⏳"></stat-card>
+      <stat-card empty="{{true}}" label="暂无数据" icon="📊"></stat-card>
+    </view>
+  </view>
+
+  <view class="section">
+    <view class="title">长文案与大数值</view>
+    <view class="grid">
+      <stat-card value="1234567" label="这是一个非常非常非常长的指标名称" icon="🧾" variant="primary"></stat-card>
+      <stat-card value="999,999" label="峰值 (2025-09-08)" icon="⬆️" variant="danger"></stat-card>
+    </view>
+  </view>
+</view>

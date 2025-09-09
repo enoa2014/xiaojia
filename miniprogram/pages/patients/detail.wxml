@@ -35,6 +35,10 @@
         <view class="patient-condition">
           <text class="condition-tag">{{patient.mainDiagnosis || '待确诊'}}</text>
         </view>
+        <!-- 当前用户角色徽章（展示型） -->
+        <view>
+          <role-badge roleKey="{{role}}" size="sm"></role-badge>
+        </view>
         <view class="patient-location">
           <text class="location-icon">📍</text>
           <text class="location-text">{{patient.bedInfo || '未分配床位'}}</text>
@@ -140,10 +144,14 @@
             </view>
           </view>
         </view>
-        <view class="empty-state" wx:else>
-          <text class="empty-icon">🏠</text>
-          <text class="empty-text">暂无入住记录</text>
-        </view>
+        <empty-state
+          wx:else
+          show="{{true}}"
+          icon="🏠"
+          title="暂无入住记录"
+          description=""
+          variant="compact">
+        </empty-state>
       </view>
     </view>
 
@@ -174,11 +182,17 @@
             </view>
           </view>
         </view>
-        <view class="empty-state" wx:else>
-          <text class="empty-icon">❤️</text>
-          <text class="empty-text">暂无服务记录</text>
-          <button class="empty-action" bindtap="toCreateService">添加首个服务记录</button>
-        </view>
+        <empty-state
+          wx:else
+          show="{{true}}"
+          icon="❤️"
+          title="暂无服务记录"
+          description=""
+          action-text="添加首个服务记录"
+          action-icon="✨"
+          variant="compact"
+          bindaction="onEmptyServiceAction">
+        </empty-state>
       </view>
     </view>
   </view>

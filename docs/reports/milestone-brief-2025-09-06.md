@@ -2,7 +2,7 @@
 
 - Owner: PO/PM（产品） · Reviewer: 架构/QA
 - 范围：MVP 核心域（患者/入住/服务/活动/权限）与支持能力（导入/初始化）
-- 最后更新：2025-09-06
+- 最后更新：2025-09-08
 
 ## 总体进度
 - MVP 核心域已贯通（患者、入住/退住、服务、活动/报名、字段级权限），前后端联通。
@@ -20,6 +20,7 @@
 ## 已交付（前端/小程序）
 - 页面：`patients/{index,detail,form,search}`、`services/{index,form}`、`activities/{index,detail,form}`、`tenancies/{form,checkout}`、`permissions/apply`、`stats/index`、首页工作台。
 - API 封装：`miniprogram/services/api.js` + `callWithRetry`；空/错态与 A11y 落地。
+ - 组件库：RoleBadge（7.4）、StatCard（7.5）、ActionCard（7.6）、Empty/Error（7.7）落地并替换首页/统计/服务/活动/各列表空错态；新增 Demo 页面 `pages/{role-badge-demo,stat-card-demo,action-card-demo,empty-error-demo}`；对应测试计划与 QA 报告已入库。
 
 ## QA & 测试
 - Gate 结果：PASS（EP-01-S1/S2/S3、EP-03-S1/S2、EP-04-S1/S2、EP-06-S1/S2/S3、EP-02-S1/S2）。

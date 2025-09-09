@@ -1,0 +1,111 @@
+<!--pages/action-card-demo/index.wxml-->
+<view class="page">
+  <!-- 导航头部区 -->
+  <view class="nav-header full-bleed">
+    <view class="brand">🎯 ActionCard 组件演示</view>
+  </view>
+
+  <!-- 基础用法 -->
+  <view class="demo-section">
+    <view class="section-header">
+      <text class="section-title">基础用法</text>
+    </view>
+    <view class="demo-grid">
+      <action-card
+        title="基础卡片"
+        desc="只有标题描述"
+        bindtap="onBasicTap">
+      </action-card>
+      
+      <action-card
+        title="带图标"
+        desc="包含图标的卡片"
+        icon="🏠"
+        bindtap="onIconTap">
+      </action-card>
+    </view>
+  </view>
+
+  <!-- 状态演示 -->
+  <view class="demo-section">
+    <view class="section-header">
+      <text class="section-title">状态演示</text>
+    </view>
+    <view class="demo-grid">
+      <action-card
+        title="正常状态"
+        desc="可点击交互"
+        icon="✅"
+        bindtap="onNormalTap">
+      </action-card>
+      
+      <action-card
+        title="禁用状态"
+        desc="无法点击"
+        icon="❌"
+        disabled="{{true}}"
+        bindtap="onDisabledTap">
+      </action-card>
+      
+      <action-card
+        title="加载状态"
+        desc="正在处理中"
+        icon="⏳"
+        loading="{{demoLoading}}"
+        bindtap="onLoadingTap">
+      </action-card>
+    </view>
+  </view>
+
+  <!-- 快速操作演示（模拟首页） -->
+  <view class="demo-section">
+    <view class="section-header">
+      <text class="section-title">快速操作演示</text>
+    </view>
+    <view class="demo-grid">
+      <action-card
+        wx:for="{{quickActions}}"
+        wx:key="key"
+        title="{{item.title}}"
+        desc="{{item.desc}}"
+        icon="{{item.icon}}"
+        disabled="{{item.disabled}}"
+        loading="{{item.loading}}"
+        custom-data="{{item}}"
+        bindtap="onQuickAction">
+      </action-card>
+    </view>
+  </view>
+
+  <!-- 服务类型演示 -->
+  <view class="demo-section">
+    <view class="section-header">
+      <text class="section-title">服务类型演示</text>
+    </view>
+    <view class="demo-list">
+      <action-card
+        wx:for="{{serviceTypes}}"
+        wx:key="key"
+        title="{{item.name}}"
+        desc="{{item.desc}}"
+        icon="{{item.icon}}"
+        custom-data="{{item}}"
+        bindtap="onServiceType"
+        class="service-demo-card">
+      </action-card>
+    </view>
+  </view>
+
+  <!-- 操作日志 -->
+  <view class="demo-section">
+    <view class="section-header">
+      <text class="section-title">操作日志</text>
+    </view>
+    <scroll-view class="log-container" scroll-y="true">
+      <view class="log-item" wx:for="{{actionLogs}}" wx:key="index">
+        <text class="log-time">{{item.time}}</text>
+        <text class="log-content">{{item.content}}</text>
+      </view>
+    </scroll-view>
+  </view>
+</view>

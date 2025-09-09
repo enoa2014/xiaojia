@@ -1,0 +1,36 @@
+<view class="empty-state {{variant}}" wx:if="{{show}}" role="region" aria-label="{{title || '空状态'}}">
+  <view class="empty-content">
+    <!-- 插画区域 -->
+    <view class="empty-illustration">
+      <text class="empty-icon">{{icon || '📭'}}</text>
+    </view>
+    
+    <!-- 文案区域 -->
+    <view class="empty-text">
+      <text class="empty-title">{{title || '暂无内容'}}</text>
+      <text class="empty-description" wx:if="{{description}}">{{description}}</text>
+    </view>
+    
+    <!-- 操作按钮区域 -->
+    <view class="empty-actions" wx:if="{{actionText || secondaryActionText}}">
+      <button 
+        class="empty-action primary" 
+        wx:if="{{actionText}}"
+        disabled="{{actionDisabled}}"
+        aria-disabled="{{actionDisabled}}"
+        bindtap="_onAction">
+        <text class="action-icon" wx:if="{{actionIcon}}">{{actionIcon}}</text>
+        <text class="action-text">{{actionText}}</text>
+      </button>
+      
+      <button 
+        class="empty-action secondary" 
+        wx:if="{{secondaryActionText}}"
+        disabled="{{secondaryActionDisabled}}"
+        aria-disabled="{{secondaryActionDisabled}}"
+        bindtap="_onSecondaryAction">
+        <text class="action-text">{{secondaryActionText}}</text>
+      </button>
+    </view>
+  </view>
+</view>

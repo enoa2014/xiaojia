@@ -1,0 +1,181 @@
+/* EmptyState 组件样式 - 基于设计系统tokens */
+
+.empty-state {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--space-8) var(--space-6);
+  min-height: 400rpx;
+}
+
+.empty-content {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  max-width: 480rpx;
+  width: 100%;
+}
+
+/* 插画区域 */
+.empty-illustration {
+  margin-bottom: var(--space-6);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.empty-icon {
+  font-size: 120rpx;
+  line-height: 1;
+  opacity: 0.6;
+  transition: all var(--duration-base) var(--ease-standard);
+}
+
+/* 文案区域 */
+.empty-text {
+  margin-bottom: var(--space-8);
+}
+
+.empty-title {
+  display: block;
+  font-size: var(--font-h2);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+  line-height: var(--lh-tight);
+  margin-bottom: var(--space-3);
+}
+
+.empty-description {
+  display: block;
+  font-size: var(--font-body);
+  color: var(--gray-500);
+  line-height: var(--lh-normal);
+}
+
+/* 操作按钮区域 */
+.empty-actions {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-3);
+  width: 100%;
+}
+
+.empty-action {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--space-2);
+  min-height: 88rpx;
+  padding: var(--space-3) var(--space-6);
+  border-radius: var(--radius-lg);
+  font-size: var(--font-body);
+  font-weight: var(--weight-medium);
+  transition: all var(--duration-base) var(--ease-standard);
+  border: none;
+  cursor: pointer;
+}
+
+.empty-action.primary {
+  background: var(--color-primary-600);
+  color: var(--text-on-primary);
+}
+
+.empty-action.primary:not([disabled]):active {
+  background: var(--color-primary-700);
+  transform: scale(0.98);
+}
+
+.empty-action.secondary {
+  background: transparent;
+  color: var(--gray-500);
+  border: 2rpx solid var(--gray-300);
+}
+
+.empty-action.secondary:not([disabled]):active {
+  background: var(--gray-50);
+  border-color: var(--gray-400);
+  transform: scale(0.98);
+}
+
+.empty-action[disabled] {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.action-icon {
+  font-size: var(--font-h3);
+  line-height: 1;
+}
+
+.action-text {
+  font-size: inherit;
+  font-weight: inherit;
+  color: inherit;
+}
+
+/* 变体样式 */
+.empty-state.compact {
+  min-height: 300rpx;
+  padding: var(--space-6) var(--space-4);
+}
+
+.empty-state.compact .empty-icon {
+  font-size: 80rpx;
+  margin-bottom: var(--space-4);
+}
+
+.empty-state.compact .empty-title {
+  font-size: var(--font-body);
+  margin-bottom: var(--space-2);
+}
+
+.empty-state.compact .empty-description {
+  font-size: var(--font-caption);
+}
+
+.empty-state.compact .empty-actions {
+  flex-direction: row;
+  justify-content: center;
+}
+
+.empty-state.compact .empty-action {
+  min-height: 64rpx;
+  padding: var(--space-2) var(--space-4);
+  font-size: var(--font-caption);
+}
+
+/* 状态变体 */
+.empty-state.search .empty-icon {
+  opacity: 0.4;
+}
+
+.empty-state.error .empty-icon {
+  opacity: 0.8;
+}
+
+.empty-state.loading .empty-icon {
+  animation: pulse 2s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 0.6; }
+  50% { opacity: 0.3; }
+}
+
+/* 响应式调整 */
+@media screen and (max-width: 750rpx) {
+  .empty-state {
+    padding: var(--space-6) var(--space-4);
+    min-height: 320rpx;
+  }
+  
+  .empty-icon {
+    font-size: 100rpx;
+  }
+  
+  .empty-actions {
+    flex-direction: column;
+  }
+}

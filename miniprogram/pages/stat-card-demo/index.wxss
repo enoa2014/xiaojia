@@ -1,0 +1,8 @@
+page { padding: 16rpx; background: var(--gradient-page); }
+.section { margin-bottom: 24rpx; }
+.title { font-size: var(--font-h2); color: var(--gray-700); margin-bottom: 12rpx; }
+.grid { display: grid; grid-template-columns: 1fr; gap: 16rpx; }
+
+@media (min-width: 480px) {
+  .grid { grid-template-columns: 1fr 1fr; }
+}

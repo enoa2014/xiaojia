@@ -12,7 +12,7 @@
   <!-- 用户状态区 -->
   <view class="user-status">
     <view class="status-left">
-      <text class="role-badge role-{{dashRole}}">{{dashRole === 'admin' ? '👨‍💼 管理员' : dashRole === 'social_worker' ? '👩‍💼 社工' : '👤 用户'}}</text>
+      <role-badge roleKey="{{dashRole}}" size="sm"></role-badge>
       <text class="perm-status">{{permText || '权限正常 ✅'}}</text>
     </view>
     <view class="status-right">
@@ -41,18 +41,15 @@
     <scroll-view class="kpi-scroll" scroll-x="true" enhanced="true" show-scrollbar="false">
       <view class="kpi-container">
         <block wx:for="{{dashItems}}" wx:key="label">
-          <view class="kpi-card gradient-{{index % 4}}">
-            <view class="kpi-header">
-              <text class="kpi-icon">{{item.icon}}</text>
-              <view class="kpi-trend {{item.trend}}">
-                <text class="trend-icon">{{item.trend === 'up' ? '↗' : item.trend === 'down' ? '↘' : '→'}}</text>
-                <text class="trend-text">{{item.change || '+0%'}}</text>
-              </view>
-            </view>
-            <view class="kpi-title">{{item.label}}</view>
-            <view class="kpi-value">{{item.value}}</view>
-            <view class="kpi-subtitle">{{item.subtitle || '较上期'}}</view>
-          </view>
+          <stat-card 
+            value="{{item.value}}"
+            label="{{item.label}}"
+            icon="{{item.icon}}"
+            variant="{{index % 4 === 0 ? 'primary' : (index % 4 === 1 ? 'success' : (index % 4 === 2 ? 'warning' : 'info'))}}"
+            loading="{{loading}}"
+            empty="{{!item.value || item.value === '0'}}"
+            class="kpi-card-wrapper">
+          </stat-card>
         </block>
       </view>
     </scroll-view>
@@ -64,24 +61,38 @@
     <view class="quick-stats">
       <view class="section-title">📈 {{scopes[scopeIndex].label}}趋势分析</view>
       <view class="stats-grid">
-        <view class="stat-item">
-          <text class="stat-label">总计</text>
-          <text class="stat-value">{{total}}</text>
-        </view>
-        <view class="stat-item">
-          <text class="stat-label">均值</text>
-          <text class="stat-value">{{avg}}</text>
-        </view>
-        <view class="stat-item">
-          <text class="stat-label">峰值</text>
-          <text class="stat-value">{{maxValue}}</text>
-          <text class="stat-date">{{maxDate}}</text>
-        </view>
-        <view class="stat-item">
-          <text class="stat-label">低谷</text>
-          <text class="stat-value">{{minValue}}</text>
-          <text class="stat-date">{{minDate}}</text>
-        </view>
+        <stat-card 
+          value="{{total}}" 
+          label="总计" 
+          icon="📊"
+          variant="default"
+          loading="{{loading}}"
+          class="stat-item-card">
+        </stat-card>
+        <stat-card 
+          value="{{avg}}" 
+          label="均值" 
+          icon="📈"
+          variant="info"
+          loading="{{loading}}"
+          class="stat-item-card">
+        </stat-card>
+        <stat-card 
+          value="{{maxValue}}" 
+          label="峰值{{maxDate ? ' (' + maxDate + ')' : ''}}" 
+          icon="⬆️"
+          variant="success"
+          loading="{{loading}}"
+          class="stat-item-card">
+        </stat-card>
+        <stat-card 
+          value="{{minValue}}" 
+          label="低谷{{minDate ? ' (' + minDate + ')' : ''}}" 
+          icon="⬇️"
+          variant="warning"
+          loading="{{loading}}"
+          class="stat-item-card">
+        </stat-card>
       </view>
     </view>
 
@@ -109,19 +120,25 @@
       </view>
     </view>
 
-    <view wx:if="{{items.length===0}}" class="empty-chart">
-      <text class="empty-icon">📊</text>
-      <text class="empty-text">暂无{{scopes[scopeIndex].label}}数据</text>
-      <text class="empty-hint">选择其他时间范围试试</text>
-    </view>
+    <empty-state
+      wx:if="{{items.length===0}}"
+      show="{{true}}"
+      icon="📊"
+      title="暂无{{scopes[scopeIndex].label}}数据"
+      description="选择其他时间范围试试"
+      variant="compact">
+    </empty-state>
   </view>
 
-  <!-- 错误和加载状态 -->
-  <view wx:if="{{error}}" class="error-state">
-    <text class="error-icon">⚠️</text>
-    <text class="error-text">{{error}}</text>
-    <button class="error-retry" bindtap="onRefresh">重试</button>
-  </view>
+  <!-- 错误状态 -->
+  <error-view
+    wx:if="{{error}}"
+    show="{{true}}"
+    error="{{error}}"
+    retry-text="重试"
+    variant="compact"
+    bindretry="onRefresh">
+  </error-view>
 
   <view wx:if="{{loading}}" class="loading-state">
     <view class="loading-spinner"></view>

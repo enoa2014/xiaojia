@@ -1,0 +1,161 @@
+/* ActionCard 组件样式 - 基于设计系统tokens */
+
+.action-card {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  min-height: 88rpx;
+  padding: var(--space-6);
+  background: var(--bg-primary);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+  transition: all var(--duration-base) var(--ease-standard);
+  position: relative;
+  overflow: hidden;
+  cursor: pointer;
+}
+
+/* 顶部渐变条 */
+.action-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3rpx;
+  background: var(--gray-200);
+  transition: all var(--duration-base) var(--ease-standard);
+}
+
+/* 悬停状态 */
+.action-card.hover {
+  transform: translateY(-2rpx) scale(0.98);
+  box-shadow: var(--shadow-md);
+}
+
+.action-card.hover::before {
+  background: var(--gradient-primary);
+  height: 4rpx;
+}
+
+/* 内容区域 */
+.card-content {
+  display: flex;
+  align-items: center;
+  flex: 1;
+  min-width: 0;
+}
+
+/* 图标 */
+.action-icon {
+  font-size: 32rpx;
+  margin-right: var(--space-4);
+  flex-shrink: 0;
+  line-height: 1;
+}
+
+/* 文本信息 */
+.action-info {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+}
+
+.action-title {
+  font-size: var(--font-h3);
+  font-weight: var(--weight-medium);
+  color: var(--text-primary);
+  line-height: var(--lh-tight);
+  margin-bottom: var(--space-1);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.action-desc {
+  font-size: var(--font-caption);
+  color: var(--gray-500);
+  line-height: var(--lh-normal);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+/* 右侧指示器 */
+.card-indicator {
+  margin-left: var(--space-4);
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 24rpx;
+  height: 24rpx;
+}
+
+.card-arrow {
+  font-size: 24rpx;
+  color: var(--gray-500);
+  font-weight: var(--weight-medium);
+  line-height: 1;
+}
+
+/* 加载状态 */
+.action-card.loading {
+  cursor: not-allowed;
+}
+
+.loading-spinner {
+  width: 20rpx;
+  height: 20rpx;
+  border: 2rpx solid var(--gray-300);
+  border-top: 2rpx solid var(--color-primary-600);
+  border-radius: 50%;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* 禁用状态 */
+.action-card.disabled {
+  opacity: var(--opacity-disabled);
+  cursor: not-allowed;
+  transform: none !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+.action-card.disabled::before {
+  background: var(--gray-200) !important;
+  height: 3rpx !important;
+}
+
+.action-card.disabled .action-title {
+  color: var(--gray-500);
+}
+
+.action-card.disabled .action-desc {
+  color: var(--gray-300);
+}
+
+.action-card.disabled .card-arrow {
+  color: var(--gray-300);
+}
+
+/* 响应式调整 */
+@media screen and (max-width: 750rpx) {
+  .action-card {
+    padding: var(--space-4);
+  }
+  
+  .action-icon {
+    font-size: 28rpx;
+    margin-right: var(--space-3);
+  }
+  
+  .action-title {
+    font-size: var(--font-body);
+  }
+}

@@ -305,12 +305,17 @@
   </view>
 
   <!-- 空状态 -->
-  <view class="empty-state" wx:if="{{!loading && showEmptyState}}">
-    <view class="empty-icon">📋</view>
-    <view class="empty-title">{{emptyTitle}}</view>
-    <view class="empty-subtitle">{{emptySubtitle}}</view>
-    <button class="empty-action" wx:if="{{showEmptyAction}}" bindtap="{{emptyActionHandler}}">{{emptyActionText}}</button>
-  </view>
+  <empty-state
+    wx:if="{{!loading && showEmptyState}}"
+    show="{{true}}"
+    icon="📋"
+    title="{{emptyTitle}}"
+    description="{{emptySubtitle}}"
+    action-text="{{emptyActionText}}"
+    action-icon="✨"
+    action-disabled="{{!showEmptyAction}}"
+    bindaction="onEmptyAction">
+  </empty-state>
 
   <!-- 加载状态 -->
   <view class="loading-section" wx:if="{{loading}}">

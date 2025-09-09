@@ -120,7 +120,7 @@
   gap: 8rpx;
 }
 
-/* KPI指标卡片 */
+/* KPI指标卡片 - 使用 StatCard 组件 */
 .kpi-section {
   margin-bottom: var(--space-6);
 }
@@ -135,62 +135,9 @@
   padding-bottom: 8rpx;
 }
 
-.kpi-card {
+.kpi-card-wrapper {
   min-width: 280rpx;
-  background: var(--bg-primary);
-  border-radius: 20rpx;
-  padding: var(--space-6);
-  box-shadow: 0 4rpx 16rpx rgba(0,0,0,0.08);
-  position: relative;
-  overflow: hidden;
-}
-
-/* KPI卡片渐变背景 */
-.gradient-0 { background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-success-600) 100%); color: var(--text-on-primary); }
-.gradient-1 { background: linear-gradient(135deg, var(--color-info-600) 0%, var(--role-social) 100%); color: var(--text-on-primary); }
-.gradient-2 { background: linear-gradient(135deg, var(--color-warning-600) 0%, var(--role-volunteer) 100%); color: var(--text-on-primary); }
-.gradient-3 { background: linear-gradient(135deg, var(--role-admin) 0%, var(--role-admin) 100%); color: var(--text-on-primary); }
-
-.kpi-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: flex-start;
-  margin-bottom: 16rpx;
-}
-
-.kpi-icon {
-  font-size: 32rpx;
-  opacity: 0.9;
-}
-
-.kpi-trend {
-  display: flex;
-  align-items: center;
-  gap: 4rpx;
-  font-size: 20rpx;
-  opacity: 0.8;
-}
-
-.kpi-trend.up .trend-text { color: var(--color-success-600); }
-.kpi-trend.down .trend-text { color: var(--color-danger-600); }
-.kpi-trend.stable .trend-text { color: var(--gray-500); }
-
-.kpi-title {
-  font-size: 24rpx;
-  opacity: 0.8;
-  margin-bottom: 8rpx;
-}
-
-.kpi-value {
-  font-size: 48rpx;
-  font-weight: 700;
-  line-height: 1.1;
-  margin-bottom: 8rpx;
-}
-
-.kpi-subtitle {
-  font-size: 18rpx;
-  opacity: 0.6;
+  flex-shrink: 0;
 }
 
 /* 分析区域 */
@@ -213,32 +160,8 @@
   margin-top: 16rpx;
 }
 
-.stat-item {
-  text-align: center;
-  padding: 16rpx;
-  background: var(--gray-50);
-  border-radius: 12rpx;
-}
-
-.stat-label {
-  color: var(--gray-500);
-  font-size: 22rpx;
-  display: block;
-  margin-bottom: 8rpx;
-}
-
-.stat-value {
-  color: var(--text-primary);
-  font-size: 36rpx;
-  font-weight: 700;
-  display: block;
-}
-
-.stat-date {
-  color: var(--gray-500);
-  font-size: 18rpx;
-  display: block;
-  margin-top: 4rpx;
+.stat-item-card {
+  width: 100%;
 }
 
 /* 图表容器 */

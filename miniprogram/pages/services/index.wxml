@@ -46,11 +46,17 @@
       <text class="section-title">⚡ 快速记录</text>
     </view>
     <view class="quick-actions">
-      <view class="quick-btn" wx:for="{{serviceTypes}}" wx:key="key" 
-            data-type="{{item.key}}" bindtap="quickRecord">
-        <view class="quick-icon" style="background-color: {{item.color}};">{{item.icon}}</view>
-        <text class="quick-text">{{item.name}}</text>
-      </view>
+      <action-card
+        wx:for="{{serviceTypes}}"
+        wx:key="key"
+        title="{{item.name}}"
+        desc="快速记录"
+        icon="{{item.icon}}"
+        custom-data="{{item}}"
+        bindtap="quickRecord"
+        data-type="{{item.key}}"
+        class="service-quick-card">
+      </action-card>
     </view>
   </view>
 
@@ -156,15 +162,16 @@
     </view>
     
     <!-- 空状态 -->
-    <view class="empty-state" wx:if="{{filteredRecords.length === 0 && !loading}}">
-      <view class="empty-icon">❤️</view>
-      <view class="empty-title">暂无服务记录</view>
-      <view class="empty-desc">{{emptyStateDesc}}</view>
-      <button class="empty-action" bindtap="quickRecord" data-type="visit" wx:if="{{canCreate}}">
-        <text class="btn-icon">✨</text>
-        <text>创建首个服务记录</text>
-      </button>
-    </view>
+    <empty-state
+      wx:if="{{filteredRecords.length === 0 && !loading}}"
+      show="{{true}}"
+      icon="❤️"
+      title="暂无服务记录"
+      description="{{emptyStateDesc}}"
+      action-text="{{canCreate ? '创建首个服务记录' : ''}}"
+      action-icon="✨"
+      bindaction="onEmptyAction">
+    </empty-state>
   </view>
 
   <!-- 浮动操作按钮 -->
@@ -215,11 +222,12 @@
 </view>
 
 <!-- 错误状态 -->
-<view class="error-container" wx:if="{{error && !loading}}">
-  <view class="error-content">
-    <text class="error-icon">😔</text>
-    <text class="error-title">加载失败</text>
-    <text class="error-message">{{error.message || '无法获取服务记录'}}</text>
-    <button class="error-retry" bindtap="retryLoad">重新加载</button>
-  </view>
-</view>
+<error-view
+  wx:if="{{error && !loading}}"
+  show="{{true}}"
+  error="{{error}}"
+  retry-text="重新加载"
+  feedback-text="反馈问题"
+  bindretry="retryLoad"
+  bindfeedback="onErrorFeedback">
+</error-view>

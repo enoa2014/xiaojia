@@ -15,17 +15,17 @@
     </view>
     
     <view class="types-grid">
-      <view class="type-card" 
-            wx:for="{{activityTypes}}" 
-            wx:key="key"
-            bindtap="filterByType"
-            data-type="{{item.key}}">
-        <view class="type-icon" style="background-color: {{item.color}};">
-          <text class="icon-text">{{item.icon}}</text>
-        </view>
-        <text class="type-name">{{item.name}}</text>
-        <text class="type-count">{{item.count}}个活动</text>
-      </view>
+      <action-card
+        wx:for="{{activityTypes}}"
+        wx:key="key"
+        title="{{item.name}}"
+        desc="{{item.count}}个活动"
+        icon="{{item.icon}}"
+        custom-data="{{item}}"
+        bindtap="filterByType"
+        data-type="{{item.key}}"
+        class="activity-type-card">
+      </action-card>
     </view>
   </view>
 
@@ -80,26 +80,27 @@
     </view>
 
     <!-- 空状态 -->
-    <view class="empty-container" wx:if="{{!loading && list.length === 0}}">
-      <view class="empty-content">
-        <text class="empty-icon">📅</text>
-        <text class="empty-title">暂无{{activeFilterLabel}}活动</text>
-        <text class="empty-subtitle">{{searchKeyword ? '尝试调整搜索条件' : '等待更多精彩活动发布'}}</text>
-        <button class="empty-action" bindtap="clearFilters" wx:if="{{searchKeyword}}">
-          清除搜索条件
-        </button>
-      </view>
-    </view>
+    <empty-state
+      wx:if="{{!loading && list.length === 0}}"
+      show="{{true}}"
+      icon="📅"
+      title="暂无{{activeFilterLabel}}活动"
+      description="{{searchKeyword ? '尝试调整搜索条件' : '等待更多精彩活动发布'}}"
+      action-text="{{searchKeyword ? '清除搜索条件' : ''}}"
+      action-icon="🔄"
+      bindaction="onEmptyAction">
+    </empty-state>
 
     <!-- 错误状态 -->
-    <view class="error-container" wx:if="{{error && !loading}}">
-      <view class="error-content">
-        <text class="error-icon">😔</text>
-        <text class="error-title">加载失败</text>
-        <text class="error-message">{{error}}</text>
-        <button class="error-retry" bindtap="retryLoad">重新加载</button>
-      </view>
-    </view>
+    <error-view
+      wx:if="{{error && !loading}}"
+      show="{{true}}"
+      error="{{error}}"
+      retry-text="重新加载"
+      feedback-text="反馈问题"
+      bindretry="retryLoad"
+      bindfeedback="onErrorFeedback">
+    </error-view>
 
     <!-- 活动卡片列表 -->
     <view class="activity-cards" wx:if="{{!loading && !error && list.length > 0}}">

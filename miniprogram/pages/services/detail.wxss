@@ -308,7 +308,7 @@
 
 .volunteer-role {
   font-size: var(--font-size-sm);
-  color: var(--color-primary);
+  color: var(--color-primary-600);
   font-weight: 500;
 }
 
@@ -407,7 +407,7 @@
 
 .doc-icon {
   font-size: 48rpx;
-  color: var(--color-primary);
+  color: var(--color-primary-600);
 }
 
 .doc-name {
@@ -441,7 +441,7 @@
 
 .audio-icon {
   font-size: 48rpx;
-  color: var(--color-primary);
+  color: var(--color-primary-600);
 }
 
 .audio-name {
@@ -452,7 +452,7 @@
 
 .audio-duration {
   font-size: var(--font-size-xs);
-  color: var(--color-primary);
+  color: var(--color-primary-600);
 }
 
 /* 审核时间线 */
@@ -494,7 +494,7 @@
 }
 
 .timeline-submitted {
-  background: var(--color-primary);
+  background: var(--color-primary-600);
 }
 
 .timeline-content {
@@ -632,7 +632,7 @@
   display: block;
   font-size: var(--font-size-xl);
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--color-primary-600);
   margin-bottom: 4rpx;
 }
 
@@ -673,7 +673,7 @@
 }
 
 .action-btn.primary {
-  background: var(--color-primary);
+  background: var(--color-primary-600);
   color: white;
 }
 
@@ -877,7 +877,7 @@
 }
 
 .reject-reason:focus {
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-600);
   outline: none;
 }
 
@@ -1075,7 +1075,7 @@
 
 .error-retry {
   padding: var(--spacing-md) var(--spacing-xl);
-  background: var(--color-primary);
+  background: var(--color-primary-600);
   color: white;
   border: none;
   border-radius: var(--radius-md);

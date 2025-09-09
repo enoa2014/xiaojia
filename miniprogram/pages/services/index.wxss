@@ -80,7 +80,7 @@
 }
 
 .stat-item:active {
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-600);
   background: var(--color-primary-light);
 }
 
@@ -88,7 +88,7 @@
   display: block;
   font-size: 40rpx;
   font-weight: 700;
-  color: var(--color-primary);
+  color: var(--color-primary-600);
   line-height: 1;
   margin-bottom: 8rpx;
 }
@@ -122,44 +122,13 @@
 
 .quick-actions {
   display: grid;
-  grid-template-columns: repeat(5, 1fr);
+  grid-template-columns: repeat(2, 1fr);
   gap: 16rpx;
 }
 
-.quick-btn {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  padding: 20rpx 12rpx;
-  background: white;
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-  border: 2rpx solid var(--color-gray-100);
-  transition: all 0.2s ease;
-}
-
-.quick-btn:active {
-  transform: translateY(2rpx);
-  box-shadow: var(--shadow-md);
-  border-color: var(--color-primary);
-}
-
-.quick-icon {
-  width: 56rpx;
-  height: 56rpx;
-  border-radius: var(--radius-md);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 28rpx;
-  margin-bottom: 8rpx;
-}
-
-.quick-text {
-  font-size: 20rpx;
-  color: var(--color-gray-700);
-  text-align: center;
-  line-height: 1.2;
+/* ActionCard 组件在服务页面的特殊样式 */
+.service-quick-card {
+  border-left: 4rpx solid var(--color-primary-600);
 }
 
 /* 筛选控制区 */
@@ -190,7 +159,7 @@
 }
 
 .filter-tab.active {
-  background: var(--color-primary);
+  background: var(--color-primary-600);
   color: white;
 }
 
@@ -243,7 +212,7 @@
 }
 
 .type-chip.active {
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-600);
   background: var(--color-primary-light);
   color: var(--color-primary-dark);
 }
@@ -304,7 +273,7 @@
 .record-item:active {
   transform: translateY(2rpx);
   box-shadow: var(--shadow-lg);
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-600);
 }
 
 .record-header {
@@ -363,7 +332,7 @@
 }
 
 .status-approved .status-dot {
-  background: var(--color-primary);
+  background: var(--color-primary-600);
 }
 
 .status-rejected {
@@ -507,7 +476,7 @@
 
 .load-more:active {
   background: var(--color-gray-50);
-  border-color: var(--color-primary);
+  border-color: var(--color-primary-600);
 }
 
 .load-text {
@@ -550,7 +519,7 @@
   align-items: center;
   gap: 8rpx;
   padding: 16rpx 32rpx;
-  background: var(--color-primary);
+  background: var(--color-primary-600);
   color: white;
   border-radius: var(--radius-lg);
   font-size: 26rpx;
@@ -573,7 +542,7 @@
   width: 112rpx;
   height: 112rpx;
   border-radius: 56rpx;
-  background: linear-gradient(135deg, var(--color-primary) 0%, #16A34A 100%);
+  background: linear-gradient(135deg, var(--color-primary-600) 0%, var(--color-primary-700) 100%);
   color: white;
   display: flex;
   align-items: center;
@@ -727,7 +696,7 @@
 
 .error-retry {
   padding: 16rpx 32rpx;
-  background: var(--color-primary);
+  background: var(--color-primary-600);
   color: white;
   border-radius: var(--radius-lg);
   font-size: 26rpx;

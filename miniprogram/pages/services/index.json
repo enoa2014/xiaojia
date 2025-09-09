@@ -5,5 +5,10 @@
   "navigationBarBackgroundColor": "#22C55E",
   "navigationBarTextStyle": "white",
   "backgroundColor": "#f5f7fa",
-  "backgroundTextStyle": "light"
+  "backgroundTextStyle": "light",
+  "usingComponents": {
+    "action-card": "../../components/action-card/index",
+    "empty-state": "../../components/empty-state/index",
+    "error-view": "../../components/error-view/index"
+  }
 }
