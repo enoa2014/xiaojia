@@ -1,0 +1,7 @@
+{
+  "navigationBarTitleText": "FormField 组件演示",
+  "usingComponents": {
+    "form-field": "../../components/form-field/index",
+    "ui-button": "../../components/button/index"
+  }
+}

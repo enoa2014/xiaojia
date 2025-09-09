@@ -28,24 +28,33 @@
 
   <!-- 模式切换区 -->
   <view class="mode-section" wx:if="{{!isQuickMode}}">
-    <view class="mode-header">
-      <text class="mode-title">记录模式</text>
-      <view class="save-actions">
-        <ui-button 
-          text="保存草稿" 
-          variant="secondary" 
-          size="sm"
-          icon="💾"
-          bindtap="saveDraft" />
-        <ui-button 
-          text="清除" 
-          variant="ghost" 
-          size="sm"
-          icon="🗑️"
-          bindtap="clearDraft" />
-      </view>
+    <!-- 第1行-左：标题 -->
+    <text class="mode-title">记录模式</text>
+    
+    <!-- 第1行-右：按钮组 -->
+    <view class="mode-actions">
+      <ui-button 
+        ext-class="mode-ui"
+        btn-class="mode-ui"
+        text="保存草稿" 
+        variant="secondary" 
+        size="sm"
+        icon="💾"
+        fullWidth="{{false}}"
+        bindtap="saveDraft" />
+      <ui-button 
+        ext-class="mode-ui"
+        btn-class="mode-ui"
+        text="删除" 
+        variant="danger" 
+        size="sm"
+        icon="🗑️"
+        fullWidth="{{false}}"
+        bindtap="clearDraft" />
     </view>
-    <view class="mode-switcher">
+    
+    <!-- 第2行-左：快速记录 -->
+    <view class="mode-card quick">
       <view class="mode-option {{quickMode ? 'active' : ''}}" bindtap="switchToQuickMode">
         <text class="mode-icon">⚡</text>
         <view class="mode-content">
@@ -53,6 +62,10 @@
           <text class="mode-desc">1-3分钟完成</text>
         </view>
       </view>
+    </view>
+    
+    <!-- 第2行-右：详细记录 -->
+    <view class="mode-card detail">
       <view class="mode-option {{!quickMode ? 'active' : ''}}" bindtap="switchToDetailMode">
         <text class="mode-icon">📝</text>
         <view class="mode-content">

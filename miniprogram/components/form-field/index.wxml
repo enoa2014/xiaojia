@@ -1,0 +1,28 @@
+<view class="form-field {{state}} {{fullWidth ? 'full-width' : ''}} {{disabled ? 'disabled' : ''}}" aria-labelledby="{{labelId}}" aria-describedby="{{describedBy}}">
+  <!-- Label -->
+  <view class="form-field-label" wx:if="{{label}}" id="{{labelId}}">
+    <text class="label-text">{{label}}</text>
+    <text class="label-required" wx:if="{{required}}" aria-label="必填">*</text>
+  </view>
+  
+  <!-- Control Container -->
+  <view class="form-field-control {{state}}" 
+        id="{{controlId}}"
+        role="{{controlRole || 'textbox'}}"
+        aria-invalid="{{state === 'error'}}"
+        aria-required="{{required}}"
+        aria-describedby="{{describedBy}}">
+    <slot name="control"></slot>
+  </view>
+  
+  <!-- Help Text -->
+  <view class="form-field-help" wx:if="{{helpText && state !== 'error'}}" id="{{helpId}}">
+    <text class="help-text">{{helpText}}</text>
+  </view>
+  
+  <!-- Error Text -->
+  <view class="form-field-error" wx:if="{{errorText && state === 'error'}}" id="{{errorId}}" role="alert" aria-live="polite">
+    <text class="error-icon">⚠️</text>
+    <text class="error-text">{{errorText}}</text>
+  </view>
+</view>

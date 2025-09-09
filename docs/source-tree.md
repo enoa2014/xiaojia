@@ -187,6 +187,11 @@ miniprogram/components/error-view/index.js
 miniprogram/components/error-view/index.json
 miniprogram/components/error-view/index.wxml
 miniprogram/components/error-view/index.wxss
+miniprogram/components/form-field
+miniprogram/components/form-field/index.js
+miniprogram/components/form-field/index.json
+miniprogram/components/form-field/index.wxml
+miniprogram/components/form-field/index.wxss
 miniprogram/components/role-badge
 miniprogram/components/role-badge/index.js
 miniprogram/components/role-badge/index.json
@@ -240,6 +245,12 @@ miniprogram/pages/exports/index.js
 miniprogram/pages/exports/index.json
 miniprogram/pages/exports/index.wxml
 miniprogram/pages/exports/index.wxss
+miniprogram/pages/form-field-demo
+miniprogram/pages/form-field-demo/index.js
+miniprogram/pages/form-field-demo/index.json
+miniprogram/pages/form-field-demo/index.wxml
+miniprogram/pages/form-field-demo/index.wxss
+miniprogram/pages/form-field-demo/test-integration.js
 miniprogram/pages/index
 miniprogram/pages/index/index.js
 miniprogram/pages/index/index.json
@@ -532,6 +543,7 @@ docs/qa/results
 docs/qa/test-plan-action-card.md
 docs/qa/test-plan-button.md
 docs/qa/test-plan-empty-error.md
+docs/qa/test-plan-form-field.md
 docs/qa/test-plan-role-badge.md
 docs/qa/test-plan-stat-card.md
 docs/reports
@@ -590,4 +602,4 @@ docs/uiux/xiaojia_homepage.tsx
 docs/uiux/xiaojia_patient_design_doc.html
 ```
 
-生成时间：2025-09-09 08:57:21
+生成时间：2025-09-09 09:43:49

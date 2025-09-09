@@ -177,7 +177,20 @@
   border-top: 2rpx solid var(--color-primary-600);
 }
 
-/* 全宽按钮 */
+/* 宽度控制 - 优先级高的新样式 */
+.ui-button.is-inline {
+  display: inline-flex !important;
+  width: auto !important;
+  min-width: auto;
+}
+
+.ui-button.is-block {
+  display: flex !important;
+  width: 100% !important;
+  min-width: auto;
+}
+
+/* 向后兼容 - 保留原有的full-width类 */
 .ui-button.full-width {
   width: 100%;
   min-width: auto;

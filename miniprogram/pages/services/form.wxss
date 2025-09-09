@@ -144,62 +144,63 @@ page {
   color: var(--color-gray-600);
 }
 
-/* 模式切换区 */
+/* 容器：两列布局，行列间距与页面风格一致 */
 .mode-section {
   margin: 24rpx;
   background: white;
   border-radius: var(--radius-xl);
-  padding: 24rpx;
   box-shadow: var(--shadow-md);
+  display: grid;
+  grid-template-columns: 1fr 1fr; /* 左右两列等宽 */
+  column-gap: 20rpx;              /* 两列之间的间距 */
+  row-gap: 16rpx;                 /* 行间距：标题/按钮 与 下方卡片的间距 */
+  padding: 20rpx 24rpx;           /* 统一左右留白，确保与下方内容右缘对齐 */
+  box-sizing: border-box;
 }
 
-.mode-header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20rpx;
-}
-
+/* 第1行-左：标题 */
 .mode-title {
-  font-size: 32rpx;
+  grid-column: 1;                 /* 放在第1列 */
+  align-self: center;
+  font-size: 30rpx;
   font-weight: 600;
   color: var(--color-gray-900);
+  min-width: 0;
 }
 
-.save-actions {
-  display: flex;
+/* 第1行-右：按钮组在右列，且贴右对齐 —— 自然与下方"详细记录"同列/同右缘 */
+.mode-actions {
+  grid-column: 2;
+  justify-self: end;
+  display: inline-flex;
   gap: 8rpx;
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 
-.action-btn {
-  display: flex;
-  align-items: center;
-  gap: 4rpx;
-  padding: 8rpx 12rpx;
-  background: var(--color-gray-50);
-  border: 2rpx solid var(--color-gray-200);
-  border-radius: var(--radius-md);
-  font-size: 22rpx;
-  color: var(--color-gray-700);
-  transition: all 0.2s ease;
+/* 第2行：两张卡片各占一列 */
+.mode-card.quick  { 
+  grid-column: 1; 
 }
 
-.action-btn:active {
-  background: var(--color-gray-100);
-  border-color: var(--color-gray-300);
+.mode-card.detail { 
+  grid-column: 2; 
 }
 
-.btn-icon {
-  font-size: 18rpx;
+/* 通过外部类控制按钮组中的ui-button组件 */
+.mode-ui {
+  flex: 0 0 auto !important;         /* 不被压缩或拉伸 */
+  margin: 0 !important;              /* 重置边距 */
 }
 
-.btn-text {
-  font-size: 20rpx;
-}
-
-.mode-switcher {
-  display: flex;
-  gap: 16rpx;
+/* 确保按钮组容器样式正确 */
+.mode-section, 
+.mode-title, 
+.mode-actions {
+  position: static !important;
+  float: none !important;
+  transform: none !important;
+  overflow: visible !important;
 }
 
 .mode-option {

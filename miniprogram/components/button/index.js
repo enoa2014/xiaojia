@@ -1,4 +1,10 @@
 Component({
+  options: {
+    // 允许页面样式影响组件（用于外部样式控制）
+    styleIsolation: 'apply-shared'
+  },
+  externalClasses: ['ext-class', 'btn-class'], // 开放外部类
+  
   properties: {
     // 按钮文本
     text: {

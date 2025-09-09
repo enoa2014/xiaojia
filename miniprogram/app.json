@@ -13,6 +13,7 @@
     "pages/action-card-demo/index",
     "pages/empty-error-demo/index",
     "pages/button-demo/index",
+    "pages/form-field-demo/index",
     "pages/permissions/apply",
     "pages/patients/form",
     "pages/patients/search",

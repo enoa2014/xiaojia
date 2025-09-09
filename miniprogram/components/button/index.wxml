@@ -1,5 +1,5 @@
 <button 
-  class="ui-button {{variant}} {{size}} {{loading ? 'loading' : ''}} {{disabled ? 'disabled' : ''}} {{fullWidth ? 'full-width' : ''}} {{round ? 'round' : ''}} {{touchEnhanced ? 'touch-enhanced' : ''}}"
+  class="ui-button {{variant}} {{size}} {{loading ? 'loading' : ''}} {{disabled ? 'disabled' : ''}} {{fullWidth ? 'is-block' : 'is-inline'}} {{round ? 'round' : ''}} {{touchEnhanced ? 'touch-enhanced' : ''}} ext-class btn-class"
   hover-class="{{disabled || loading ? '' : 'hover'}}"
   disabled="{{disabled || loading}}"
   loading="{{false}}"

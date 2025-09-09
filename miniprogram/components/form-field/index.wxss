@@ -1,0 +1,160 @@
+/* FormField 组件样式 - 基于设计系统规范 */
+
+.form-field {
+  display: flex;
+  flex-direction: column;
+  gap: var(--space-2);
+  position: relative;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.form-field.full-width {
+  width: 100%;
+}
+
+.form-field.disabled {
+  opacity: var(--opacity-disabled);
+  pointer-events: none;
+}
+
+/* Label 样式 */
+.form-field-label {
+  display: flex;
+  align-items: baseline;
+  gap: var(--space-1);
+  margin-bottom: var(--space-1);
+}
+
+.label-text {
+  font-size: var(--font-body);
+  font-weight: var(--weight-medium);
+  color: var(--gray-700);
+  line-height: var(--lh-tight);
+}
+
+.label-required {
+  font-size: var(--font-body);
+  color: var(--color-danger-600);
+  line-height: var(--lh-tight);
+}
+
+/* Control Container 样式 */
+.form-field-control {
+  position: relative;
+  border-radius: var(--radius-md);
+  transition: all var(--duration-base) var(--ease-standard);
+  overflow: hidden;
+}
+
+/* 状态变体 */
+.form-field-control.default {
+  border: 2rpx solid var(--gray-300);
+  background: var(--bg-primary);
+}
+
+.form-field-control.focus {
+  border: 2rpx solid var(--color-primary-600);
+  box-shadow: 0 0 0 4rpx rgba(34, 197, 94, 0.1);
+  background: var(--bg-primary);
+}
+
+.form-field-control.error {
+  border: 2rpx solid var(--color-danger-600);
+  box-shadow: 0 0 0 4rpx rgba(239, 68, 68, 0.1);
+  background: var(--bg-primary);
+}
+
+.form-field-control.disabled {
+  border: 2rpx solid var(--gray-200);
+  background: var(--gray-50);
+  cursor: not-allowed;
+}
+
+/* Help Text 样式 */
+.form-field-help {
+  margin-top: var(--space-1);
+}
+
+.help-text {
+  font-size: var(--font-caption);
+  color: var(--gray-500);
+  line-height: var(--lh-normal);
+}
+
+/* Error Text 样式 */
+.form-field-error {
+  display: flex;
+  align-items: flex-start;
+  gap: var(--space-1);
+  margin-top: var(--space-1);
+  padding: var(--space-2);
+  border-radius: var(--radius-sm);
+  background: rgba(239, 68, 68, 0.05);
+}
+
+.error-icon {
+  font-size: var(--font-caption);
+  line-height: var(--lh-tight);
+  flex-shrink: 0;
+  margin-top: 1rpx; /* 微调对齐 */
+}
+
+.error-text {
+  font-size: var(--font-caption);
+  color: var(--color-danger-600);
+  line-height: var(--lh-normal);
+  font-weight: var(--weight-medium);
+}
+
+/* 表单字段与按钮协作间距 */
+.form-field + .ui-button {
+  margin-top: var(--space-6);
+}
+
+.form-field + .form-field {
+  margin-top: var(--space-4);
+}
+
+/* 表单容器内的间距优化 */
+.form-container .form-field:not(:last-child) {
+  margin-bottom: var(--space-4);
+}
+
+.form-container .form-field:last-child {
+  margin-bottom: var(--space-6);
+}
+
+/* 响应式调整 */
+@media screen and (max-width: 750rpx) {
+  .label-text {
+    font-size: var(--font-caption);
+  }
+  
+  .help-text,
+  .error-text {
+    font-size: 16rpx;
+  }
+}
+
+/* 辅助功能增强 */
+@media (prefers-reduced-motion: reduce) {
+  .form-field-control {
+    transition: none;
+  }
+}
+
+/* 高对比度模式支持 */
+@media (prefers-contrast: high) {
+  .form-field-control.focus {
+    border-width: 3rpx;
+  }
+  
+  .form-field-control.error {
+    border-width: 3rpx;
+  }
+  
+  .error-text {
+    font-weight: var(--weight-bold);
+  }
+}
