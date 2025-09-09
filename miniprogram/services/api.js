@@ -69,14 +69,23 @@ export const api = {
     list: (q) => call('registrations', 'list', q),
     register: (activityId) => call('registrations', 'register', { activityId }),
     cancel: (activityId) => call('registrations', 'cancel', { activityId }),
-    checkin: (activityId, userId) => call('registrations', 'checkin', { activityId, userId })
+    checkin: (activityId, userId) => call('registrations', 'checkin', { activityId, userId }),
+    // 兼容别名（部分页面调用 checkIn）
+    checkIn: (activityId, userId) => call('registrations', 'checkin', { activityId, userId })
   },
   audits: {
     list: (q) => call('audits','list', q)
   },
   exports: {
-    create: (type, params = {}, clientToken, requestId) => call('exports','create', { type, params, clientToken, requestId }),
+    create: (type, params = {}, clientToken, requestId) => {
+      // 模板到后端类型的最小映射：支持 stats-monthly → statsMonthly；其余降级为 custom
+      const typeMap = { 'stats-monthly': 'statsMonthly', 'stats-quarterly': 'statsAnnual' }
+      const mappedType = typeMap[type] || (typeof type === 'string' ? type : 'custom')
+      const safeType = ['statsMonthly','statsAnnual','custom'].includes(mappedType) ? mappedType : 'custom'
+      return call('exports','create', { type: safeType, params, clientToken, requestId })
+    },
     status: (taskId, requestId) => call('exports','status', { taskId, requestId })
+    ,history: (q = {}) => call('exports','history', q)
   },
   stats: {
     homeSummary: (payload = {}) => call('stats','homeSummary', payload),
