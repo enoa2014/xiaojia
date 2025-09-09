@@ -16,14 +16,22 @@
 - Empty/Error（7.7）：
   - EmptyState：`icon|title|description|action|secondary|variant|show`；`role=region`。
   - ErrorView：错误码映射与 CTA；`role=alert`；`retrying` 禁点且 `aria-disabled`。
- - Button（7.8）：
+- Button（7.8）：
   - 变体/尺寸/状态：`primary|secondary|ghost|danger`；`sm|md`；`default|disabled|loading`。
   - 交互：`hover/active` 动效；loading 禁点与 Spinner 显示。
   - A11y：原生语义；`aria-disabled` 与禁用/加载一致；对比度达标。
- - FormField（7.9）：
+- FormField（7.9）：
   - 结构：Label + Control(slot) + Help + Error；状态 `default|focus|error|disabled`。
   - 文案：错误提示遵循 `validation-rules.md`；error 优先于 help。
   - A11y：容器 `aria-labelledby/aria-describedby`；Error `role=alert`、`aria-live=polite`。
+
+### 表单页组件化替换（7.10）
+- 覆盖范围：`activities/form`、`tenancies/form`、`patients/form`
+- 当前状态：部分完成（tenancies/patients 已替换；activities 待替换字段容器）
+- 验收点：
+  - 组件替换：按钮 `ui-button`、字段容器 `ui-form-field`
+  - 流程可用：成功/失败/校验错误路径；`mapError` 文案统一
+  - A11y：按钮触达/禁点；字段错误与 ARIA 关联（`aria-describedby` 指向 error）
 
 ### EP-04-S1 活动发布与列表
 - 字段校验：title(2–40)/date(YYYY-MM-DD)/location(≤80)/capacity≥0/status∈open|ongoing|done|closed。

@@ -34,47 +34,60 @@
       
       <view class="section-content">
         <!-- 活动标题 -->
-        <view class="{{ errors.title ? 'form-item error' : 'form-item' }}">
-          <view class="form-label required">活动标题</view>
-          <input class="form-input" 
-                  placeholder="如：亲子康复训练活动" 
-                  value="{{formData.title}}"
-                  data-field="title"
-                  bindinput="onFormFieldChange"
-                  maxlength="50" />
-          <view class="char-count">{{formData.title.length}}/50</view>
-          <text class="error-text" wx:if="{{errors.title}}">{{errors.title}}</text>
-        </view>
+        <ui-form-field 
+          label="活动标题"
+          fieldId="title"
+          required="{{true}}"
+          errorText="{{errors.title}}"
+          helpText="{{formData.title.length}}/50">
+          <input 
+            slot="control"
+            class="form-input" 
+            placeholder="如：亲子康复训练活动" 
+            value="{{formData.title}}"
+            data-field="title"
+            bindinput="onFormFieldChange"
+            maxlength="50" />
+        </ui-form-field>
 
         <!-- 活动分类 -->
-        <view class="{{ errors.category ? 'form-item error' : 'form-item' }}">
-          <view class="form-label required">活动分类</view>
-          <picker mode="selector" 
-                  range="{{categoryOptions}}" 
-                  range-key="label"
-                  bindchange="onCategoryChange">
+        <ui-form-field 
+          label="活动分类"
+          fieldId="category"
+          required="{{true}}"
+          errorText="{{errors.category}}">
+          <picker 
+            slot="control"
+            mode="selector" 
+            range="{{categoryOptions}}" 
+            range-key="label"
+            bindchange="onCategoryChange">
             <view class="{{ formData.category ? 'picker-display selected' : 'picker-display placeholder' }}">
               <text wx:if="{{formData.category}}">{{selectedCategoryLabel}}</text>
               <text wx:else>请选择活动分类</text>
               <text class="picker-arrow">▼</text>
             </view>
           </picker>
-          <text class="error-text" wx:if="{{errors.category}}">{{errors.category}}</text>
-        </view>
+        </ui-form-field>
 
         <!-- 活动描述 -->
-        <view class="{{ errors.description ? 'form-item error' : 'form-item' }}">
-          <view class="form-label required">活动描述</view>
-          <textarea class="form-textarea" 
-                    placeholder="详细描述活动内容、目标和要求..."
-                    value="{{formData.description}}"
-                    data-field="description"
-                    bindinput="onFormFieldChange"
-                    maxlength="1000"
-                    auto-height />
-          <view class="char-count">{{formData.description.length}}/1000</view>
-          <text class="error-text" wx:if="{{errors.description}}">{{errors.description}}</text>
-        </view>
+        <ui-form-field 
+          label="活动描述"
+          fieldId="description"
+          required="{{true}}"
+          errorText="{{errors.description}}"
+          helpText="{{formData.description.length}}/1000"
+          controlRole="textbox">
+          <textarea 
+            slot="control"
+            class="form-textarea" 
+            placeholder="详细描述活动内容、目标和要求..."
+            value="{{formData.description}}"
+            data-field="description"
+            bindinput="onFormFieldChange"
+            maxlength="1000"
+            auto-height />
+        </ui-form-field>
 
         <!-- 活动封面 -->
         <view class="form-item">
@@ -105,9 +118,14 @@
       
       <view class="section-content">
         <!-- 开始时间 -->
-        <view class="{{ (errors.startDate || errors.startTime) ? 'form-item error' : 'form-item' }}">
-          <view class="form-label required">开始时间</view>
-          <view class="datetime-picker">
+        <ui-form-field 
+          label="开始时间"
+          fieldId="startDateTime"
+          required="{{true}}"
+          errorText="{{errors.startDate || errors.startTime}}">
+          <view 
+            slot="control"
+            class="datetime-picker">
             <picker mode="date" 
                     value="{{formData.startDate}}"
                     data-field="startDate"
@@ -126,10 +144,7 @@
               </view>
             </picker>
           </view>
-          <text class="error-text" wx:if="{{errors.startDate || errors.startTime}}">
-            {{errors.startDate || errors.startTime}}
-          </text>
-        </view>
+        </ui-form-field>
 
         <!-- 结束时间 -->
         <view class="{{ (errors.endDate || errors.endTime) ? 'form-item error' : 'form-item' }}">
@@ -159,17 +174,21 @@
         </view>
 
         <!-- 活动地点 -->
-        <view class="{{ errors.location ? 'form-item error' : 'form-item' }}">
-          <view class="form-label required">活动地点</view>
-          <input class="form-input" 
-                 placeholder="如：康复训练室、活动大厅..." 
-                 value="{{formData.location}}"
-                 data-field="location"
-                 bindinput="onFormFieldChange"
-                 maxlength="100" />
-          <view class="char-count">{{formData.location.length}}/100</view>
-          <text class="error-text" wx:if="{{errors.location}}">{{errors.location}}</text>
-        </view>
+        <ui-form-field 
+          label="活动地点"
+          fieldId="location"
+          required="{{true}}"
+          errorText="{{errors.location}}"
+          helpText="{{formData.location.length}}/100">
+          <input 
+            slot="control"
+            class="form-input" 
+            placeholder="如：康复训练室、活动大厅..." 
+            value="{{formData.location}}"
+            data-field="location"
+            bindinput="onFormFieldChange"
+            maxlength="100" />
+        </ui-form-field>
       </view>
     </view>
 
@@ -183,17 +202,21 @@
       
       <view class="section-content">
         <!-- 参与人数 -->
-        <view class="{{ errors.capacity ? 'form-item error' : 'form-item' }}">
-          <view class="form-label required">参与人数限制</view>
-          <input class="form-input" 
-                 type="number"
-                 placeholder="请输入人数上限" 
-                 value="{{formData.capacity}}"
-                 data-field="capacity"
-                 bindinput="onFormFieldChange" />
-          <view class="form-hint">设置为0表示不限制人数</view>
-          <text class="error-text" wx:if="{{errors.capacity}}">{{errors.capacity}}</text>
-        </view>
+        <ui-form-field 
+          label="参与人数限制"
+          fieldId="capacity"
+          required="{{true}}"
+          errorText="{{errors.capacity}}"
+          helpText="设置为0表示不限制人数">
+          <input 
+            slot="control"
+            class="form-input" 
+            type="number"
+            placeholder="请输入人数上限" 
+            value="{{formData.capacity}}"
+            data-field="capacity"
+            bindinput="onFormFieldChange" />
+        </ui-form-field>
 
         <!-- 报名方式 -->
         <view class="form-item">
@@ -331,24 +354,30 @@
         </view>
 
         <!-- 联系信息 -->
-        <view class="form-item">
-          <view class="form-label">联系人</view>
-          <input class="form-input" 
-                 placeholder="联系人姓名" 
-                 value="{{formData.contactPerson}}"
-                 data-field="contactPerson"
-                 bindinput="onFormFieldChange" />
-        </view>
+        <ui-form-field 
+          label="联系人"
+          fieldId="contactPerson">
+          <input 
+            slot="control"
+            class="form-input" 
+            placeholder="联系人姓名" 
+            value="{{formData.contactPerson}}"
+            data-field="contactPerson"
+            bindinput="onFormFieldChange" />
+        </ui-form-field>
 
-        <view class="form-item">
-          <view class="form-label">联系电话</view>
-          <input class="form-input" 
-                 type="number"
-                 placeholder="联系电话" 
-                 value="{{formData.contactPhone}}"
-                 data-field="contactPhone"
-                 bindinput="onFormFieldChange" />
-        </view>
+        <ui-form-field 
+          label="联系电话"
+          fieldId="contactPhone">
+          <input 
+            slot="control"
+            class="form-input" 
+            type="number"
+            placeholder="联系电话" 
+            value="{{formData.contactPhone}}"
+            data-field="contactPhone"
+            bindinput="onFormFieldChange" />
+        </ui-form-field>
 
         <!-- 通知设置 -->
         <view class="form-item">

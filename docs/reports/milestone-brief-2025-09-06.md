@@ -2,7 +2,7 @@
 
 - Owner: PO/PM（产品） · Reviewer: 架构/QA
 - 范围：MVP 核心域（患者/入住/服务/活动/权限）与支持能力（导入/初始化）
-- 最后更新：2025-09-08
+- 最后更新：2025-09-09
 
 ## 总体进度
 - MVP 核心域已贯通（患者、入住/退住、服务、活动/报名、字段级权限），前后端联通。
@@ -21,6 +21,7 @@
 - 页面：`patients/{index,detail,form,search}`、`services/{index,form}`、`activities/{index,detail,form}`、`tenancies/{form,checkout}`、`permissions/apply`、`stats/index`、首页工作台。
 - API 封装：`miniprogram/services/api.js` + `callWithRetry`；空/错态与 A11y 落地。
  - 组件库：RoleBadge（7.4）、StatCard（7.5）、ActionCard（7.6）、Empty/Error（7.7）、Button（7.8）、FormField（7.9）落地；新增 Demo 页面 `pages/{role-badge-demo,stat-card-demo,action-card-demo,empty-error-demo,button-demo,form-field-demo}`；对应测试计划与 QA 报告已入库。
+ - 表单页组件化（7.10）：部分通过（tenancies/patients 完成；activities 待替换字段容器为 `ui-form-field`）。
 
 ## QA & 测试
 - Gate 结果：PASS（EP-01-S1/S2/S3、EP-03-S1/S2、EP-04-S1/S2、EP-06-S1/S2/S3、EP-02-S1/S2）。
@@ -36,6 +37,7 @@
 - 床位冲突并发保护：当前仅前端软提示，缺后端强约束（视冲突率决策）。
 - 统计/导出：`stats/exports` MVP 与定时任务未联调；告警/观测待补。
 - 共享包：已抽离并接入 `functions/packages`（`core-rbac/core-db/core-utils`）；仍需持续迁移剩余重复片段并统一用法。
+ - 表单页组件化（7.10）：`activities/form` 仍为自定义字段容器，未纳入 `ui-form-field` 管理；A11y 与错误呈现待统一。
 
 ## 下两周建议计划
 - Gate 维护：保持 Gate 与实现同步，新增/变更附回归证据（含 EP-02-S2 已 PASS 的维持）。
@@ -44,6 +46,7 @@
 - 统计/导出：交付 `stats.monthly/yearly`、`exports.*` 与 CRON 配置；接入告警与观测。
 - 索引核验：关键查询采样查看执行计划，确保组合索引生效。
 - 共享包推进：在已抽离基础上，推进各域迁移与统一使用，降低重复实现与维护成本。
+ - 表单页组件化（7.10）：完成 `activities/form` 的 `ui-form-field` 替换与回归；统一错误映射与 ARIA 关联。
 
 ## 待决策/协作请求
 - 床位冲突策略：是否升级为强校验（`E_CONFLICT`）或加唯一索引占位？
