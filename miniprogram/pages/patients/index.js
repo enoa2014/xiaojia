@@ -69,7 +69,9 @@ Page({
     emptySubtitle: '试试调整筛选或添加新档案',
     showEmptyAction: true,
     emptyActionText: '重新加载',
-    emptyActionHandler: 'loadPatientData'
+    emptyActionHandler: 'loadPatientData',
+    // 当前用户角色（用于列表脱敏控制）
+    role: ''
   },
   onShow(){
     try { require('../../services/theme').applyThemeByRole(this) } catch(_) {}
@@ -92,6 +94,8 @@ Page({
   },
   async onLoad(){
     try { const { guardByRoute } = require('../../components/utils/auth'); const ok = await guardByRoute(); if (!ok) return } catch(_) {}
+    // 先获取当前用户角色，便于后续列表脱敏控制
+    try { await this.loadUserRole() } catch(_) {}
     // 恢复缓存状态
     const cached = wx.getStorageSync('patients_list_state')
     if (cached && cached.starredList) {
@@ -266,7 +270,9 @@ Page({
         emptyTitle: '数据加载失败',
         emptySubtitle: '请检查网络连接后重试',
         emptyActionText: '重新加载',
-        emptyActionHandler: 'loadPatientData'
+        emptyActionHandler: 'loadPatientData',
+    // 当前用户角色（用于列表脱敏控制）
+    role: ''
       })
     } finally {
       // 清理骨架屏定时器
@@ -313,6 +319,16 @@ Page({
     const id = e.currentTarget.dataset.id
     wx.navigateTo({ url: `/pages/tenancies/form?pid=${id}` })
   },
+  async loadUserRole(){
+    try {
+      const profile = await api.users.getProfile()
+      const role = (profile && profile.role) || ''
+      this.setData({ role })
+    } catch (e) {
+      this.setData({ role: '' })
+    }
+  },
+
   // 标星
   loadStarred(){
     try {
@@ -330,7 +346,8 @@ Page({
   // 处理患者数据项
   processPatientItem(x){
     const name = x.name || '未命名'
-    const maskedName = this.maskPatientName(name)
+    const isPrivileged = ['admin','social_worker'].includes(this.data.role)
+    const maskedName = isPrivileged ? name : this.maskPatientName(name)
     const ageText = this.calcAge(x.birthDate)
     const isStarred = this.data.starred[x._id]
     
@@ -340,14 +357,15 @@ Page({
       maskedName,
       ageText,
       createdAtText: x.createdAt ? this.formatDate(x.createdAt) : '',
-      
-      // 床位信息
+      // 信息卡片展示字段
+      nativePlaceText: x.nativePlace || '—',
+      firstDiagnosisText: x.hospitalDiagnosis || '—',
+      lastCheckInText: (x.lastCheckInDate ? (typeof x.lastCheckInDate === 'string' ? x.lastCheckInDate : this.formatDate(x.lastCheckInDate)) : '—'),
+      admissionCount: (typeof x.admissionCount === 'number' ? x.admissionCount : null),
+
+      // 兼容保留的字段（部分页面/逻辑可能仍使用）
       bedInfo: this.buildBedInfo(x),
-      
-      // 入住天数
       admissionDays: this.calcAdmissionDays(x.lastCheckInDate),
-      
-      // 诊断和状态
       mainDiagnosis: x.hospitalDiagnosis || '待确诊',
       treatmentStatus: x.treatmentStatus || '治疗中',
       statusText: this.getStatusText(x),

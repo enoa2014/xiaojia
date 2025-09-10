@@ -26,6 +26,10 @@ export const getCurrentRole = () => {
     if (app && app.globalData && app.globalData.roleKey) return app.globalData.roleKey
   } catch(_) {}
   try {
+    const r = wx.getStorageSync('user_role')
+    if (r) return r
+  } catch(_) {}
+  try {
     const dbg = wx.getStorageSync('debug_role')
     if (dbg && dbg.key) return dbg.key
   } catch(_) {}
@@ -36,7 +40,7 @@ export const applyThemeByRole = (page) => {
   try {
     const role = getCurrentRole()
     const theme = computeTheme(role)
-    page.setData && page.setData({ theme })
+    page.setData && page.setData({ theme, role })
     try { wx.setNavigationBarColor({ frontColor: '#ffffff', backgroundColor: computeNavColor(role) }) } catch(_) {}
   } catch(_) {}
 }

@@ -33,7 +33,8 @@ export const api = {
   patients: {
     list: (q) => call('patients', 'list', q),
     get: (id, requestId) => call('patients', 'get', { id, requestId }),
-    create: (patient, clientToken) => callWithRetry('patients', 'create', { patient, clientToken })
+    create: (patient, clientToken) => callWithRetry('patients', 'create', { patient, clientToken }),
+    update: (id, patch) => call('patients', 'update', { id, patch })
   },
   permissions: {
     submit: ({ fields, patientId, reason, expiresDays }, requestId) =>

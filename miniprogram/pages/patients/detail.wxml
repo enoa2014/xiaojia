@@ -134,10 +134,12 @@
     <view class="info-card">
       <view class="card-header">
         <text class="card-title">🏠 入住历史</text>
-        <button class="header-btn" bindtap="showTenancyDetail">查看全部</button>
+        <view class="sort-switch">
+          <button class="sort-btn" catchtap="toggleTenancySort">{{ tenancySortOrder === 'asc' ? '升序 ↑' : '降序 ↓' }}</button>
+        </view>
       </view>
       <view class="card-content">
-        <view class="timeline-container" wx:if="{{tenancyTimeline.length > 0}}">
+        <scroll-view class="timeline-scroll" scroll-y wx:if="{{tenancyTimeline.length > 0}}">
           <view class="timeline-item" wx:for="{{tenancyTimeline}}" wx:key="id" wx:for-index="index">
             <view class="timeline-dot {{item.status}}"></view>
             <view class="timeline-content">
@@ -151,7 +153,7 @@
               </view>
             </view>
           </view>
-        </view>
+        </scroll-view>
         <empty-state
           wx:else
           show="{{true}}"

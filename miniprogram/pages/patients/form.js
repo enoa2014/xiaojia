@@ -53,14 +53,49 @@ Page({
     // UI 状态
     errors: {},
     submitting: false,
+    lastToggleAt: 0,
   },
-  onLoad(){ 
+  async onLoad(opts){ 
     try { require('../../services/theme').applyThemeByRole(this) } catch(_) {}
     // 设置页面无障碍属性
     a11yService.setupPageAccessibility(this, {
       title: '编辑档案',
       description: '填写和编辑家庭档案信息'
     })
+
+    const id = opts && (opts.id || opts.patientId)
+    if (id) {
+      try {
+        const p = await api.patients.get(id)
+        this.setData({
+          _id: id,
+          name: p.name || '',
+          id_card: p.id_card || '',
+          phone: p.phone || '',
+          birthDate: p.birthDate || '',
+          gender: p.gender || '',
+          nativePlace: p.nativePlace || '',
+          ethnicity: p.ethnicity || '',
+          hospital: p.hospital || '',
+          hospitalDiagnosis: p.hospitalDiagnosis || '',
+          doctorName: p.doctorName || '',
+          symptoms: p.symptoms || '',
+          medicalCourse: p.medicalCourse || '',
+          followupPlan: p.followupPlan || '',
+          motherName: p.motherName || '',
+          motherPhone: p.motherPhone || '',
+          motherIdCard: p.motherIdCard || '',
+          otherGuardians: p.otherGuardians || '',
+          familyEconomy: p.familyEconomy || '',
+          isEdit: true
+        })
+      } catch (e) {
+        wx.showToast({ icon: 'none', title: '加载档案失败' })
+      }
+    } else {
+      this.setData({ isEdit: false })
+    }
+
   },
   onShow(){ try { require('../../services/theme').applyThemeByRole(this) } catch(_) {} },
   // 绑定
@@ -76,7 +111,11 @@ Page({
   onPickBirth(e) { 
     this.setData({ birthDate: e.detail.value, errors: { ...this.data.errors, birthDate: '' } }) 
   },
-  toggleMore() { this.setData({ moreOpen: !this.data.moreOpen }) },
+  toggleMore() {
+    const now = Date.now()
+    if (now - (this.data.lastToggleAt || 0) < 250) return
+    this.setData({ moreOpen: !this.data.moreOpen, lastToggleAt: now })
+  },
   
   // 可访问性焦点处理
   onFieldFocus(e) {
@@ -165,7 +204,7 @@ Page({
     this.setData({ submitting: true })
     try {
       const clientToken = `pt-${Date.now()}`
-      const patient = {
+      const payload = {
         name: this.data.name.trim(),
         id_card: this.data.id_card.trim(),
         phone: this.data.phone ? this.data.phone.trim() : undefined,
@@ -186,10 +225,14 @@ Page({
         otherGuardians: this.data.otherGuardians || undefined,
         familyEconomy: this.data.familyEconomy || undefined,
       }
-      await api.patients.create(patient, clientToken)
+      if (this.data.isEdit && this.data._id) {
+        await api.patients.update(this.data._id, payload)
+      } else {
+        await api.patients.create(payload, clientToken)
+      }
       // 使用 A11y 服务播报成功消息
       a11yService.announceToast('档案创建成功', 'success')
-      wx.showToast({ title: '创建成功' })
+      wx.showToast({ title: this.data.isEdit ? '更新成功' : '创建成功' })
       setTimeout(()=>{ wx.navigateBack({ delta: 1 }) }, 500)
     } catch (e) {
       const code = e.code || 'E_INTERNAL'

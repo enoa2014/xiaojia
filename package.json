@@ -22,7 +22,8 @@
     "deploy:initdb": "tcb fn deploy init-db -e cloud1-3grb87gwaba26b64 --dir ./functions/init-db --force",
     "deploy:all": "bash ./scripts/deploy-all.sh",
     "init:db": "tcb fn deploy init-db -e cloud1-3grb87gwaba26b64 --dir ./functions/init-db/dist --force && wx cloud callFunction --name init-db",
-    "deploy:framework": "tcb framework deploy -e cloud1-3grb87gwaba26b64"
+    "deploy:framework": "tcb framework deploy -e cloud1-3grb87gwaba26b64",
+    "deploy:patients:cfg": "tcb fn deploy --config functions/patients/cloudbaserc.json"
   },
   "devDependencies": {
     "npm-run-all": "^4.1.5"

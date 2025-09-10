@@ -167,7 +167,7 @@ page {
   display: flex;
   align-items: center;
   gap: 8rpx;
-  font-size: 22rpx;
+  font-size: 20rpx;
   opacity: 0.9;
 }
 
@@ -219,7 +219,7 @@ page {
 }
 
 .btn-text {
-  font-size: 22rpx;
+  font-size: 20rpx;
 }
 
 /* ========== 权限状态提示区 ========== */
@@ -273,7 +273,7 @@ page {
 }
 
 .status-desc {
-  font-size: 22rpx;
+  font-size: 20rpx;
   color: #6B7280;
 }
 
@@ -283,7 +283,7 @@ page {
   color: white;
   border: none;
   border-radius: 16rpx;
-  font-size: 22rpx;
+  font-size: 20rpx;
   font-weight: 500;
 }
 
@@ -318,7 +318,7 @@ page {
 }
 
 .card-subtitle {
-  font-size: 22rpx;
+  font-size: 20rpx;
   color: #6B7280;
 }
 
@@ -329,7 +329,7 @@ page {
 }
 
 .stats-text {
-  font-size: 22rpx;
+  font-size: 20rpx;
   color: #6B7280;
 }
 
@@ -436,7 +436,7 @@ page {
 }
 
 .treatment-status {
-  font-size: 22rpx;
+  font-size: 20rpx;
   color: #374151;
   font-weight: 500;
 }
@@ -499,7 +499,7 @@ page {
 }
 
 .timeline-date {
-  font-size: 22rpx;
+  font-size: 20rpx;
   font-weight: 600;
   color: #374151;
   margin-bottom: 8rpx;
@@ -569,7 +569,7 @@ page {
 }
 
 .type-name {
-  font-size: 22rpx;
+  font-size: 20rpx;
   font-weight: 600;
   color: #374151;
 }
@@ -633,7 +633,7 @@ page {
   color: white;
   border: none;
   border-radius: 20rpx;
-  font-size: 22rpx;
+  font-size: 20rpx;
 }
 
 /* ========== 底部操作栏 ========== */
@@ -951,7 +951,7 @@ page {
   background: #F8FAFC;
   border: 2rpx solid #E5E7EB;
   border-radius: 20rpx;
-  font-size: 22rpx;
+  font-size: 20rpx;
   color: #374151;
   transition: all 0.2s ease;
 }
@@ -1033,4 +1033,26 @@ page {
   .item-value {
     color: #F3F4F6;
   }
+}
+
+
+.sort-switch {
+  display: flex;
+  gap: 12rpx;
+}
+.sort-btn {
+  padding: 6rpx 12rpx;
+  border: 2rpx solid #E5E7EB;
+  border-radius: 16rpx;
+  background: #F9FAFB;
+  color: #374151;
+  font-size: 20rpx;
+}
+.sort-btn.active {
+  background: #22C55E;
+  border-color: #16A34A;
+  color: #fff;
+}
+.timeline-scroll {
+  max-height: 420rpx;
 }

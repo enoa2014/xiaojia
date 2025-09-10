@@ -71,7 +71,7 @@ var PatientCreateSchema = import_zod.z.object({
   otherGuardians: import_zod.z.string().optional(),
   familyEconomy: import_zod.z.string().optional()
 });
-var PatientUpdateSchema = import_zod.z.object({
+var PatientUpdateSchema2 = import_zod.z.object({
   id: import_zod.z.string(),
   patch: PatientCreateSchema.partial()
 });
@@ -210,7 +210,7 @@ function notAfterToday(iso) {
   return d.getTime() <= t;
 }
 var main = async (event) => {
-  var _a, _b, _c, _d;
+  var _a, _b, _c, _d, _e, _f, _g, _h, _i;
   try {
     const { action, payload } = event || {};
     const { OPENID } = ((_b = (_a = import_wx_server_sdk2.default).getWXContext) == null ? void 0 : _b.call(_a)) || {};
@@ -242,24 +242,157 @@ var main = async (event) => {
         }
         const base = db.collection("Patients").where(query);
         const { items, meta } = await paginate(base, { page: qp.page, pageSize: qp.pageSize, sort: qp.sort }, { fallbackSort: { createdAt: -1 }, countQuery: db.collection("Patients").where(query) });
-        return ok({ items, meta });
+        const isPrivileged = await hasAnyRole(db, OPENID, ["admin", "social_worker"]);
+        const listItems = items || [];
+        const ids = listItems.map((i) => String(i._id)).filter(Boolean);
+        const statsMap = {};
+        const toDateKey = (v) => {
+          if (!v)
+            return 0;
+          try {
+            if (typeof v === "number")
+              return v;
+            if (typeof v === "string") {
+              const d2 = new Date(v);
+              return isNaN(d2.getTime()) ? 0 : d2.getTime();
+            }
+            const d = new Date(v);
+            return isNaN(d.getTime()) ? 0 : d.getTime();
+          } catch {
+            return 0;
+          }
+        };
+        const toDateStr = (v) => {
+          const t = typeof v === "number" ? v : toDateKey(v);
+          if (!t)
+            return null;
+          const d = new Date(t);
+          const y = d.getFullYear();
+          const m = String(d.getMonth() + 1).padStart(2, "0");
+          const dd = String(d.getDate()).padStart(2, "0");
+          return `${y}-${m}-${dd}`;
+        };
+        if (ids.length) {
+          try {
+            const tSnap = await db.collection("Tenancies").where({ patientId: _.in(ids) }).field({ patientId: true, checkInDate: true }).limit(1e3).get();
+            for (const t of tSnap && tSnap.data || []) {
+              const pid = String(t.patientId || "");
+              const inDateKey = toDateKey(t.checkInDate);
+              if (!pid || !inDateKey)
+                continue;
+              const cur = statsMap[pid] || { count: 0, last: null };
+              cur.count += 1;
+              const curKey = cur.last ? toDateKey(cur.last) : 0;
+              if (!cur.last || inDateKey > curKey)
+                cur.last = toDateStr(inDateKey);
+              statsMap[pid] = cur;
+            }
+          } catch (e) {
+          }
+        }
+        const missingPids = listItems.map((p) => String(p._id)).filter((pid) => !statsMap[pid]);
+        if (missingPids.length) {
+          const idCardToPid = {};
+          const idCards = [];
+          for (const p of listItems) {
+            const pid = String(p._id);
+            if (!statsMap[pid] && p.id_card) {
+              const idc = String(p.id_card).trim();
+              if (idc) {
+                idCards.push(idc);
+                idCardToPid[idc] = pid;
+              }
+            }
+          }
+          if (idCards.length) {
+            try {
+              const tSnap2 = await db.collection("Tenancies").where({ id_card: _.in(idCards) }).field({ id_card: true, checkInDate: true }).limit(1e3).get();
+              for (const t of tSnap2 && tSnap2.data || []) {
+                const idc = t.id_card ? String(t.id_card) : "";
+                const pid = idCardToPid[idc];
+                const inDateKey = toDateKey(t.checkInDate);
+                if (!pid || !inDateKey)
+                  continue;
+                const cur = statsMap[pid] || { count: 0, last: null };
+                cur.count += 1;
+                const curKey = cur.last ? toDateKey(cur.last) : 0;
+                if (!cur.last || inDateKey > curKey)
+                  cur.last = toDateStr(inDateKey);
+                statsMap[pid] = cur;
+              }
+            } catch (e) {
+            }
+          }
+        }
+        {
+          const missingByName = listItems.filter((p) => {
+            const pid = String(p._id);
+            return !statsMap[pid] && !p.id_card && p.name;
+          });
+          if (missingByName.length) {
+            try {
+              const names = missingByName.map((p) => String(p.name)).filter(Boolean);
+              if (names.length) {
+                const nameToPids = {};
+                for (const p of missingByName) {
+                  const n = String(p.name);
+                  const pid = String(p._id);
+                  nameToPids[n] = (nameToPids[n] || []).concat(pid);
+                }
+                const tSnap3 = await db.collection("Tenancies").where({ patientName: _.in(names) }).field({ patientName: true, checkInDate: true }).limit(1e3).get();
+                for (const t of tSnap3 && tSnap3.data || []) {
+                  const n = t.patientName ? String(t.patientName) : "";
+                  const inDateKey = toDateKey(t.checkInDate);
+                  const pids = nameToPids[n] || [];
+                  if (!n || !inDateKey || !pids.length)
+                    continue;
+                  for (const pid of pids) {
+                    const cur = statsMap[pid] || { count: 0, last: null };
+                    cur.count += 1;
+                    const curKey = cur.last ? toDateKey(cur.last) : 0;
+                    if (!cur.last || inDateKey > curKey)
+                      cur.last = toDateStr(inDateKey);
+                    statsMap[pid] = cur;
+                  }
+                }
+              }
+            } catch (e) {
+            }
+          }
+        }
+        const outItems = listItems.map((p) => {
+          const st = statsMap[String(p._id)] || null;
+          const diag = p.hospitalDiagnosis || p.diagnosis || null;
+          const level = p.diagnosisLevel || p.diagnosis_enum || null;
+          const maskedDiag = diag ? level ? `\u8BCA\u65AD\u7EA7\u522B\uFF1A${level}` : "\u8BCA\u65AD\u4FE1\u606F\u5DF2\u8131\u654F" : null;
+          return {
+            ...p,
+            hospitalDiagnosis: isPrivileged ? diag ?? null : maskedDiag ?? p.hospitalDiagnosis ?? null,
+            lastCheckInDate: st ? st.last : null,
+            admissionCount: st ? st.count : 0
+          };
+        });
+        return ok({ items: outItems, meta });
       }
       case "get": {
-        const parsed = import_zod2.z.object({ id: import_zod2.z.string() }).safeParse(payload || {});
+        const parsed = import_zod2.z.object({ id: import_zod2.z.string(), requestId: import_zod2.z.string().optional() }).safeParse(payload || {});
         if (!parsed.success) {
           const m = mapZodIssues(parsed.error.issues);
           return errValidate(m.msg, parsed.error.issues);
         }
-        const { id } = parsed.data;
+        const { id, requestId } = parsed.data;
         const r = await db.collection("Patients").doc(id).get();
         if (!(r == null ? void 0 : r.data))
           return err("E_NOT_FOUND", "patient not found");
         const patient = r.data;
         const { OPENID: OPENID2 } = ((_d = (_c = import_wx_server_sdk2.default).getWXContext) == null ? void 0 : _d.call(_c)) || {};
         const now = Date.now();
+        const isPrivileged = await hasAnyRole(db, OPENID2, ["admin", "social_worker"]);
         let approvedFields = /* @__PURE__ */ new Set();
         let minExpires = null;
-        if (OPENID2) {
+        if (isPrivileged) {
+          approvedFields = /* @__PURE__ */ new Set(["id_card", "phone", "diagnosis"]);
+        } else if (OPENID2) {
           try {
             const _2 = db.command;
             const apr = await db.collection("PermissionRequests").where({ requesterId: OPENID2, patientId: id, status: "approved", expiresAt: _2.gt(now) }).get();
@@ -312,9 +445,14 @@ var main = async (event) => {
           }
         }
         out.permission = {
+          status: isPrivileged ? "approved" : approvedFields.size ? "approved" : "none",
           fields: Array.from(approvedFields),
           expiresAt: minExpires,
-          hasSensitive: approvedFields.size > 0
+          hasSensitive: approvedFields.size > 0,
+          hasNamePermission: isPrivileged,
+          hasContactPermission: isPrivileged,
+          hasAddressPermission: isPrivileged,
+          hasIdPermission: approvedFields.has("id_card") || isPrivileged
         };
         if (OPENID2 && returnedFields.length) {
           try {
@@ -322,6 +460,7 @@ var main = async (event) => {
               actorId: OPENID2,
               action: "patients.readSensitive",
               target: { patientId: id, fields: returnedFields },
+              requestId: requestId || null,
               createdAt: now
             } });
           } catch {
@@ -363,6 +502,82 @@ var main = async (event) => {
         };
         const addRes = await db.collection("Patients").add({ data: doc });
         return ok({ _id: addRes._id });
+      }
+      case "update": {
+        const canEdit = await hasAnyRole(db, OPENID, ["admin", "social_worker"]);
+        if (!canEdit)
+          return err("E_PERM", "\u9700\u8981\u6743\u9650");
+        const parsed = PatientUpdateSchema.safeParse(payload || {});
+        if (!parsed.success) {
+          const m = mapZodIssues(parsed.error.issues);
+          return errValidate(m.msg, parsed.error.issues);
+        }
+        const { id, patch } = parsed.data;
+        const curRes = await db.collection("Patients").doc(String(id)).get();
+        const cur = curRes && curRes.data;
+        if (!cur)
+          return err("E_NOT_FOUND", "patient not found");
+        if (patch.id_card) {
+          if (!isValidChineseId(patch.id_card))
+            return errValidate("\u8EAB\u4EFD\u8BC1\u683C\u5F0F\u6216\u6821\u9A8C\u4F4D\u9519\u8BEF");
+          const existed = await db.collection("Patients").where({ id_card: patch.id_card }).limit(1).get();
+          const existedDoc = (_e = existed == null ? void 0 : existed.data) == null ? void 0 : _e[0];
+          if (existedDoc && String(existedDoc._id) != String(id))
+            return err("E_CONFLICT", "\u8EAB\u4EFD\u8BC1\u5DF2\u5B58\u5728\uFF0C\u8BF7\u68C0\u67E5");
+        }
+        if (patch.birthDate && !notAfterToday(patch.birthDate))
+          return errValidate("\u51FA\u751F\u65E5\u671F\u9700\u65E9\u4E8E\u6216\u7B49\u4E8E\u4ECA\u65E5");
+        const tail = (() => {
+          const s = (patch.id_card || cur.id_card || "").replace(/\s/g, "");
+          return s.length >= 4 ? s.slice(-4) : cur.id_card_tail || null;
+        })();
+        const toSet = { ...patch };
+        toSet.id_card_tail = tail;
+        const upd = await db.collection("Patients").doc(String(id)).update({ data: toSet });
+        const updated = upd && (upd.updated || upd.stats && upd.stats.updated) || 0;
+        return updated ? ok({ updated }) : err("E_CONFLICT", "\u672A\u53D1\u751F\u53D8\u66F4");
+      }
+      case "admin.deleteByName": {
+        const canAdmin = await hasAnyRole(db, OPENID, ["admin"]);
+        if (!canAdmin)
+          return err("E_PERM", "\u9700\u8981\u6743\u9650");
+        const parsed = import_zod2.z.object({ name: import_zod2.z.string().min(1), dryRun: import_zod2.z.boolean().optional() }).safeParse(payload || {});
+        if (!parsed.success) {
+          const m = mapZodIssues(parsed.error.issues);
+          return errValidate(m.msg, parsed.error.issues);
+        }
+        const { name, dryRun } = parsed.data;
+        const ps = await db.collection("Patients").where({ name }).get();
+        const patients = ps && ps.data || [];
+        let delPatients = 0, delTenancies = 0, delServices = 0;
+        for (const p of patients) {
+          const pid = String(p._id);
+          if (!dryRun) {
+            try {
+              const r1 = await db.collection("Tenancies").where({ patientId: pid }).remove();
+              delTenancies += (r1 == null ? void 0 : r1.deleted) || ((_f = r1 == null ? void 0 : r1.stats) == null ? void 0 : _f.removed) || 0;
+            } catch {
+            }
+            try {
+              if (p.id_card) {
+                const r1b = await db.collection("Tenancies").where({ id_card: String(p.id_card) }).remove();
+                delTenancies += (r1b == null ? void 0 : r1b.deleted) || ((_g = r1b == null ? void 0 : r1b.stats) == null ? void 0 : _g.removed) || 0;
+              }
+            } catch {
+            }
+            try {
+              const r2 = await db.collection("Services").where({ patientId: pid }).remove();
+              delServices += (r2 == null ? void 0 : r2.deleted) || ((_h = r2 == null ? void 0 : r2.stats) == null ? void 0 : _h.removed) || 0;
+            } catch {
+            }
+            try {
+              const r0 = await db.collection("Patients").doc(pid).remove();
+              delPatients += (r0 == null ? void 0 : r0.deleted) || ((_i = r0 == null ? void 0 : r0.stats) == null ? void 0 : _i.removed) || 0;
+            } catch {
+            }
+          }
+        }
+        return ok({ matched: patients.length, delPatients, delTenancies, delServices, dryRun: !!dryRun });
       }
       default:
         return err("E_ACTION", "unknown action");

@@ -1,187 +1,112 @@
 <view class="page">
   <view class="nav-header {{theme.headerBg}} full-bleed">
-    <view class="brand">📝 新建档案</view>
+    <view class="brand">{{ isEdit ? '✏️ 编辑档案' : '📝 新建档案' }}</view>
     <view class="nav-actions"></view>
   </view>
+
   <!-- 基本信息 -->
-  <ui-form-field 
-    id="field-name"
-    label="姓名"
-    required="{{true}}">
-    <input 
-      slot="control"
-      class="input touch-target" 
-      placeholder="请输入姓名" 
-      value="{{name}}" 
-      data-key="name"
-      name="name"
-      aria-label="姓名，必填"
-      bindinput="onInput" 
-      bindfocus="onFieldFocus"
-      bindblur="onFieldBlur" />
+  <ui-form-field id="field-name" label="姓名" required="{{true}}">
+    <input slot="control" class="input touch-target" placeholder="请输入姓名"
+      value="{{name}}" data-key="name" name="name" aria-label="姓名，必填"
+      bindinput="onInput" bindfocus="onFieldFocus" bindblur="onFieldBlur" />
   </ui-form-field>
-  <ui-form-field 
-    id="field-id_card"
-    label="身份证"
-    fieldId="id_card"
-    required="{{true}}"
-    errorText="{{errors.id_card || ''}}">
-    <input 
-      slot="control"
-      class="input" 
-      placeholder="请输入身份证号码" 
-      maxlength="18"
-      value="{{id_card}}" 
-      data-key="id_card"
-      bindinput="onInput" />
+
+  <ui-form-field id="field-id_card" label="身份证" fieldId="id_card" required="{{true}}" errorText="{{errors.id_card || ''}}">
+    <input slot="control" class="input" placeholder="请输入身份证号码" maxlength="18"
+      value="{{id_card}}" data-key="id_card" bindinput="onInput" bindfocus="onFieldFocus" bindblur="onFieldBlur" />
   </ui-form-field>
-  <ui-form-field 
-    id="field-phone"
-    label="手机号（可选）"
-    fieldId="phone"
-    errorText="{{errors.phone || ''}}">
-    <input 
-      slot="control"
-      class="input" 
-      type="number" 
-      placeholder="11位手机号" 
-      value="{{phone}}" 
-      data-key="phone"
-      bindinput="onInput" />
+
+  <ui-form-field id="field-phone" label="手机号（可选）" fieldId="phone" errorText="{{errors.phone || ''}}">
+    <input slot="control" class="input" placeholder="请输入手机号" maxlength="11"
+      value="{{phone}}" data-key="phone" bindinput="onInput" bindfocus="onFieldFocus" bindblur="onFieldBlur" />
   </ui-form-field>
-  <ui-form-field 
-    id="field-birthDate"
-    label="出生日期（可选）"
-    fieldId="birthDate"
-    errorText="{{errors.birthDate || ''}}">
-    <picker 
-      slot="control"
-      mode="date" 
-      value="{{birthDate}}"
-      bindchange="onPickBirth">
-      <view class="picker">{{birthDate || '选择日期'}}</view>
+
+  <ui-form-field id="field-birthDate" label="出生日期（可选）" fieldId="birthDate" errorText="{{errors.birthDate || ''}}">
+    <picker slot="control" mode="date" value="{{birthDate}}" bindchange="onPickBirth">
+      <view class="picker">{{birthDate || '请选择日期'}}</view>
     </picker>
   </ui-form-field>
 
-  <!-- 更多信息（折叠） -->
-  <view class="more-toggle" bindtap="toggleMore">
-    <text class="more-text">更多信息</text>
-    <text class="more-arrow">{{moreOpen? '▲' : '▼'}}</text>
+  <!-- 展开更多 -->
+  <view class="more-toggle">
+    <ui-button variant="secondary" size="md" text="{{ moreOpen ? '收起更多' : '展开更多' }}" bindtap="toggleMore"></ui-button>
   </view>
+
   <view wx:if="{{moreOpen}}">
-    <ui-form-field 
-      id="field-gender"
-      label="性别（可选）"
-      fieldId="gender">
-      <radio-group slot="control" class="seg" bindchange="onInput" data-key="gender">
-        <label class="seg-item"><radio value="male" checked="{{gender==='male'}}"/>男</label>
-        <label class="seg-item"><radio value="female" checked="{{gender==='female'}}"/>女</label>
-      </radio-group>
+    <ui-form-field id="field-gender" label="性别">
+      <input slot="control" class="input" placeholder="男/女"
+        value="{{gender}}" data-key="gender" bindinput="onInput" />
     </ui-form-field>
-    <ui-form-field 
-      id="field-nativePlace"
-      label="籍贯（可选）"
-      fieldId="nativePlace">
-      <input slot="control" class="input" placeholder="如：河北 石家庄" value="{{nativePlace}}" data-key="nativePlace" bindinput="onInput" />
+
+    <ui-form-field id="field-nativePlace" label="籍贯">
+      <input slot="control" class="input" placeholder="请输入籍贯"
+        value="{{nativePlace}}" data-key="nativePlace" bindinput="onInput" />
     </ui-form-field>
-    <ui-form-field 
-      id="field-ethnicity"
-      label="民族（可选）"
-      fieldId="ethnicity">
-      <input slot="control" class="input" placeholder="如：汉族" value="{{ethnicity}}" data-key="ethnicity" bindinput="onInput" />
+
+    <ui-form-field id="field-ethnicity" label="民族">
+      <input slot="control" class="input" placeholder="请输入民族"
+        value="{{ethnicity}}" data-key="ethnicity" bindinput="onInput" />
     </ui-form-field>
-    <ui-form-field 
-      id="field-hospital"
-      label="就诊医院（可选）"
-      fieldId="hospital">
-      <input slot="control" class="input" placeholder="医院名称" value="{{hospital}}" data-key="hospital" bindinput="onInput" />
+
+    <ui-form-field id="field-hospital" label="医院（可选）">
+      <input slot="control" class="input" placeholder="就诊医院"
+        value="{{hospital}}" data-key="hospital" bindinput="onInput" />
     </ui-form-field>
-    <ui-form-field 
-      id="field-hospitalDiagnosis"
-      label="医院诊断（可选）"
-      fieldId="hospitalDiagnosis">
-      <input slot="control" class="input" placeholder="诊断摘要" value="{{hospitalDiagnosis}}" data-key="hospitalDiagnosis" bindinput="onInput" />
+
+    <ui-form-field id="field-hospitalDiagnosis" label="首诊疾病（可选）">
+      <input slot="control" class="input" placeholder="请输入首诊疾病"
+        value="{{hospitalDiagnosis}}" data-key="hospitalDiagnosis" bindinput="onInput" />
     </ui-form-field>
-    <ui-form-field 
-      id="field-doctorName"
-      label="主治医生（可选）"
-      fieldId="doctorName">
-      <input slot="control" class="input" placeholder="医生姓名" value="{{doctorName}}" data-key="doctorName" bindinput="onInput" />
+
+    <ui-form-field id="field-doctorName" label="主治医生（可选）">
+      <input slot="control" class="input" placeholder="请输入医生姓名"
+        value="{{doctorName}}" data-key="doctorName" bindinput="onInput" />
     </ui-form-field>
-    <ui-form-field 
-      id="field-symptoms"
-      label="症状详情（可选）"
-      fieldId="symptoms">
-      <textarea slot="control" class="textarea" maxlength="500" placeholder="≤500 字" value="{{symptoms}}" data-key="symptoms" bindinput="onInput" />
+
+    <ui-form-field id="field-symptoms" label="症状（可选）">
+      <input slot="control" class="input" placeholder="请输入症状"
+        value="{{symptoms}}" data-key="symptoms" bindinput="onInput" />
     </ui-form-field>
-    <ui-form-field 
-      id="field-medicalCourse"
-      label="医疗过程（可选）"
-      fieldId="medicalCourse">
-      <textarea slot="control" class="textarea" maxlength="500" placeholder="≤500 字" value="{{medicalCourse}}" data-key="medicalCourse" bindinput="onInput" />
+
+    <ui-form-field id="field-medicalCourse" label="病程（可选）">
+      <input slot="control" class="input" placeholder="简要病程"
+        value="{{medicalCourse}}" data-key="medicalCourse" bindinput="onInput" />
     </ui-form-field>
-    <ui-form-field 
-      id="field-followupPlan"
-      label="后续治疗安排（可选）"
-      fieldId="followupPlan">
-      <textarea slot="control" class="textarea" maxlength="500" placeholder="≤500 字" value="{{followupPlan}}" data-key="followupPlan" bindinput="onInput" />
+
+    <ui-form-field id="field-followupPlan" label="随访计划（可选）">
+      <input slot="control" class="input" placeholder="请输入随访计划"
+        value="{{followupPlan}}" data-key="followupPlan" bindinput="onInput" />
     </ui-form-field>
-    <ui-form-field 
-      id="field-motherPhone"
-      label="母亲电话（可选）"
-      fieldId="motherPhone"
-      errorText="{{errors.motherPhone || ''}}">
-      <input 
-        slot="control"
-        class="input" 
-        type="number" 
-        placeholder="11位手机号" 
-        value="{{motherPhone}}" 
-        data-key="motherPhone"
-        bindinput="onInput" />
+
+    <ui-form-field id="field-motherName" label="母亲姓名（可选）">
+      <input slot="control" class="input" placeholder="请输入"
+        value="{{motherName}}" data-key="motherName" bindinput="onInput" />
     </ui-form-field>
-    <ui-form-field 
-      id="field-motherIdCard"
-      label="母亲身份证（可选）"
-      fieldId="motherIdCard"
-      errorText="{{errors.motherIdCard || ''}}">
-      <input 
-        slot="control"
-        class="input" 
-        placeholder="18位身份证" 
-        maxlength="18"
-        value="{{motherIdCard}}" 
-        data-key="motherIdCard"
-        bindinput="onInput" />
+
+    <ui-form-field id="field-motherPhone" label="母亲电话（可选）" errorText="{{errors.motherPhone || ''}}">
+      <input slot="control" class="input" placeholder="请输入"
+        value="{{motherPhone}}" data-key="motherPhone" bindinput="onInput" />
     </ui-form-field>
-    <ui-form-field 
-      id="field-motherName"
-      label="母亲姓名（可选）"
-      fieldId="motherName">
-      <input slot="control" class="input" placeholder="姓名" value="{{motherName}}" data-key="motherName" bindinput="onInput" />
+
+    <ui-form-field id="field-motherIdCard" label="母亲身份证（可选）" errorText="{{errors.motherIdCard || ''}}">
+      <input slot="control" class="input" placeholder="请输入"
+        value="{{motherIdCard}}" data-key="motherIdCard" bindinput="onInput" />
     </ui-form-field>
-    <ui-form-field 
-      id="field-otherGuardians"
-      label="其他监护人（可选）"
-      fieldId="otherGuardians">
-      <input slot="control" class="input" placeholder="姓名/关系" value="{{otherGuardians}}" data-key="otherGuardians" bindinput="onInput" />
+
+    <ui-form-field id="field-otherGuardians" label="其他监护人（可选）">
+      <input slot="control" class="input" placeholder="请输入"
+        value="{{otherGuardians}}" data-key="otherGuardians" bindinput="onInput" />
     </ui-form-field>
-    <ui-form-field 
-      id="field-familyEconomy"
-      label="家庭经济（可选）"
-      fieldId="familyEconomy">
-      <input slot="control" class="input" placeholder="如：困难/一般/良好" value="{{familyEconomy}}" data-key="familyEconomy" bindinput="onInput" />
+
+    <ui-form-field id="field-familyEconomy" label="家庭情况（可选）">
+      <input slot="control" class="input" placeholder="请输入"
+        value="{{familyEconomy}}" data-key="familyEconomy" bindinput="onInput" />
     </ui-form-field>
   </view>
 
-  <ui-button 
-    id="submit-btn"
-    text="提交" 
-    variant="primary" 
-    size="md"
-    loading="{{submitting}}"
-    fullWidth="{{true}}"
-    class="touch-target"
-    aria-label="提交档案表单"
-    bindtap="onSubmit" />
+  <!-- 提交按钮 -->
+  <view class="submit-wrap">
+    <ui-button id="submit-btn" variant="primary" size="md" text="{{ isEdit ? '保存修改' : '创建档案' }}"
+      loading="{{submitting}}" bindtap="onSubmit"></ui-button>
+  </view>
 </view>

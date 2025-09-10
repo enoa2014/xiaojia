@@ -3,7 +3,7 @@
   hover-class="{{disabled || loading ? '' : 'hover'}}"
   disabled="{{disabled || loading}}"
   loading="{{false}}"
-  bindtap="{{disabled || loading ? '' : '_onTap'}}"
+  catchtap="{{disabled || loading ? '' : '_onTap'}}"
   type="{{formType}}"
   open-type="{{openType}}"
   aria-label="{{ariaLabel}}"

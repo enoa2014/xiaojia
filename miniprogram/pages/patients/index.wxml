@@ -183,23 +183,16 @@
               <text class="patient-age" wx:if="{{item.ageText}}"> · {{item.ageText}}</text>
               <text class="priority-badge">重点关注</text>
             </view>
-            <view class="patient-details">
-              <text class="bed-info">{{item.bedInfo || '暂无床位信息'}}</text>
-              <text class="admission-info">入住 {{item.admissionDays}}天</text>
-            </view>
-            <view class="patient-condition">
-              <text class="condition-tag main">{{item.mainDiagnosis || '待确诊'}}</text>
-              <text class="status-tag {{item.statusClass}}">{{item.statusText}}</text>
-            </view>
-            <view class="recent-activity">
-              <text class="activity-icon">❤️</text>
-              <text class="activity-text">{{item.recentService || '暂无服务记录'}}</text>
+            <view class="patient-meta">
+              <text class="meta">籍贯：{{item.nativePlaceText}}</text>
+              <text class="meta">首诊：{{item.firstDiagnosisText}}</text>
+              <text class="meta">最近入住：{{item.lastCheckInText}}</text>
+              <text class="meta">入住次数：{{item.admissionCount || '—'}}</text>
             </view>
           </view>
           <view class="patient-actions-mini">
-            <button class="mini-btn contact" catchtap="contactFamily" data-id="{{item._id}}">📞</button>
-            <button class="mini-btn service" catchtap="toService" data-id="{{item._id}}">❤️</button>
-            <button class="mini-btn star active" catchtap="toggleStar" data-id="{{item._id}}">★</button>
+            <ui-button ext-class="mini-btn service" size="sm" variant="secondary" text="新加服务" aria-label="新加服务" catchtap="toService" data-id="{{item._id}}"></ui-button>
+            <ui-button ext-class="mini-btn star {{starred[item._id] ? 'active' : ''}}" size="sm" variant="ghost" text="{{starred[item._id] ? '已关注' : '特别关注'}}" aria-label="特别关注" catchtap="toggleStar" data-id="{{item._id}}"></ui-button>
           </view>
         </view>
       </block>
@@ -239,20 +232,17 @@
               <text class="patient-age" wx:if="{{item.ageText}}"> · {{item.ageText}}</text>
               <text class="new-badge" wx:if="{{item.isNewAdmission}}">新入住</text>
             </view>
-            <view class="patient-details">
-              <text class="bed-info">{{item.bedInfo}}</text>
-              <text class="admission-info">入住 {{item.admissionDays}}天</text>
-              <text class="subsidy-info" wx:if="{{item.subsidyAmount}}">补助 ¥{{item.subsidyAmount}}/月</text>
-            </view>
-            <view class="patient-condition">
-              <text class="condition-tag main">{{item.mainDiagnosis}}</text>
-              <text class="treatment-tag">{{item.treatmentStatus}}</text>
+            <view class="patient-meta">
+              <text class="meta">籍贯：{{item.nativePlaceText}}</text>
+              <text class="meta">首诊：{{item.firstDiagnosisText}}</text>
+              <text class="meta">最近入住：{{item.lastCheckInText}}</text>
+              <text class="meta">入住次数：{{item.admissionCount || '—'}}</text>
             </view>
           </view>
           <view class="patient-actions-mini">
             <button class="mini-btn edit" catchtap="editPatient" data-id="{{item._id}}">✏️</button>
-            <button class="mini-btn service" catchtap="toService" data-id="{{item._id}}">❤️</button>
-            <button class="mini-btn star {{starred[item._id] ? 'active' : ''}}" catchtap="toggleStar" data-id="{{item._id}}">{{starred[item._id] ? '★' : '☆'}}</button>
+            <ui-button ext-class="mini-btn service" size="sm" variant="secondary" text="新加服务" aria-label="新加服务" catchtap="toService" data-id="{{item._id}}"></ui-button>
+            <ui-button ext-class="mini-btn star {{starred[item._id] ? 'active' : ''}}" size="sm" variant="ghost" text="{{starred[item._id] ? '已关注' : '特别关注'}}" aria-label="特别关注" catchtap="toggleStar" data-id="{{item._id}}"></ui-button>
           </view>
         </view>
       </block>
@@ -275,14 +265,16 @@
               <text class="patient-name">{{item.maskedName}}</text>
               <text class="patient-age" wx:if="{{item.ageText}}"> · {{item.ageText}}</text>
             </view>
-            <view class="patient-details">
-              <text class="bed-info">{{item.bedInfo || '—'}}</text>
-              <text class="admission-info" wx:if="{{item.admissionDays}}">入住 {{item.admissionDays}}天</text>
+            <view class="patient-meta">
+              <text class="meta">籍贯：{{item.nativePlaceText}}</text>
+              <text class="meta">首诊：{{item.firstDiagnosisText}}</text>
+              <text class="meta">最近入住：{{item.lastCheckInText}}</text>
+              <text class="meta">入住次数：{{item.admissionCount || '—'}}</text>
             </view>
           </view>
           <view class="patient-actions-mini">
-            <button class="mini-btn service" catchtap="toService" data-id="{{item._id}}">❤️</button>
-            <button class="mini-btn star {{starred[item._id] ? 'active' : ''}}" catchtap="toggleStar" data-id="{{item._id}}">{{starred[item._id] ? '★' : '☆'}}</button>
+            <ui-button ext-class="mini-btn service" size="sm" variant="secondary" text="新加服务" aria-label="新加服务" catchtap="toService" data-id="{{item._id}}"></ui-button>
+            <ui-button ext-class="mini-btn star {{starred[item._id] ? 'active' : ''}}" size="sm" variant="ghost" text="{{starred[item._id] ? '已关注' : '特别关注'}}" aria-label="特别关注" catchtap="toggleStar" data-id="{{item._id}}"></ui-button>
           </view>
         </view>
       </block>
@@ -333,9 +325,11 @@
               <text class="patient-age" wx:if="{{item.ageText}}"> · {{item.ageText}}</text>
               <text class="match-type">{{item.matchType}}</text>
             </view>
-            <view class="patient-details">
-              <text class="bed-info">{{item.bedInfo || '已出院'}}</text>
-              <text class="match-context">{{item.matchContext}}</text>
+            <view class="patient-meta">
+              <text class="meta">籍贯：{{item.nativePlaceText}}</text>
+              <text class="meta">首诊：{{item.firstDiagnosisText}}</text>
+              <text class="meta">最近入住：{{item.lastCheckInText}}</text>
+              <text class="meta">入住次数：{{item.admissionCount || '—'}}</text>
             </view>
           </view>
           <text class="arrow">〉</text>

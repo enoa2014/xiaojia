@@ -84,6 +84,7 @@ Page({
     basicInfoItems: [],
     patientBasicStats: '',
     tenancyTimeline: [],
+    tenancySortOrder: 'desc', // desc: 最近入住在先, asc: 首次入住在先
     recentServices: [],
     currentMonthServices: 0,
     
@@ -254,13 +255,23 @@ Page({
 
   async loadTenancyData(patientId) {
     try {
-      const result = await api.tenancies.list({
-        page: 1,
-        pageSize: 10,
-        filter: { patientId },
-        sort: { checkInDate: -1 }
-      })
-      return Array.isArray(result) ? result : (result?.items || [])
+      const pageSize = 100
+      let page = 1
+      let all = []
+      while (true) {
+        const result = await api.tenancies.list({
+          page,
+          pageSize,
+          filter: { patientId },
+          sort: { checkInDate: -1 }
+        })
+        const arr = Array.isArray(result) ? result : (result?.items || [])
+        all = all.concat(arr)
+        if (arr.length < pageSize) break
+        page += 1
+        if (page > 10) break // 安全上限，避免长循环
+      }
+      return all
     } catch (error) {
       console.warn('加载入住记录失败:', error)
       return []
@@ -269,13 +280,23 @@ Page({
 
   async loadServiceData(patientId) {
     try {
-      const result = await api.services.list({
-        page: 1,
-        pageSize: 20,
-        filter: { patientId },
-        sort: { date: -1 }
-      })
-      return Array.isArray(result) ? result : (result?.items || [])
+      const pageSize = 100
+      let page = 1
+      let all = []
+      while (true) {
+        const result = await api.services.list({
+          page,
+          pageSize,
+          filter: { patientId },
+          sort: { date: -1 }
+        })
+        const arr = Array.isArray(result) ? result : (result?.items || [])
+        all = all.concat(arr)
+        if (arr.length < pageSize) break
+        page += 1
+        if (page > 10) break // 安全上限，避免长循环
+      }
+      return all
     } catch (error) {
       console.warn('加载服务记录失败:', error)
       return []
@@ -298,7 +319,8 @@ Page({
   processPatientData(patient) {
     const ageText = this.calculateAge(patient.birthDate)
     const initial = (patient.name ? patient.name[0] : '👤').toUpperCase()
-    const displayName = this.maskName(patient.name, patient.permission?.hasNamePermission)
+    const isPrivileged = ['admin','social_worker'].includes(this.data.role)
+    const displayName = isPrivileged ? (patient.name || '—') : this.maskName(patient.name, patient.permission?.hasNamePermission)
     const bedInfo = this.buildBedInfo(patient)
     const stayDuration = this.calculateStayDuration(patient)
     
@@ -316,14 +338,15 @@ Page({
 
   buildBasicInfoItems(patient) {
     const permission = patient.permission || {}
+    const isPrivileged = ['admin','social_worker'].includes(this.data.role)
     
     return [
       {
         key: 'name',
         label: '姓名',
-        value: this.maskName(patient.name, permission.hasNamePermission),
-        masked: !permission.hasNamePermission,
-        needPermission: !permission.hasNamePermission
+        value: this.maskName(patient.name, permission.hasNamePermission || isPrivileged),
+        masked: !(permission.hasNamePermission || isPrivileged),
+        needPermission: !(permission.hasNamePermission || isPrivileged)
       },
       {
         key: 'gender',
@@ -342,23 +365,23 @@ Page({
       {
         key: 'phone',
         label: '联系电话',
-        value: this.maskPhone(patient.phone, permission.hasContactPermission),
-        masked: !permission.hasContactPermission,
-        needPermission: !permission.hasContactPermission
+        value: this.maskPhone(patient.phone, permission.hasContactPermission || isPrivileged),
+        masked: !(permission.hasContactPermission || isPrivileged),
+        needPermission: !(permission.hasContactPermission || isPrivileged)
       },
       {
         key: 'address',
         label: '家庭住址',
-        value: this.maskAddress(patient.address, permission.hasAddressPermission),
-        masked: !permission.hasAddressPermission,
-        needPermission: !permission.hasAddressPermission
+        value: this.maskAddress(patient.address, permission.hasAddressPermission || isPrivileged),
+        masked: !(permission.hasAddressPermission || isPrivileged),
+        needPermission: !(permission.hasAddressPermission || isPrivileged)
       },
       {
         key: 'idCard',
         label: '身份证号',
-        value: this.maskIdCard(patient.id_card, permission.hasIdPermission),
-        masked: !permission.hasIdPermission,
-        needPermission: !permission.hasIdPermission
+        value: this.maskIdCard(patient.id_card, permission.hasIdPermission || isPrivileged),
+        masked: !(permission.hasIdPermission || isPrivileged),
+        needPermission: !(permission.hasIdPermission || isPrivileged)
       }
     ].filter(item => item.value !== '—' || !item.needPermission)
   },
@@ -372,7 +395,13 @@ Page({
   },
 
   buildTenancyTimeline(tenancies) {
-    return tenancies.slice(0, 3).map(tenancy => ({
+    const order = this.data.tenancySortOrder || 'desc'
+    const sorted = [...tenancies].sort((a,b) => {
+      const ak = new Date(a.checkInDate).getTime() || 0
+      const bk = new Date(b.checkInDate).getTime() || 0
+      return order === 'asc' ? (ak - bk) : (bk - ak)
+    })
+    return sorted.map(tenancy => ({
       id: tenancy._id,
       dateRange: this.buildDateRange(tenancy.checkInDate, tenancy.checkOutDate),
       roomInfo: this.buildRoomInfo(tenancy),
@@ -703,6 +732,17 @@ Page({
 
   stopPropagation() {
     // 阻止事件冒泡
+  },
+
+  // 入住历史排序切换
+  toggleTenancySort(){
+    const order = this.data.tenancySortOrder === "asc" ? "desc" : "asc"
+    this.setData({ tenancySortOrder: order })
+    const { id } = this.data
+    if (!id) return
+    this.loadTenancyData(id).then(list=>{
+      this.setData({ tenancyTimeline: this.buildTenancyTimeline(list) })
+    }).catch(()=>{})
   },
 
   // ========== 工具方法 ==========
