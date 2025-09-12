@@ -1,0 +1,8 @@
+{
+  "navigationBarTitleText": "用户注册",
+  "usingComponents": {
+    "ui-button": "../../../components/button/index",
+    "empty-state": "../../../components/empty-state/index",
+    "error-view": "../../../components/error-view/index"
+  }
+}

@@ -222,6 +222,28 @@ page {
   font-size: 20rpx;
 }
 
+/* 徽章与提醒 */
+.count-badge {
+  margin-left: auto;
+  padding: 4rpx 12rpx;
+  background: rgba(255, 255, 255, 0.15);
+  color: #FFFFFF;
+  border: 1rpx solid rgba(255, 255, 255, 0.35);
+  border-radius: 999rpx;
+  font-size: 20rpx;
+  font-weight: 700;
+}
+
+.birthday-tag {
+  padding: 2rpx 10rpx;
+  background: rgba(254, 226, 226, 0.9);
+  color: #7F1D1D;
+  border: 1rpx solid rgba(252, 165, 165, 0.9);
+  border-radius: 12rpx;
+  font-size: 20rpx;
+  font-weight: 700;
+}
+
 /* ========== 权限状态提示区 ========== */
 .permission-status {
   margin: 24rpx;

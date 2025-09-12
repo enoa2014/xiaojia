@@ -23,6 +23,11 @@
   gap: var(--space-3);
 }
 
+/* 审批类型切换 */
+.category-bar { display: flex; gap: 16rpx; margin-top: 8rpx; }
+.cat-item { display: inline-block; padding: 8rpx 16rpx; border-radius: 999px; background: rgba(255,255,255,0.2); color: var(--text-on-primary); font-size: var(--font-caption); }
+.cat-item.active { background: #fff; color: #111827; }
+
 .nav-filter {
   color: var(--text-on-primary);
   font-size: var(--font-body);

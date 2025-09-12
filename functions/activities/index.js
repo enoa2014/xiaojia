@@ -165,7 +165,9 @@ var ActivityCreateSchema = import_zod.z.object({
 // index.ts
 import_wx_server_sdk2.default.init({ env: import_wx_server_sdk2.default.DYNAMIC_CURRENT_ENV });
 var db = import_wx_server_sdk2.default.database();
-var IdSchema = import_zod2.z.object({ id: import_zod2.z.string() });
+var IdSchema = import_zod2.z.object({ id: import_zod2.z.string().min(1) });
+var GetIdCompatSchema = import_zod2.z.object({ id: import_zod2.z.string().min(1) }).or(import_zod2.z.object({ activityId: import_zod2.z.string().min(1) }));
+var UpdateCompatSchema = import_zod2.z.object({ id: import_zod2.z.string().min(1), patch: ActivityCreateSchema.partial() }).or(import_zod2.z.object({ activityId: import_zod2.z.string().min(1), data: ActivityCreateSchema.partial() }));
 var main = async (event) => {
   var _a, _b;
   try {
@@ -194,11 +196,29 @@ var main = async (event) => {
         const { items, meta } = await paginate(base, { page: qp.page, pageSize: qp.pageSize, sort: qp.sort }, { fallbackSort: { date: -1 }, countQuery: db.collection("Activities").where(query) });
         return ok({ items, meta });
       }
+      case "publicList": {
+        const Q = import_zod2.z.object({ window: import_zod2.z.enum(["current", "last14d"]).default("current"), status: import_zod2.z.enum(["open", "ongoing", "completed"]).optional() });
+        const qp = Q.parse(payload || {});
+        const _ = db.command;
+        const query = {};
+        const now = Date.now();
+        if (qp.window === "current") {
+          query.status = _.in(["open", "ongoing"]);
+        } else {
+          const from = now - 14 * 24 * 60 * 60 * 1e3;
+          query.status = "completed";
+          query.endDate = { [_.gte]: from };
+        }
+        if (qp.status)
+          query.status = qp.status;
+        const base = db.collection("Activities").where(query);
+        const { items } = await paginate(base, { page: 1, pageSize: 50, sort: { date: -1 } }, { fallbackSort: { date: -1 }, countQuery: db.collection("Activities").where(query) });
+        return ok({ items });
+      }
       case "get": {
-        const pld = payload || {};
-        const id = (pld && (pld.id || pld.activityId)) || (function(){ try { return IdSchema.parse(pld).id } catch { return null } })();
-        if (!id) return err("E_VALIDATE","missing id");
-        const r = await db.collection("Activities").doc(String(id)).get();
+        const idObj = GetIdCompatSchema.parse(payload || {});
+        const id = idObj.id || idObj.activityId;
+        const r = await db.collection("Activities").doc(id).get();
         if (!(r == null ? void 0 : r.data))
           return err("E_NOT_FOUND", "activity not found");
         return ok(r.data);
@@ -217,17 +237,30 @@ var main = async (event) => {
         return ok({ _id });
       }
       case "update": {
-        // RBAC
-        if (!await canCreate()) return err("E_PERM","\u4EC5\u7BA1\u7406\u5458/\u793E\u5DE5\u53EF\u66F4\u65B0\u6D3B\u52A8");
-        const pld = payload || {};
-        const id = (pld && (pld.id || pld.activityId)) || null;
-        const patch = (pld && (pld.patch || pld.data)) || {};
-        if (!id || typeof patch !== 'object') return err("E_VALIDATE","invalid args");
-        const clean = {};
-        Object.keys(patch || {}).forEach(k => { if (patch[k] !== void 0) clean[k] = patch[k]; });
-        if (!Object.keys(clean).length) return ok({ updated: 0 });
-        await db.collection('Activities').doc(String(id)).update({ data: { ...clean, updatedAt: Date.now() } });
-        try { await db.collection('AuditLogs').add({ data: { actorId: OPENID || null, action: 'activities.update', target: { id: String(id) }, createdAt: Date.now() } }) } catch {}
+        const allowed = await hasAnyRole(db, OPENID, ["admin", "social_worker"]);
+        if (!allowed)
+          return err("E_PERM", "\u4EC5\u7BA1\u7406\u5458/\u793E\u5DE5\u53EF\u66F4\u65B0\u6D3B\u52A8");
+        const parsed = UpdateCompatSchema.safeParse(payload || {});
+        if (!parsed.success) {
+          const m = mapZodIssues(parsed.error.issues);
+          return errValidate(m.msg, parsed.error.issues);
+        }
+        const p = parsed.data;
+        const id = p.id || p.activityId;
+        const patch = p.patch || p.data || {};
+        const cleanPatch = {};
+        for (const k of Object.keys(patch)) {
+          const v = patch[k];
+          if (v !== void 0)
+            cleanPatch[k] = v;
+        }
+        if (!Object.keys(cleanPatch).length)
+          return ok({ updated: 0 });
+        await db.collection("Activities").doc(id).update({ data: { ...cleanPatch, updatedAt: Date.now() } });
+        try {
+          await db.collection("AuditLogs").add({ data: { actorId: OPENID || null, action: "activities.update", target: { id }, createdAt: Date.now() } });
+        } catch {
+        }
         return ok({ updated: 1 });
       }
       default:

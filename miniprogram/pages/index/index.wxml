@@ -24,11 +24,16 @@
         <role-badge roleKey="{{user.roleKey || ''}}" size="sm"></role-badge>
       </view>
       <view class="permissions-row">
-        <text class="perm-text">{{user.permText}}</text>
-        <view class="status-indicator active">
+        <text class="perm-text" wx:if="{{user.roleKey}}">{{user.permText}}</text>
+        <text class="perm-text" wx:elif="{{user.status==='pending'}}">注册已提交，等待审批</text>
+        <view class="status-indicator active" wx:if="{{user.roleKey}}">
           <icon type="success" color="#22C55E" size="14" />
           <text>在线</text>
         </view>
+      </view>
+      <view wx:if="{{!user.roleKey}}" class="guest-actions">
+        <button class="register-btn" bindtap="goRegister">立即注册</button>
+        <button class="guest-btn" bindtap="goActivitiesGuest">以游客模式浏览活动</button>
       </view>
     </view>
   </view>

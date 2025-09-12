@@ -1,0 +1,28 @@
+schema: 1
+story: "EP-07.S3"
+story_title: "用户 Profile 拉取与首页展示"
+gate: "PASS"  # PASS|CONCERNS|FAIL|WAIVED
+status_reason: "首页已集成 getProfile 并按角色渲染，降级与状态分支达标；建议采样验证首屏性能并保持监控。"
+reviewer: "Quinn (Test Architect)"
+updated: "2025-09-12T00:28:00Z"
+
+waiver:
+  active: false
+
+top_issues:
+  - id: "HOME-NFR-001"
+    severity: low
+    finding: "首屏 P75 ≤1s 未进行采样验证"
+    suggested_action: "记录 P75/P95；如需优化，考虑缓存与延迟加载策略"
+  - id: "HOME-DATA-002"
+    severity: low
+    finding: "无姓名时默认写入访客昵称可能带来数据噪音"
+    suggested_action: "评估改为仅本地占位，避免额外写请求"
+
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 0, low: 2 }
+  recommendations:
+    must_fix: []
+    monitor:
+      - "首屏 getProfile 请求时延（P75/P95）与失败率；按需调整"
+

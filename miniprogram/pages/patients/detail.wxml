@@ -39,6 +39,8 @@
             <text class="age">{{patient.ageText}}</text>
             <text class="gender" wx:if="{{patient.gender}}">{{patient.gender}}</text>
           </view>
+          <text class="birthday-tag" wx:if="{{patient.birthdaySoon}}">生日</text>
+          <view class="count-badge" wx:if="{{admissionCount > 0}}">{{admissionCount}}次</view>
         </view>
         <view class="patient-condition">
           <text class="condition-tag">{{patient.mainDiagnosis || '待确诊'}}</text>

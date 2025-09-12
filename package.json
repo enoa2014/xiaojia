@@ -4,7 +4,7 @@
   "private": true,
   "scripts": {
     "docs:source-tree": "bash ./scripts/gen-source-tree.sh",
-    "build:functions": "pnpm -r --filter ./functions/* build",
+    "build:functions": "pnpm -r --filter './functions/*' run build",
     "build:tokens": "node ./scripts/build-tokens.js",
     "package:functions": "bash ./scripts/package-functions.sh",
     "gen:extension:resources": "node ./scripts/gen-extension-resources.mjs",

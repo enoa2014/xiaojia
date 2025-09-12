@@ -175,6 +175,7 @@ Page({
         currentMonthServices: this.calculateCurrentMonthServices(services),
         inResidence: this.checkInResidence(tenancies),
         starred: this.checkStarred(this.data.id),
+        admissionCount: Array.isArray(tenancies) ? tenancies.length : 0,
         loading: false
       }
       
@@ -194,6 +195,8 @@ Page({
 
       // 设置权限相关状态
       this.updatePermissionUI(patient.permission)
+      // 刷新星标状态（从用户个人数据）
+      this.refreshStarred()
       
     } catch (error) {
       console.error('加载患者数据失败:', error)
@@ -323,6 +326,7 @@ Page({
     const displayName = isPrivileged ? (patient.name || '—') : this.maskName(patient.name, patient.permission?.hasNamePermission)
     const bedInfo = this.buildBedInfo(patient)
     const stayDuration = this.calculateStayDuration(patient)
+    const birthdaySoon = this.isBirthdaySoon(patient.birthDate)
     
     return {
       ...patient,
@@ -331,6 +335,7 @@ Page({
       ageText,
       bedInfo,
       stayDuration,
+      birthdaySoon,
       mainDiagnosis: patient.hospitalDiagnosis || '待确诊',
       treatmentInfo: patient.treatmentStatus || patient.treatmentPlan
     }
@@ -600,16 +605,32 @@ Page({
   },
 
   toggleStar() {
-    const starred = !this.data.starred
-    this.setData({ starred })
-    
-    // 这里可以添加收藏/取消收藏的API调用
-    // await api.patients.toggleStar(this.data.id, starred)
-    
-    wx.showToast({
-      title: starred ? '已添加到关注' : '已取消关注',
-      icon: 'success'
-    })
+    const id = this.data.id
+    const next = !this.data.starred
+    // 乐观更新
+    this.setData({ starred: next })
+    // 本地映射存储（与列表页保持一致的 key）
+    try {
+      const raw = wx.getStorageSync('star_patients') || {}
+      const map = raw && typeof raw === 'object' ? { ...raw } : {}
+      if (next) map[id] = true; else delete map[id]
+      wx.setStorageSync('star_patients', map)
+    } catch(_){}
+    // 后端持久化
+    api.users.toggleStar(id, next)
+      .then(() => {
+        wx.showToast({ title: next ? '已添加到关注' : '已取消关注', icon: 'success' })
+      })
+      .catch(() => {
+        // 不回滚，保留本地已更新状态，稍后自动同步
+        try {
+          const pending = wx.getStorageSync('star_pending') || {}
+          const map = pending && typeof pending === 'object' ? { ...pending } : {}
+          map[id] = next
+          wx.setStorageSync('star_pending', map)
+        } catch(_) {}
+        wx.showToast({ title: '已保存到本地，将自动同步', icon: 'none' })
+      })
   },
 
   shareProfile() {
@@ -834,13 +855,23 @@ Page({
   },
 
   checkStarred(patientId) {
-    // 从本地存储检查是否已收藏
+    // 本地快速检查（兼容旧数组与新映射）
     try {
-      const starred = wx.getStorageSync('starred_patients') || []
-      return starred.includes(patientId)
-    } catch (error) {
+      const map = wx.getStorageSync('star_patients') || {}
+      if (map && typeof map === 'object' && map[patientId]) return true
+      const arr = wx.getStorageSync('starred_patients') || []
+      if (Array.isArray(arr)) return arr.includes(patientId)
       return false
-    }
+    } catch (_) { return false }
+  },
+
+  refreshStarred(){
+    const id = this.data.id
+    if (!id) return
+    api.users.getStars().then((list=[]) => {
+      const on = Array.isArray(list) && list.includes(id)
+      this.setData({ starred: !!on })
+    }).catch(()=>{})
   },
 
   calculateCurrentMonthServices(services) {
@@ -897,6 +928,21 @@ Page({
       in_progress: 'pending'
     }
     return classes[status] || 'pending'
+  },
+
+  isBirthdaySoon(birthDate){
+    try {
+      if (!birthDate) return false
+      const b = new Date(birthDate)
+      if (isNaN(b.getTime())) return false
+      const now = new Date()
+      let target = new Date(now.getFullYear(), b.getMonth(), b.getDate())
+      if (target < new Date(now.getFullYear(), now.getMonth(), now.getDate())) {
+        target = new Date(now.getFullYear() + 1, b.getMonth(), b.getDate())
+      }
+      const diffDays = Math.ceil((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+      return diffDays >= 0 && diffDays <= 7
+    } catch { return false }
   },
 
   getExpiresText(expiresAt) {

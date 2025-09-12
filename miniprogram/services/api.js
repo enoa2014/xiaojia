@@ -2,11 +2,20 @@
 // 生成简单 requestId（可用于审计与埋点串联）
 export const genRequestId = (prefix = 'req') => `${prefix}-${Date.now()}-${Math.floor(Math.random()*1e6)}`
 
+import { track } from './analytics'
+
 const call = async (name, action, payload = {}) => {
   const res = await wx.cloud.callFunction({ name, data: { action, payload } })
   const r = res && res.result
   if (!r || r.ok !== true) {
     const err = (r && r.error) || { code: 'E_INTERNAL', msg: '未知错误' }
+    try {
+      if (err && (err.code === 'E_PERM' || err.code === 'E_AUTH')) {
+        const apiId = `${name}.${action}`
+        const requestId = (payload && payload.requestId) || undefined
+        track('rbac_block_count', { api: apiId, code: err.code, requestId })
+      }
+    } catch(_) {}
     throw Object.assign(new Error(err.msg), { code: err.code, details: err.details })
   }
   return r.data
@@ -91,7 +100,31 @@ export const api = {
   },
   users: {
     getProfile: () => call('users', 'getProfile'),
-    setRole: (role) => call('users', 'setRole', { role })
+    register: (payload = {}) => callWithRetry('users', 'register', payload),
+    listRegistrations: async (q = {}) => {
+      const res = await call('users', 'listRegistrations', q)
+      // 统一 { items, hasMore }
+      const items = Array.isArray(res?.items) ? res.items : (Array.isArray(res) ? res : [])
+      const hasMore = !!(res && res.meta && res.meta.hasMore)
+      return { items, hasMore }
+    },
+    reviewRegistration: (payload = {}) => call('users', 'reviewRegistration', payload),
+    setRole: (role) => call('users', 'setRole', { role }),
+    setProfile: (profile = {}) => call('users', 'setProfile', profile),
+    getStars: async () => {
+      try {
+        const res = await call('users', 'getStars')
+        const hasProp = res && Object.prototype.hasOwnProperty.call(res, 'stars')
+        if (!hasProp) throw Object.assign(new Error('unsupported'), { code: 'E_ACTION' })
+        const items = Array.isArray(res?.stars) ? res.stars : []
+        return items
+      } catch (e) {
+        return null // 显式返回 null 以触发调用方回退本地缓存
+      }
+    },
+    toggleStar: async (patientId, value) => {
+      return call('users', 'toggleStar', { patientId, value })
+    }
   },
   tenancies: {
     list: (q) => call('tenancies','list', q),
@@ -110,10 +143,11 @@ export const api = {
     get: (id) => call('activities','get', { id }),
     create: (activity, clientToken) => callWithRetry('activities','create', { activity, clientToken })
     ,update: (id, patch) => call('activities','update', { id, patch })
+    ,publicList: (q = {}) => call('activities','publicList', q)
   },
   registrations: {
     list: (q) => call('registrations', 'list', q),
-    register: (activityId) => call('registrations', 'register', { activityId }),
+    register: (activityId, guestContact) => call('registrations', 'register', guestContact ? { activityId, guestContact } : { activityId }),
     cancel: (activityId) => call('registrations', 'cancel', { activityId }),
     checkin: (activityId, userId) => call('registrations', 'checkin', { activityId, userId }),
     // 兼容别名（部分页面调用 checkIn）

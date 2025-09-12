@@ -9,6 +9,7 @@
 - EP-04 活动与报名：docs/backlog/epics/epic-04-activities.md
 - EP-05 统计与导出：docs/backlog/epics/epic-05-stats-exports.md
 - EP-06 权限与安全：docs/backlog/epics/epic-06-permissions-security.md
+- EP-07 账号与认证（注册/登录/游客）：docs/backlog/epics/epic-07-auth-and-accounts.md
 
 维护说明
 - 详细用户故事请放在 `docs/backlog/user-stories.md`，并在各 Epic 中引用对应 Story ID。

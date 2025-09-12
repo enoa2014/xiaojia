@@ -33,7 +33,7 @@ __export(services_exports, {
   main: () => main
 });
 module.exports = __toCommonJS(services_exports);
-var import_wx_server_sdk = __toESM(require("wx-server-sdk"));
+var import_wx_server_sdk2 = __toESM(require("wx-server-sdk"));
 var import_zod2 = require("zod");
 
 // ../packages/core-rbac/index.ts
@@ -112,6 +112,35 @@ var err = (code, msg, details) => ({
 });
 var errValidate = (msg, details) => err("E_VALIDATE", msg, details);
 
+// ../packages/core-db/index.ts
+var import_wx_server_sdk = __toESM(require("wx-server-sdk"));
+var paginate = async (coll, pageQ, opts) => {
+  const { page, pageSize, sort } = pageQ;
+  let query = coll;
+  const applySort = (q) => {
+    const s = sort && Object.keys(sort).length ? sort : (opts == null ? void 0 : opts.fallbackSort) || {};
+    const entries = Object.entries(s);
+    if (!entries.length)
+      return q;
+    const [k, v] = entries[0];
+    return q.orderBy(k, v === -1 ? "desc" : "asc");
+  };
+  try {
+    query = applySort(query);
+  } catch {
+  }
+  let total = 0;
+  try {
+    const c = await ((opts == null ? void 0 : opts.countQuery) || coll).count();
+    total = (c.total ?? c.count) || 0;
+  } catch {
+  }
+  const res = await query.skip((page - 1) * pageSize).limit(pageSize).get();
+  const items = res && res.data || [];
+  const hasMore = page * pageSize < total;
+  return { items, meta: { total, hasMore } };
+};
+
 // schema.ts
 var import_zod = require("zod");
 var ServicesListSchema = import_zod.z.object({
@@ -139,19 +168,19 @@ var ServiceReviewSchema = import_zod.z.object({
 });
 
 // index.ts
-import_wx_server_sdk.default.init({ env: import_wx_server_sdk.default.DYNAMIC_CURRENT_ENV });
-var db = import_wx_server_sdk.default.database();
+import_wx_server_sdk2.default.init({ env: import_wx_server_sdk2.default.DYNAMIC_CURRENT_ENV });
+var db = import_wx_server_sdk2.default.database();
 var IdSchema = import_zod2.z.object({ id: import_zod2.z.string() });
 var main = async (event) => {
   var _a, _b, _c, _d, _e, _f;
   try {
     const { action, payload } = event || {};
-    const { OPENID } = ((_b = (_a = import_wx_server_sdk.default).getWXContext) == null ? void 0 : _b.call(_a)) || {};
+    const { OPENID } = ((_b = (_a = import_wx_server_sdk2.default).getWXContext) == null ? void 0 : _b.call(_a)) || {};
     const canReview = async () => hasAnyRole(db, OPENID, ["admin", "social_worker"]);
     switch (action) {
       case "list": {
         const qp = ServicesListSchema.parse(payload || {});
-        const { OPENID: OPENID2 } = ((_d = (_c = import_wx_server_sdk.default).getWXContext) == null ? void 0 : _d.call(_c)) || {};
+        const { OPENID: OPENID2 } = ((_d = (_c = import_wx_server_sdk2.default).getWXContext) == null ? void 0 : _d.call(_c)) || {};
         const isManager = await hasAnyRole(db, OPENID2, ["admin", "social_worker"]);
         let query = {};
         if (qp.filter) {
@@ -170,15 +199,9 @@ var main = async (event) => {
         if (!isManager) {
           query.createdBy = OPENID2 || null;
         }
-        let coll = db.collection("Services").where(query);
-        if (qp.sort && Object.keys(qp.sort).length) {
-          const [k, v] = Object.entries(qp.sort)[0];
-          coll = coll.orderBy(k, v === -1 ? "desc" : "asc");
-        } else {
-          coll = coll.orderBy("date", "desc");
-        }
-        const res = await coll.skip((qp.page - 1) * qp.pageSize).limit(qp.pageSize).get();
-        return ok(res.data);
+        const base = db.collection("Services").where(query);
+        const { items } = await paginate(base, { page: qp.page, pageSize: qp.pageSize, sort: qp.sort }, { fallbackSort: { date: -1 }, countQuery: db.collection("Services").where(query) });
+        return ok(items);
       }
       case "get": {
         const { id } = IdSchema.parse(payload || {});
@@ -195,7 +218,7 @@ var main = async (event) => {
         }
         const s = parsed.data;
         const clientToken = payload && payload.clientToken || null;
-        const { OPENID: OPENID2 } = ((_f = (_e = import_wx_server_sdk.default).getWXContext) == null ? void 0 : _f.call(_e)) || {};
+        const { OPENID: OPENID2 } = ((_f = (_e = import_wx_server_sdk2.default).getWXContext) == null ? void 0 : _f.call(_e)) || {};
         if (clientToken) {
           const existed = await db.collection("Services").where({ clientToken }).limit(1).get();
           if (existed.data && existed.data.length) {
@@ -207,7 +230,12 @@ var main = async (event) => {
         return ok({ _id });
       }
       case "review": {
-        const { id, decision, reason } = ServiceReviewSchema.parse(payload || {});
+        const parsed = ServiceReviewSchema.safeParse(payload || {});
+        if (!parsed.success) {
+          const m = mapZodIssues(parsed.error.issues);
+          return errValidate(m.msg, parsed.error.issues);
+        }
+        const { id, decision, reason } = parsed.data;
         if (!await canReview())
           return err("E_PERM", "\u9700\u8981\u5BA1\u6838\u6743\u9650");
         if (decision === "rejected" && !reason)
@@ -220,7 +248,8 @@ var main = async (event) => {
           return err("E_CONFLICT", "\u5F53\u524D\u72B6\u6001\u4E0D\u53EF\u5BA1\u6838");
         await db.collection("Services").doc(id).update({ data: { status: decision, reviewReason: reason || null, reviewedAt: Date.now() } });
         try {
-          await db.collection("AuditLogs").add({ data: { actorId: OPENID || null, action: "services.review", target: { id, decision }, createdAt: Date.now() } });
+          const reqId = payload && payload.requestId || null;
+          await db.collection("AuditLogs").add({ data: { actorId: OPENID || null, action: "services.review", target: { id, decision }, requestId: reqId, createdAt: Date.now() } });
         } catch {
         }
         return ok({ updated: 1 });

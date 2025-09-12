@@ -45,5 +45,12 @@
       { "name": "idx_status", "keys": { "status": 1 } },
       { "name": "idx_type_createdAt", "keys": { "type": 1, "createdAt": -1 } }
     ]
+  },
+  "Users": {
+    "indexes": [
+      { "name": "uniq_openId", "unique": true, "keys": { "openId": 1 } },
+      { "name": "idx_status_createdAt", "keys": { "status": 1, "createdAt": -1 } },
+      { "name": "idx_createdAt", "keys": { "createdAt": -1 } }
+    ]
   }
 }

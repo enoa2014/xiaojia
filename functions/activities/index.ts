@@ -42,6 +42,26 @@ export const main = async (event:any): Promise<Resp<any>> => {
         const { items, meta } = await paginate(base, { page: qp.page, pageSize: qp.pageSize, sort: qp.sort }, { fallbackSort: { date: -1 }, countQuery: db.collection('Activities').where(query) })
         return ok({ items, meta })
       }
+      case 'publicList': {
+        // 公共查询：无需登录
+        const Q = z.object({ window: z.enum(['current','last14d']).default('current'), status: z.enum(['open','ongoing','completed']).optional() })
+        const qp = Q.parse(payload || {})
+        const _ = db.command
+        const query: any = {}
+        const now = Date.now()
+        if (qp.window === 'current') {
+          query.status = _.in(['open','ongoing'])
+        } else {
+          // 最近14天已完成
+          const from = now - 14 * 24 * 60 * 60 * 1000
+          query.status = 'completed'
+          query.endDate = { [_.gte]: from }
+        }
+        if (qp.status) query.status = qp.status
+        const base = db.collection('Activities').where(query)
+        const { items } = await paginate(base, { page: 1, pageSize: 50, sort: { date: -1 } }, { fallbackSort: { date: -1 }, countQuery: db.collection('Activities').where(query) })
+        return ok({ items })
+      }
       case 'get': {
         const idObj = GetIdCompatSchema.parse(payload || {}) as any
         const id = idObj.id || idObj.activityId

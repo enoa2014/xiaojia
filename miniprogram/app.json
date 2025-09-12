@@ -2,6 +2,7 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/auth/register/index",
     "pages/patients/index",
     "pages/services/index",
     "pages/activities/index",
@@ -42,6 +43,6 @@
   },
   "style": "v2",
   "sitemapLocation": "sitemap.json",
-  "lazyCodeLoading": "requiredComponents",
+  
   "cloud": true
 }

@@ -1,0 +1,28 @@
+schema: 1
+story: "EP-07.S5"
+story_title: "RBAC 接入点覆盖与验证"
+gate: "PASS"  # PASS|CONCERNS|FAIL|WAIVED
+status_reason: "审批/写操作 RBAC 达标；游客白名单与字段脱敏生效；错误码一致并新增拦截观测。建议完善权限矩阵与监控面板。"
+reviewer: "Quinn (Test Architect)"
+updated: "2025-09-12T00:42:00Z"
+
+waiver:
+  active: false
+
+top_issues:
+  - id: "RBAC-COVERAGE-001"
+    severity: low
+    finding: "缺少成体系的权限矩阵与自动化用例追踪"
+    suggested_action: "编制角色×接口矩阵并落入回归清单，覆盖游客/边界路径"
+  - id: "OBS-DASH-002"
+    severity: low
+    finding: "rbac_block_count 已上报但缺少聚合监控面板"
+    suggested_action: "在观测平台配置接口维度分布与趋势图，并设阈值告警"
+
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 0, low: 2 }
+  recommendations:
+    must_fix: []
+    monitor:
+      - "权限矩阵覆盖与 rbac_block_count 趋势监控"
+

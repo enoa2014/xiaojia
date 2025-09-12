@@ -33,7 +33,7 @@ __export(registrations_exports, {
   main: () => main
 });
 module.exports = __toCommonJS(registrations_exports);
-var import_wx_server_sdk = __toESM(require("wx-server-sdk"));
+var import_wx_server_sdk2 = __toESM(require("wx-server-sdk"));
 var import_zod = require("zod");
 
 // ../packages/core-utils/errors.ts
@@ -71,22 +71,54 @@ var hasAnyRole = async (db2, openId, roles) => {
   return false;
 };
 
+// ../packages/core-db/index.ts
+var import_wx_server_sdk = __toESM(require("wx-server-sdk"));
+var paginate = async (coll, pageQ, opts) => {
+  const { page, pageSize, sort } = pageQ;
+  let query = coll;
+  const applySort = (q) => {
+    const s = sort && Object.keys(sort).length ? sort : (opts == null ? void 0 : opts.fallbackSort) || {};
+    const entries = Object.entries(s);
+    if (!entries.length)
+      return q;
+    const [k, v] = entries[0];
+    return q.orderBy(k, v === -1 ? "desc" : "asc");
+  };
+  try {
+    query = applySort(query);
+  } catch {
+  }
+  let total = 0;
+  try {
+    const c = await ((opts == null ? void 0 : opts.countQuery) || coll).count();
+    total = (c.total ?? c.count) || 0;
+  } catch {
+  }
+  const res = await query.skip((page - 1) * pageSize).limit(pageSize).get();
+  const items = res && res.data || [];
+  const hasMore = page * pageSize < total;
+  return { items, meta: { total, hasMore } };
+};
+
 // index.ts
-import_wx_server_sdk.default.init({ env: import_wx_server_sdk.default.DYNAMIC_CURRENT_ENV });
-var db = import_wx_server_sdk.default.database();
+import_wx_server_sdk2.default.init({ env: import_wx_server_sdk2.default.DYNAMIC_CURRENT_ENV });
+var db = import_wx_server_sdk2.default.database();
 var ListSchema = import_zod.z.object({
   activityId: import_zod.z.string().optional(),
   userId: import_zod.z.string().optional(),
-  status: import_zod.z.enum(["registered", "waitlist", "cancelled"]).optional()
+  status: import_zod.z.enum(["registered", "waitlist", "cancelled"]).optional(),
+  page: import_zod.z.number().int().min(1).optional(),
+  pageSize: import_zod.z.number().int().min(1).max(100).optional()
 }).partial();
-var RegisterSchema = import_zod.z.object({ activityId: import_zod.z.string() });
+var GuestContactSchema = import_zod.z.object({ name: import_zod.z.string().min(2).max(30), phone: import_zod.z.string().regex(/^1\d{10}$/) });
+var RegisterSchema = import_zod.z.object({ activityId: import_zod.z.string(), guestContact: GuestContactSchema.optional() });
 var CancelSchema = import_zod.z.object({ activityId: import_zod.z.string() });
 var CheckinSchema = import_zod.z.object({ activityId: import_zod.z.string(), userId: import_zod.z.string().optional() });
 var main = async (event) => {
   var _a, _b, _c, _d;
   try {
     const { action, payload } = event || {};
-    const ctx = ((_b = (_a = import_wx_server_sdk.default).getWXContext) == null ? void 0 : _b.call(_a)) || {};
+    const ctx = ((_b = (_a = import_wx_server_sdk2.default).getWXContext) == null ? void 0 : _b.call(_a)) || {};
     const OPENID = ctx.OPENID;
     const now = Date.now();
     const canManage = async () => await isRole(db, OPENID, "admin") || await isRole(db, OPENID, "social_worker");
@@ -111,13 +143,32 @@ var main = async (event) => {
           return err("E_PERM", "\u9700\u8981\u6743\u9650");
         if (q.status)
           query.status = q.status;
-        const res = await db.collection("Registrations").where(query).orderBy("createdAt", "desc").get();
-        return ok(res.data);
+        const base = db.collection("Registrations").where(query);
+        if (q.page && q.pageSize) {
+          const { items } = await paginate(base, { page: q.page, pageSize: q.pageSize, sort: { createdAt: -1 } }, { fallbackSort: { createdAt: -1 }, countQuery: db.collection("Registrations").where(query) });
+          return ok(items);
+        } else {
+          const res = await base.orderBy("createdAt", "desc").get();
+          return ok(res.data);
+        }
       }
       case "register": {
-        const { activityId } = RegisterSchema.parse(payload || {});
+        const { activityId, guestContact } = RegisterSchema.parse(payload || {});
+        let isGuest = false;
         if (!OPENID)
-          return err("E_AUTH", "\u8BF7\u5148\u767B\u5F55");
+          isGuest = true;
+        else {
+          try {
+            const u = await db.collection("Users").where({ openId: OPENID }).limit(1).get();
+            const user = u.data && u.data[0] || null;
+            if (!user || user.status !== "active")
+              isGuest = true;
+          } catch {
+            isGuest = true;
+          }
+        }
+        if (isGuest && !guestContact)
+          return err("E_VALIDATE", "\u6E38\u5BA2\u62A5\u540D\u9700\u586B\u5199\u59D3\u540D\u4E0E\u7535\u8BDD");
         const trx = await db.startTransaction();
         try {
           const actRes = await trx.collection("Activities").doc(activityId).get();
@@ -127,7 +178,7 @@ var main = async (event) => {
             return { ok: false, error: { code: "E_NOT_FOUND", msg: "\u6D3B\u52A8\u4E0D\u5B58\u5728" } };
           }
           const capacity = typeof activity.capacity === "number" ? activity.capacity : 0;
-          const existRes = await trx.collection("Registrations").where({ activityId, userId: OPENID }).limit(1).get();
+          const existRes = OPENID && !isGuest ? await trx.collection("Registrations").where({ activityId, userId: OPENID }).limit(1).get() : { data: [] };
           const exist = existRes.data && existRes.data[0] || null;
           if (exist && (exist.status === "registered" || exist.status === "waitlist")) {
             await trx.commit();
@@ -146,7 +197,11 @@ var main = async (event) => {
             await trx.commit();
             return ok({ status: canRegister ? "registered" : "waitlist" });
           } else {
-            const doc = { activityId, userId: OPENID, status: canRegister ? "registered" : "waitlist", createdAt: now };
+            const doc = { activityId, status: canRegister ? "registered" : "waitlist", createdAt: now };
+            if (!isGuest)
+              doc.userId = OPENID;
+            if (isGuest && guestContact)
+              doc.guestContact = guestContact;
             if (canRegister)
               doc.registeredAt = now;
             const addRes = await trx.collection("Registrations").add({ data: doc });

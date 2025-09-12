@@ -118,11 +118,20 @@ Page({
     hasMore: true,
     currentPage: 1,
     pageSize: 10,
+    // 游客模式与报名对话框
+    guestMode: false,
+    userStatus: null,
+    guestDialogVisible: false,
+    guestName: '',
+    guestPhone: '',
+    guestActivityId: null,
     
     // 缓存和性能
     lastRefreshTime: 0,
     refreshThreshold: 5 * 60 * 1000, // 5分钟刷新阈值
   },
+  onGuestNameInput(e) { this.setData({ guestName: (e.detail && e.detail.value) || '' }) },
+  onGuestPhoneInput(e) { this.setData({ guestPhone: (e.detail && e.detail.value) || '' }) },
 
   async onLoad(options) {
     try { require('../../services/theme').applyThemeByRole(this) } catch(_) {}
@@ -209,14 +218,18 @@ Page({
       
       // 从服务器获取最新角色信息并覆盖
       const profile = await api.users.getProfile()
-      const svrRole = profile.role || 'parent'
+      const svrRole = profile.role || ''
+      const userStatus = profile.status || null
+      const guestMode = !svrRole || userStatus !== 'active'
       const currentUserId = profile.userId || profile._id || ''
       const permissions = this.getRolePermissions(svrRole)
       this.setData({
-        userRole: svrRole,
+        userRole: svrRole || 'parent',
         currentUserId,
         canCreateActivity: permissions.canCreateActivity,
-        canViewStats: permissions.canViewStats
+        canViewStats: permissions.canViewStats,
+        guestMode,
+        userStatus
       })
     } catch (error) {
       console.error('获取用户权限失败:', error)
@@ -273,12 +286,30 @@ Page({
         this.setData({ loadingMore: true })
       }
 
-      // 构建查询参数
-      const params = this.buildQueryParams(append ? this.data.currentPage : 1)
-      
-      // 调用API
-      const response = await api.activities.list(params)
-      const items = Array.isArray(response) ? response : (response?.items || [])
+      let items = []
+      if (this.data.guestMode) {
+        // 游客模式：展示“当前活动”和“近14天已完成”两个窗口
+        const t0 = Date.now()
+        const respCur = await api.activities.publicList({ window: 'current' })
+        const curItems = Array.isArray(respCur?.items) ? respCur.items : []
+        try { track('guest_activity_view', { window: 'current', count: curItems.length, duration: Date.now() - t0 }) } catch(_) {}
+        const t1 = Date.now()
+        const respHis = await api.activities.publicList({ window: 'last14d' })
+        const hisItems = Array.isArray(respHis?.items) ? respHis.items : []
+        try { track('guest_activity_view', { window: 'last14d', count: hisItems.length, duration: Date.now() - t1 }) } catch(_) {}
+        // 插入分组标题占位，供 WXML 渲染分节
+        const group = []
+        group.push({ _id: '__group_current__', isGroup: true, groupTitle: '当前活动' })
+        group.push(...curItems)
+        group.push({ _id: '__group_last14d__', isGroup: true, groupTitle: '近14天已完成' })
+        group.push(...hisItems)
+        items = group
+      } else {
+        // 构建查询参数
+        const params = this.buildQueryParams(append ? this.data.currentPage : 1)
+        const response = await api.activities.list(params)
+        items = Array.isArray(response) ? response : (response?.items || [])
+      }
       
       // 处理返回数据
       const processedItems = items.map(item => this.processActivityItem(item))
@@ -288,7 +319,7 @@ Page({
       
       this.setData({
         list: newList,
-        hasMore: items.length >= this.data.pageSize,
+        hasMore: this.data.guestMode ? false : (items.length >= this.data.pageSize),
         currentPage: append ? this.data.currentPage + 1 : 2,
         lastRefreshTime: Date.now()
       })
@@ -934,8 +965,12 @@ Page({
     const activityId = e.currentTarget.dataset.id
     
     try {
+      if (this.data.guestMode) {
+        // 弹出补充资料对话框
+        this.setData({ guestDialogVisible: true, guestActivityId: activityId, guestName: '', guestPhone: '' })
+        return
+      }
       wx.showLoading({ title: '报名中...' })
-      
       await api.registrations.register(activityId)
       
       wx.hideLoading()
@@ -1018,8 +1053,11 @@ Page({
     if (!activity || !activity._id) return
     
     try {
+      if (this.data.guestMode) {
+        this.setData({ guestDialogVisible: true, guestActivityId: activity._id, guestName: '', guestPhone: '' })
+        return
+      }
       wx.showLoading({ title: '报名中...' })
-      
       await api.registrations.register(activity._id)
       
       wx.hideLoading()
@@ -1036,6 +1074,35 @@ Page({
         icon: 'none' 
       })
     }
+  },
+
+  // 游客提交报名
+  async onGuestSubmit() {
+    const name = (this.data.guestName || '').trim()
+    const phone = (this.data.guestPhone || '').trim()
+    if (name.length < 2 || name.length > 30) { wx.showToast({ icon:'none', title:'姓名需2-30字' }); return }
+    if (!/^1\d{10}$/.test(phone)) { wx.showToast({ icon:'none', title:'请输入11位手机号' }); return }
+    const activityId = this.data.guestActivityId
+    if (!activityId) { this.setData({ guestDialogVisible:false }); return }
+    try {
+      const startAt = Date.now()
+      try { track('guest_registration_submit', { activityId }) } catch(_) {}
+      wx.showLoading({ title: '报名中...' })
+      await api.registrations.register(activityId, { name, phone })
+      wx.hideLoading()
+      wx.showToast({ icon:'none', title:'报名成功' })
+      this.setData({ guestDialogVisible: false, guestActivityId: null, guestName: '', guestPhone: '' })
+      this.updateActivityRegistrationStatus(activityId, true)
+      try { track('guest_registration_result', { activityId, code: 'OK', duration: Date.now() - startAt }) } catch(_) {}
+    } catch (e) {
+      wx.hideLoading()
+      wx.showToast({ icon:'none', title: mapError(e.code || 'E_INTERNAL') })
+      try { track('guest_registration_result', { activityId, code: e.code || 'E_INTERNAL' }) } catch(_) {}
+    }
+  },
+
+  onGuestCancel() {
+    this.setData({ guestDialogVisible: false, guestActivityId: null })
   },
 
   // 从日历签到活动

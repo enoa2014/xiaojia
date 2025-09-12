@@ -78,6 +78,7 @@ Page({
     // 首次或返回时刷新头部统计，但不打断列表
     this.loadStats()
     this.loadStarred()
+    try { this.syncPendingStars() } catch(_) {}
     this.updateQuickFilterCounts()
     // 使用统一的 TabBar 同步方法
     try {
@@ -331,17 +332,77 @@ Page({
 
   // 标星
   loadStarred(){
-    try {
-      const s = wx.getStorageSync('star_patients') || {}
-      this.setData({ starred: s && typeof s==='object' ? s : {} })
-    } catch(_){}
+    // 优先从用户档案读取；若返回 null/异常，则使用本地缓存回退
+    api.users.getStars().then((ids) => {
+      if (ids === null) throw new Error('fallback-to-local')
+      const map = {}
+      if (Array.isArray(ids)) {
+        for (const id of ids) { if (id) map[id] = true }
+      }
+      this.setData({ starred: map })
+      try { wx.setStorageSync('star_patients', map) } catch(_) {}
+      // 同步分组与计数
+      const all = this.data.allList || []
+      this.categorizePatients(all)
+      this.updateQuickFilterCounts()
+    }).catch(() => {
+      try {
+        const raw = wx.getStorageSync('star_patients') || {}
+        const map = {}
+        if (raw && typeof raw === 'object') {
+          Object.keys(raw).forEach(k => { if (raw[k]) map[k] = true })
+        }
+        this.setData({ starred: map })
+        const all = this.data.allList || []
+        this.categorizePatients(all)
+        this.updateQuickFilterCounts()
+      } catch(_){}
+    })
   },
   toggleStar(e){
     const id = e.currentTarget.dataset.id
     const s = { ...(this.data.starred || {}) }
-    s[id] = !s[id]
+    const next = !s[id]
+    // 乐观更新
+    if (next) s[id] = true; else delete s[id]
     this.setData({ starred: s })
     try { wx.setStorageSync('star_patients', s) } catch(_){ }
+    // 后端持久化
+    api.users.toggleStar(id, next)
+      .then(() => {
+        // 成功后刷新分组与计数
+        const all = this.data.allList || []
+        this.categorizePatients(all)
+        this.updateQuickFilterCounts()
+      })
+      .catch(() => {
+        // 不回滚，保留本地已更新状态，稍后自动同步
+        try {
+          const pending = wx.getStorageSync('star_pending') || {}
+          const map = pending && typeof pending === 'object' ? { ...pending } : {}
+          map[id] = next
+          wx.setStorageSync('star_pending', map)
+        } catch(_) {}
+        wx.showToast({ icon: 'none', title: '已保存到本地，将自动同步' })
+      })
+  },
+  // 后台同步未完成的星标操作（网络恢复后自动尝试）
+  async syncPendingStars(){
+    try {
+      const raw = wx.getStorageSync('star_pending') || {}
+      if (!raw || typeof raw !== 'object') return
+      const entries = Object.entries(raw)
+      if (!entries.length) return
+      const remain = {}
+      for (const [pid, val] of entries) {
+        try {
+          await api.users.toggleStar(pid, !!val)
+        } catch (_) {
+          remain[pid] = !!val
+        }
+      }
+      wx.setStorageSync('star_pending', remain)
+    } catch(_) {}
   },
   // 处理患者数据项
   processPatientItem(x){
@@ -350,17 +411,20 @@ Page({
     const maskedName = isPrivileged ? name : this.maskPatientName(name)
     const ageText = this.calcAge(x.birthDate)
     const isStarred = this.data.starred[x._id]
+    const lastCheckInText = this.formatRelativeWithinWeek(x.lastCheckInDate)
+    const createdAtText = this.formatRelativeWithinWeek(x.createdAt)
+    const birthdaySoon = this.isBirthdaySoon(x.birthDate)
     
     return {
       ...x,
       initial: name.slice(0,1),
       maskedName,
       ageText,
-      createdAtText: x.createdAt ? this.formatDate(x.createdAt) : '',
+      createdAtText,
       // 信息卡片展示字段
       nativePlaceText: x.nativePlace || '—',
       firstDiagnosisText: x.hospitalDiagnosis || '—',
-      lastCheckInText: (x.lastCheckInDate ? (typeof x.lastCheckInDate === 'string' ? x.lastCheckInDate : this.formatDate(x.lastCheckInDate)) : '—'),
+      lastCheckInText: lastCheckInText || (x.lastCheckInDate ? (typeof x.lastCheckInDate === 'string' ? x.lastCheckInDate : this.formatDate(x.lastCheckInDate)) : '—'),
       admissionCount: (typeof x.admissionCount === 'number' ? x.admissionCount : null),
 
       // 兼容保留的字段（部分页面/逻辑可能仍使用）
@@ -376,6 +440,7 @@ Page({
       
       // 是否新入住（7天内）
       isNewAdmission: this.isNewAdmission(x.lastCheckInDate),
+      birthdaySoon,
       
       // 最近服务
       recentService: this.getRecentService(x),
@@ -386,6 +451,37 @@ Page({
       // 是否已加星标
       isStarred
     }
+  },
+  // 一周内相对时间显示：今天 / N天前
+  formatRelativeWithinWeek(ts){
+    try {
+      if (!ts) return ''
+      const d = new Date(ts)
+      if (isNaN(d.getTime())) return ''
+      const now = new Date()
+      const ms = now.getTime() - d.getTime()
+      if (ms < 0) return this.formatDate(ts) // 未来时间按绝对日期
+      const days = Math.floor(ms / (1000 * 60 * 60 * 24))
+      if (days === 0) return '今天'
+      if (days <= 6) return `${days}天前`
+      return ''
+    } catch { return '' }
+  },
+  // 是否临近生日（7天内）
+  isBirthdaySoon(birthDate){
+    try {
+      if (!birthDate) return false
+      const b = new Date(birthDate)
+      if (isNaN(b.getTime())) return false
+      const now = new Date()
+      // 计算今年的生日
+      let target = new Date(now.getFullYear(), b.getMonth(), b.getDate())
+      if (target < new Date(now.getFullYear(), now.getMonth(), now.getDate())) {
+        target = new Date(now.getFullYear() + 1, b.getMonth(), b.getDate())
+      }
+      const diffDays = Math.ceil((target.getTime() - now.getTime()) / (1000 * 60 * 60 * 24))
+      return diffDays >= 0 && diffDays <= 7
+    } catch { return false }
   },
   calcAge(iso){
     if (!iso) return ''
@@ -687,7 +783,9 @@ Page({
   
   getDischargeInfo(patient){
     if (patient.dischargeDate) {
-      return `出院于 ${this.formatDate(patient.dischargeDate)}`
+      const rel = this.formatRelativeWithinWeek(patient.dischargeDate)
+      const text = rel ? rel : this.formatDate(patient.dischargeDate)
+      return `出院于 ${text}`
     }
     return '住院中'
   },

@@ -8,6 +8,7 @@ Page({
     // 权限和用户信息
     role: null,
     canView: false,
+    currentCategory: 'permissions', // permissions | users
     
     // 当前操作状态
     loading: true,
@@ -25,7 +26,15 @@ Page({
     // 分页
     hasMore: true,
     page: 1,
-    pageSize: 20
+    pageSize: 20,
+
+    // 用户注册审批分页/Tab
+    userRegTab: 'pending', // pending | processed
+    userRegsPending: [],
+    userRegsProcessed: [],
+    userRegsHasMore: true,
+    userRegsPage: 1,
+    userRegsPageSize: 20
   },
 
   onLoad() {
@@ -38,7 +47,8 @@ Page({
     await this.checkUserPermissions()
     
     if (this.data.canView) {
-      this.loadApprovals()
+      if (this.data.currentCategory === 'permissions') this.loadApprovals()
+      else this.loadUserRegistrations(true)
     }
   },
 
@@ -49,18 +59,120 @@ Page({
       return
     }
     
-    this.setData({ refreshing: true, page: 1, hasMore: true })
-    await this.loadApprovals(true)
+    this.setData({ refreshing: true })
+    if (this.data.currentCategory === 'permissions') {
+      this.setData({ page: 1, hasMore: true })
+      await this.loadApprovals(true)
+    } else {
+      this.setData({ userRegsPage: 1, userRegsHasMore: true })
+      await this.loadUserRegistrations(true)
+    }
     this.setData({ refreshing: false })
     wx.stopPullDownRefresh()
   },
 
+  // 切换审批类型（权限 / 用户注册）
+  onCategoryChange(e) {
+    const cat = e.currentTarget.dataset.cat
+    if (!cat || cat === this.data.currentCategory) return
+    this.setData({ currentCategory: cat, page: 1, hasMore: true })
+    if (cat === 'permissions') this.loadApprovals(true)
+    else this.loadUserRegistrations(true)
+  },
+
+  onUserRegTabChange(e) {
+    const tab = e.currentTarget.dataset.tab
+    if (!tab || tab === this.data.userRegTab) return
+    this.setData({ userRegTab: tab, userRegsPage: 1, userRegsHasMore: true })
+    this.loadUserRegistrations(true)
+  },
+
+  // 用户注册审批列表
+  async loadUserRegistrations(isRefresh = false) {
+    if (!this.data.canView) return
+    this.setData({ loading: !isRefresh, error: '' })
+    try {
+      const { userRegsPage, userRegsPageSize } = this.data
+      const addInitial = (arr = []) => (arr || []).map(it => ({
+        ...it,
+        initial: ((it && it.name ? String(it.name) : '新') || '新').charAt(0)
+      }))
+      if (this.data.userRegTab === 'pending') {
+        const { items, hasMore } = await api.users.listRegistrations({ page: userRegsPage, pageSize: userRegsPageSize, status: 'pending' })
+        const next = addInitial(items)
+        const list = userRegsPage === 1 ? next : [...(this.data.userRegsPending || []), ...next]
+        this.setData({ userRegsPending: list, userRegsHasMore: !!hasMore })
+      } else {
+        const [a, r] = await Promise.all([
+          api.users.listRegistrations({ page: 1, pageSize: 50, status: 'active' }),
+          api.users.listRegistrations({ page: 1, pageSize: 50, status: 'rejected' })
+        ])
+        const processed = addInitial([...(a.items || []), ...(r.items || [])])
+        this.setData({ userRegsProcessed: processed, userRegsHasMore: false })
+      }
+    } catch (e) {
+      this.setData({ error: mapError(e.code || 'E_INTERNAL') })
+    } finally {
+      this.setData({ loading: false })
+    }
+  },
+
+  async onUserApprove(e) {
+    const openId = e.currentTarget.dataset.openId
+    if (!openId) return
+    const roles = ['volunteer','parent']
+    const pick = await wx.showActionSheet({ itemList: ['志愿者','亲属'] }).catch(() => null)
+    if (!pick) return
+    const role = roles[pick.tapIndex]
+    const startAt = Date.now()
+    const reqId = genRequestId('register_review')
+    try {
+      wx.showLoading({ title: '通过中...', mask: true })
+      await api.users.reviewRegistration({ openId, decision: 'approve', role })
+      wx.showToast({ icon: 'none', title: '已通过' })
+      this.loadUserRegistrations(true)
+      try { track('register_review_action', { requestId: reqId, action: 'approve', role, duration: Date.now() - startAt, code: 'OK' }) } catch(_) {}
+    } catch (e) {
+      wx.showToast({ icon: 'none', title: mapError(e.code || 'E_INTERNAL') })
+      const code = e.code || 'E_INTERNAL'
+      try { track('register_review_action', { requestId: reqId, action: 'approve', role, duration: Date.now() - startAt, code }) } catch(_) {}
+    } finally { wx.hideLoading() }
+  },
+
+  async onUserReject(e) {
+    const openId = e.currentTarget.dataset.openId
+    if (!openId) return
+    // 支持填写原因（基础库支持 editable）
+    const modal = await wx.showModal({ title: '拒绝注册', content: '请输入拒绝原因（可选）', confirmText: '拒绝', cancelText: '取消', editable: true, placeholderText: '如：信息不完整' })
+    if (!modal.confirm) return
+    const reason = (modal && (modal.content || '')) || ''
+    const startAt = Date.now()
+    const reqId = genRequestId('register_review')
+    try {
+      wx.showLoading({ title: '拒绝中...', mask: true })
+      await api.users.reviewRegistration({ openId, decision: 'reject', reason })
+      wx.showToast({ icon: 'none', title: '已拒绝' })
+      this.loadUserRegistrations(true)
+      try { track('register_review_action', { requestId: reqId, action: 'reject', duration: Date.now() - startAt, code: 'OK' }) } catch(_) {}
+    } catch (e) {
+      wx.showToast({ icon: 'none', title: mapError(e.code || 'E_INTERNAL') })
+      const code = e.code || 'E_INTERNAL'
+      try { track('register_review_action', { requestId: reqId, action: 'reject', duration: Date.now() - startAt, code }) } catch(_) {}
+    } finally { wx.hideLoading() }
+  },
+
   // 上拉加载
   async onReachBottom() {
-    if (!this.data.canView || !this.data.hasMore || this.data.loading) return
-    
-    this.setData({ page: this.data.page + 1 })
-    await this.loadApprovals()
+    if (!this.data.canView || this.data.loading) return
+    if (this.data.currentCategory === 'permissions') {
+      if (!this.data.hasMore) return
+      this.setData({ page: this.data.page + 1 })
+      await this.loadApprovals()
+    } else {
+      if (this.data.userRegTab !== 'pending' || !this.data.userRegsHasMore) return
+      this.setData({ userRegsPage: this.data.userRegsPage + 1 })
+      await this.loadUserRegistrations()
+    }
   },
 
   // 检查用户权限
@@ -68,7 +180,7 @@ Page({
     try {
       const profile = await api.users.getProfile()
       const role = profile.role || 'parent'
-      const canView = role === 'admin' // 仅管理员可访问审批页面
+      const canView = role === 'admin' || role === 'social_worker' // 管理员/社工可访问
       
       this.setData({ role, canView })
       
@@ -114,7 +226,11 @@ Page({
         includeProcessed: true
       }, requestId)
       
-      const requests = Array.isArray(result.items) ? result.items : []
+      const requestsRaw = Array.isArray(result.items) ? result.items : []
+      const requests = requestsRaw.map(it => ({
+        ...it,
+        requesterInitial: ((it && it.requesterName ? String(it.requesterName) : '用') || '用').charAt(0)
+      }))
       
       // 分离待审批和已处理的请求
       const pending = requests.filter(req => req.status === 'pending')

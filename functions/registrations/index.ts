@@ -19,7 +19,8 @@ const ListSchema = z.object({
   pageSize: z.number().int().min(1).max(100).optional()
 }).partial()
 
-const RegisterSchema = z.object({ activityId: z.string() })
+const GuestContactSchema = z.object({ name: z.string().min(2).max(30), phone: z.string().regex(/^1\d{10}$/) })
+const RegisterSchema = z.object({ activityId: z.string(), guestContact: GuestContactSchema.optional() })
 const CancelSchema = z.object({ activityId: z.string() })
 const CheckinSchema = z.object({ activityId: z.string(), userId: z.string().optional() })
 
@@ -65,8 +66,18 @@ export const main = async (event:any): Promise<Resp<any>> => {
         }
       }
       case 'register': {
-        const { activityId } = RegisterSchema.parse(payload || {})
-        if (!OPENID) return err('E_AUTH','请先登录')
+        const { activityId, guestContact } = RegisterSchema.parse(payload || {})
+        // 判断是否游客：未登录或用户未激活
+        let isGuest = false
+        if (!OPENID) isGuest = true
+        else {
+          try {
+            const u = await db.collection('Users').where({ openId: OPENID } as any).limit(1).get()
+            const user = (u.data && u.data[0]) || null
+            if (!user || user.status !== 'active') isGuest = true
+          } catch { isGuest = true }
+        }
+        if (isGuest && !guestContact) return err('E_VALIDATE','游客报名需填写姓名与电话')
         const trx = await db.startTransaction()
         try {
           // 获取活动
@@ -75,7 +86,7 @@ export const main = async (event:any): Promise<Resp<any>> => {
           if (!activity) { await trx.rollback(); return { ok:false, error:{ code:'E_NOT_FOUND', msg:'活动不存在' } } }
           const capacity = typeof activity.capacity === 'number' ? activity.capacity : 0
           // 查询现有报名
-          const existRes = await trx.collection('Registrations').where({ activityId, userId: OPENID }).limit(1).get()
+          const existRes = OPENID && !isGuest ? await trx.collection('Registrations').where({ activityId, userId: OPENID }).limit(1).get() : { data: [] as any[] }
           const exist = (existRes.data && existRes.data[0]) || null
           if (exist && (exist.status === 'registered' || exist.status === 'waitlist')) {
             await trx.commit()
@@ -93,7 +104,9 @@ export const main = async (event:any): Promise<Resp<any>> => {
             return ok({ status: canRegister ? 'registered' : 'waitlist' })
           } else {
             // 新建报名记录
-            const doc: any = { activityId, userId: OPENID, status: canRegister ? 'registered' : 'waitlist', createdAt: now }
+            const doc: any = { activityId, status: canRegister ? 'registered' : 'waitlist', createdAt: now }
+            if (!isGuest) doc.userId = OPENID
+            if (isGuest && guestContact) doc.guestContact = guestContact
             if (canRegister) doc.registeredAt = now
             const addRes = await trx.collection('Registrations').add({ data: doc })
             await trx.commit()

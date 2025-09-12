@@ -1,5 +1,6 @@
 import { callWithRetry, mapError } from '../../services/api'
 import { applyThemeByRole } from '../../services/theme'
+import { track } from '../../services/analytics'
 
 Page({
   data: {
@@ -7,6 +8,7 @@ Page({
       name: '李社工',
       roleName: '社工',
       roleKey: '',
+      status: null,
       avatar: '🧑‍💼',
       permText: '档案管理 • 服务审核',
       todayDone: 5,
@@ -44,11 +46,15 @@ Page({
         this.applyRole(role.key)
       }
     } catch(_) {}
+    // 写入/同步用户档案（若无则写入“李社工”占位）
+    this.ensureUserProfile()
   },
   onShow() {
     applyThemeByRole(this)
     const now = this.formatNow()
     this.setData({ 'user.now': now })
+    // 同步用户资料与角色
+    this.syncRoleFromServer()
     // 使用统一的 TabBar 同步方法
     try {
       const { syncTabBar } = require('../../components/utils/tabbar-simple')
@@ -61,6 +67,17 @@ Page({
         if (tb && tb.setActiveByRoute) tb.setActiveByRoute('/pages/index/index')
       } catch(_) {}
     }
+  },
+  async ensureUserProfile(){
+    try {
+      const prof = await require('../../services/api').api.users.getProfile()
+      // 若无姓名，仅设置占位头像/昵称，不修改角色（避免影响未注册/待审批流程）
+      if (!prof?.name) {
+        try { await require('../../services/api').api.users.setProfile({ name: '访客', avatar: '🙂' }) } catch(_) {}
+      }
+      await this.syncRoleFromServer()
+      if (prof?.name) this.setData({ 'user.name': prof.name })
+    } catch(_) { /* 忽略错误，保持本地占位 */ }
   },
   onPullDownRefresh(){
     this.refreshData(true)
@@ -76,6 +93,12 @@ Page({
       this.setData({ loading: false })
       if (stopPullDown) wx.stopPullDownRefresh()
     }
+  },
+  goRegister(){
+    wx.navigateTo({ url: '/pages/auth/register/index' })
+  },
+  goActivitiesGuest(){
+    wx.switchTab({ url: '/pages/activities/index' })
   },
   // 顶部刷新按钮
   async refreshTap(){
@@ -334,10 +357,16 @@ Page({
       }
       const m = map[prof.role]
       if (m) {
-        this.setData({ 'user.roleName': m.name, 'user.avatar': m.avatar, 'user.roleKey': prof.role })
+        this.setData({ 'user.roleName': m.name, 'user.avatar': prof.avatar || m.avatar, 'user.roleKey': prof.role, 'user.name': prof.name || this.data.user.name, 'user.status': prof.status || null })
         this.applyRole(prof.role)
         try { require('../../components/utils/auth').setUserRoles(prof.roles && Array.isArray(prof.roles) ? prof.roles : (prof.role ? [prof.role] : [])) } catch(_) {}
         try { wx.setStorageSync('debug_role', { key: prof.role, ...m }) } catch(_) {}
+        try { track('home_profile_load', { result: 'OK', role: prof.role || null, status: prof.status || null }) } catch(_) {}
+      }
+      else {
+        // 无角色：保留占位并写入状态
+        this.setData({ 'user.status': prof.status || null, 'user.roleKey': '' })
+        try { track('home_profile_load', { result: 'OK', role: null, status: prof.status || null }) } catch(_) {}
       }
     } catch(_) {}
   }

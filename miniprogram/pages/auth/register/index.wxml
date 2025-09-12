@@ -1,0 +1,72 @@
+<view class="page register-page">
+  <view class="nav-header nav-header--green full-bleed">
+    <view class="brand">📝 用户注册</view>
+  </view>
+
+  <view wx:if="{{submitted}}" class="submit-result">
+    <empty-state
+      show="{{true}}"
+      icon="⏳"
+      title="已提交，等待审批"
+      description="我们会尽快审核，请稍后在首页查看状态"
+      variant="compact">
+    </empty-state>
+    <view class="actions">
+      <ui-button variant="primary" text="返回首页" bindtap="goHome" />
+    </view>
+  </view>
+
+  <view wx:else class="form">
+    <view class="form-item">
+      <text class="label">姓名*</text>
+      <input class="input" placeholder="请输入姓名" value="{{form.name}}" bindinput="onInput" data-field="name" />
+      <text class="error" wx:if="{{errors.name}}">{{errors.name}}</text>
+    </view>
+
+    <view class="form-item">
+      <text class="label">电话*</text>
+      <input class="input" type="number" placeholder="11位手机号" value="{{form.phone}}" bindinput="onInput" data-field="phone" />
+      <text class="error" wx:if="{{errors.phone}}">{{errors.phone}}</text>
+    </view>
+
+    <view class="form-item">
+      <text class="label">身份证号*</text>
+      <input class="input" placeholder="18位身份证号" value="{{form.id_card}}" bindinput="onInput" data-field="id_card" />
+      <text class="error" wx:if="{{errors.id_card}}">{{errors.id_card}}</text>
+    </view>
+
+    <view class="form-item">
+      <text class="label">申请身份*</text>
+      <picker mode="selector" range="{{roleOptions}}" value="{{roleIndex}}" bindchange="onRoleChange">
+        <view class="picker-value">{{ roleOptions[roleIndex] }}</view>
+      </picker>
+      <text class="error" wx:if="{{errors.applyRole}}">{{errors.applyRole}}</text>
+    </view>
+
+    <view wx:if="{{form.applyRole==='parent'}}" class="relative-section">
+      <view class="section-title">亲属信息</view>
+      <view class="form-item">
+        <text class="label">患者姓名*</text>
+        <input class="input" placeholder="请输入患者姓名" value="{{form.relative.patientName}}" bindinput="onRelativeInput" data-field="patientName" />
+        <text class="error" wx:if="{{errors['relative.patientName']}}">{{errors['relative.patientName']}}</text>
+      </view>
+      <view class="form-item">
+        <text class="label">关系*</text>
+        <picker mode="selector" range="{{relationOptions}}" value="{{relationIndex}}" bindchange="onRelationChange">
+          <view class="picker-value">{{ relationOptions[relationIndex] }}</view>
+        </picker>
+        <text class="error" wx:if="{{errors['relative.relation']}}">{{errors['relative.relation']}}</text>
+      </view>
+      <view class="form-item">
+        <text class="label">患者身份证号*</text>
+        <input class="input" placeholder="18位身份证号" value="{{form.relative.patientIdCard}}" bindinput="onRelativeInput" data-field="patientIdCard" />
+        <text class="error" wx:if="{{errors['relative.patientIdCard']}}">{{errors['relative.patientIdCard']}}</text>
+      </view>
+    </view>
+
+    <view class="submit-actions">
+      <ui-button variant="primary" text="提交" bindtap="onSubmit" />
+    </view>
+  </view>
+</view>
+

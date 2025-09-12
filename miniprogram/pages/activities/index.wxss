@@ -600,7 +600,7 @@
 }
 
 /* 浮动操作按钮 */
-.floating-fab {
+.floating-fab { 
   position: fixed;
   right: 32rpx;
   bottom: 160rpx;
@@ -616,6 +616,39 @@
   transition: all 0.3s ease;
   z-index: var(--z-overlay);
 }
+
+/* 游客模式提示条 */
+.guest-banner {
+  background: #FEF3C7;
+  color: #92400E;
+  padding: 16rpx 24rpx;
+  font-size: 24rpx;
+}
+
+/* 游客报名对话框 */
+.guest-dialog-mask {
+  position: fixed;
+  top: 0; left: 0; right: 0; bottom: 0;
+  background: rgba(0,0,0,0.5);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 9999;
+}
+.guest-dialog {
+  width: 84%;
+  background: #fff;
+  border-radius: 16rpx;
+  padding: 24rpx;
+}
+.guest-title { font-size: 30rpx; font-weight: 600; margin-bottom: 16rpx; }
+.guest-field { margin-bottom: 16rpx; }
+.guest-label { display: block; font-size: 24rpx; color: #374151; margin-bottom: 8rpx; }
+.guest-input { border: 2rpx solid #E5E7EB; border-radius: 8rpx; padding: 16rpx; font-size: 28rpx; }
+.guest-actions { display: flex; justify-content: flex-end; gap: 16rpx; margin-top: 8rpx; }
+.guest-btn { padding: 12rpx 20rpx; font-size: 28rpx; border-radius: 8rpx; }
+.guest-btn.cancel { background: #F3F4F6; color: #111827; }
+.guest-btn.primary { background: #10B981; color: #fff; }
 
 .floating-fab:active {
   transform: scale(0.9);

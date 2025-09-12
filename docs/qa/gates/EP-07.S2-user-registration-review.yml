@@ -1,0 +1,24 @@
+schema: 1
+story: "EP-07.S2"
+story_title: "审批注册（管理员/社工）"
+gate: "PASS"  # PASS|CONCERNS|FAIL|WAIVED
+status_reason: "用户审批 Tab 功能完整；通过/拒绝与审计、RBAC 达标；模板表达式已合规。建议对性能目标进行采样验证并纳入监控。"
+reviewer: "Quinn (Test Architect)"
+updated: "2025-09-12T00:20:00Z"
+
+waiver:
+  active: false
+
+top_issues:
+  - id: "APPROVAL-NFR-001"
+    severity: low
+    finding: "审批操作≤800ms、列表分页 P95≤1s 未进行采样验证"
+    suggested_action: "补充采样与 P95 记录；如有超标，优化接口与前端加载路径"
+
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 0, low: 1 }
+  recommendations:
+    must_fix: []
+    monitor:
+      - "采样验证审批操作与分页接口性能，记录 P95 并持续监控"
+

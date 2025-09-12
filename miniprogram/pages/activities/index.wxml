@@ -7,6 +7,11 @@
     </view>
   </view>
 
+  <!-- 游客模式提示条 -->
+  <view wx:if="{{guestMode}}" class="guest-banner">
+    <text>游客模式：仅显示公开活动，报名需补充联系人信息</text>
+  </view>
+
   <!-- 活动类型快捷入口 -->
   <view class="activity-types-section">
     <view class="section-header">
@@ -173,11 +178,15 @@
 
     <!-- 活动卡片列表 -->
     <view class="activity-cards" wx:if="{{!loading && !error && list.length > 0}}">
-      <view class="activity-card" 
-            wx:for="{{list}}" 
-            wx:key="_id"
-            bindtap="toDetail" 
-            data-id="{{item._id}}">
+      <view wx:for="{{list}}" wx:key="_id">
+        <!-- 分组标题（游客模式） -->
+        <view wx:if="{{item.isGroup}}" class="group-header">
+          <text class="group-title">{{item.groupTitle}}</text>
+        </view>
+        <!-- 活动卡片条目 -->
+        <view wx:else class="activity-card" 
+              bindtap="toDetail" 
+              data-id="{{item._id}}">
         
         <!-- 活动头部信息 -->
         <view class="card-header">
@@ -268,6 +277,7 @@
         <view class="privacy-mask" wx:if="{{item.needPrivacyMask}}">
           <text class="mask-text">部分信息已隐藏</text>
         </view>
+        </view>
       </view>
     </view>
 
@@ -289,6 +299,25 @@
   <!-- 浮动操作按钮 -->
   <view class="floating-fab" wx:if="{{canCreateActivity}}" bindtap="toCreate">
     <text class="fab-icon">➕</text>
+  </view>
+</view>
+
+<!-- 游客报名对话框 -->
+<view wx:if="{{guestDialogVisible}}" class="guest-dialog-mask">
+  <view class="guest-dialog">
+    <view class="guest-title">补充联系人信息</view>
+    <view class="guest-field">
+      <text class="guest-label">姓名</text>
+      <input class="guest-input" placeholder="请输入姓名" value="{{guestName}}" bindinput="onGuestNameInput"/>
+    </view>
+    <view class="guest-field">
+      <text class="guest-label">电话</text>
+      <input class="guest-input" type="number" placeholder="11位手机号" value="{{guestPhone}}" bindinput="onGuestPhoneInput"/>
+    </view>
+    <view class="guest-actions">
+      <button class="guest-btn cancel" bindtap="onGuestCancel">取消</button>
+      <button class="guest-btn primary" bindtap="onGuestSubmit">提交报名</button>
+    </view>
   </view>
 </view>
 

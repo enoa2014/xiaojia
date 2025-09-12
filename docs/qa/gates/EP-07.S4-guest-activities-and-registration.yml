@@ -1,0 +1,28 @@
+schema: 1
+story: "EP-07.S4"
+story_title: "游客活动浏览与报名补充"
+gate: "PASS"  # PASS|CONCERNS|FAIL|WAIVED
+status_reason: "guest 公共视图与报名流程达标；权限隔离良好；建议采样验证列表与报名性能并纳入监控。"
+reviewer: "Quinn (Test Architect)"
+updated: "2025-09-12T00:36:00Z"
+
+waiver:
+  active: false
+
+top_issues:
+  - id: "GUEST-NFR-001"
+    severity: low
+    finding: "列表 P95≤1s、报名端到端≤1.5s 未进行采样验证"
+    suggested_action: "补充采样并记录 P75/P95；如需优化，考虑缓存与异步上报"
+  - id: "GUEST-EDGE-002"
+    severity: low
+    finding: "活动满员/报名截止等边界路径需 E2E 覆盖"
+    suggested_action: "新增满员/截止/取消等边界用例，验证提示与状态更新"
+
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 0, low: 2 }
+  recommendations:
+    must_fix: []
+    monitor:
+      - "公共列表与报名端到端性能（P75/P95）与失败率"
+

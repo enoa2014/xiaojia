@@ -1,0 +1,27 @@
+schema: 1
+story: "EP-07.S1"
+story_title: "用户注册提交与等待"
+gate: "PASS"  # PASS|CONCERNS|FAIL|WAIVED
+status_reason: "已清理遗留页面文件；功能、校验、幂等、隐私达标。性能验证仍待采样但风险低，纳入后续监控。"
+reviewer: "Quinn (Test Architect)"
+updated: "2025-09-12T00:10:00Z"
+
+waiver:
+  active: false
+
+top_issues:
+  - id: "AUTH-NFR-002"
+    severity: low
+    finding: "未执行端到端≤1.2s、后端≤600ms 的性能验证"
+    suggested_action: "补充采样压测与 P95 记录；必要时优化前后端路径"
+  - id: "AUTH-ANA-003"
+    severity: low
+    finding: "register_* 事件未做 canonical 映射，观测维度不统一"
+    suggested_action: "在 analytics.js 中增加映射或在后台统一配置，完善测试校验"
+
+risk_summary:
+  totals: { critical: 0, high: 0, medium: 0, low: 2 }
+  recommendations:
+    must_fix: []
+    monitor:
+      - "完成端到端/后端时延验证并记录 P95；视结果决定是否优化"

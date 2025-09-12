@@ -161,7 +161,7 @@
   </view>
 
   <!-- 优先关注组 -->
-  <view class="priority-section" wx:if="{{starredList.length > 0}}">
+  <view class="priority-section" wx:if="{{activeQuickFilter==='starred' && starredList.length > 0}}">
     <view class="section-header priority">
       <text class="section-icon">⭐</text>
       <text class="section-title">优先关注</text>
@@ -181,18 +181,20 @@
             <view class="patient-name-line">
               <text class="patient-name">{{item.maskedName}}</text>
               <text class="patient-age" wx:if="{{item.ageText}}"> · {{item.ageText}}</text>
-              <text class="priority-badge">重点关注</text>
+              <text class="birthday-tag" wx:if="{{item.birthdaySoon}}">生日</text>
+              <view class="count-badge" wx:if="{{item.admissionCount !== null}}">{{item.admissionCount}}次</view>
             </view>
             <view class="patient-meta">
               <text class="meta">籍贯：{{item.nativePlaceText}}</text>
               <text class="meta">首诊：{{item.firstDiagnosisText}}</text>
               <text class="meta">最近入住：{{item.lastCheckInText}}</text>
-              <text class="meta">入住次数：{{item.admissionCount || '—'}}</text>
             </view>
-          </view>
-          <view class="patient-actions-mini">
-            <ui-button ext-class="mini-btn service" size="sm" variant="secondary" text="新加服务" aria-label="新加服务" catchtap="toService" data-id="{{item._id}}"></ui-button>
-            <ui-button ext-class="mini-btn star {{starred[item._id] ? 'active' : ''}}" size="sm" variant="ghost" text="{{starred[item._id] ? '已关注' : '特别关注'}}" aria-label="特别关注" catchtap="toggleStar" data-id="{{item._id}}"></ui-button>
+            <view class="patient-actions-row" catchtap="stopPropagation">
+              <ui-button ext-class="mini-btn service" size="sm" variant="secondary" text="新加服务" aria-label="新加服务" catchtap="toService" data-id="{{item._id}}"></ui-button>
+              <view class="star-btn {{starred[item._id] ? 'active' : ''}}" aria-label="优先关注" catchtap="toggleStar" data-id="{{item._id}}">
+                <text>{{starred[item._id] ? '⭐' : '☆'}}</text>
+              </view>
+            </view>
           </view>
         </view>
       </block>
@@ -209,7 +211,7 @@
     wx:if="{{showSkeleton}}" />
 
   <!-- 当前在住患者组 -->
-  <view class="inhouse-section" wx:if="{{inhouseList.length > 0}}">
+  <view class="inhouse-section" wx:if="{{activeQuickFilter==='inhouse' && inhouseList.length > 0}}">
     <view class="section-header inhouse">
       <text class="section-icon">🏠</text>
       <text class="section-title">当前在住</text>
@@ -231,18 +233,21 @@
               <text class="patient-name">{{item.maskedName}}</text>
               <text class="patient-age" wx:if="{{item.ageText}}"> · {{item.ageText}}</text>
               <text class="new-badge" wx:if="{{item.isNewAdmission}}">新入住</text>
+              <text class="birthday-tag" wx:if="{{item.birthdaySoon}}">生日</text>
+              <view class="count-badge" wx:if="{{item.admissionCount !== null}}">{{item.admissionCount}}次</view>
             </view>
             <view class="patient-meta">
               <text class="meta">籍贯：{{item.nativePlaceText}}</text>
               <text class="meta">首诊：{{item.firstDiagnosisText}}</text>
               <text class="meta">最近入住：{{item.lastCheckInText}}</text>
-              <text class="meta">入住次数：{{item.admissionCount || '—'}}</text>
             </view>
-          </view>
-          <view class="patient-actions-mini">
-            <button class="mini-btn edit" catchtap="editPatient" data-id="{{item._id}}">✏️</button>
-            <ui-button ext-class="mini-btn service" size="sm" variant="secondary" text="新加服务" aria-label="新加服务" catchtap="toService" data-id="{{item._id}}"></ui-button>
-            <ui-button ext-class="mini-btn star {{starred[item._id] ? 'active' : ''}}" size="sm" variant="ghost" text="{{starred[item._id] ? '已关注' : '特别关注'}}" aria-label="特别关注" catchtap="toggleStar" data-id="{{item._id}}"></ui-button>
+            <view class="patient-actions-row" catchtap="stopPropagation">
+              <button class="mini-btn edit" catchtap="editPatient" data-id="{{item._id}}">✏️</button>
+              <ui-button ext-class="mini-btn service" size="sm" variant="secondary" text="新加服务" aria-label="新加服务" catchtap="toService" data-id="{{item._id}}"></ui-button>
+              <view class="star-btn {{starred[item._id] ? 'active' : ''}}" aria-label="优先关注" catchtap="toggleStar" data-id="{{item._id}}">
+                <text>{{starred[item._id] ? '⭐' : '☆'}}</text>
+              </view>
+            </view>
           </view>
         </view>
       </block>
@@ -250,7 +255,7 @@
   </view>
 
   <!-- 全部患者兜底分组（无状态分组时显示） -->
-  <view class="all-section" wx:if="{{!showSearchResults && inhouseList.length === 0 && historyList.length === 0 && allList.length > 0}}">
+  <view class="all-section" wx:if="{{!showSearchResults && activeQuickFilter==='all' && allList.length > 0}}">
     <view class="section-header">
       <text class="section-icon">📋</text>
       <text class="section-title">全部</text>
@@ -264,17 +269,20 @@
             <view class="patient-name-line">
               <text class="patient-name">{{item.maskedName}}</text>
               <text class="patient-age" wx:if="{{item.ageText}}"> · {{item.ageText}}</text>
+              <text class="birthday-tag" wx:if="{{item.birthdaySoon}}">生日</text>
+              <view class="count-badge" wx:if="{{item.admissionCount !== null}}">{{item.admissionCount}}次</view>
             </view>
             <view class="patient-meta">
               <text class="meta">籍贯：{{item.nativePlaceText}}</text>
               <text class="meta">首诊：{{item.firstDiagnosisText}}</text>
               <text class="meta">最近入住：{{item.lastCheckInText}}</text>
-              <text class="meta">入住次数：{{item.admissionCount || '—'}}</text>
             </view>
-          </view>
-          <view class="patient-actions-mini">
-            <ui-button ext-class="mini-btn service" size="sm" variant="secondary" text="新加服务" aria-label="新加服务" catchtap="toService" data-id="{{item._id}}"></ui-button>
-            <ui-button ext-class="mini-btn star {{starred[item._id] ? 'active' : ''}}" size="sm" variant="ghost" text="{{starred[item._id] ? '已关注' : '特别关注'}}" aria-label="特别关注" catchtap="toggleStar" data-id="{{item._id}}"></ui-button>
+            <view class="patient-actions-row" catchtap="stopPropagation">
+              <ui-button ext-class="mini-btn service" size="sm" variant="secondary" text="新加服务" aria-label="新加服务" catchtap="toService" data-id="{{item._id}}"></ui-button>
+              <view class="star-btn {{starred[item._id] ? 'active' : ''}}" aria-label="优先关注" catchtap="toggleStar" data-id="{{item._id}}">
+                <text>{{starred[item._id] ? '⭐' : '☆'}}</text>
+              </view>
+            </view>
           </view>
         </view>
       </block>
@@ -282,7 +290,7 @@
   </view>
 
   <!-- 历史档案组 -->
-  <view class="history-section" wx:if="{{historyList.length > 0}}">
+  <view class="history-section" wx:if="{{activeQuickFilter==='history' && historyList.length > 0}}">
     <view class="section-header history">
       <text class="section-icon">📚</text>
       <text class="section-title">历史档案</text>
@@ -296,7 +304,12 @@
         <view class="patient-item compact" bindtap="toDetail" data-id="{{item._id}}">
           <view class="patient-avatar history">{{item.initial}}</view>
           <view class="patient-info">
-            <text class="patient-name">{{item.maskedName}} · {{item.ageText}}</text>
+            <view class="patient-name-line">
+              <text class="patient-name">{{item.maskedName}}</text>
+              <text class="patient-age" wx:if="{{item.ageText}}"> · {{item.ageText}}</text>
+              <text class="birthday-tag" wx:if="{{item.birthdaySoon}}">生日</text>
+              <view class="count-badge" wx:if="{{item.admissionCount !== null}}">{{item.admissionCount}}次</view>
+            </view>
             <text class="discharge-info">{{item.dischargeInfo}}</text>
           </view>
           <text class="arrow">〉</text>
@@ -324,12 +337,19 @@
               <text class="patient-name highlight">{{item.highlightedName}}</text>
               <text class="patient-age" wx:if="{{item.ageText}}"> · {{item.ageText}}</text>
               <text class="match-type">{{item.matchType}}</text>
+              <text class="birthday-tag" wx:if="{{item.birthdaySoon}}">生日</text>
+              <view class="count-badge" wx:if="{{item.admissionCount !== null}}">{{item.admissionCount}}次</view>
             </view>
             <view class="patient-meta">
               <text class="meta">籍贯：{{item.nativePlaceText}}</text>
               <text class="meta">首诊：{{item.firstDiagnosisText}}</text>
               <text class="meta">最近入住：{{item.lastCheckInText}}</text>
-              <text class="meta">入住次数：{{item.admissionCount || '—'}}</text>
+            </view>
+            <view class="patient-actions-row" catchtap="stopPropagation">
+              <ui-button ext-class="mini-btn service" size="sm" variant="secondary" text="新加服务" aria-label="新加服务" catchtap="toService" data-id="{{item._id}}"></ui-button>
+              <view class="star-btn {{starred[item._id] ? 'active' : ''}}" aria-label="优先关注" catchtap="toggleStar" data-id="{{item._id}}">
+                <text>{{starred[item._id] ? '⭐' : '☆'}}</text>
+              </view>
             </view>
           </view>
           <text class="arrow">〉</text>

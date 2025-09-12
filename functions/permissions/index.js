@@ -33,7 +33,7 @@ __export(permissions_exports, {
   main: () => main
 });
 module.exports = __toCommonJS(permissions_exports);
-var import_wx_server_sdk = __toESM(require("wx-server-sdk"));
+var import_wx_server_sdk2 = __toESM(require("wx-server-sdk"));
 var import_zod = require("zod");
 
 // ../packages/core-rbac/index.ts
@@ -105,17 +105,47 @@ var err = (code, msg, details) => ({
 });
 var errValidate = (msg, details) => err("E_VALIDATE", msg, details);
 
+// ../packages/core-db/index.ts
+var import_wx_server_sdk = __toESM(require("wx-server-sdk"));
+var paginate = async (coll, pageQ, opts) => {
+  const { page, pageSize, sort } = pageQ;
+  let query = coll;
+  const applySort = (q) => {
+    const s = sort && Object.keys(sort).length ? sort : (opts == null ? void 0 : opts.fallbackSort) || {};
+    const entries = Object.entries(s);
+    if (!entries.length)
+      return q;
+    const [k, v] = entries[0];
+    return q.orderBy(k, v === -1 ? "desc" : "asc");
+  };
+  try {
+    query = applySort(query);
+  } catch {
+  }
+  let total = 0;
+  try {
+    const c = await ((opts == null ? void 0 : opts.countQuery) || coll).count();
+    total = (c.total ?? c.count) || 0;
+  } catch {
+  }
+  const res = await query.skip((page - 1) * pageSize).limit(pageSize).get();
+  const items = res && res.data || [];
+  const hasMore = page * pageSize < total;
+  return { items, meta: { total, hasMore } };
+};
+
 // index.ts
-import_wx_server_sdk.default.init({ env: import_wx_server_sdk.default.DYNAMIC_CURRENT_ENV });
-var db = import_wx_server_sdk.default.database();
+import_wx_server_sdk2.default.init({ env: import_wx_server_sdk2.default.DYNAMIC_CURRENT_ENV });
+var db = import_wx_server_sdk2.default.database();
 var SubmitSchema = import_zod.z.object({
   fields: import_zod.z.array(import_zod.z.enum(["id_card", "phone", "diagnosis"])).nonempty(),
   patientId: import_zod.z.string().min(1),
   reason: import_zod.z.string().min(20),
-  expiresDays: import_zod.z.enum(["30", "60", "90"]).transform(Number).optional()
+  expiresDays: import_zod.z.enum(["30", "60", "90"]).transform(Number).optional(),
+  requestId: import_zod.z.string().optional()
 });
-var ApproveSchema = import_zod.z.object({ id: import_zod.z.string(), expiresAt: import_zod.z.number().optional() });
-var RejectSchema = import_zod.z.object({ id: import_zod.z.string(), reason: import_zod.z.string().min(20).max(200) });
+var ApproveSchema = import_zod.z.object({ id: import_zod.z.string(), expiresAt: import_zod.z.number().optional(), requestId: import_zod.z.string().optional() });
+var RejectSchema = import_zod.z.object({ id: import_zod.z.string(), reason: import_zod.z.string().min(20).max(200), requestId: import_zod.z.string().optional() });
 var ListSchema = import_zod.z.object({
   page: import_zod.z.number().int().min(1).default(1),
   pageSize: import_zod.z.number().int().min(1).max(100).default(20),
@@ -125,7 +155,7 @@ var main = async (event) => {
   var _a, _b, _c, _d;
   try {
     const { action, payload } = event || {};
-    const { OPENID } = ((_b = (_a = import_wx_server_sdk.default).getWXContext) == null ? void 0 : _b.call(_a)) || {};
+    const { OPENID } = ((_b = (_a = import_wx_server_sdk2.default).getWXContext) == null ? void 0 : _b.call(_a)) || {};
     const isAdmin = async () => isRole(db, OPENID, "admin");
     switch (action) {
       case "request.submit": {
@@ -135,7 +165,7 @@ var main = async (event) => {
           return { ok: false, error: { code: "E_VALIDATE", msg: m.msg, details: parsed.error.issues } };
         }
         const p = parsed.data;
-        const { OPENID: OPENID2 } = ((_d = (_c = import_wx_server_sdk.default).getWXContext) == null ? void 0 : _d.call(_c)) || {};
+        const { OPENID: OPENID2 } = ((_d = (_c = import_wx_server_sdk2.default).getWXContext) == null ? void 0 : _d.call(_c)) || {};
         if (!OPENID2)
           return { ok: false, error: { code: "E_AUTH", msg: "\u8BF7\u5148\u767B\u5F55" } };
         const now = Date.now();
@@ -151,6 +181,10 @@ var main = async (event) => {
           createdAt: now
         };
         const res = await db.collection("PermissionRequests").add({ data: doc });
+        try {
+          await db.collection("AuditLogs").add({ data: { actorId: OPENID2 || null, action: "permissions.request.submit", target: { requestId: res._id, patientId: p.patientId, fields: p.fields }, requestId: p.requestId || null, createdAt: now } });
+        } catch {
+        }
         return ok({ _id: res._id, expiresAt: requestedExpiresAt });
       }
       case "request.approve": {
@@ -166,7 +200,7 @@ var main = async (event) => {
         const exp = expiresAt && expiresAt > now ? expiresAt : now + 30 * 24 * 60 * 60 * 1e3;
         await db.collection("PermissionRequests").doc(id).update({ data: { status: "approved", expiresAt: exp, approvedAt: now, approvedBy: OPENID || null } });
         try {
-          await db.collection("AuditLogs").add({ data: { actorId: OPENID || null, action: "permissions.approve", target: { requestId: id }, createdAt: now } });
+          await db.collection("AuditLogs").add({ data: { actorId: OPENID || null, action: "permissions.approve", target: { requestId: id }, requestId: payload && payload.requestId || null, createdAt: now } });
         } catch {
         }
         return ok({ updated: 1 });
@@ -183,7 +217,7 @@ var main = async (event) => {
         const now = Date.now();
         await db.collection("PermissionRequests").doc(id).update({ data: { status: "rejected", rejectedAt: now, rejectedBy: OPENID || null, rejectReason: reason } });
         try {
-          await db.collection("AuditLogs").add({ data: { actorId: OPENID || null, action: "permissions.reject", target: { requestId: id }, createdAt: now } });
+          await db.collection("AuditLogs").add({ data: { actorId: OPENID || null, action: "permissions.reject", target: { requestId: id }, requestId: payload && payload.requestId || null, createdAt: now } });
         } catch {
         }
         return ok({ updated: 1 });
@@ -208,8 +242,9 @@ var main = async (event) => {
         if (!await isAdmin()) {
           where.requesterId = OPENID;
         }
-        const res = await db.collection("PermissionRequests").where(where).orderBy("createdAt", "desc").skip((q.page - 1) * q.pageSize).limit(q.pageSize).get();
-        return ok(res.data);
+        const base = db.collection("PermissionRequests").where(where);
+        const { items } = await paginate(base, { page: q.page, pageSize: q.pageSize, sort: { createdAt: -1 } }, { fallbackSort: { createdAt: -1 }, countQuery: db.collection("PermissionRequests").where(where) });
+        return ok(items);
       }
       default:
         return err("E_ACTION", "unsupported action");

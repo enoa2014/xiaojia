@@ -159,6 +159,14 @@
                 { "name": "idx_actor_createdAt", "keys": { "actorId": 1, "createdAt": -1 } },
                 { "name": "idx_action_createdAt", "keys": { "action": 1, "createdAt": -1 } }
               ]
+            },
+            {
+              "collectionName": "Users",
+              "indexes": [
+                { "name": "uniq_openId", "unique": true, "keys": { "openId": 1 } },
+                { "name": "idx_status_createdAt", "keys": { "status": 1, "createdAt": -1 } },
+                { "name": "idx_createdAt", "keys": { "createdAt": -1 } }
+              ]
             }
           ]
         }
