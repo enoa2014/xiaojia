@@ -1,6 +1,8 @@
-import { useEffect, useState } from 'react';
-import { Routes, Route } from 'react-router-dom';
+﻿import { useEffect, useState } from 'react';
+import { Routes, Route, Link } from 'react-router-dom';
 import HomePage from './pages/HomePage';
+import ActivitiesPage from './pages/ActivitiesPage';
+import PatientDetailPage from './pages/PatientDetailPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 const App = () => {
@@ -14,7 +16,7 @@ const App = () => {
         setStatus('ready');
       } catch (err) {
         console.error('Failed to bootstrap desktop bridge', err);
-        setError('无法连接到本地服务。请检查 Electron 主进程日志。');
+        setError('无法连接到本地服务，请检查 Electron 主进程日志。');
         setStatus('error');
       }
     };
@@ -37,10 +39,27 @@ const App = () => {
   }
 
   return (
-    <Routes>
-      <Route path="/" element={<HomePage />} />
-      <Route path="*" element={<NotFoundPage />} />
-    </Routes>
+    <div className="layout">
+      <nav className="sidebar">
+        <h2>导航</h2>
+        <ul>
+          <li>
+            <Link to="/">患者管理</Link>
+          </li>
+          <li>
+            <Link to="/activities">活动列表</Link>
+          </li>
+        </ul>
+      </nav>
+      <main className="content">
+        <Routes>
+          <Route path="/" element={<HomePage />} />
+          <Route path="/patients/:id" element={<PatientDetailPage />} />
+          <Route path="/activities" element={<ActivitiesPage />} />
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </main>
+    </div>
   );
 };
 

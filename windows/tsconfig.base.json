@@ -2,13 +2,16 @@
   "compilerOptions": {
     "target": "ES2022",
     "strict": true,
-    "moduleResolution": "NodeNext",
+    "moduleResolution": "Bundler",
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
     "baseUrl": ".",
     "paths": {
-      "@shared/*": ["shared/*"]
-    }
+      "@shared/*": [
+        "shared/*"
+      ]
+    },
+    "module": "ESNext"
   }
 }

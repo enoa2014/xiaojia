@@ -1,11 +1,20 @@
 {
   "extends": "../../tsconfig.base.json",
   "compilerOptions": {
-    "module": "ESNext",
     "jsx": "react-jsx",
-    "lib": ["ES2022", "DOM"],
-    "types": ["vite/client"]
+    "lib": [
+      "ES2022",
+      "DOM"
+    ],
+    "types": [
+      "vite/client"
+    ]
   },
-  "include": ["src", "../../shared/bridge.d.ts"],
-  "exclude": ["dist"]
+  "include": [
+    "src",
+    "../../shared/bridge.d.ts"
+  ],
+  "exclude": [
+    "dist"
+  ]
 }

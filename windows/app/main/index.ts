@@ -1,6 +1,11 @@
-import { app, BrowserWindow, ipcMain } from 'electron';
+﻿import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
-import { ensureDatabase, getDatabase } from './database';
+import { ensureDatabase, getDatabase } from './database.js';
+import { PatientsRepository } from './patientsRepository.js';
+import { ActivitiesRepository } from './activitiesRepository.js';
+
+const createPatientsRepository = () => new PatientsRepository(getDatabase());
+const createActivitiesRepository = () => new ActivitiesRepository(getDatabase());
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -47,6 +52,110 @@ const createMainWindow = async (): Promise<void> => {
   }
 };
 
+const mapError = (err: unknown) => {
+  const error = err instanceof Error ? err : new Error(String(err));
+  const code = error.message.startsWith('E_') ? error.message : 'E_INTERNAL';
+  return { ok: false, error: { code, msg: error.message } };
+};
+
+const registerPatientIpc = () => {
+  ipcMain.handle('patients:list', (_event, params) => {
+    try {
+      const repo = createPatientsRepository();
+      const data = repo.list(params);
+      return { ok: true, data };
+    } catch (err) {
+      console.error('patients:list failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('patients:get', (_event, id: string) => {
+    try {
+      const repo = createPatientsRepository();
+      const record = repo.getById(String(id));
+      if (!record) {
+        return { ok: false, error: { code: 'E_NOT_FOUND', msg: 'patient not found' } };
+      }
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('patients:get failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('patients:create', (_event, input) => {
+    try {
+      const repo = createPatientsRepository();
+      const record = repo.create(input);
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('patients:create failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('patients:update', (_event, input) => {
+    try {
+      const repo = createPatientsRepository();
+      const record = repo.update(input);
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('patients:update failed', err);
+      return mapError(err);
+    }
+  });
+};
+
+const registerActivityIpc = () => {
+  ipcMain.handle('activities:list', (_event, params) => {
+    try {
+      const repo = createActivitiesRepository();
+      const data = repo.list(params);
+      return { ok: true, data };
+    } catch (err) {
+      console.error('activities:list failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('activities:get', (_event, id: string) => {
+    try {
+      const repo = createActivitiesRepository();
+      const record = repo.getById(String(id));
+      if (!record) {
+        return { ok: false, error: { code: 'E_NOT_FOUND', msg: 'activity not found' } };
+      }
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('activities:get failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('activities:create', (_event, input) => {
+    try {
+      const repo = createActivitiesRepository();
+      const record = repo.create(input);
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('activities:create failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('activities:update', (_event, input) => {
+    try {
+      const repo = createActivitiesRepository();
+      const record = repo.update(input);
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('activities:update failed', err);
+      return mapError(err);
+    }
+  });
+};
+
 const registerIpcHandlers = (): void => {
   ipcMain.handle('system:ping', () => ({ ok: true, message: 'pong' }));
 
@@ -63,6 +172,9 @@ const registerIpcHandlers = (): void => {
     stmt.run(key, value);
     return { ok: true };
   });
+
+  registerPatientIpc();
+  registerActivityIpc();
 };
 
 app.whenReady().then(async () => {

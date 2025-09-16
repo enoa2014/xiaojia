@@ -1,11 +1,16 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import Database from 'better-sqlite3';
-import { app } from 'electron';
+import * as electron from 'electron';
+import { runMigrations } from './migrations.js';
 
-let instance: Database.Database | null = null;
+type SQLiteInstance = InstanceType<typeof Database>;
 
-export const ensureDatabase = (): Database.Database => {
+const { app } = electron;
+
+let instance: SQLiteInstance | null = null;
+
+export const ensureDatabase = (): SQLiteInstance => {
   if (instance) {
     return instance;
   }
@@ -17,17 +22,12 @@ export const ensureDatabase = (): Database.Database => {
   instance = new Database(dbPath);
 
   instance.pragma('journal_mode = WAL');
-  instance.exec(`
-    CREATE TABLE IF NOT EXISTS meta (
-      key TEXT PRIMARY KEY,
-      value TEXT
-    );
-  `);
+  runMigrations(instance);
 
   return instance;
 };
 
-export const getDatabase = (): Database.Database => {
+export const getDatabase = (): SQLiteInstance => {
   if (!instance) {
     throw new Error('Database is not initialised. Call ensureDatabase() first.');
   }
