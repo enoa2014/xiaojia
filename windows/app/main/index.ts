@@ -3,9 +3,11 @@ import path from 'node:path';
 import { ensureDatabase, getDatabase } from './database.js';
 import { PatientsRepository } from './patientsRepository.js';
 import { ActivitiesRepository } from './activitiesRepository.js';
+import { RegistrationsRepository } from './registrationsRepository.js';
 
 const createPatientsRepository = () => new PatientsRepository(getDatabase());
 const createActivitiesRepository = () => new ActivitiesRepository(getDatabase());
+const createRegistrationsRepository = () => new RegistrationsRepository(getDatabase());
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -156,6 +158,55 @@ const registerActivityIpc = () => {
   });
 };
 
+const registerRegistrationIpc = () => {
+  ipcMain.handle('registrations:list', (_event, params) => {
+    try {
+      const repo = createRegistrationsRepository();
+      const data = repo.list(params);
+      return { ok: true, data };
+    } catch (err) {
+      console.error('registrations:list failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('registrations:get', (_event, id: string) => {
+    try {
+      const repo = createRegistrationsRepository();
+      const record = repo.getById(String(id));
+      if (!record) {
+        return { ok: false, error: { code: 'E_NOT_FOUND', msg: 'registration not found' } };
+      }
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('registrations:get failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('registrations:create', (_event, input) => {
+    try {
+      const repo = createRegistrationsRepository();
+      const record = repo.create(input);
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('registrations:create failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('registrations:update', (_event, input) => {
+    try {
+      const repo = createRegistrationsRepository();
+      const record = repo.update(input);
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('registrations:update failed', err);
+      return mapError(err);
+    }
+  });
+};
+
 const registerIpcHandlers = (): void => {
   ipcMain.handle('system:ping', () => ({ ok: true, message: 'pong' }));
 
@@ -175,6 +226,7 @@ const registerIpcHandlers = (): void => {
 
   registerPatientIpc();
   registerActivityIpc();
+  registerRegistrationIpc();
 };
 
 app.whenReady().then(async () => {

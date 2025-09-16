@@ -2,7 +2,9 @@
 import { Routes, Route, Link } from 'react-router-dom';
 import HomePage from './pages/HomePage';
 import ActivitiesPage from './pages/ActivitiesPage';
+import RegistrationsPage from './pages/RegistrationsPage';
 import PatientDetailPage from './pages/PatientDetailPage';
+import ActivityDetailPage from './pages/ActivityDetailPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 const App = () => {
@@ -49,6 +51,9 @@ const App = () => {
           <li>
             <Link to="/activities">活动列表</Link>
           </li>
+          <li>
+            <Link to="/registrations">报名记录</Link>
+          </li>
         </ul>
       </nav>
       <main className="content">
@@ -56,6 +61,8 @@ const App = () => {
           <Route path="/" element={<HomePage />} />
           <Route path="/patients/:id" element={<PatientDetailPage />} />
           <Route path="/activities" element={<ActivitiesPage />} />
+          <Route path="/activities/:id" element={<ActivityDetailPage />} />
+          <Route path="/registrations" element={<RegistrationsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>
