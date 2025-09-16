@@ -1,0 +1,41 @@
+{
+  "name": "xiaojia-desktop",
+  "version": "0.1.0",
+  "description": "Windows 桌面版移植（Electron + React + SQLite）",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "run-p dev:renderer dev:preload dev:main",
+    "dev:renderer": "vite --config app/renderer/vite.config.ts",
+    "dev:preload": "tsc -p app/preload/tsconfig.json --watch --preserveWatchOutput false",
+    "dev:main": "wait-on tcp:5173 && cross-env NODE_ENV=development VITE_DEV_SERVER_URL=http://localhost:5173 tsx app/main/index.ts",
+    "build": "run-s build:renderer build:preload build:main",
+    "build:renderer": "vite build --config app/renderer/vite.config.ts",
+    "build:preload": "tsc -p app/preload/tsconfig.json",
+    "build:main": "tsc -p app/main/tsconfig.json",
+    "package": "pnpm run build && electron-builder",
+    "typecheck": "tsc --build",
+    "clean": "rimraf dist"
+  },
+  "dependencies": {
+    "better-sqlite3": "^9.0.0",
+    "electron": "^29.1.0",
+    "react": "^18.2.0",
+    "react-dom": "^18.2.0",
+    "react-router-dom": "^6.22.3"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.30",
+    "@types/react": "^18.2.21",
+    "@types/react-dom": "^18.2.7",
+    "@vitejs/plugin-react": "^4.2.1",
+    "cross-env": "^7.0.3",
+    "electron-builder": "^24.9.1",
+    "npm-run-all": "^4.1.5",
+    "rimraf": "^5.0.5",
+    "tsx": "^4.7.0",
+    "typescript": "^5.4.2",
+    "vite": "^5.1.4",
+    "wait-on": "^7.0.1"
+  }
+}
