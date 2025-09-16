@@ -1,4 +1,5 @@
 ﻿import { useEffect, useRef, useState } from 'react';
+import { Link } from 'react-router-dom';
 import type { ActivityRecord } from '@shared/types/activities';
 
 const PAGE_SIZE = 20;
@@ -21,13 +22,14 @@ const ActivitiesPage = () => {
 
   const loadActivities = async ({ reset = false, keyword: kw, status: st }: LoadOptions = {}) => {
     const targetPage = reset ? 1 : pageRef.current;
-
     const keywordValue = (kw ?? keyword).trim();
     const statusValue = (st ?? status).trim();
 
     if (reset) {
       setLoading(true);
-      if (targetPage === 1) setActivities([]);
+      if (targetPage === 1) {
+        setActivities([]);
+      }
     } else {
       setLoadingMore(true);
     }
@@ -93,6 +95,13 @@ const ActivitiesPage = () => {
       </header>
 
       <section className="card">
+        <div className="card__header">
+          <h2>活动概览</h2>
+          <Link className="button" to="/activities/new">
+            新增活动
+          </Link>
+        </div>
+
         <form className="filters" onSubmit={handleSubmit}>
           <input
             type="text"
@@ -126,6 +135,7 @@ const ActivitiesPage = () => {
                   <th>地点</th>
                   <th>状态</th>
                   <th>容量</th>
+                  <th>操作</th>
                 </tr>
               </thead>
               <tbody>
@@ -136,6 +146,9 @@ const ActivitiesPage = () => {
                     <td>{activity.location ?? '—'}</td>
                     <td>{activity.status}</td>
                     <td>{activity.capacity ?? '不限'}</td>
+                    <td>
+                      <Link to={`/activities/${activity.id}`}>查看详情</Link>
+                    </td>
                   </tr>
                 ))}
               </tbody>
