@@ -210,8 +210,8 @@ export const runMigrations = (db: DatabaseHandle): void => {
         db.exec(stmt);
       }
 
-      const insert = db.prepare('INSERT INTO schema_migrations(id, applied_at) VALUES (?, datetime("now"))');
-      insert.run(migration.id);
+      const insert = db.prepare('INSERT INTO schema_migrations(id, applied_at) VALUES (?, ?)');
+      insert.run(migration.id, new Date().toISOString());
     }
 
     db.exec('COMMIT');
@@ -220,3 +220,4 @@ export const runMigrations = (db: DatabaseHandle): void => {
     throw err;
   }
 };
+

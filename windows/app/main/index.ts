@@ -1,5 +1,6 @@
-﻿import { app, BrowserWindow, ipcMain } from 'electron';
+﻿import { app, BrowserWindow, ipcMain } from 'electron/main';
 import path from 'node:path';
+import { existsSync } from 'node:fs';
 import { ensureDatabase, getDatabase } from './database.js';
 import { PatientsRepository } from './patientsRepository.js';
 import { ActivitiesRepository } from './activitiesRepository.js';
@@ -11,12 +12,24 @@ const createRegistrationsRepository = () => new RegistrationsRepository(getDatab
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
-const resolvePreloadPath = (): string => {
-  if (isDevelopment) {
-    return path.resolve(__dirname, '../../dist/preload/index.js');
+const pickFirstExisting = (candidates: string[]): string => {
+  for (const candidate of candidates) {
+    if (existsSync(candidate)) {
+      return candidate;
+    }
   }
 
-  return path.resolve(__dirname, '../preload/index.js');
+  throw new Error(`Unable to locate expected file. Checked: ${candidates.join(', ')}`);
+};
+
+const resolvePreloadPath = (): string => {
+  const candidates = [
+    path.resolve(__dirname, '../../../preload/app/preload/index.js'),
+    path.resolve(__dirname, '../../preload/app/preload/index.js'),
+    path.resolve(__dirname, '../preload/index.js'),
+  ];
+
+  return pickFirstExisting(candidates);
 };
 
 const resolveRendererUrl = (): string => {
@@ -24,7 +37,13 @@ const resolveRendererUrl = (): string => {
     return process.env.VITE_DEV_SERVER_URL;
   }
 
-  return path.resolve(__dirname, '../renderer/index.html');
+  const candidates = [
+    path.resolve(__dirname, '../../../renderer/index.html'),
+    path.resolve(__dirname, '../../renderer/index.html'),
+    path.resolve(__dirname, '../renderer/index.html'),
+  ];
+
+  return pickFirstExisting(candidates);
 };
 
 const createMainWindow = async (): Promise<void> => {

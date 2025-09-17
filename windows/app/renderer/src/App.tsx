@@ -1,6 +1,7 @@
 ﻿import { useEffect, useState } from 'react';
 import { Routes, Route, Link } from 'react-router-dom';
 import HomePage from './pages/HomePage';
+import PatientsPage from './pages/PatientsPage';
 import ActivitiesPage from './pages/ActivitiesPage';
 import RegistrationsPage from './pages/RegistrationsPage';
 import PatientDetailPage from './pages/PatientDetailPage';
@@ -27,7 +28,7 @@ const App = () => {
   }, []);
 
   if (status === 'loading') {
-    return <div className="page page--center">正在加载桌面环境…</div>;
+    return <div className="page page--center">正在连接桌面服务…</div>;
   }
 
   if (status === 'error') {
@@ -46,7 +47,10 @@ const App = () => {
         <h2>导航</h2>
         <ul>
           <li>
-            <Link to="/">患者管理</Link>
+            <Link to="/">小家概览</Link>
+          </li>
+          <li>
+            <Link to="/patients">患者列表</Link>
           </li>
           <li>
             <Link to="/activities">活动列表</Link>
@@ -59,6 +63,7 @@ const App = () => {
       <main className="content">
         <Routes>
           <Route path="/" element={<HomePage />} />
+          <Route path="/patients" element={<PatientsPage />} />
           <Route path="/patients/:id" element={<PatientDetailPage />} />
           <Route path="/activities" element={<ActivitiesPage />} />
           <Route path="/activities/:id" element={<ActivityDetailPage />} />
