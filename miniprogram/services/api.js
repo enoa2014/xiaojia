@@ -100,6 +100,9 @@ export const api = {
   },
   users: {
     getProfile: () => call('users', 'getProfile'),
+    login: (payload = {}) => call('users', 'login', payload),
+    logout: () => call('users', 'logout'),
+    registerAuth: (payload = {}) => call('users', 'registerAuth', payload),
     register: (payload = {}) => callWithRetry('users', 'register', payload),
     listRegistrations: async (q = {}) => {
       const res = await call('users', 'listRegistrations', q)

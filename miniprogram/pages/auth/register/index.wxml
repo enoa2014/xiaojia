@@ -1,72 +1,273 @@
-<view class="page register-page">
+<view class="page auth-page">
   <view class="nav-header nav-header--green full-bleed">
-    <view class="brand">📝 用户注册</view>
+    <view class="brand">🔐 登录 / 注册</view>
   </view>
 
-  <view wx:if="{{submitted}}" class="submit-result">
+  <!-- 加载状态 -->
+  <view wx:if="{{loading}}" class="loading-container">
+    <view class="loading-spinner"></view>
+    <text class="loading-text">正在检查登录状态...</text>
+  </view>
+
+  <!-- 注册成功等待审批状态 -->
+  <view wx:elif="{{submitted}}" class="submit-result">
     <empty-state
       show="{{true}}"
       icon="⏳"
-      title="已提交，等待审批"
-      description="我们会尽快审核，请稍后在首页查看状态"
+      title="注册已提交，等待审批"
+      description="管理员会尽快审核您的注册申请，通过后您将收到通知"
       variant="compact">
     </empty-state>
     <view class="actions">
+      <ui-button variant="secondary" text="重新提交" bindtap="checkLoginStatus" />
       <ui-button variant="primary" text="返回首页" bindtap="goHome" />
     </view>
   </view>
 
-  <view wx:else class="form">
-    <view class="form-item">
-      <text class="label">姓名*</text>
-      <input class="input" placeholder="请输入姓名" value="{{form.name}}" bindinput="onInput" data-field="name" />
-      <text class="error" wx:if="{{errors.name}}">{{errors.name}}</text>
+  <!-- 主界面：表单容器（非加载、非待审批） -->
+  <view wx:elif="{{!loading && !(hasLogin && userInfo && userInfo.status == 'pending')}}" class="form-container">
+    <view wx:if="{{testMode}}" class="test-banner">
+      <text>🧪 测试注册模式：不会影响当前管理员账号</text>
     </view>
-
-    <view class="form-item">
-      <text class="label">电话*</text>
-      <input class="input" type="number" placeholder="11位手机号" value="{{form.phone}}" bindinput="onInput" data-field="phone" />
-      <text class="error" wx:if="{{errors.phone}}">{{errors.phone}}</text>
-    </view>
-
-    <view class="form-item">
-      <text class="label">身份证号*</text>
-      <input class="input" placeholder="18位身份证号" value="{{form.id_card}}" bindinput="onInput" data-field="id_card" />
-      <text class="error" wx:if="{{errors.id_card}}">{{errors.id_card}}</text>
-    </view>
-
-    <view class="form-item">
-      <text class="label">申请身份*</text>
-      <picker mode="selector" range="{{roleOptions}}" value="{{roleIndex}}" bindchange="onRoleChange">
-        <view class="picker-value">{{ roleOptions[roleIndex] }}</view>
-      </picker>
-      <text class="error" wx:if="{{errors.applyRole}}">{{errors.applyRole}}</text>
-    </view>
-
-    <view wx:if="{{form.applyRole==='parent'}}" class="relative-section">
-      <view class="section-title">亲属信息</view>
-      <view class="form-item">
-        <text class="label">患者姓名*</text>
-        <input class="input" placeholder="请输入患者姓名" value="{{form.relative.patientName}}" bindinput="onRelativeInput" data-field="patientName" />
-        <text class="error" wx:if="{{errors['relative.patientName']}}">{{errors['relative.patientName']}}</text>
+    <!-- Tab 切换 -->
+    <view class="tab-bar">
+      <view class="tab-item {{currentTab === 0 ? 'active' : ''}}" 
+            bindtap="switchTab" 
+            data-tab="0">
+        <text class="tab-text">登录</text>
       </view>
-      <view class="form-item">
-        <text class="label">关系*</text>
-        <picker mode="selector" range="{{relationOptions}}" value="{{relationIndex}}" bindchange="onRelationChange">
-          <view class="picker-value">{{ relationOptions[relationIndex] }}</view>
-        </picker>
-        <text class="error" wx:if="{{errors['relative.relation']}}">{{errors['relative.relation']}}</text>
+      <view class="tab-item {{currentTab === 1 ? 'active' : ''}}" 
+            bindtap="switchTab" 
+            data-tab="1">
+        <text class="tab-text">注册</text>
       </view>
-      <view class="form-item">
-        <text class="label">患者身份证号*</text>
-        <input class="input" placeholder="18位身份证号" value="{{form.relative.patientIdCard}}" bindinput="onRelativeInput" data-field="patientIdCard" />
-        <text class="error" wx:if="{{errors['relative.patientIdCard']}}">{{errors['relative.patientIdCard']}}</text>
+      <view class="tab-indicator" style="transform: translateX({{currentTab * 100}}%);"></view>
+    </view>
+
+    <!-- 登录页面 -->
+    <view wx:if="{{currentTab === 0}}" class="form login-form">
+      <!-- 登录模式切换 -->
+      <view class="login-mode-switch">
+        <view class="mode-item {{loginMode === 'wx' ? 'active' : ''}}" 
+              bindtap="switchLoginMode" 
+              data-mode="wx">
+          <text class="mode-text">🚀 微信登录</text>
+        </view>
+        <view class="mode-item {{loginMode === 'password' ? 'active' : ''}}" 
+              bindtap="switchLoginMode" 
+              data-mode="password">
+          <text class="mode-text">🔐 密码登录</text>
+        </view>
+      </view>
+
+      <!-- 微信登录区域 -->
+      <view wx:if="{{loginMode === 'wx'}}" class="wx-login-section">
+        <view class="login-intro">
+          <view class="intro-icon">👋</view>
+          <view class="intro-content">
+            <text class="intro-title">欢迎来到小家服务管理中心</text>
+            <text class="intro-desc">使用微信账号登录，享受便捷的服务管理体验</text>
+          </view>
+        </view>
+
+        <view class="login-features">
+          <view class="feature-item">
+            <text class="feature-icon">🔐</text>
+            <text class="feature-text">安全可靠的微信登录</text>
+          </view>
+          <view class="feature-item">
+            <text class="feature-icon">📱</text>
+            <text class="feature-text">一键授权，无需密码</text>
+          </view>
+          <view class="feature-item">
+            <text class="feature-icon">⚡</text>
+            <text class="feature-text">快速访问个人信息</text>
+          </view>
+        </view>
+
+        <view class="submit-actions">
+          <ui-button variant="primary" text="🚀 微信登录" bindtap="wxLogin" fullWidth="{{true}}" />
+        </view>
+
+        <view class="login-tip">
+          <text class="tip-text">点击后将检查您的登录状态，首次使用请完成注册流程</text>
+        </view>
+      </view>
+
+      <!-- 用户名密码登录区域 -->
+      <view wx:elif="{{loginMode === 'password'}}" class="password-login-section">
+        <view class="login-intro">
+          <view class="intro-icon">🔐</view>
+          <view class="intro-content">
+            <text class="intro-title">传统登录方式</text>
+            <text class="intro-desc">使用用户名和密码登录系统</text>
+          </view>
+        </view>
+
+        <view class="login-form-fields">
+          <view class="form-item">
+            <text class="label">昵称/姓名 *</text>
+            <input class="input" placeholder="请输入昵称或姓名" 
+                   value="{{loginForm.username}}" 
+                   bindinput="onLoginInput" 
+                   data-field="username" />
+            <text class="error" wx:if="{{loginErrors.username}}">{{loginErrors.username}}</text>
+          </view>
+
+          <view class="form-item">
+            <text class="label">密码 *</text>
+            <input class="input" type="password" placeholder="请输入密码" 
+                   value="{{loginForm.password}}" 
+                   bindinput="onLoginInput" 
+                   data-field="password" />
+            <text class="error" wx:if="{{loginErrors.password}}">{{loginErrors.password}}</text>
+          </view>
+        </view>
+
+        <!-- 默认账号提示 -->
+        <view class="default-account-hint">
+          <text class="hint-icon">💡</text>
+          <view class="hint-content">
+            <text class="hint-title">默认管理员账号</text>
+            <text class="hint-desc" wx:if="{{flags.devBackdoorEnabled}}">用户名: admin 、密码: 123456（开发模式）</text>
+          </view>
+        </view>
+
+        <view class="submit-actions">
+          <ui-button variant="primary" text="登录" bindtap="passwordLogin" fullWidth="{{true}}" />
+        </view>
       </view>
     </view>
 
-    <view class="submit-actions">
-      <ui-button variant="primary" text="提交" bindtap="onSubmit" />
+    <!-- 注册表单 -->
+    <view wx:if="{{currentTab === 1}}" class="form register-form">
+      <view wx:if="{{userInfo}}" class="user-info-card">
+        <image class="user-avatar" src="{{userInfo.avatarUrl}}" />
+        <view class="user-details">
+          <text class="user-name">{{userInfo.nickName}}</text>
+          <text class="user-status">微信用户已授权</text>
+        </view>
+      </view>
+
+      <view wx:else class="auth-required">
+        <view class="auth-hint">
+          <text class="auth-icon">🔑</text>
+          <text class="auth-text">请先通过微信登录获取用户信息</text>
+        </view>
+        <ui-button variant="secondary" text="返回登录" bindtap="switchTab" data-tab="0" />
+      </view>
+
+      <view wx:if="{{userInfo}}" class="register-fields">
+        <view class="form-item">
+          <text class="label">昵称</text>
+          <input class="input" placeholder="如：xxx妈妈（可选，不填则使用姓名）" 
+                 value="{{registerForm.nickname}}" 
+                 bindinput="onRegisterInput" 
+                 data-field="nickname" />
+          <text class="error" wx:if="{{registerErrors.nickname}}">{{registerErrors.nickname}}</text>
+        </view>
+
+        <view class="form-item">
+          <text class="label">登录密码*</text>
+          <input class="input" type="password" placeholder="请设置登录密码" 
+                 value="{{registerForm.password}}" 
+                 bindinput="onRegisterInput" 
+                 data-field="password" />
+          <text class="error" wx:if="{{registerErrors.password}}">{{registerErrors.password}}</text>
+        </view>
+
+        <view class="form-item">
+          <text class="label">真实姓名*</text>
+          <input class="input" placeholder="请输入真实姓名" 
+                 value="{{registerForm.name}}" 
+                 bindinput="onRegisterInput" 
+                 data-field="name" />
+          <text class="error" wx:if="{{registerErrors.name}}">{{registerErrors.name}}</text>
+        </view>
+
+        <view class="form-item">
+          <text class="label">联系电话*</text>
+          <input class="input" type="number" placeholder="11位手机号" 
+                 value="{{registerForm.phone}}" 
+                 bindinput="onRegisterInput" 
+                 data-field="phone" />
+          <text class="error" wx:if="{{registerErrors.phone}}">{{registerErrors.phone}}</text>
+        </view>
+
+        <view class="form-item">
+          <text class="label">身份证号*</text>
+          <input class="input" placeholder="18位身份证号" 
+                 value="{{registerForm.id_card}}" 
+                 bindinput="onRegisterInput" 
+                 data-field="id_card" />
+          <text class="error" wx:if="{{registerErrors.id_card}}">{{registerErrors.id_card}}</text>
+        </view>
+
+        <view class="form-item">
+          <text class="label">申请身份*</text>
+          <picker mode="selector" range="{{roleOptions}}" value="{{roleIndex}}" bindchange="onRoleChange">
+            <view class="picker-value">{{ roleOptions[roleIndex] }}</view>
+          </picker>
+          <text class="error" wx:if="{{registerErrors.applyRole}}">{{registerErrors.applyRole}}</text>
+        </view>
+
+        <view wx:if="{{registerForm.applyRole==='parent'}}" class="relative-section">
+          <view class="section-title">家属信息</view>
+          <view class="form-item">
+            <text class="label">患者姓名*</text>
+            <input class="input" placeholder="请输入患者姓名" 
+                   value="{{registerForm.relative.patientName}}" 
+                   bindinput="onRelativeInput" 
+                   data-field="patientName" />
+            <text class="error" wx:if="{{registerErrors['relative.patientName']}}">{{registerErrors['relative.patientName']}}</text>
+          </view>
+          <view class="form-item">
+            <text class="label">关系*</text>
+            <picker mode="selector" range="{{relationOptions}}" value="{{relationIndex}}" bindchange="onRelationChange">
+              <view class="picker-value">{{ relationOptions[relationIndex] }}</view>
+            </picker>
+            <text class="error" wx:if="{{registerErrors['relative.relation']}}">{{registerErrors['relative.relation']}}</text>
+          </view>
+          <view class="form-item">
+            <text class="label">患者身份证号*</text>
+            <input class="input" placeholder="18位身份证号" 
+                   value="{{registerForm.relative.patientIdCard}}" 
+                   bindinput="onRelativeInput" 
+                   data-field="patientIdCard" />
+            <text class="error" wx:if="{{registerErrors['relative.patientIdCard']}}">{{registerErrors['relative.patientIdCard']}}</text>
+          </view>
+        </view>
+
+        <view class="submit-actions">
+          <ui-button variant="primary" text="提交注册申请" bindtap="onRegisterSubmit" fullWidth="{{true}}" />
+        </view>
+      </view>
     </view>
   </view>
-</view>
 
+  <!-- 已登录但未审批通过的状态 -->
+  <view wx:elif="{{hasLogin && userInfo && userInfo.status == 'pending'}}" class="pending-status">
+    <empty-state
+      show="{{true}}"
+      icon="⏳"
+      title="等待管理员审批"
+      description="您的注册申请正在处理中，请耐心等待"
+      variant="compact">
+    </empty-state>
+    <view class="actions">
+      <ui-button variant="secondary" text="刷新状态" bindtap="checkLoginStatus" />
+      <ui-button variant="primary" text="返回首页" bindtap="goHome" />
+    </view>
+  </view>
+
+  <view wx:else class="fallback-container">
+    <view class="fallback-content">
+      <text class="fallback-icon">🌀</text>
+      <text class="fallback-title">正在处理...</text>
+      <text class="fallback-desc">如长时间无响应，请返回首页重试</text>
+      <button class="fallback-btn" bindtap="goHome">返回首页</button>
+    </view>
+  </view>
+
+  
+</view>

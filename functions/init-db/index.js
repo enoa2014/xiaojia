@@ -13069,7 +13069,7 @@ var require_helpers = __commonJS({
   "../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/helpers.js"(exports2) {
     "use strict";
     var jsonSafeStringify = require_stringify();
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     var Buffer3 = require_safe_buffer().Buffer;
     var defer = typeof setImmediate === "undefined" ? process.nextTick : setImmediate;
     function paramsHaveRequestBody(params) {
@@ -13085,7 +13085,7 @@ var require_helpers = __commonJS({
       return ret;
     }
     function md5(str) {
-      return crypto2.createHash("md5").update(str).digest("hex");
+      return crypto3.createHash("md5").update(str).digest("hex");
     }
     function isReadStream(rs) {
       return rs.readable && rs.path && rs.mode;
@@ -13123,7 +13123,7 @@ var require_helpers = __commonJS({
 var require_aws_sign2 = __commonJS({
   "../../node_modules/.pnpm/aws-sign2@0.7.0/node_modules/aws-sign2/index.js"(exports2, module2) {
     "use strict";
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     var parse = require("url").parse;
     var keys = [
       "acl",
@@ -13147,7 +13147,7 @@ var require_aws_sign2 = __commonJS({
     module2.exports = authorization;
     module2.exports.authorization = authorization;
     function hmacSha1(options) {
-      return crypto2.createHmac("sha1", options.secret).update(options.message).digest("base64");
+      return crypto3.createHmac("sha1", options.secret).update(options.message).digest("base64");
     }
     module2.exports.hmacSha1 = hmacSha1;
     function sign(options) {
@@ -13303,14 +13303,14 @@ var require_aws4 = __commonJS({
     var aws4 = exports2;
     var url = require("url");
     var querystring = require("querystring");
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     var lru = require_lru();
     var credentialsCache = lru(1e3);
     function hmac(key, string, encoding) {
-      return crypto2.createHmac("sha256", key).update(string, "utf8").digest(encoding);
+      return crypto3.createHmac("sha256", key).update(string, "utf8").digest(encoding);
     }
     function hash(string, encoding) {
-      return crypto2.createHash("sha256").update(string, "utf8").digest(encoding);
+      return crypto3.createHash("sha256").update(string, "utf8").digest(encoding);
     }
     function encodeRfc3986(urlEncodedString) {
       return urlEncodedString.replace(/[!'()*]/g, function(c) {
@@ -18636,23 +18636,23 @@ var require_nacl_fast = __commonJS({
         randombytes = fn;
       };
       (function() {
-        var crypto2 = typeof self !== "undefined" ? self.crypto || self.msCrypto : null;
-        if (crypto2 && crypto2.getRandomValues) {
+        var crypto3 = typeof self !== "undefined" ? self.crypto || self.msCrypto : null;
+        if (crypto3 && crypto3.getRandomValues) {
           var QUOTA = 65536;
           nacl.setPRNG(function(x, n) {
             var i, v = new Uint8Array(n);
             for (i = 0; i < n; i += QUOTA) {
-              crypto2.getRandomValues(v.subarray(i, i + Math.min(n - i, QUOTA)));
+              crypto3.getRandomValues(v.subarray(i, i + Math.min(n - i, QUOTA)));
             }
             for (i = 0; i < n; i++)
               x[i] = v[i];
             cleanup(v);
           });
         } else if (typeof require !== "undefined") {
-          crypto2 = require("crypto");
-          if (crypto2 && crypto2.randomBytes) {
+          crypto3 = require("crypto");
+          if (crypto3 && crypto3.randomBytes) {
             nacl.setPRNG(function(x, n) {
-              var i, v = crypto2.randomBytes(n);
+              var i, v = crypto3.randomBytes(n);
               for (i = 0; i < n; i++)
                 x[i] = v[i];
               cleanup(v);
@@ -18692,7 +18692,7 @@ var require_utils3 = __commonJS({
     var Buffer3 = require_safer().Buffer;
     var PrivateKey = require_private_key();
     var Key = require_key();
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     var algs = require_algs();
     var asn1 = require_lib();
     var ec = require_ec();
@@ -18776,7 +18776,7 @@ var require_utils3 = __commonJS({
         bufs.push(salt);
         D = Buffer3.concat(bufs);
         for (var j = 0; j < count; ++j)
-          D = crypto2.createHash("md5").update(D).digest();
+          D = crypto3.createHash("md5").update(D).digest();
         material = Buffer3.concat([material, D]);
         D_prev = D;
       }
@@ -18798,13 +18798,13 @@ var require_utils3 = __commonJS({
       return Buffer3.concat(ts).slice(0, size);
       function T(I) {
         hkey.writeUInt32BE(I, hkey.length - 4);
-        var hmac = crypto2.createHmac(hashAlg, passphrase);
+        var hmac = crypto3.createHmac(hashAlg, passphrase);
         hmac.update(hkey);
         var Ti = hmac.digest();
         var Uc = Ti;
         var c = 1;
         while (c++ < iterations) {
-          hmac = crypto2.createHmac(hashAlg, passphrase);
+          hmac = crypto3.createHmac(hashAlg, passphrase);
           hmac.update(Uc);
           Uc = hmac.digest();
           for (var x = 0; x < Ti.length; ++x)
@@ -19175,7 +19175,7 @@ var require_signature = __commonJS({
     var assert = require_assert();
     var Buffer3 = require_safer().Buffer;
     var algs = require_algs();
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     var errs = require_errors();
     var utils = require_utils3();
     var asn1 = require_lib();
@@ -19555,7 +19555,7 @@ var require_sec = __commonJS({
 var require_ecc_jsbn = __commonJS({
   "../../node_modules/.pnpm/ecc-jsbn@0.1.2/node_modules/ecc-jsbn/index.js"(exports2) {
     "use strict";
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     var BigInteger = require_jsbn().BigInteger;
     var ECPointFp = require_ec().ECPointFp;
     var Buffer3 = require_safer().Buffer;
@@ -19579,7 +19579,7 @@ var require_ecc_jsbn = __commonJS({
         }
       } else {
         var n1 = n.subtract(BigInteger.ONE);
-        var r = new BigInteger(crypto2.randomBytes(n.bitLength()));
+        var r = new BigInteger(crypto3.randomBytes(n.bitLength()));
         priv = r.mod(n1).add(BigInteger.ONE);
         this.P = c.getG().multiply(priv);
       }
@@ -19609,14 +19609,14 @@ var require_dhe = __commonJS({
       generateED25519
     };
     var assert = require_assert();
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     var Buffer3 = require_safer().Buffer;
     var algs = require_algs();
     var utils = require_utils3();
     var nacl = require_nacl_fast();
     var Key = require_key();
     var PrivateKey = require_private_key();
-    var CRYPTO_HAVE_ECDH = crypto2.createECDH !== void 0;
+    var CRYPTO_HAVE_ECDH = crypto3.createECDH !== void 0;
     var ecdh = require_ecc_jsbn();
     var ec = require_ec();
     var jsbn = require_jsbn().BigInteger;
@@ -19630,7 +19630,7 @@ var require_dhe = __commonJS({
         if (!CRYPTO_HAVE_ECDH) {
           throw new Error("Due to bugs in the node 0.10 crypto API, node 0.12.x or later is required to use DH");
         }
-        this._dh = crypto2.createDiffieHellman(
+        this._dh = crypto3.createDiffieHellman(
           key.part.p.data,
           void 0,
           key.part.g.data,
@@ -19657,7 +19657,7 @@ var require_dhe = __commonJS({
           "nistp384": "secp384r1",
           "nistp521": "secp521r1"
         }[key.curve];
-        this._dh = crypto2.createECDH(curve);
+        this._dh = crypto3.createECDH(curve);
         if (typeof this._dh !== "object" || typeof this._dh.setPrivateKey !== "function") {
           CRYPTO_HAVE_ECDH = false;
           DiffieHellman.call(this, key);
@@ -19809,7 +19809,7 @@ var require_dhe = __commonJS({
           return this._key;
         } else {
           var n = this._ecParams.getN();
-          var r = new jsbn(crypto2.randomBytes(n.bitLength()));
+          var r = new jsbn(crypto3.randomBytes(n.bitLength()));
           var n1 = n.subtract(jsbn.ONE);
           priv = r.mod(n1).add(jsbn.ONE);
           pub = this._ecParams.getG().multiply(priv);
@@ -19915,7 +19915,7 @@ var require_dhe = __commonJS({
           "nistp384": "secp384r1",
           "nistp521": "secp521r1"
         }[curve];
-        var dh = crypto2.createECDH(osCurve);
+        var dh = crypto3.createECDH(osCurve);
         dh.generateKeys();
         parts.push({
           name: "curve",
@@ -19933,7 +19933,7 @@ var require_dhe = __commonJS({
         var ecParams = new X9ECParameters(curve);
         var n = ecParams.getN();
         var cByteLen = Math.ceil((n.bitLength() + 64) / 8);
-        var c = new jsbn(crypto2.randomBytes(cByteLen));
+        var c = new jsbn(crypto3.randomBytes(cByteLen));
         var n1 = n.subtract(jsbn.ONE);
         var priv = c.mod(n1).add(jsbn.ONE);
         var pub = ecParams.getG().multiply(priv);
@@ -22288,7 +22288,7 @@ var require_ssh_private = __commonJS({
     var Buffer3 = require_safer().Buffer;
     var algs = require_algs();
     var utils = require_utils3();
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     var Key = require_key();
     var PrivateKey = require_private_key();
     var pem = require_pem();
@@ -22362,7 +22362,7 @@ var require_ssh_private = __commonJS({
           out = Buffer3.from(out);
           var ckey = out.slice(0, cinf.keySize);
           var iv = out.slice(cinf.keySize, cinf.keySize + cinf.blockSize);
-          var cipherStream = crypto2.createDecipheriv(
+          var cipherStream = crypto3.createDecipheriv(
             cinf.opensslName,
             ckey,
             iv
@@ -22427,7 +22427,7 @@ var require_ssh_private = __commonJS({
       var privBuf;
       if (PrivateKey.isPrivateKey(key)) {
         privBuf = new SSHBuffer({});
-        var checkInt = crypto2.randomBytes(4).readUInt32BE(0);
+        var checkInt = crypto3.randomBytes(4).readUInt32BE(0);
         privBuf.writeInt(checkInt);
         privBuf.writeInt(checkInt);
         privBuf.write(key.toBuffer("rfc4253"));
@@ -22441,7 +22441,7 @@ var require_ssh_private = __commonJS({
         case "none":
           break;
         case "bcrypt":
-          var salt = crypto2.randomBytes(16);
+          var salt = crypto3.randomBytes(16);
           var rounds = 16;
           var kdfssh = new SSHBuffer({});
           kdfssh.writeBuffer(salt);
@@ -22468,7 +22468,7 @@ var require_ssh_private = __commonJS({
           out = Buffer3.from(out);
           var ckey = out.slice(0, cinf.keySize);
           var iv = out.slice(cinf.keySize, cinf.keySize + cinf.blockSize);
-          var cipherStream = crypto2.createCipheriv(
+          var cipherStream = crypto3.createCipheriv(
             cinf.opensslName,
             ckey,
             iv
@@ -22531,7 +22531,7 @@ var require_pem = __commonJS({
     };
     var assert = require_assert();
     var asn1 = require_lib();
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     var Buffer3 = require_safer().Buffer;
     var algs = require_algs();
     var utils = require_utils3();
@@ -22699,7 +22699,7 @@ var require_pem = __commonJS({
         alg = void 0;
       }
       if (cipher && key && iv) {
-        var cipherStream = crypto2.createDecipheriv(cipher, key, iv);
+        var cipherStream = crypto3.createDecipheriv(cipher, key, iv);
         var chunk, chunks = [];
         cipherStream.once("error", function(e) {
           if (e.toString().indexOf("bad decrypt") !== -1) {
@@ -23127,7 +23127,7 @@ var require_putty = __commonJS({
     var rfc4253 = require_rfc4253();
     var Key = require_key();
     var SSHBuffer = require_ssh_buffer();
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     var PrivateKey = require_private_key();
     var errors = require_errors();
     function read(buf, options) {
@@ -23197,7 +23197,7 @@ var require_putty = __commonJS({
             );
           }
           var iv = Buffer3.alloc(16, 0);
-          var decipher = crypto2.createDecipheriv(
+          var decipher = crypto3.createDecipheriv(
             "aes-256-cbc",
             derivePPK2EncryptionKey(options.passphrase),
             iv
@@ -23248,11 +23248,11 @@ var require_putty = __commonJS({
       return key;
     }
     function derivePPK2EncryptionKey(passphrase) {
-      var hash1 = crypto2.createHash("sha1").update(Buffer3.concat([
+      var hash1 = crypto3.createHash("sha1").update(Buffer3.concat([
         Buffer3.from([0, 0, 0, 0]),
         Buffer3.from(passphrase)
       ])).digest();
-      var hash2 = crypto2.createHash("sha1").update(Buffer3.concat([
+      var hash2 = crypto3.createHash("sha1").update(Buffer3.concat([
         Buffer3.from([0, 0, 0, 1]),
         Buffer3.from(passphrase)
       ])).digest();
@@ -23408,7 +23408,7 @@ var require_private_key = __commonJS({
     var assert = require_assert();
     var Buffer3 = require_safer().Buffer;
     var algs = require_algs();
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     var Fingerprint = require_fingerprint();
     var Signature = require_signature();
     var errs = require_errors();
@@ -23519,14 +23519,14 @@ var require_private_key = __commonJS({
       var v, nm, err;
       try {
         nm = hashAlgo.toUpperCase();
-        v = crypto2.createSign(nm);
+        v = crypto3.createSign(nm);
       } catch (e) {
         err = e;
       }
       if (v === void 0 || err instanceof Error && err.message.match(/Unknown message digest/)) {
         nm = "RSA-";
         nm += hashAlgo.toUpperCase();
-        v = crypto2.createSign(nm);
+        v = crypto3.createSign(nm);
       }
       assert.ok(v, "failed to create verifier");
       var oldSign = v.sign.bind(v);
@@ -23612,7 +23612,7 @@ var require_identity = __commonJS({
     module2.exports = Identity;
     var assert = require_assert();
     var algs = require_algs();
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     var Fingerprint = require_fingerprint();
     var Signature = require_signature();
     var errs = require_errors();
@@ -23930,7 +23930,7 @@ var require_openssh_cert = __commonJS({
     };
     var assert = require_assert();
     var SSHBuffer = require_ssh_buffer();
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     var Buffer3 = require_safer().Buffer;
     var algs = require_algs();
     var Key = require_key();
@@ -24119,7 +24119,7 @@ var require_openssh_cert = __commonJS({
       assert.object(cert.signatures.openssh, "signature for openssh format");
       var sig = cert.signatures.openssh;
       if (sig.nonce === void 0)
-        sig.nonce = crypto2.randomBytes(16);
+        sig.nonce = crypto3.randomBytes(16);
       var buf = new SSHBuffer({});
       buf.writeString(getCertType(cert.subjectKey));
       buf.writeBuffer(sig.nonce);
@@ -24925,7 +24925,7 @@ var require_certificate = __commonJS({
     var assert = require_assert();
     var Buffer3 = require_safer().Buffer;
     var algs = require_algs();
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     var Fingerprint = require_fingerprint();
     var Signature = require_signature();
     var errs = require_errors();
@@ -25012,7 +25012,7 @@ var require_certificate = __commonJS({
         throw new InvalidAlgorithmError(algo);
       if (this._hashCache[algo])
         return this._hashCache[algo];
-      var hash = crypto2.createHash(algo).update(this.toBuffer("x509")).digest();
+      var hash = crypto3.createHash(algo).update(this.toBuffer("x509")).digest();
       this._hashCache[algo] = hash;
       return hash;
     };
@@ -25283,7 +25283,7 @@ var require_fingerprint = __commonJS({
     var assert = require_assert();
     var Buffer3 = require_safer().Buffer;
     var algs = require_algs();
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     var errs = require_errors();
     var Key = require_key();
     var PrivateKey = require_private_key();
@@ -25350,9 +25350,9 @@ var require_fingerprint = __commonJS({
         );
       }
       var theirHash = other.hash(this.algorithm, this.hashType);
-      var theirHash2 = crypto2.createHash(this.algorithm).update(theirHash).digest("base64");
+      var theirHash2 = crypto3.createHash(this.algorithm).update(theirHash).digest("base64");
       if (this.hash2 === void 0)
-        this.hash2 = crypto2.createHash(this.algorithm).update(this.hash).digest("base64");
+        this.hash2 = crypto3.createHash(this.algorithm).update(this.hash).digest("base64");
       return this.hash2 === theirHash2;
     };
     var base64RE = /^[A-Za-z0-9+\/=]+$/;
@@ -25478,7 +25478,7 @@ var require_key = __commonJS({
     module2.exports = Key;
     var assert = require_assert();
     var algs = require_algs();
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     var Fingerprint = require_fingerprint();
     var Signature = require_signature();
     var DiffieHellman = require_dhe().DiffieHellman;
@@ -25576,7 +25576,7 @@ var require_key = __commonJS({
       } else {
         throw new Error("Hash type " + type + " not supported");
       }
-      var hash = crypto2.createHash(algo).update(buf).digest();
+      var hash = crypto3.createHash(algo).update(buf).digest();
       this._hashCache[cacheKey] = hash;
       return hash;
     };
@@ -25624,14 +25624,14 @@ var require_key = __commonJS({
       var v, nm, err;
       try {
         nm = hashAlgo.toUpperCase();
-        v = crypto2.createVerify(nm);
+        v = crypto3.createVerify(nm);
       } catch (e) {
         err = e;
       }
       if (v === void 0 || err instanceof Error && err.message.match(/Unknown message digest/)) {
         nm = "RSA-";
         nm += hashAlgo.toUpperCase();
-        v = crypto2.createVerify(nm);
+        v = crypto3.createVerify(nm);
       }
       assert.ok(v, "failed to create verifier");
       var oldVerify = v.verify.bind(v);
@@ -27258,7 +27258,7 @@ var require_signer = __commonJS({
   "../../node_modules/.pnpm/http-signature@1.2.0/node_modules/http-signature/lib/signer.js"(exports2, module2) {
     "use strict";
     var assert = require_assert();
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     var http = require("http");
     var util = require("util");
     var sshpk = require_lib2();
@@ -27295,7 +27295,7 @@ var require_signer = __commonJS({
         this.rs_keyId = options.keyId;
         if (typeof options.key !== "string" && !Buffer.isBuffer(options.key))
           throw new TypeError("options.key for HMAC must be a string or Buffer");
-        this.rs_signer = crypto2.createHmac(alg[1].toUpperCase(), options.key);
+        this.rs_signer = crypto3.createHmac(alg[1].toUpperCase(), options.key);
         this.rs_signer.sign = function() {
           var digest = this.digest("base64");
           return {
@@ -27513,7 +27513,7 @@ var require_signer = __commonJS({
         if (alg[0] === "hmac") {
           if (typeof options.key !== "string" && !Buffer.isBuffer(options.key))
             throw new TypeError("options.key must be a string or Buffer");
-          var hmac = crypto2.createHmac(alg[1].toUpperCase(), options.key);
+          var hmac = crypto3.createHmac(alg[1].toUpperCase(), options.key);
           hmac.update(stringToSign);
           signature = hmac.digest("base64");
         } else {
@@ -27559,7 +27559,7 @@ var require_verify = __commonJS({
   "../../node_modules/.pnpm/http-signature@1.2.0/node_modules/http-signature/lib/verify.js"(exports2, module2) {
     "use strict";
     var assert = require_assert();
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     var sshpk = require_lib2();
     var utils = require_utils4();
     var HASH_ALGOS = utils.HASH_ALGOS;
@@ -27607,12 +27607,12 @@ var require_verify = __commonJS({
         if (alg[0] !== "hmac")
           return false;
         var hashAlg = alg[1].toUpperCase();
-        var hmac = crypto2.createHmac(hashAlg, secret);
+        var hmac = crypto3.createHmac(hashAlg, secret);
         hmac.update(parsedSignature.signingString);
-        var h1 = crypto2.createHmac(hashAlg, secret);
+        var h1 = crypto3.createHmac(hashAlg, secret);
         h1.update(hmac.digest());
         h1 = h1.digest();
-        var h2 = crypto2.createHmac(hashAlg, secret);
+        var h2 = crypto3.createHmac(hashAlg, secret);
         h2.update(new Buffer(parsedSignature.params.signature, "base64"));
         h2 = h2.digest();
         if (typeof h1 === "string")
@@ -45431,9 +45431,9 @@ var require_har2 = __commonJS({
 var require_rng = __commonJS({
   "../../node_modules/.pnpm/uuid@3.4.0/node_modules/uuid/lib/rng.js"(exports2, module2) {
     "use strict";
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     module2.exports = function nodeRNG() {
-      return crypto2.randomBytes(16);
+      return crypto3.randomBytes(16);
     };
   }
 });
@@ -45642,12 +45642,12 @@ var require_auth = __commonJS({
 var require_oauth_sign = __commonJS({
   "../../node_modules/.pnpm/oauth-sign@0.9.0/node_modules/oauth-sign/index.js"(exports2) {
     "use strict";
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     function sha(key, body, algorithm) {
-      return crypto2.createHmac(algorithm, key).update(body).digest("base64");
+      return crypto3.createHmac(algorithm, key).update(body).digest("base64");
     }
     function rsa(key, body) {
-      return crypto2.createSign("RSA-SHA1").update(body).sign(key, "base64");
+      return crypto3.createSign("RSA-SHA1").update(body).sign(key, "base64");
     }
     function rfc3986(str) {
       return encodeURIComponent(str).replace(/!/g, "%21").replace(/\*/g, "%2A").replace(/\(/g, "%28").replace(/\)/g, "%29").replace(/'/g, "%27");
@@ -45754,7 +45754,7 @@ var require_oauth = __commonJS({
     var caseless = require_caseless();
     var uuid = require_v4();
     var oauth = require_oauth_sign();
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     var Buffer3 = require_safe_buffer().Buffer;
     function OAuth(request) {
       this.request = request;
@@ -45806,7 +45806,7 @@ var require_oauth = __commonJS({
       if (["HMAC-SHA1", "RSA-SHA1"].indexOf(_oauth.signature_method || "HMAC-SHA1") < 0) {
         this.request.emit("error", new Error("oauth: " + _oauth.signature_method + " signature_method not supported with body_hash signing."));
       }
-      var shasum = crypto2.createHash("sha1");
+      var shasum = crypto3.createHash("sha1");
       shasum.update(body || "");
       var sha1 = shasum.digest("hex");
       return Buffer3.from(sha1, "hex").toString("base64");
@@ -45875,15 +45875,15 @@ var require_oauth = __commonJS({
 var require_hawk = __commonJS({
   "../../node_modules/.pnpm/request@2.88.2/node_modules/request/lib/hawk.js"(exports2) {
     "use strict";
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     function randomString(size) {
       var bits = (size + 1) * 6;
-      var buffer2 = crypto2.randomBytes(Math.ceil(bits / 8));
+      var buffer2 = crypto3.randomBytes(Math.ceil(bits / 8));
       var string = buffer2.toString("base64").replace(/\+/g, "-").replace(/\//g, "_").replace(/=/g, "");
       return string.slice(0, size);
     }
     function calculatePayloadHash(payload, algorithm, contentType) {
-      var hash = crypto2.createHash(algorithm);
+      var hash = crypto3.createHash(algorithm);
       hash.update("hawk.1.payload\n");
       hash.update((contentType ? contentType.split(";")[0].trim().toLowerCase() : "") + "\n");
       hash.update(payload || "");
@@ -45899,7 +45899,7 @@ var require_hawk = __commonJS({
       if (opts.app) {
         normalized = normalized + opts.app + "\n" + (opts.dlg || "") + "\n";
       }
-      var hmac = crypto2.createHmac(credentials.algorithm, credentials.key).update(normalized);
+      var hmac = crypto3.createHmac(credentials.algorithm, credentials.key).update(normalized);
       var digest = hmac.digest("base64");
       return digest;
     };
@@ -49019,7 +49019,7 @@ var require_utils6 = __commonJS({
   "../../node_modules/.pnpm/@cloudbase+signature-nodejs@1.0.0-beta.0/node_modules/@cloudbase/signature-nodejs/lib/utils.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     function formateDate(timestamp) {
       return new Date(timestamp * 1e3).toISOString().split("T")[0];
     }
@@ -49033,11 +49033,11 @@ var require_utils6 = __commonJS({
     }
     exports2.stringify = stringify;
     function sha256hash(string, encoding = "hex") {
-      return crypto2.createHash("sha256").update(string).digest(encoding);
+      return crypto3.createHash("sha256").update(string).digest(encoding);
     }
     exports2.sha256hash = sha256hash;
     function sha256hmac(string, secret = "", encoding) {
-      return crypto2.createHmac("sha256", secret).update(string).digest(encoding);
+      return crypto3.createHmac("sha256", secret).update(string).digest(encoding);
     }
     exports2.sha256hmac = sha256hmac;
     function isNodeEnv() {
@@ -49065,7 +49065,7 @@ var require_signer2 = __commonJS({
   "../../node_modules/.pnpm/@cloudbase+signature-nodejs@1.0.0-beta.0/node_modules/@cloudbase/signature-nodejs/lib/signer.js"(exports2) {
     "use strict";
     Object.defineProperty(exports2, "__esModule", { value: true });
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     var utils_1 = require_utils6();
     var utils_lang_1 = require_utils_lang();
     var keyvalue_1 = require_keyvalue();
@@ -49142,7 +49142,7 @@ var require_signer2 = __commonJS({
           return utils_1.sha256hash(params);
         }
         keys = keys || keyvalue_1.SortedKeyValue.kv(params).keys();
-        const hash = crypto2.createHash("sha256");
+        const hash = crypto3.createHash("sha256");
         for (const key of keys) {
           if (!params[key]) {
             continue;
@@ -50308,14 +50308,14 @@ var require_jwa = __commonJS({
   "../../node_modules/.pnpm/jwa@1.4.2/node_modules/jwa/index.js"(exports2, module2) {
     "use strict";
     var Buffer3 = require_safe_buffer().Buffer;
-    var crypto2 = require("crypto");
+    var crypto3 = require("crypto");
     var formatEcdsa = require_ecdsa_sig_formatter();
     var util = require("util");
     var MSG_INVALID_ALGORITHM = '"%s" is not a valid algorithm.\n  Supported algorithms are:\n  "HS256", "HS384", "HS512", "RS256", "RS384", "RS512", "PS256", "PS384", "PS512", "ES256", "ES384", "ES512" and "none".';
     var MSG_INVALID_SECRET = "secret must be a string or buffer";
     var MSG_INVALID_VERIFIER_KEY = "key must be a string or a buffer";
     var MSG_INVALID_SIGNER_KEY = "key must be a string, a buffer or an object";
-    var supportsKeyObjects = typeof crypto2.createPublicKey === "function";
+    var supportsKeyObjects = typeof crypto3.createPublicKey === "function";
     if (supportsKeyObjects) {
       MSG_INVALID_VERIFIER_KEY += " or a KeyObject";
       MSG_INVALID_SECRET += "or a KeyObject";
@@ -50405,17 +50405,17 @@ var require_jwa = __commonJS({
       return function sign(thing, secret) {
         checkIsSecretKey(secret);
         thing = normalizeInput(thing);
-        var hmac = crypto2.createHmac("sha" + bits, secret);
+        var hmac = crypto3.createHmac("sha" + bits, secret);
         var sig = (hmac.update(thing), hmac.digest("base64"));
         return fromBase64(sig);
       };
     }
     var bufferEqual;
-    var timingSafeEqual = "timingSafeEqual" in crypto2 ? function timingSafeEqual2(a, b) {
+    var timingSafeEqual = "timingSafeEqual" in crypto3 ? function timingSafeEqual2(a, b) {
       if (a.byteLength !== b.byteLength) {
         return false;
       }
-      return crypto2.timingSafeEqual(a, b);
+      return crypto3.timingSafeEqual(a, b);
     } : function timingSafeEqual2(a, b) {
       if (!bufferEqual) {
         bufferEqual = require_buffer_equal_constant_time();
@@ -50432,7 +50432,7 @@ var require_jwa = __commonJS({
       return function sign(thing, privateKey) {
         checkIsPrivateKey(privateKey);
         thing = normalizeInput(thing);
-        var signer = crypto2.createSign("RSA-SHA" + bits);
+        var signer = crypto3.createSign("RSA-SHA" + bits);
         var sig = (signer.update(thing), signer.sign(privateKey, "base64"));
         return fromBase64(sig);
       };
@@ -50442,7 +50442,7 @@ var require_jwa = __commonJS({
         checkIsPublicKey(publicKey);
         thing = normalizeInput(thing);
         signature = toBase64(signature);
-        var verifier = crypto2.createVerify("RSA-SHA" + bits);
+        var verifier = crypto3.createVerify("RSA-SHA" + bits);
         verifier.update(thing);
         return verifier.verify(publicKey, signature, "base64");
       };
@@ -50451,11 +50451,11 @@ var require_jwa = __commonJS({
       return function sign(thing, privateKey) {
         checkIsPrivateKey(privateKey);
         thing = normalizeInput(thing);
-        var signer = crypto2.createSign("RSA-SHA" + bits);
+        var signer = crypto3.createSign("RSA-SHA" + bits);
         var sig = (signer.update(thing), signer.sign({
           key: privateKey,
-          padding: crypto2.constants.RSA_PKCS1_PSS_PADDING,
-          saltLength: crypto2.constants.RSA_PSS_SALTLEN_DIGEST
+          padding: crypto3.constants.RSA_PKCS1_PSS_PADDING,
+          saltLength: crypto3.constants.RSA_PSS_SALTLEN_DIGEST
         }, "base64"));
         return fromBase64(sig);
       };
@@ -50465,12 +50465,12 @@ var require_jwa = __commonJS({
         checkIsPublicKey(publicKey);
         thing = normalizeInput(thing);
         signature = toBase64(signature);
-        var verifier = crypto2.createVerify("RSA-SHA" + bits);
+        var verifier = crypto3.createVerify("RSA-SHA" + bits);
         verifier.update(thing);
         return verifier.verify({
           key: publicKey,
-          padding: crypto2.constants.RSA_PKCS1_PSS_PADDING,
-          saltLength: crypto2.constants.RSA_PSS_SALTLEN_DIGEST
+          padding: crypto3.constants.RSA_PKCS1_PSS_PADDING,
+          saltLength: crypto3.constants.RSA_PSS_SALTLEN_DIGEST
         }, signature, "base64");
       };
     }
@@ -66160,7 +66160,7 @@ var require_wx_server_sdk = __commonJS({
           "use strict";
           Object.defineProperty(exports3, "__esModule", { value: true });
           exports3.MidasSignature = exports3.signature = void 0;
-          const crypto2 = __webpack_require__(
+          const crypto3 = __webpack_require__(
             /*! crypto */
             "crypto"
           );
@@ -66200,7 +66200,7 @@ var require_wx_server_sdk = __commonJS({
                 return `${paramName}=${paramValues[paramName]}`;
               }).join("&");
               const signSource = paramStr + `&org_loc=${cgiPath}&method=${method}&secret=${secret}`;
-              const signature2 = crypto2.createHmac("sha256", secret).update(signSource).digest("hex");
+              const signature2 = crypto3.createHmac("sha256", secret).update(signSource).digest("hex");
               return signature2;
             }
           }
@@ -69449,6 +69449,21 @@ __export(init_db_exports, {
 });
 module.exports = __toCommonJS(init_db_exports);
 var import_wx_server_sdk = __toESM(require_wx_server_sdk());
+
+// ../packages/core-auth/index.ts
+var import_crypto = __toESM(require("crypto"));
+var DEFAULT_ITERATIONS = 64e3;
+var KEYLEN = 64;
+var DIGEST = "sha512";
+var hashPassword = (password, iterations = DEFAULT_ITERATIONS) => {
+  if (typeof password !== "string" || password.length === 0)
+    throw new Error("empty password");
+  const salt = import_crypto.default.randomBytes(16);
+  const derived = import_crypto.default.pbkdf2Sync(password, salt, iterations, KEYLEN, DIGEST);
+  return `pbkdf2$${iterations}$${salt.toString("base64")}$${derived.toString("base64")}`;
+};
+
+// index.ts
 import_wx_server_sdk.default.init({ env: import_wx_server_sdk.default.DYNAMIC_CURRENT_ENV });
 var db = import_wx_server_sdk.default.database();
 var collections = [
@@ -69466,7 +69481,44 @@ var collections = [
   "Alerts"
 ];
 var main = async (event) => {
+  var _a;
   const action = event && event.action;
+  if (action === "reset-auth") {
+    const target = ["AuthAccounts", "Users"];
+    const wiped = [];
+    for (const name of target) {
+      try {
+        try {
+          await db.createCollection(name);
+        } catch (_) {
+        }
+        let removed = 0;
+        while (true) {
+          const snap = await db.collection(name).limit(1e3).get();
+          const ids = (snap.data || []).map((d) => d._id).filter(Boolean);
+          if (!ids.length)
+            break;
+          const chunk = (arr, size) => arr.reduce((res, _, i) => (i % size ? res[res.length - 1].push(arr[i]) : res.push([arr[i]]), res), []);
+          const chunks = chunk(ids, 50);
+          for (const grp of chunks) {
+            await Promise.all(grp.map((id) => db.collection(name).doc(id).remove()));
+            removed += grp.length;
+          }
+        }
+        wiped.push({ name, removed });
+      } catch (e) {
+        wiped.push({ name, error: e && e.message || String(e) });
+      }
+    }
+    try {
+      const now = Date.now();
+      await db.collection("AuthAccounts").add({
+        data: { username: "admin", passwordHash: hashPassword("123456"), role: "admin", status: "active", createdAt: now, updatedAt: now }
+      });
+    } catch (_) {
+    }
+    return { ok: true, data: { wiped, seeded: { admin: true } } };
+  }
   if (action === "wipe-some") {
     const cols = event && event.collections || [];
     const limit = Math.max(1, Math.min(event && event.limit || 50, 200));
@@ -69517,6 +69569,19 @@ var main = async (event) => {
       created.push(name);
     } catch (e) {
     }
+  }
+  try {
+    await db.createCollection("AuthAccounts");
+    created.push("AuthAccounts");
+  } catch (e) {
+  }
+  try {
+    const snap = await db.collection("AuthAccounts").where({ username: "admin" }).limit(1).get();
+    if (!((_a = snap == null ? void 0 : snap.data) == null ? void 0 : _a.length)) {
+      const now = Date.now();
+      await db.collection("AuthAccounts").add({ data: { username: "admin", passwordHash: hashPassword("123456"), role: "admin", status: "active", createdAt: now, updatedAt: now } });
+    }
+  } catch (e) {
   }
   return { ok: true, data: { created } };
 };

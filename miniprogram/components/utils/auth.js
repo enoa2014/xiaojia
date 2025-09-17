@@ -14,6 +14,12 @@ export const setUserRoles = (roles = []) => {
   try { wx.setStorageSync('user_roles', Array.isArray(roles) ? roles : []) } catch(_) {}
 }
 
+export const clearUserRoles = () => {
+  try { 
+    wx.removeStorageSync('user_roles')
+  } catch(_) {}
+}
+
 export const hasRole = (role, roles = null) => {
   const list = Array.isArray(roles) ? roles : getUserRoles()
   return list.includes(role)

@@ -71,12 +71,28 @@ Page({
   async ensureUserProfile(){
     try {
       const prof = await require('../../services/api').api.users.getProfile()
-      // 若无姓名，仅设置占位头像/昵称，不修改角色（避免影响未注册/待审批流程）
-      if (!prof?.name) {
-        try { await require('../../services/api').api.users.setProfile({ name: '访客', avatar: '🙂' }) } catch(_) {}
+      
+      // 如果用户有角色，才设置对应的名称
+      if (prof?.role) {
+        if (!prof?.name) {
+          const roleNameMap = {
+            admin: '管理员',
+            social_worker: '社工',
+            volunteer: '志愿者', 
+            parent: '家长'
+          }
+          const defaultName = roleNameMap[prof.role] || '用户'
+          try { await require('../../services/api').api.users.setProfile({ name: defaultName, avatar: '🙂' }) } catch(_) {}
+          this.setData({ 'user.name': defaultName })
+        } else {
+          this.setData({ 'user.name': prof.name })
+        }
+      } else {
+        // 没有角色的用户设置为访客状态
+        this.setData({ 'user.name': '访客' })
       }
+      
       await this.syncRoleFromServer()
-      if (prof?.name) this.setData({ 'user.name': prof.name })
     } catch(_) { /* 忽略错误，保持本地占位 */ }
   },
   onPullDownRefresh(){
@@ -93,12 +109,6 @@ Page({
       this.setData({ loading: false })
       if (stopPullDown) wx.stopPullDownRefresh()
     }
-  },
-  goRegister(){
-    wx.navigateTo({ url: '/pages/auth/register/index' })
-  },
-  goActivitiesGuest(){
-    wx.switchTab({ url: '/pages/activities/index' })
   },
   // 顶部刷新按钮
   async refreshTap(){
@@ -259,13 +269,21 @@ Page({
   async onAction(e) {
     const key = e.currentTarget.dataset.key
     this.setData({ selectedActionKey: key })
+    
+    // 游客模式特殊处理
+    const userMode = wx.getStorageSync('user_mode')
+    if (userMode === 'guest') {
+      this.handleGuestAction(key)
+      return
+    }
+    
     switch (key) {
       // 管理员入口
       case 'global-search':
         wx.navigateTo({ url: '/pages/patients/index' })
         break
       case 'perm-approval':
-        wx.navigateTo({ url: '/pages/permissions/apply' }) // 审批页后续补齐，暂指向申请页
+        wx.navigateTo({ url: '/pages/approvals/index' })
         break
       case 'system-stats':
         wx.navigateTo({ url: '/pages/stats/index' })
@@ -369,5 +387,102 @@ Page({
         try { track('home_profile_load', { result: 'OK', role: null, status: prof.status || null }) } catch(_) {}
       }
     } catch(_) {}
+  },
+
+  // 游客模式操作处理
+  handleGuestAction(key) {
+    switch (key) {
+      case 'activities-public':
+        wx.switchTab({ url: '/pages/activities/index' })
+        break
+      case 'register-now':
+        wx.redirectTo({ url: '/pages/welcome/index' })
+        break
+      case 'about-platform':
+      case 'contact-us':
+        wx.showToast({ icon: 'none', title: '功能开发中，敬请期待' })
+        break
+      default:
+        this.wip()
+    }
+  },
+
+  exitGuestMode() {
+    // 退出游客模式，跳转到欢迎页
+    try {
+      wx.removeStorageSync('user_mode')
+    } catch(_) {}
+    wx.redirectTo({ url: '/pages/welcome/index' })
+  },
+
+  // 登出功能
+  onLogout() {
+    wx.showModal({
+      title: '确认登出',
+      content: '您确定要退出当前账号吗？',
+      confirmText: '登出',
+      confirmColor: '#DC2626',
+      success: (res) => {
+        if (res.confirm) {
+          this.performLogout()
+        }
+      }
+    })
+  },
+
+  async performLogout() {
+    try {
+      // 显示加载状态
+      wx.showLoading({ title: '退出中...' })
+      
+      // 在服务器端清除用户状态
+      try {
+        await require('../../services/api').api.users.logout()
+      } catch(_) {
+        // 如果服务器登出失败，继续进行本地清除
+        console.warn('Server logout failed, proceeding with local logout')
+      }
+      
+      // 清除所有本地存储的用户相关数据
+      try {
+        wx.clearStorageSync() // 清除所有本地存储
+      } catch(_) {
+        // 如果clearStorageSync失败，逐个清除
+        try {
+          wx.removeStorageSync('debug_role')
+          wx.removeStorageSync('user_mode')
+          wx.removeStorageSync('userProfile')
+          wx.removeStorageSync('userRole')
+          wx.removeStorageSync('user_roles')
+        } catch(_) {}
+      }
+      
+      // 清除全局用户状态
+      try { 
+        const app = getApp && getApp()
+        if (app && app.globalData) {
+          app.globalData.roleKey = null
+          app.globalData.userInfo = null
+        }
+      } catch(_) {}
+      
+      // 清除用户认证组件状态
+      try { 
+        require('../../components/utils/auth').clearUserRoles()
+      } catch(_) {}
+      
+      wx.hideLoading()
+      wx.showToast({ icon: 'success', title: '已退出登录' })
+      
+      // 立即跳转到登录页面，避免欢迎页的自动登录检查
+      setTimeout(() => {
+        wx.reLaunch({ url: '/pages/auth/register/index' })
+      }, 800)
+      
+    } catch (error) {
+      wx.hideLoading()
+      wx.showToast({ icon: 'error', title: '退出失败，请重试' })
+      console.error('Logout error:', error)
+    }
   }
 })

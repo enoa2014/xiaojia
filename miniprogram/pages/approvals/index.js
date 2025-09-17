@@ -36,6 +36,11 @@ Page({
     userRegsPage: 1,
     userRegsPageSize: 20
   },
+  goTestRegister() {
+    try {
+      wx.navigateTo({ url: '/pages/auth/register/index?test=1' })
+    } catch (_) {}
+  },
 
   onLoad() {
     applyThemeByRole(this)

@@ -1,4 +1,4 @@
-.page { padding: 16rpx; }
+.page { padding: 16rpx; padding-top: 120rpx; }
 .section { margin-bottom: 20rpx; }
 .label { display:block; font-size: 20rpx; color:#374151; margin-bottom: 8rpx; }
 .chips { display:flex; gap: 12rpx; flex-wrap: wrap; }

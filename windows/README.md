@@ -46,3 +46,6 @@ pnpm --filter ./windows package    # äº§å‡ºå®‰è£…åŒ…ï¼ˆelectron-builderï¼‰
 - [ ] é›†æˆè‡ªåŠ¨åŒ–æµ‹è¯•ï¼ˆVitest/Playwrightï¼‰éªŒè¯å…³é”®æµç¨‹ã€‚
 
 å¦‚éœ€äº†è§£æ•´ä½“è¿ç§»ç­–ç•¥ï¼Œè¯·æŸ¥çœ‹ `../docs/windows-desktop-plan.md`ã€‚
+
+## Ê¾ÀıÊı¾İ
+- ÔËĞĞ pnpm --filter ./windows seed:data Ïò±¾µØ SQLite Ğ´ÈëÑİÊ¾¼ÇÂ¼£»½Å±¾»áÇåÀíÒÔ seed- ¿ªÍ·µÄ¾ÉÊı¾İ£¬·½±ãÖØ¸´Ö´ĞĞÑéÖ¤Í³¼ÆÒ³Ãæ¡£

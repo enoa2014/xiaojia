@@ -13,6 +13,11 @@
     </view>
   </view>
 
+  <!-- 工具栏（仅管理员可见时展示） -->
+  <view class="toolbar" wx:if="{{canView}}">
+    <ui-button variant="secondary" text="发起测试注册" bindtap="goTestRegister" />
+  </view>
+
   <!-- 权限检查 -->
   <view wx:if="{{!canView}}" class="no-permission">
     <empty-state

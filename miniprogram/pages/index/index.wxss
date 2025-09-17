@@ -583,6 +583,55 @@
   100% { background-position: 200% 0; }
 }
 
+/* 游客模式相关样式 */
+.guest-mode-exit {
+  margin-top: 16rpx;
+  text-align: center;
+}
+
+.exit-guest-btn {
+  background: linear-gradient(135deg, #F3F4F6, #E5E7EB);
+  color: #6B7280;
+  border: 2rpx solid #D1D5DB;
+  border-radius: 12rpx;
+  padding: 12rpx 24rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  transition: all 0.3s ease;
+}
+
+.exit-guest-btn:active {
+  background: linear-gradient(135deg, #E5E7EB, #D1D5DB);
+  transform: scale(0.98);
+}
+
+/* 登出按钮样式 */
+.logout-section {
+  margin-top: 16rpx;
+}
+
+.logout-btn {
+  background: linear-gradient(135deg, #FEF2F2, #FEE2E2);
+  color: #DC2626;
+  border: 2rpx solid #FECACA;
+  border-radius: 12rpx;
+  padding: 12rpx 24rpx;
+  font-size: 24rpx;
+  font-weight: 500;
+  width: 100%;
+  box-shadow: 0 2rpx 8rpx rgba(220, 38, 38, 0.1);
+}
+
+.logout-btn:active {
+  background: linear-gradient(135deg, #FEE2E2, #FECACA);
+  transform: scale(0.98);
+}
+
+/* 游客模式主题 */
+.nav-header--gray { background: #6B7280; }
+.user-status--gray { --role-gradient: linear-gradient(90deg, #9CA3AF, #6B7280); }
+.theme-text--gray { color: #6B7280; }
+
 /* 响应式调整 */
 @media screen and (max-width: 750rpx) {
   .actions-grid {

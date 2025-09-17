@@ -31,9 +31,15 @@
           <text>在线</text>
         </view>
       </view>
-      <view wx:if="{{!user.roleKey}}" class="guest-actions">
-        <button class="register-btn" bindtap="goRegister">立即注册</button>
-        <button class="guest-btn" bindtap="goActivitiesGuest">以游客模式浏览活动</button>
+      
+      <!-- 游客模式退出选项 -->
+      <view wx:if="{{user.status === 'guest'}}" class="guest-mode-exit">
+        <button class="exit-guest-btn" bindtap="exitGuestMode">🚪 退出游客模式</button>
+      </view>
+      
+      <!-- 登录用户登出选项 -->
+      <view wx:if="{{user.roleKey}}" class="logout-section">
+        <button class="logout-btn" bindtap="onLogout">🚪 登出</button>
       </view>
     </view>
   </view>

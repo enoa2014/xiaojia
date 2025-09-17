@@ -1,5 +1,5 @@
 {
-  "navigationBarTitleText": "用户注册",
+  "navigationBarTitleText": "登录/注册",
   "usingComponents": {
     "ui-button": "../../../components/button/index",
     "empty-state": "../../../components/empty-state/index",
