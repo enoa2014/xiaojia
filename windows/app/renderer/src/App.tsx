@@ -4,6 +4,7 @@ import HomePage from './pages/HomePage';
 import PatientsPage from './pages/PatientsPage';
 import ActivitiesPage from './pages/ActivitiesPage';
 import RegistrationsPage from './pages/RegistrationsPage';
+import RegistrationDetailPage from './pages/RegistrationDetailPage';
 import PatientDetailPage from './pages/PatientDetailPage';
 import ActivityDetailPage from './pages/ActivityDetailPage';
 import NotFoundPage from './pages/NotFoundPage';
@@ -76,3 +77,4 @@ const App = () => {
 };
 
 export default App;
+
