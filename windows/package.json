@@ -17,7 +17,9 @@
     "typecheck": "tsc --build",
     "clean": "rimraf dist",
     "dev:main:watch": "tsc -p app/main/tsconfig.json --watch --preserveWatchOutput false",
-    "dev:electron": "wait-on dist/main/app/main/index.js dist/preload/app/preload/index.js tcp:5173 && cross-env NODE_ENV=development VITE_DEV_SERVER_URL=http://localhost:5173 node ./scripts/run-electron.js dist/main/app/main/index.js"
+    "dev:electron": "wait-on dist/main/app/main/index.js dist/preload/app/preload/index.js tcp:5173 && cross-env NODE_ENV=development VITE_DEV_SERVER_URL=http://localhost:5173 node ./scripts/run-electron.js dist/main/app/main/index.js",
+    "import:patients": "cross-env ELECTRON_RUN_AS_NODE=1 electron ./scripts/import-patients.js",
+    "seed:data": "cross-env ELECTRON_RUN_AS_NODE=1 electron ./scripts/seed-sample-data.js"
   },
   "dependencies": {
     "better-sqlite3": "^9.0.0",

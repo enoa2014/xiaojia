@@ -11,6 +11,7 @@ import { StatsRepository } from './statsRepository.js';
 import { PermissionRequestsRepository } from './permissionRequestsRepository.js';
 import { ExportTasksRepository } from './exportTasksRepository.js';
 import { AuditLogsRepository } from './auditLogsRepository.js';
+import { UsersRepository } from './usersRepository.js';
 
 const createPatientsRepository = () => new PatientsRepository(getDatabase());
 const createActivitiesRepository = () => new ActivitiesRepository(getDatabase());
@@ -21,6 +22,8 @@ const createStatsRepository = () => new StatsRepository(getDatabase());
 const createPermissionRequestsRepository = () => new PermissionRequestsRepository(getDatabase());
 const createExportTasksRepository = () => new ExportTasksRepository(getDatabase());
 const createAuditLogsRepository = () => new AuditLogsRepository(getDatabase());
+
+const createUsersRepository = () => new UsersRepository(getDatabase());
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -267,6 +270,74 @@ const registerRegistrationIpc = () => {
   });
 };
 
+const registerUserIpc = () => {
+  ipcMain.handle('users:getProfile', () => {
+    try {
+      const repo = createUsersRepository();
+      const profile = repo.getCurrentProfile();
+      return { ok: true, data: profile };
+    } catch (err) {
+      console.error('users:getProfile failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('users:register', (_event, input) => {
+    try {
+      const repo = createUsersRepository();
+      const result = repo.register(input);
+      return { ok: true, data: result };
+    } catch (err) {
+      console.error('users:register failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('users:login', (_event, input) => {
+    try {
+      const repo = createUsersRepository();
+      const result = repo.login(input);
+      return { ok: true, data: result };
+    } catch (err) {
+      console.error('users:login failed', err);
+      return mapError(err);
+    }
+  });
+
+
+  ipcMain.handle('users:listRegistrations', (_event, params) => {
+    try {
+      const repo = createUsersRepository();
+      const result = repo.listRegistrations(params);
+      return { ok: true, data: result };
+    } catch (err) {
+      console.error('users:listRegistrations failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('users:reviewRegistration', (_event, input) => {
+    try {
+      const repo = createUsersRepository();
+      const record = repo.reviewRegistration(input);
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('users:reviewRegistration failed', err);
+      return mapError(err);
+    }
+  });
+  ipcMain.handle('users:logout', () => {
+    try {
+      const repo = createUsersRepository();
+      repo.logout();
+      return { ok: true, data: { success: true } };
+    } catch (err) {
+      console.error('users:logout failed', err);
+      return mapError(err);
+    }
+  });
+};
+
 const registerIpcHandlers = (): void => {
   ipcMain.handle('system:ping', () => ({ ok: true, message: 'pong' }));
 
@@ -284,6 +355,7 @@ const registerIpcHandlers = (): void => {
     return { ok: true };
   });
 
+  registerUserIpc();
   registerPatientIpc();
   registerActivityIpc();
   registerRegistrationIpc();

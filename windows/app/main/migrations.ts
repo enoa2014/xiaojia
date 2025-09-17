@@ -202,7 +202,38 @@ const MIGRATIONS: Migration[] = [
       'ALTER TABLE export_tasks ADD COLUMN error TEXT',
       'ALTER TABLE export_tasks ADD COLUMN created_by TEXT'
     ]
-  }
+  },
+  {
+    id: 11,
+    statements: [
+      'ALTER TABLE users ADD COLUMN nickname TEXT',
+      'ALTER TABLE users ADD COLUMN login_name TEXT',
+      'ALTER TABLE users ADD COLUMN phone TEXT',
+      'ALTER TABLE users ADD COLUMN id_card TEXT',
+      'ALTER TABLE users ADD COLUMN apply_role TEXT',
+      'ALTER TABLE users ADD COLUMN relative TEXT',
+      'ALTER TABLE users ADD COLUMN reject_reason TEXT',
+      'ALTER TABLE users ADD COLUMN is_test INTEGER DEFAULT 0',
+      'ALTER TABLE users ADD COLUMN decision_by TEXT',
+      'ALTER TABLE users ADD COLUMN decision_reason TEXT',
+      'ALTER TABLE users ADD COLUMN approved_at INTEGER',
+      'ALTER TABLE users ADD COLUMN rejected_at INTEGER',
+      `CREATE TABLE IF NOT EXISTS auth_accounts (
+        id TEXT PRIMARY KEY,
+        username TEXT NOT NULL UNIQUE,
+        password_hash TEXT NOT NULL,
+        role TEXT,
+        status TEXT NOT NULL,
+        open_id TEXT,
+        is_test INTEGER DEFAULT 0,
+        created_at INTEGER NOT NULL,
+        updated_at INTEGER NOT NULL
+      )`,
+      'CREATE UNIQUE INDEX IF NOT EXISTS idx_users_login_name ON users(login_name)',
+      'CREATE UNIQUE INDEX IF NOT EXISTS idx_auth_accounts_username ON auth_accounts(username)',
+      'CREATE INDEX IF NOT EXISTS idx_auth_accounts_open_id ON auth_accounts(open_id)'
+    ]
+  },
 ];
 
 export const runMigrations = (db: DatabaseHandle): void => {

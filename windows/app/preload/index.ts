@@ -20,12 +20,31 @@ import type {
 import type { AuditLogListResult } from '../../shared/types/audits.js';
 import type { ExportTaskHistoryResult, ExportTaskRecord } from '../../shared/types/exports.js';
 
+import type { UserProfile, UserLoginResult, UserRegisterResult } from '../../shared/types/users.js';
+import type { UserLoginInput, UserRegisterInput } from '../../shared/schemas/users.js';
+import type { UserRegistrationsListInput, UserReviewRegistrationInput } from '../../shared/schemas/users.js';
+import type { UserRegistrationDecisionInput, UserRegistrationListResult, UserRegistrationRecord } from '../../shared/types/userRegistrations.js';
+
 export type ApiResult<T> = { ok: true; data: T } | { ok: false; error: { code: string; msg: string } };
 
 const api = {
   ping: () => ipcRenderer.invoke('system:ping'),
   getMeta: (key: string) => ipcRenderer.invoke('db:meta:get', key),
   setMeta: (key: string, value: string) => ipcRenderer.invoke('db:meta:set', key, value),
+  users: {
+    getProfile: () =>
+      ipcRenderer.invoke('users:getProfile') as Promise<ApiResult<UserProfile | null>>,
+    register: (input: UserRegisterInput) =>
+      ipcRenderer.invoke('users:register', input) as Promise<ApiResult<UserRegisterResult>>,
+    login: (input: UserLoginInput) =>
+      ipcRenderer.invoke('users:login', input) as Promise<ApiResult<UserLoginResult>>,
+    logout: () =>
+      ipcRenderer.invoke('users:logout') as Promise<ApiResult<{ success: boolean }>>,
+    listRegistrations: (params?: UserRegistrationsListInput) =>
+      ipcRenderer.invoke('users:listRegistrations', params) as Promise<ApiResult<UserRegistrationListResult>>,
+    reviewRegistration: (input: UserReviewRegistrationInput | UserRegistrationDecisionInput) =>
+      ipcRenderer.invoke('users:reviewRegistration', input) as Promise<ApiResult<UserRegistrationRecord>>,
+  },
   patients: {
     list: (params?: unknown) =>
       ipcRenderer.invoke('patients:list', params) as Promise<ApiResult<PatientListResult>>,

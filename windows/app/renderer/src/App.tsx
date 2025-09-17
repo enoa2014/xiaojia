@@ -19,6 +19,8 @@ import PermissionRequestPage from './pages/PermissionRequestPage';
 import PermissionApprovalsPage from './pages/PermissionApprovalsPage';
 import AuditLogsPage from './pages/AuditLogsPage';
 import NotFoundPage from './pages/NotFoundPage';
+import AuthRegisterPage from './pages/AuthRegisterPage';
+import UserRegistrationsPage from './pages/UserRegistrationsPage';
 
 const App = () => {
   const [status, setStatus] = useState<'loading' | 'ready' | 'error'>('loading');
@@ -61,6 +63,9 @@ const App = () => {
         <h2>导航</h2>
         <ul>
           <li>
+            <Link to="/auth/register">账号中心</Link>
+          </li>
+          <li>
             <Link to="/services">服务记录</Link>
           </li>
           <li>
@@ -68,6 +73,9 @@ const App = () => {
           </li>
           <li>
             <Link to="/approvals">权限审批</Link>
+          </li>
+          <li>
+            <Link to="/user-registrations">账号审核</Link>
           </li>
           <li>
             <Link to="/stats">数据统计</Link>
@@ -95,6 +103,8 @@ const App = () => {
           <Route path="/services" element={<ServicesPage />} />
           <Route path="/services/new" element={<ServiceFormPage />} />
           <Route path="/services/:id" element={<ServiceDetailPage />} />
+          <Route path="/auth/register" element={<AuthRegisterPage />} />
+          <Route path="/user-registrations" element={<UserRegistrationsPage />} />
           <Route path="/approvals" element={<PermissionApprovalsPage />} />
           <Route path="/stats" element={<StatsPage />} />
           <Route path="/exports" element={<ExportsPage />} />
