@@ -191,6 +191,17 @@ const MIGRATIONS: Migration[] = [
       `CREATE INDEX IF NOT EXISTS idx_export_tasks_status ON export_tasks(status)`,
       `CREATE INDEX IF NOT EXISTS idx_export_tasks_type_created_at ON export_tasks(type, created_at DESC)`
     ]
+  },
+  {
+    id: 10,
+    statements: [
+      'ALTER TABLE export_tasks ADD COLUMN template_id TEXT',
+      'ALTER TABLE export_tasks ADD COLUMN client_token TEXT',
+      'ALTER TABLE export_tasks ADD COLUMN request_id TEXT',
+      'ALTER TABLE export_tasks ADD COLUMN expires_at INTEGER',
+      'ALTER TABLE export_tasks ADD COLUMN error TEXT',
+      'ALTER TABLE export_tasks ADD COLUMN created_by TEXT'
+    ]
   }
 ];
 

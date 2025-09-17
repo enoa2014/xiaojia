@@ -9,6 +9,8 @@ import { TenanciesRepository } from './tenanciesRepository.js';
 import { ServicesRepository } from './servicesRepository.js';
 import { StatsRepository } from './statsRepository.js';
 import { PermissionRequestsRepository } from './permissionRequestsRepository.js';
+import { ExportTasksRepository } from './exportTasksRepository.js';
+import { AuditLogsRepository } from './auditLogsRepository.js';
 
 const createPatientsRepository = () => new PatientsRepository(getDatabase());
 const createActivitiesRepository = () => new ActivitiesRepository(getDatabase());
@@ -17,6 +19,8 @@ const createTenanciesRepository = () => new TenanciesRepository(getDatabase());
 const createServicesRepository = () => new ServicesRepository(getDatabase());
 const createStatsRepository = () => new StatsRepository(getDatabase());
 const createPermissionRequestsRepository = () => new PermissionRequestsRepository(getDatabase());
+const createExportTasksRepository = () => new ExportTasksRepository(getDatabase());
+const createAuditLogsRepository = () => new AuditLogsRepository(getDatabase());
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
 
@@ -286,6 +290,8 @@ const registerIpcHandlers = (): void => {
   registerTenancyIpc();
   registerServiceIpc();
   registerStatsIpc();
+  registerAuditLogIpc();
+  registerExportTaskIpc();
   registerPermissionRequestIpc();
 };
 
@@ -313,6 +319,65 @@ app.on('window-all-closed', () => {
 
 
 
+
+const registerAuditLogIpc = () => {
+  ipcMain.handle('audits:list', (_event, params) => {
+    try {
+      const repo = createAuditLogsRepository();
+      const data = repo.list(params);
+      return { ok: true, data };
+    } catch (err) {
+      console.error('audits:list failed', err);
+      return mapError(err);
+    }
+  });
+};
+
+const registerExportTaskIpc = () => {
+  ipcMain.handle('exports:create', (_event, params) => {
+    try {
+      const repo = createExportTasksRepository();
+      const data = repo.create(params);
+      return { ok: true, data };
+    } catch (err) {
+      console.error('exports:create failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('exports:status', (_event, params) => {
+    try {
+      const repo = createExportTasksRepository();
+      const data = repo.status(params);
+      return { ok: true, data };
+    } catch (err) {
+      console.error('exports:status failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('exports:history', (_event, params) => {
+    try {
+      const repo = createExportTasksRepository();
+      const data = repo.history(params);
+      return { ok: true, data };
+    } catch (err) {
+      console.error('exports:history failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('exports:open', (_event, filePath: string) => {
+    try {
+      const repo = createExportTasksRepository();
+      const opened = repo.open(String(filePath || ''));
+      return { ok: true, data: { opened } };
+    } catch (err) {
+      console.error('exports:open failed', err);
+      return mapError(err);
+    }
+  });
+};
 
 const registerTenancyIpc = () => {
   ipcMain.handle('tenancies:list', (_event, params) => {
@@ -514,60 +579,3 @@ const registerPermissionRequestIpc = () => {
     }
   });
 };
-    } catch (err) {
-      console.error('permissionRequests:list failed', err);
-      return mapError(err);
-    }
-  });
-
-  ipcMain.handle('permissionRequests:create', (_event, input) => {
-    try {
-      const repo = createPermissionRequestsRepository();
-      const record = repo.create(input);
-      return { ok: true, data: record };
-    } catch (err) {
-      console.error('permissionRequests:create failed', err);
-      return mapError(err);
-    }
-  });
-
-  ipcMain.handle('permissionRequests:approve', (_event, params) => {
-    try {
-      const repo = createPermissionRequestsRepository();
-      const record = repo.decide({ ...(params ?? {}), action: 'approve' });
-      return { ok: true, data: record };
-    } catch (err) {
-      console.error('permissionRequests:approve failed', err);
-      return mapError(err);
-    }
-  });
-
-  ipcMain.handle('permissionRequests:reject', (_event, params) => {
-    try {
-      const repo = createPermissionRequestsRepository();
-      const record = repo.decide({ ...(params ?? {}), action: 'reject' });
-      return { ok: true, data: record };
-    } catch (err) {
-      console.error('permissionRequests:reject failed', err);
-      return mapError(err);
-    }
-  });
-};
-    } catch (err) {
-      console.error('permissionRequests:list failed', err);
-      return mapError(err);
-    }
-  });
-
-  ipcMain.handle('permissionRequests:create', (_event, input) => {
-    try {
-      const repo = createPermissionRequestsRepository();
-      const record = repo.create(input);
-      return { ok: true, data: record };
-    } catch (err) {
-      console.error('permissionRequests:create failed', err);
-      return mapError(err);
-    }
-  });
-};
-

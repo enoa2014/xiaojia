@@ -14,8 +14,10 @@ import ServicesPage from './pages/ServicesPage';
 import ServiceFormPage from './pages/ServiceFormPage';
 import ServiceDetailPage from './pages/ServiceDetailPage';
 import StatsPage from './pages/StatsPage';
+import ExportsPage from './pages/ExportsPage';
 import PermissionRequestPage from './pages/PermissionRequestPage';
 import PermissionApprovalsPage from './pages/PermissionApprovalsPage';
+import AuditLogsPage from './pages/AuditLogsPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 const App = () => {
@@ -70,6 +72,12 @@ const App = () => {
           <li>
             <Link to="/stats">数据统计</Link>
           </li>
+          <li>
+            <Link to="/exports">数据导出</Link>
+          </li>
+          <li>
+            <Link to="/audits">审计日志</Link>
+          </li>
         </ul>
       </nav>
       <main className="content">
@@ -89,7 +97,9 @@ const App = () => {
           <Route path="/services/:id" element={<ServiceDetailPage />} />
           <Route path="/approvals" element={<PermissionApprovalsPage />} />
           <Route path="/stats" element={<StatsPage />} />
+          <Route path="/exports" element={<ExportsPage />} />
           <Route path="/permissions/apply" element={<PermissionRequestPage />} />
+          <Route path="/audits" element={<AuditLogsPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>

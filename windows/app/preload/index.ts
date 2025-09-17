@@ -17,6 +17,8 @@ import type {
   PermissionRequestListResult,
   PermissionRequestRecord,
 } from '../../shared/types/permissions.js';
+import type { AuditLogListResult } from '../../shared/types/audits.js';
+import type { ExportTaskHistoryResult, ExportTaskRecord } from '../../shared/types/exports.js';
 
 export type ApiResult<T> = { ok: true; data: T } | { ok: false; error: { code: string; msg: string } };
 
@@ -78,6 +80,20 @@ const api = {
       ipcRenderer.invoke('permissionRequests:approve', { id, ...(options ?? {}) }) as Promise<ApiResult<PermissionRequestRecord>>,
     reject: (id: string, reason: string) =>
       ipcRenderer.invoke('permissionRequests:reject', { id, reason }) as Promise<ApiResult<PermissionRequestRecord>>,
+  },
+  exports: {
+    create: (input: unknown) =>
+      ipcRenderer.invoke('exports:create', input) as Promise<ApiResult<ExportTaskRecord>>,
+    status: (params: unknown) =>
+      ipcRenderer.invoke('exports:status', params) as Promise<ApiResult<ExportTaskRecord>>,
+    history: (params?: unknown) =>
+      ipcRenderer.invoke('exports:history', params) as Promise<ApiResult<ExportTaskHistoryResult>>,
+    open: (filePath: string) =>
+      ipcRenderer.invoke('exports:open', filePath) as Promise<ApiResult<{ opened: boolean }>>,
+  },
+  audits: {
+    list: (params?: unknown) =>
+      ipcRenderer.invoke('audits:list', params) as Promise<ApiResult<AuditLogListResult>>,
   },
   stats: {
     homeSummary: () =>
