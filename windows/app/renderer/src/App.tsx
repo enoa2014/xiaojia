@@ -7,6 +7,15 @@ import RegistrationsPage from './pages/RegistrationsPage';
 import RegistrationDetailPage from './pages/RegistrationDetailPage';
 import PatientDetailPage from './pages/PatientDetailPage';
 import ActivityDetailPage from './pages/ActivityDetailPage';
+import TenanciesPage from './pages/TenanciesPage';
+import TenancyFormPage from './pages/TenancyFormPage';
+import TenancyCheckoutPage from './pages/TenancyCheckoutPage';
+import ServicesPage from './pages/ServicesPage';
+import ServiceFormPage from './pages/ServiceFormPage';
+import ServiceDetailPage from './pages/ServiceDetailPage';
+import StatsPage from './pages/StatsPage';
+import PermissionRequestPage from './pages/PermissionRequestPage';
+import PermissionApprovalsPage from './pages/PermissionApprovalsPage';
 import NotFoundPage from './pages/NotFoundPage';
 
 const App = () => {
@@ -20,7 +29,7 @@ const App = () => {
         setStatus('ready');
       } catch (err) {
         console.error('Failed to bootstrap desktop bridge', err);
-        setError('无法连接到本地服务，请检查 Electron 主进程日志。');
+        setError('无法连接到本地服务，请检查 Electron 启动日志。');
         setStatus('error');
       }
     };
@@ -29,15 +38,17 @@ const App = () => {
   }, []);
 
   if (status === 'loading') {
-    return <div className="page page--center">正在连接桌面服务…</div>;
+    return <div className="page page--center">正在初始化本地服务…</div>;
   }
 
   if (status === 'error') {
     return (
       <div className="page page--center">
-        <h1>启动失败</h1>
+        <h1>加载失败</h1>
         <p>{error}</p>
-        <button type="button" onClick={() => window.location.reload()}>重试</button>
+        <button type="button" onClick={() => window.location.reload()}>
+          重试
+        </button>
       </div>
     );
   }
@@ -48,16 +59,16 @@ const App = () => {
         <h2>导航</h2>
         <ul>
           <li>
-            <Link to="/">小家概览</Link>
+            <Link to="/services">服务记录</Link>
           </li>
           <li>
-            <Link to="/patients">患者列表</Link>
+            <Link to="/permissions/apply">资料申请</Link>
           </li>
           <li>
-            <Link to="/activities">活动列表</Link>
+            <Link to="/approvals">权限审批</Link>
           </li>
           <li>
-            <Link to="/registrations">报名记录</Link>
+            <Link to="/stats">数据统计</Link>
           </li>
         </ul>
       </nav>
@@ -69,6 +80,16 @@ const App = () => {
           <Route path="/activities" element={<ActivitiesPage />} />
           <Route path="/activities/:id" element={<ActivityDetailPage />} />
           <Route path="/registrations" element={<RegistrationsPage />} />
+          <Route path="/registrations/:id" element={<RegistrationDetailPage />} />
+          <Route path="/tenancies" element={<TenanciesPage />} />
+          <Route path="/tenancies/new" element={<TenancyFormPage />} />
+          <Route path="/tenancies/:id/checkout" element={<TenancyCheckoutPage />} />
+          <Route path="/services" element={<ServicesPage />} />
+          <Route path="/services/new" element={<ServiceFormPage />} />
+          <Route path="/services/:id" element={<ServiceDetailPage />} />
+          <Route path="/approvals" element={<PermissionApprovalsPage />} />
+          <Route path="/stats" element={<StatsPage />} />
+          <Route path="/permissions/apply" element={<PermissionRequestPage />} />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </main>

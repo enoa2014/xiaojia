@@ -1,16 +1,26 @@
-﻿import { app, BrowserWindow, ipcMain } from 'electron/main';
+﻿import { app, BrowserWindow, ipcMain } from 'electron';
 import path from 'node:path';
 import { existsSync } from 'node:fs';
 import { ensureDatabase, getDatabase } from './database.js';
 import { PatientsRepository } from './patientsRepository.js';
 import { ActivitiesRepository } from './activitiesRepository.js';
 import { RegistrationsRepository } from './registrationsRepository.js';
+import { TenanciesRepository } from './tenanciesRepository.js';
+import { ServicesRepository } from './servicesRepository.js';
+import { StatsRepository } from './statsRepository.js';
+import { PermissionRequestsRepository } from './permissionRequestsRepository.js';
 
 const createPatientsRepository = () => new PatientsRepository(getDatabase());
 const createActivitiesRepository = () => new ActivitiesRepository(getDatabase());
 const createRegistrationsRepository = () => new RegistrationsRepository(getDatabase());
+const createTenanciesRepository = () => new TenanciesRepository(getDatabase());
+const createServicesRepository = () => new ServicesRepository(getDatabase());
+const createStatsRepository = () => new StatsRepository(getDatabase());
+const createPermissionRequestsRepository = () => new PermissionRequestsRepository(getDatabase());
 
 const isDevelopment = process.env.NODE_ENV !== 'production';
+
+console.log('[main] userData path:', app.getPath('userData'));
 
 const pickFirstExisting = (candidates: string[]): string => {
   for (const candidate of candidates) {
@@ -84,6 +94,15 @@ const registerPatientIpc = () => {
     try {
       const repo = createPatientsRepository();
       const data = repo.list(params);
+      try {
+        const db = getDatabase();
+        const rawRows = db.prepare('SELECT COUNT(*) as total FROM patients').get();
+        console.log('[patients:list] db total', rawRows);
+      } catch (dbErr) {
+        console.error('[patients:list] db inspect failed', dbErr);
+      }
+      console.log('[patients:list] params', params);
+      console.log('[patients:list] count', data.items.length);
       return { ok: true, data };
     } catch (err) {
       console.error('patients:list failed', err);
@@ -133,6 +152,15 @@ const registerActivityIpc = () => {
     try {
       const repo = createActivitiesRepository();
       const data = repo.list(params);
+      try {
+        const db = getDatabase();
+        const rawRows = db.prepare('SELECT COUNT(*) as total FROM patients').get();
+        console.log('[patients:list] db total', rawRows);
+      } catch (dbErr) {
+        console.error('[patients:list] db inspect failed', dbErr);
+      }
+      console.log('[patients:list] params', params);
+      console.log('[patients:list] count', data.items.length);
       return { ok: true, data };
     } catch (err) {
       console.error('activities:list failed', err);
@@ -182,6 +210,15 @@ const registerRegistrationIpc = () => {
     try {
       const repo = createRegistrationsRepository();
       const data = repo.list(params);
+      try {
+        const db = getDatabase();
+        const rawRows = db.prepare('SELECT COUNT(*) as total FROM patients').get();
+        console.log('[patients:list] db total', rawRows);
+      } catch (dbErr) {
+        console.error('[patients:list] db inspect failed', dbErr);
+      }
+      console.log('[patients:list] params', params);
+      console.log('[patients:list] count', data.items.length);
       return { ok: true, data };
     } catch (err) {
       console.error('registrations:list failed', err);
@@ -246,6 +283,10 @@ const registerIpcHandlers = (): void => {
   registerPatientIpc();
   registerActivityIpc();
   registerRegistrationIpc();
+  registerTenancyIpc();
+  registerServiceIpc();
+  registerStatsIpc();
+  registerPermissionRequestIpc();
 };
 
 app.whenReady().then(async () => {
@@ -264,3 +305,269 @@ app.on('window-all-closed', () => {
     app.quit();
   }
 });
+
+
+
+
+
+
+
+
+
+const registerTenancyIpc = () => {
+  ipcMain.handle('tenancies:list', (_event, params) => {
+    try {
+      const repo = createTenanciesRepository();
+      const data = repo.list(params);
+      return { ok: true, data };
+    } catch (err) {
+      console.error('tenancies:list failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('tenancies:get', (_event, id: string) => {
+    try {
+      const repo = createTenanciesRepository();
+      const record = repo.getById(String(id));
+      if (!record) {
+        return { ok: false, error: { code: 'E_NOT_FOUND', msg: 'tenancy not found' } };
+      }
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('tenancies:get failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('tenancies:create', (_event, input) => {
+    try {
+      const repo = createTenanciesRepository();
+      const record = repo.create(input);
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('tenancies:create failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('tenancies:update', (_event, input) => {
+    try {
+      const repo = createTenanciesRepository();
+      const record = repo.update(input);
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('tenancies:update failed', err);
+      return mapError(err);
+    }
+  });
+};
+
+const registerServiceIpc = () => {
+  ipcMain.handle('services:list', (_event, params) => {
+    try {
+      const repo = createServicesRepository();
+      const data = repo.list(params);
+      return { ok: true, data };
+    } catch (err) {
+      console.error('services:list failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('services:get', (_event, id: string) => {
+    try {
+      const repo = createServicesRepository();
+      const record = repo.getById(String(id));
+      if (!record) {
+        return { ok: false, error: { code: 'E_NOT_FOUND', msg: 'service not found' } };
+      }
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('services:get failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('services:create', (_event, input) => {
+    try {
+      const repo = createServicesRepository();
+      const record = repo.create(input);
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('services:create failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('services:review', (_event, input) => {
+    try {
+      const repo = createServicesRepository();
+      const record = repo.review(input);
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('services:review failed', err);
+      return mapError(err);
+    }
+  });
+};
+
+const registerStatsIpc = () => {
+  ipcMain.handle('stats:homeSummary', () => {
+    try {
+      const repo = createStatsRepository();
+      const data = repo.homeSummary();
+      return { ok: true, data };
+    } catch (err) {
+      console.error('stats:homeSummary failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('stats:daily', (_event, params) => {
+    try {
+      const repo = createStatsRepository();
+      const data = repo.daily(params);
+      return { ok: true, data };
+    } catch (err) {
+      console.error('stats:daily failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('stats:weekly', (_event, params) => {
+    try {
+      const repo = createStatsRepository();
+      const data = repo.weekly(params);
+      return { ok: true, data };
+    } catch (err) {
+      console.error('stats:weekly failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('stats:monthly', (_event, params) => {
+    try {
+      const repo = createStatsRepository();
+      const data = repo.monthly(params);
+      return { ok: true, data };
+    } catch (err) {
+      console.error('stats:monthly failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('stats:yearly', (_event, params) => {
+    try {
+      const repo = createStatsRepository();
+      const data = repo.yearly(params);
+      return { ok: true, data };
+    } catch (err) {
+      console.error('stats:yearly failed', err);
+      return mapError(err);
+    }
+  });
+};
+
+const registerPermissionRequestIpc = () => {
+  ipcMain.handle('permissionRequests:list', (_event, params) => {
+    try {
+      const repo = createPermissionRequestsRepository();
+      const data = repo.list(params);
+      return { ok: true, data };
+    } catch (err) {
+      console.error('permissionRequests:list failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('permissionRequests:create', (_event, input) => {
+    try {
+      const repo = createPermissionRequestsRepository();
+      const record = repo.create(input);
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('permissionRequests:create failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('permissionRequests:approve', (_event, params) => {
+    try {
+      const repo = createPermissionRequestsRepository();
+      const record = repo.decide({ ...(params ?? {}), action: 'approve' });
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('permissionRequests:approve failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('permissionRequests:reject', (_event, params) => {
+    try {
+      const repo = createPermissionRequestsRepository();
+      const record = repo.decide({ ...(params ?? {}), action: 'reject' });
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('permissionRequests:reject failed', err);
+      return mapError(err);
+    }
+  });
+};
+    } catch (err) {
+      console.error('permissionRequests:list failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('permissionRequests:create', (_event, input) => {
+    try {
+      const repo = createPermissionRequestsRepository();
+      const record = repo.create(input);
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('permissionRequests:create failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('permissionRequests:approve', (_event, params) => {
+    try {
+      const repo = createPermissionRequestsRepository();
+      const record = repo.decide({ ...(params ?? {}), action: 'approve' });
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('permissionRequests:approve failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('permissionRequests:reject', (_event, params) => {
+    try {
+      const repo = createPermissionRequestsRepository();
+      const record = repo.decide({ ...(params ?? {}), action: 'reject' });
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('permissionRequests:reject failed', err);
+      return mapError(err);
+    }
+  });
+};
+    } catch (err) {
+      console.error('permissionRequests:list failed', err);
+      return mapError(err);
+    }
+  });
+
+  ipcMain.handle('permissionRequests:create', (_event, input) => {
+    try {
+      const repo = createPermissionRequestsRepository();
+      const record = repo.create(input);
+      return { ok: true, data: record };
+    } catch (err) {
+      console.error('permissionRequests:create failed', err);
+      return mapError(err);
+    }
+  });
+};
+

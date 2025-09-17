@@ -1,10 +1,12 @@
-﻿import { useEffect, useMemo, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+﻿import { useEffect, useMemo, useState, type ChangeEvent, type FormEvent } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
 import type { PatientRecord } from '@shared/types/patients';
+import type { ServiceRecord, ServiceStatus, ServiceType } from '@shared/types/services';
 
 type ViewMode = 'view' | 'edit';
 
 type Status = 'loading' | 'ready' | 'error' | 'not-found';
+type ServiceState = 'idle' | 'loading' | 'ready' | 'error';
 
 const getInitialPatient = (): PatientRecord => ({
   id: '',
@@ -85,6 +87,10 @@ const PatientDetailPage = () => {
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
   const [mode, setMode] = useState<ViewMode>(isNew ? 'edit' : 'view');
 
+  const [services, setServices] = useState<ServiceRecord[]>([]);
+  const [serviceState, setServiceState] = useState<ServiceState>('idle');
+  const [serviceError, setServiceError] = useState<string | null>(null);
+
   useEffect(() => {
     if (isNew) {
       setStatus('ready');
@@ -141,7 +147,7 @@ const PatientDetailPage = () => {
 
   const handleChange = (
     key: keyof PatientRecord,
-  ) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  ) => (event: ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
     if (mode !== 'edit') {
       return;
     }
@@ -170,7 +176,7 @@ const PatientDetailPage = () => {
     return Object.keys(next).length === 0;
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (event: FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setSubmitSuccess(null);
     setError(null);
@@ -293,6 +299,11 @@ const PatientDetailPage = () => {
           <button type="button" className="button button--ghost" onClick={handleBack}>
             返回
           </button>
+          {!isNew ? (
+            <Link className="button button--secondary" to={`/permissions/apply?patientId=${encodeURIComponent(patient.id)}`}>
+              申请资料
+            </Link>
+          ) : null}
           {mode === 'view' ? (
             <button type="button" className="button" onClick={handleStartEdit}>
               编辑
@@ -336,3 +347,13 @@ const PatientDetailPage = () => {
 };
 
 export default PatientDetailPage;
+
+
+
+
+
+
+
+
+
+
