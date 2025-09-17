@@ -2,6 +2,10 @@
 import { useNavigate, useParams } from 'react-router-dom';
 import type { PatientRecord } from '@shared/types/patients';
 
+type ViewMode = 'view' | 'edit';
+
+type Status = 'loading' | 'ready' | 'error' | 'not-found';
+
 const getInitialPatient = (): PatientRecord => ({
   id: '',
   name: '',
@@ -31,12 +35,12 @@ const LABELS: Record<keyof Omit<PatientRecord, 'id' | 'idCardTail' | 'createdAt'
   gender: '性别',
   nativePlace: '籍贯',
   ethnicity: '民族',
-  hospital: '医院',
-  hospitalDiagnosis: '诊断',
-  doctorName: '主治医生',
-  symptoms: '症状',
+  hospital: '就诊医院',
+  hospitalDiagnosis: '医院诊断',
+  doctorName: '医生姓名',
+  symptoms: '症状详情',
   medicalCourse: '医疗过程',
-  followupPlan: '随访计划',
+  followupPlan: '后续治疗安排',
   familyEconomy: '家庭经济',
 };
 
@@ -48,6 +52,22 @@ const toNullable = (value: string) => {
   return trimmed.length ? trimmed : null;
 };
 
+const formatValue = (value: string | null | number): string => {
+  if (value === null || value === undefined || value === '') {
+    return '—';
+  }
+  if (typeof value === 'number') {
+    return new Intl.DateTimeFormat('zh-CN', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit',
+      hour: '2-digit',
+      minute: '2-digit',
+    }).format(value);
+  }
+  return value;
+};
+
 const PatientDetailPage = () => {
   const { id = 'new' } = useParams<{ id: string }>();
   const navigate = useNavigate();
@@ -57,15 +77,19 @@ const PatientDetailPage = () => {
     ...getInitialPatient(),
     id: isNew ? '' : id,
   }));
-  const [status, setStatus] = useState<'loading' | 'ready' | 'error' | 'not-found'>('loading');
+  const [originalPatient, setOriginalPatient] = useState<PatientRecord | null>(null);
+  const [status, setStatus] = useState<Status>('loading');
   const [error, setError] = useState<string | null>(null);
   const [formErrors, setFormErrors] = useState<Record<string, string>>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitSuccess, setSubmitSuccess] = useState<string | null>(null);
+  const [mode, setMode] = useState<ViewMode>(isNew ? 'edit' : 'view');
 
   useEffect(() => {
     if (isNew) {
       setStatus('ready');
+      setOriginalPatient(null);
+      setMode('edit');
       return;
     }
 
@@ -75,7 +99,9 @@ const PatientDetailPage = () => {
         const res = await window.api.patients.get(id);
         if (res.ok) {
           setPatient(res.data);
+          setOriginalPatient(res.data);
           setStatus('ready');
+          setMode('view');
         } else if (res.error.code === 'E_NOT_FOUND') {
           setStatus('not-found');
         } else {
@@ -94,7 +120,31 @@ const PatientDetailPage = () => {
 
   const handleBack = () => navigate(-1);
 
-  const handleChange = (key: keyof PatientRecord) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+  const handleStartEdit = () => {
+    setSubmitSuccess(null);
+    setError(null);
+    setFormErrors({});
+    setMode('edit');
+  };
+
+  const handleCancelEdit = () => {
+    if (originalPatient) {
+      setPatient(originalPatient);
+    } else {
+      setPatient(getInitialPatient());
+    }
+    setFormErrors({});
+    setSubmitSuccess(null);
+    setError(null);
+    setMode(originalPatient ? 'view' : 'edit');
+  };
+
+  const handleChange = (
+    key: keyof PatientRecord,
+  ) => (event: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+    if (mode !== 'edit') {
+      return;
+    }
     const { value } = event.target;
     setPatient((prev) => ({
       ...prev,
@@ -154,24 +204,32 @@ const PatientDetailPage = () => {
 
       if (result.ok) {
         setSubmitSuccess('保存成功');
-        navigate(`/patients/${result.data.id}`);
+        setOriginalPatient(result.data);
+        setPatient(result.data);
+        setMode('view');
+        if (isNew) {
+          navigate(`/patients/${result.data.id}`);
+        }
       } else {
         setError(result.error.msg);
       }
     } catch (err) {
       console.error('Failed to submit patient detail', err);
-      setError('保存患者信息时发生异常');
+      setError('提交患者信息时发生异常');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const orderedFields = useMemo(() => Object.entries(LABELS) as Array<[keyof PatientRecord, string]>, []);
+  const orderedFields = useMemo(
+    () => Object.entries(LABELS) as Array<[keyof PatientRecord, string]>,
+    [],
+  );
 
   if (status === 'loading') {
     return (
       <div className="page page--center">
-        <p>正在加载患者资料…</p>
+        <p>正在加载数据…</p>
       </div>
     );
   }
@@ -179,8 +237,8 @@ const PatientDetailPage = () => {
   if (status === 'not-found') {
     return (
       <div className="page page--center">
-        <h1>未找到患者</h1>
-        <p>我们无法在本地数据库中找到该患者记录。</p>
+        <h1>未找到记录</h1>
+        <p>无法在本地数据库中找到该患者档案。</p>
         <button type="button" onClick={handleBack}>返回</button>
       </div>
     );
@@ -196,40 +254,83 @@ const PatientDetailPage = () => {
     );
   }
 
+  const renderField = (key: keyof PatientRecord, label: string) => {
+    const value = patient[key];
+    if (mode === 'view') {
+      return (
+        <div key={key as string} className="detail-item">
+          <span className="detail-item__label">{label}</span>
+          <span className="detail-item__value">{formatValue(value as string | null)}</span>
+        </div>
+      );
+    }
+
+    return (
+      <label key={key as string} className="form-field">
+        <span>{label}</span>
+        <input
+          type="text"
+          value={patient[key] ?? ''}
+          onChange={handleChange(key)}
+          placeholder={`请输入${label}`}
+        />
+        {formErrors[key as string] ? (
+          <small className="form-field__error">{formErrors[key as string]}</small>
+        ) : null}
+      </label>
+    );
+  };
+
   return (
     <div className="page page--detail">
-      <header className="page__header">
-        <h1>{isNew ? '新增患者' : '编辑患者'}</h1>
-        <button type="button" onClick={handleBack}>返回</button>
+      <header className="page__header detail-header">
+        <div>
+          <h1>{mode === 'edit' ? (isNew ? '新增患者' : '编辑患者') : '患者详情'}</h1>
+          {submitSuccess ? <p className="detail-feedback detail-feedback--success">{submitSuccess}</p> : null}
+          {error ? <p className="detail-feedback detail-feedback--error">{error}</p> : null}
+        </div>
+        <div className="detail-actions">
+          <button type="button" className="button button--ghost" onClick={handleBack}>
+            返回
+          </button>
+          {mode === 'view' ? (
+            <button type="button" className="button" onClick={handleStartEdit}>
+              编辑
+            </button>
+          ) : null}
+        </div>
       </header>
 
-      {submitSuccess ? <p style={{ color: '#137333' }}>{submitSuccess}</p> : null}
-      {error ? <p style={{ color: '#d14343' }}>{error}</p> : null}
-
-      <form className="form" onSubmit={handleSubmit}>
-        <div className="form-grid">
-          {orderedFields.map(([key, label]) => (
-            <label key={key} className="form-field">
-              <span>{label}</span>
-              <input
-                type="text"
-                value={patient[key] ?? ''}
-                onChange={handleChange(key)}
-                placeholder={`请输入${label}`}
-              />
-              {formErrors[key as string] ? (
-                <small style={{ color: '#d14343' }}>{formErrors[key as string]}</small>
-              ) : null}
-            </label>
-          ))}
-        </div>
-
-        <footer className="form-actions">
-          <button type="submit" disabled={isSubmitting}>
-            {isNew ? '创建患者' : '保存修改'}
-          </button>
-        </footer>
-      </form>
+      {mode === 'view' ? (
+        <section className="detail-card">
+          <div className="detail-grid">
+            {orderedFields.map(([key, label]) => renderField(key, label))}
+          </div>
+          <footer className="detail-meta">
+            <span>创建时间：{formatValue(patient.createdAt)}</span>
+            <span>最近更新：{formatValue(patient.updatedAt)}</span>
+          </footer>
+        </section>
+      ) : (
+        <form className="form detail-form" onSubmit={handleSubmit}>
+          <div className="form-grid">
+            {orderedFields.map(([key, label]) => renderField(key, label))}
+          </div>
+          <footer className="form-actions">
+            <button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? '保存中…' : '保存'}
+            </button>
+            <button
+              type="button"
+              className="button button--ghost"
+              onClick={handleCancelEdit}
+              disabled={isSubmitting}
+            >
+              取消
+            </button>
+          </footer>
+        </form>
+      )}
     </div>
   );
 };

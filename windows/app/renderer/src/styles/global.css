@@ -266,3 +266,111 @@ button:hover {
   background-color: #f5f5f5;
   overflow-y: auto;
 }
+
+.page--detail {
+  display: flex;
+  flex-direction: column;
+  gap: 24px;
+  padding: 32px;
+}
+
+.detail-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+}
+
+.detail-actions {
+  display: flex;
+  gap: 12px;
+}
+
+.button--ghost {
+  background: transparent;
+  border: 1px solid rgba(37, 99, 235, 0.45);
+  color: #2563eb;
+}
+
+.button--ghost:hover {
+  background: rgba(37, 99, 235, 0.08);
+}
+
+.detail-card {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+}
+
+.detail-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.detail-item {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  padding: 12px;
+  border-radius: 10px;
+  background: #f9fafb;
+  border: 1px solid rgba(209, 213, 219, 0.7);
+}
+
+.detail-item__label {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.detail-item__value {
+  font-size: 16px;
+  color: #1f2937;
+  font-weight: 600;
+}
+
+.detail-meta {
+  margin-top: 16px;
+  display: flex;
+  gap: 16px;
+  color: #6b7280;
+  font-size: 13px;
+}
+
+.detail-form {
+  background: #ffffff;
+  border-radius: 12px;
+  padding: 24px;
+  box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12);
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 16px;
+}
+
+.form-field__error {
+  margin-top: 6px;
+  font-size: 12px;
+  color: #d14343;
+}
+
+.detail-feedback {
+  margin: 0;
+  font-size: 14px;
+}
+
+.detail-feedback--success {
+  color: #137333;
+}
+
+.detail-feedback--error {
+  color: #d14343;
+}
+
+.form-field--textarea textarea {
+  min-height: 120px;
+  resize: vertical;
+}

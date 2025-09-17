@@ -36,12 +36,18 @@ export class PatientsRepository {
     const orderClause = this.buildOrderClause(params.sort);
     const offset = (params.page - 1) * params.pageSize;
 
-    const rows = this.db
-      .prepare(`SELECT * FROM patients ${whereClause} ${orderClause} LIMIT ? OFFSET ?`)
-      .all(...bindings, params.pageSize, offset) as Record<string, unknown>[];
+    const listSql = `SELECT * FROM patients ${whereClause} ${orderClause} LIMIT ? OFFSET ?`;
+    const countSql = `SELECT COUNT(*) as total FROM patients ${whereClause}`;
+    const listBindings = [...bindings, params.pageSize, offset];
+    console.log('[patientsRepository] list sql', { sql: listSql, bindings: listBindings });
 
+    const rows = this.db
+      .prepare(listSql)
+      .all(...listBindings) as Record<string, unknown>[];
+
+    console.log('[patientsRepository] count sql', { sql: countSql, bindings });
     const { total } = this.db
-      .prepare(`SELECT COUNT(*) as total FROM patients ${whereClause}`)
+      .prepare(countSql)
       .get(...bindings) as { total: number };
 
     return {
