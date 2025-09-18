@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from 'react';
+﻿import { useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import type { PermissionRequestRecord } from '@shared/types/permissions';
 
@@ -6,9 +6,9 @@ type TabKey = 'pending' | 'processed';
 type Decision = 'approve' | 'reject';
 
 const FIELD_LABEL: Record<string, string> = {
-  id_card: '证件信息',
+  id_card: '身份证信息',
   phone: '联系方式',
-  diagnosis: '病历摘要',
+  diagnosis: '诊断摘要',
 };
 
 const formatDateTime = (timestamp: number | null) => {
@@ -30,7 +30,7 @@ const formatDateTime = (timestamp: number | null) => {
 const statusMeta = (status: PermissionRequestRecord['status']) => {
   switch (status) {
     case 'approved':
-      return { text: '已批准', className: 'status-pill status-pill--approved' };
+      return { text: '已通过', className: 'status-pill status-pill--approved' };
     case 'rejected':
       return { text: '已拒绝', className: 'status-pill status-pill--rejected' };
     default:
@@ -76,7 +76,7 @@ const PermissionApprovalsPage = () => {
       }
     } catch (err) {
       console.error('load permission requests failed', err);
-      setError('加载审批列表失败，请稍后再试。');
+      setError('加载审批列表失败，请稍后重试。');
     } finally {
       setLoading(false);
     }
@@ -87,16 +87,16 @@ const PermissionApprovalsPage = () => {
   }, []);
 
   const handleDecision = async (record: PermissionRequestRecord, action: Decision) => {
-    const verb = action === 'approve' ? '批准' : '拒绝';
-    if (!window.confirm(`确认${verb}该申请？`)) return;
+    const verb = action === 'approve' ? '通过' : '拒绝';
+    if (!window.confirm(`确认${verb}该申请吗？`)) return;
 
     try {
       if (action === 'approve') {
         await window.api.permissionRequests.approve(record.id);
       } else {
-        const reason = window.prompt('请输入拒绝原因（至少 5 个字）', '资料用途不明');
+        const reason = window.prompt('请输入拒绝原因（不少于 5 个字）', '资料用途不符合规范');
         if (!reason || reason.trim().length < 5) {
-          alert('拒绝原因不少于 5 个字。');
+          window.alert('拒绝原因至少需要 5 个字。');
           return;
         }
         await window.api.permissionRequests.reject(record.id, reason.trim());
@@ -104,7 +104,7 @@ const PermissionApprovalsPage = () => {
       await loadRequests();
     } catch (err) {
       console.error('approval decision failed', err);
-      alert(`${verb}失败，请稍后再试。`);
+      window.alert(`${verb}失败，请稍后重试。`);
     }
   };
 
@@ -117,7 +117,7 @@ const PermissionApprovalsPage = () => {
     <div className="page">
       <header className="page__header">
         <h1>权限审批</h1>
-        <p>查看并处理资料查看申请，已处理记录会保留在“已处理”标签中。</p>
+        <p>查看并处理资料申请，处理记录会保留在“已处理”列表中。</p>
       </header>
 
       <section className="card">
@@ -175,12 +175,12 @@ const PermissionApprovalsPage = () => {
                       ))}
                     </div>
                     <div>
-                      <strong>申请理由：</strong>
+                      <strong>申请原因：</strong>
                       <span>{item.reason}</span>
                     </div>
                     <div className="approvals-item__timeline">
                       <span>提交：{formatDateTime(item.createdAt)}</span>
-                      {item.approvedAt ? <span>批准：{formatDateTime(item.approvedAt)}</span> : null}
+                      {item.approvedAt ? <span>通过：{formatDateTime(item.approvedAt)}</span> : null}
                       {item.rejectedAt ? <span>拒绝：{formatDateTime(item.rejectedAt)}</span> : null}
                       {item.decisionReason ? <span>备注：{item.decisionReason}</span> : null}
                     </div>
@@ -189,7 +189,7 @@ const PermissionApprovalsPage = () => {
                 {tab === 'pending' ? (
                   <div className="approvals-item__actions">
                     <button type="button" onClick={() => handleDecision(item, 'approve')} disabled={loading}>
-                      批准
+                      通过
                     </button>
                     <button
                       type="button"

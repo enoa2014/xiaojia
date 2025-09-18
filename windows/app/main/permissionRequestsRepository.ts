@@ -1,15 +1,17 @@
-﻿import { randomUUID } from 'node:crypto';
+
 import Database from 'better-sqlite3';
-import {
-  PermissionRequestCreateSchema,
-  PermissionRequestDecisionSchema,
-  PermissionRequestListSchema,
-} from '../../shared/schemas/permissions.js';
 import type {
   PermissionField,
   PermissionRequestListResult,
   PermissionRequestRecord,
+  PermissionStatus,
 } from '../../shared/types/permissions.js';
+import type {
+  PermissionRequestApprovalUpdate,
+  PermissionRequestInsert,
+  PermissionRequestListParams,
+  PermissionRequestRejectionUpdate,
+} from '../../shared/services/permissionRequestsService.js';
 
 type DatabaseHandle = InstanceType<typeof Database>;
 
@@ -52,14 +54,17 @@ const parseFields = (value: unknown): PermissionField[] => {
   );
 };
 
-const DAY_MS = 24 * 60 * 60 * 1000;
-const DEFAULT_DECISION_ACTOR = 'local-admin';
+const parseStatus = (status: string | null): PermissionStatus => {
+  if (status === 'approved' || status === 'rejected' || status === 'pending') {
+    return status;
+  }
+  return 'pending';
+};
 
 export class PermissionRequestsRepository {
   constructor(private readonly db: DatabaseHandle) {}
 
-  list(rawParams: unknown): PermissionRequestListResult {
-    const params = PermissionRequestListSchema.parse(rawParams ?? {});
+  list(params: PermissionRequestListParams): PermissionRequestListResult {
     const where: string[] = [];
     const bindings: unknown[] = [];
 
@@ -102,28 +107,7 @@ export class PermissionRequestsRepository {
     };
   }
 
-  create(rawInput: unknown, requesterId = 'local-user'): PermissionRequestRecord {
-    const parsed = PermissionRequestCreateSchema.parse(rawInput ?? {});
-    const now = Date.now();
-    const expiresAt = now + parsed.expiresDays * DAY_MS;
-    const id = randomUUID();
-
-    const payload = {
-      id,
-      requester_id: requesterId,
-      patient_id: parsed.patientId,
-      fields: serializeFields(parsed.fields),
-      reason: parsed.reason,
-      status: 'pending',
-      expires_at: expiresAt,
-      decision_by: null,
-      decision_reason: null,
-      approved_at: null,
-      rejected_at: null,
-      created_at: now,
-      updated_at: now,
-    };
-
+  create(data: PermissionRequestInsert): PermissionRequestRecord {
     this.db
       .prepare(
         `INSERT INTO permission_requests (
@@ -134,65 +118,79 @@ export class PermissionRequestsRepository {
           @approved_at, @rejected_at, @created_at, @updated_at
         )`
       )
-      .run(payload);
+      .run({
+        id: data.id,
+        requester_id: data.requesterId,
+        patient_id: data.patientId,
+        fields: serializeFields(data.fields),
+        reason: data.reason,
+        status: data.status,
+        expires_at: data.expiresAt,
+        decision_by: data.decisionBy,
+        decision_reason: data.decisionReason,
+        approved_at: data.approvedAt,
+        rejected_at: data.rejectedAt,
+        created_at: data.createdAt,
+        updated_at: data.updatedAt,
+      });
 
-    return this.getById(id)!;
+    return this.getById(data.id)!;
   }
 
-  decide(rawInput: unknown, actorId = DEFAULT_DECISION_ACTOR): PermissionRequestRecord {
-    const parsed = PermissionRequestDecisionSchema.parse(rawInput ?? {});
-    const current = this.getById(parsed.id);
-    if (!current) {
+  markApproved(update: PermissionRequestApprovalUpdate): PermissionRequestRecord {
+    this.db
+      .prepare(
+        `UPDATE permission_requests SET
+          status = 'approved',
+          expires_at = @expires_at,
+          decision_by = @decision_by,
+          decision_reason = NULL,
+          approved_at = @approved_at,
+          rejected_at = NULL,
+          updated_at = @updated_at
+        WHERE id = @id`
+      )
+      .run({
+        id: update.id,
+        expires_at: update.expiresAt,
+        decision_by: update.decisionBy,
+        approved_at: update.approvedAt,
+        updated_at: update.updatedAt,
+      });
+
+    const record = this.getById(update.id);
+    if (!record) {
       throw new Error('E_NOT_FOUND');
     }
+    return record;
+  }
 
-    const now = Date.now();
-    const expiresDays = parsed.expiresDays ?? 30;
+  markRejected(update: PermissionRequestRejectionUpdate): PermissionRequestRecord {
+    this.db
+      .prepare(
+        `UPDATE permission_requests SET
+          status = 'rejected',
+          expires_at = NULL,
+          decision_by = @decision_by,
+          decision_reason = @decision_reason,
+          approved_at = NULL,
+          rejected_at = @rejected_at,
+          updated_at = @updated_at
+        WHERE id = @id`
+      )
+      .run({
+        id: update.id,
+        decision_by: update.decisionBy,
+        decision_reason: update.decisionReason,
+        rejected_at: update.rejectedAt,
+        updated_at: update.updatedAt,
+      });
 
-    if (parsed.action === 'approve') {
-      const nextExpiresAt = parsed.expiresDays ? now + expiresDays * DAY_MS : current.expiresAt ?? now + 30 * DAY_MS;
-      this.db
-        .prepare(
-          `UPDATE permission_requests SET
-            status = 'approved',
-            expires_at = @expires_at,
-            decision_by = @decision_by,
-            decision_reason = NULL,
-            approved_at = @approved_at,
-            rejected_at = NULL,
-            updated_at = @updated_at
-          WHERE id = @id`
-        )
-        .run({
-          id: parsed.id,
-          expires_at: nextExpiresAt,
-          decision_by: actorId,
-          approved_at: now,
-          updated_at: now,
-        });
-    } else {
-      this.db
-        .prepare(
-          `UPDATE permission_requests SET
-            status = 'rejected',
-            expires_at = NULL,
-            decision_by = @decision_by,
-            decision_reason = @decision_reason,
-            approved_at = NULL,
-            rejected_at = @rejected_at,
-            updated_at = @updated_at
-          WHERE id = @id`
-        )
-        .run({
-          id: parsed.id,
-          decision_by: actorId,
-          decision_reason: parsed.reason?.trim() ?? null,
-          rejected_at: now,
-          updated_at: now,
-        });
+    const record = this.getById(update.id);
+    if (!record) {
+      throw new Error('E_NOT_FOUND');
     }
-
-    return this.getById(parsed.id)!;
+    return record;
   }
 
   getById(id: string): PermissionRequestRecord | null {
@@ -214,7 +212,7 @@ export class PermissionRequestsRepository {
       patientId: row.patient_id,
       fields: parseFields(row.fields),
       reason: row.reason,
-      status: row.status as PermissionRequestRecord['status'],
+      status: parseStatus(row.status),
       expiresAt: row.expires_at ?? null,
       decisionBy: row.decision_by ?? null,
       decisionReason: row.decision_reason ?? null,

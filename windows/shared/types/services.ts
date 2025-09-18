@@ -1,9 +1,10 @@
 ﻿export type ServiceStatus = "draft" | "pending" | "approved" | "rejected";
+export type ServiceType = string;
 
 export interface ServiceRecord {
   id: string;
   patientId: string;
-  type: string;
+  type: ServiceType;
   date: string;
   description: string | null;
   images: string[];
@@ -25,7 +26,7 @@ export interface ServiceListResult {
 export interface ServiceCreateInput {
   id?: string;
   patientId: string;
-  type: string;
+  type: ServiceType;
   date: string;
   description?: string | null;
   images?: string[];
